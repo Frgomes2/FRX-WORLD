@@ -27,6 +27,7 @@ Formato: versão, depois o que entrou. A versão do mod fica em `core-mod/gradle
   - Ao colar uma masmorra fixa (como a Fábrica Ancestral sob o coliseu), 5 baús do Lootr são espalhados pelas salas, com a tabela `frxworld:chests/masmorra`. Ela traz diamantes, ouro, netherite, livros encantados, tomos e equipamento encantado, e tem raridade de masmorra.
   - Ao derrotar o chefe, aparece um baú de prêmio onde ele caiu (`masmorra_chefe`: lingote de netherite, tomo arcano, maçã encantada e mais).
   - `/frx masmorra baus` põe 5 baús nas salas em volta de quem rodou, para mundos já gerados.
+- **Senha por conta para servidor offline** (TLauncher/Shiginima): `/registrar`, `/login` e `/frx senha <nick> resetar`. Só liga com `online-mode=false`; os hashes ficam em `server\frxworld\senhas.json`. O kit do amigo agora pergunta o launcher.
 - **Backup automático:** o atalho Desligar guarda o mundo (zip) e o banco do painel (SQL) em `backups\`, mantendo os 7 mais recentes.
 - Painel: migração `20261110200000_balanco_monstros` aplica os novos valores e volta as chances de Elite/Campeão para 5% e 0,5%.
 

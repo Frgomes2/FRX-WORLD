@@ -94,3 +94,25 @@ No painel: **Administradores** → Adicionar admin (nome, e-mail, senha inicial)
 - O painel roda em **modo produção** (`next start`): o atalho só recompila (`logs\painel-build.log`) quando o código do painel muda.
 - As rotas `/api/servidor/*`, usadas pelo mod e pelos atalhos, só respondem a chamadas locais. Chamadas que chegam pela Cloudflare recebem **403**, mesmo com o token (`src/proxy.ts`).
 - **Camada extra opcional:** em Zero Trust → Access, crie uma aplicação para `craft.frgomes.com.br` com política "e-mails permitidos". A Cloudflare passa a pedir um código por e-mail antes de mostrar a tela de login.
+
+---
+
+## Amigos com TLauncher / Shiginima (servidor sem autenticação da Mojang)
+
+Esses launchers não fazem login na Mojang. Para eles entrarem, o servidor precisa rodar com `online-mode=false` em `server\server.properties` (e `enforce-secure-profile=false`). **Essa troca é decisão do dono do servidor e se faz à mão.** Sem autenticação, qualquer pessoa pode entrar com qualquer nick, inclusive o seu.
+
+O core mod (0.41+) protege isso sozinho quando detecta o servidor offline:
+
+1. Primeiro login: `/convite CÓDIGO` e depois `/registrar SENHA SENHA`. A senha fica presa ao nick.
+2. Nas outras vezes: `/login SENHA`.
+3. Até entrar na conta, o jogador fica parado e protegido, sem chat e sem comandos (só convite, login e registrar). Com 5 senhas erradas, é desconectado.
+4. Esqueceu a senha: `/frx senha <nick> resetar`. No próximo login ele cria outra.
+
+As senhas ficam só como hash (PBKDF2 com sal) em `server\frxworld\senhas.json`, fora do mundo e fora do git.
+
+Com o servidor online (`online-mode=true`), nada disso aparece: só o convite.
+
+**Ao trocar para offline:**
+- Os UUIDs mudam, então os jogadores começam do zero. Faça a troca junto com o mundo novo.
+- Dê OP de novo ao seu nick pelo console: `op SeuNick`.
+- O kit do amigo (`2-atualizar-mods.bat`) pergunta o launcher: com TLauncher ou Shiginima, os mods vão para a `.minecraft`. O LEIA-ME explica cada launcher.

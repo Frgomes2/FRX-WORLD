@@ -1,9 +1,9 @@
 FRX-WORLD - COMO ENTRAR NO SERVIDOR
 ====================================
 
-Voce precisa de: Minecraft Java original (conta Microsoft), Windows e uns 8 GB de RAM livres.
+Voce precisa de: Minecraft Java 1.20.1 (Launcher oficial, TLauncher ou Shiginima), Windows e uns 8 GB de RAM livres.
 
-UMA VEZ SO
+UMA VEZ SO (Launcher oficial)
 1. Instale o Java 17: https://adoptium.net/temurin/releases/?version=17  (Windows x64, JDK, .msi)
 2. Rode o 1-instalar-forge.bat (feche o Minecraft Launcher antes).
 3. Rode o 2-atualizar-mods.bat. Ele cria a pasta do jogo em %APPDATA%\.frx-world
@@ -16,6 +16,18 @@ UMA VEZ SO
 5. Abra o jogo com a instalacao FRX-WORLD > Multijogador > Adicionar servidor
    - Endereco: impairment-marcus.tun.ply.gg
 
+TLAUNCHER
+1. Instale o Java 17 (link acima).
+2. Rode o 2-atualizar-mods.bat e escolha 2. Os mods vao para a pasta .minecraft\mods
+   (tire antes os mods de outros modpacks que estiverem la).
+3. No TLauncher escolha a versao "Forge 1.20.1" e de pelo menos 6 GB de memoria
+   (Configuracoes > Memoria). Entre sempre com o MESMO nick.
+
+SHIGINIMA
+1. Instale o Java 17. Rode o 1-instalar-forge.bat (instala o Forge na .minecraft).
+2. Rode o 2-atualizar-mods.bat e escolha 2.
+3. No Shiginima escolha a versao 1.20.1-forge-47.4.10 e use sempre o mesmo nick.
+
 TODA VEZ QUE FOR JOGAR
 - Rode o 2-atualizar-mods.bat antes de abrir o jogo (o servidor recebe atualizacoes direto
   e a versao do mod precisa ser igual a dele).
@@ -23,6 +35,9 @@ TODA VEZ QUE FOR JOGAR
 PRIMEIRO LOGIN
 - O servidor pede um convite: digite no chat  /convite CODIGO  (o dono te passa o codigo).
   Voce tem 3 minutos depois de entrar.
+- Se o servidor pedir senha (TLauncher/Shiginima): crie com  /registrar SUASENHA SUASENHA
+  Ela protege o seu nick. Nas proximas vezes, ao entrar:  /login SUASENHA
+  Esqueceu? Peca ao dono do servidor para resetar.
 
 PROBLEMAS
 - "versao de rede incompativel" / "mismatched mods": rode o 2-atualizar-mods.bat de novo.

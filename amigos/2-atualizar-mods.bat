@@ -4,7 +4,24 @@ setlocal
 cd /d "%~dp0"
 title FRX-WORLD - Atualizar mods
 rem ===== FRX-WORLD (amigos): baixa/atualiza os mods do servidor. Rode SEMPRE antes de jogar. =====
-set "PASTA=%APPDATA%\.frx-world"
+rem Launcher oficial: pasta propria. TLauncher/Shiginima: usam a .minecraft (escolha salva em launcher.txt)
+set "LAUNCHER="
+if exist launcher.txt set /p LAUNCHER=<launcher.txt
+if not defined LAUNCHER (
+  echo Qual launcher voce usa?
+  echo   1 - Minecraft Launcher oficial
+  echo   2 - TLauncher, Shiginima ou outro
+  set /p LAUNCHER=Digite 1 ou 2 e aperte Enter: 
+)
+if "%LAUNCHER%"=="2" (
+  set "PASTA=%APPDATA%\.minecraft"
+  echo Usando a pasta .minecraft do TLauncher/Shiginima
+  echo [aviso] Tire da pasta mods os mods de outros modpacks antes de jogar.
+) else (
+  set "LAUNCHER=1"
+  set "PASTA=%APPDATA%\.frx-world"
+)
+> launcher.txt echo %LAUNCHER%
 
 set "PACK="
 if exist endereco-pack.txt for /f "usebackq eol=# tokens=*" %%L in ("endereco-pack.txt") do if not defined PACK set "PACK=%%L"

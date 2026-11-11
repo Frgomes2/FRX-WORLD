@@ -56,3 +56,10 @@ backups/
 
 # Pacotes antigos de transferencia
 painel/*.zip
+
+# Hashes das senhas dos jogadores (servidor offline)
+server/frxworld/senhas.json
+
+# Kit compactado para mandar aos amigos
+amigos.rar
+amigos.zip
