@@ -1,0 +1,151 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "everbright"
+	group: ""
+	icon: "blue_skies:turquoise_stonebrick"
+	id: "516BEFED9AFD5B38"
+	order_index: 5
+	quest_links: [ ]
+	quests: [
+		{
+			description: ["Chegue ao nível 25." "" "Abaixo disso a região é extremamente perigosa."]
+			id: "710E9095CEF81DD0"
+			rewards: [
+				{
+					command: "/frx moedas {p} 500"
+					elevate_perms: true
+					id: "447FD13EA4A7A47C"
+					silent: true
+					title: "5 ouro"
+					type: "command"
+				}
+			]
+			tasks: [
+				{
+					advancement: "frxworld:frx/nivel_25"
+					criterion: ""
+					id: "7C7260D8DE34047B"
+					type: "advancement"
+				}
+			]
+			title: "Pronto para Everbright"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["710E9095CEF81DD0"]
+			description: ["A dimensão gelada do Blue Skies. Monstros Nv 25–40."]
+			id: "38FF493B384D67BC"
+			rewards: [
+				{
+					command: "/frx xp {p} 1250"
+					elevate_perms: true
+					id: "2BF85BC253D3F575"
+					silent: true
+					title: "1250 XP"
+					type: "command"
+				}
+				{
+					command: "/frx moedas {p} 1250"
+					elevate_perms: true
+					id: "15CE212235C3287E"
+					silent: true
+					title: "12 ouro"
+					type: "command"
+				}
+			]
+			shape: "gear"
+			size: 1.5d
+			tasks: [
+				{
+					dimension: "blue_skies:everbright"
+					id: "533FE37185FEA8DF"
+					type: "dimension"
+				}
+			]
+			title: "Entrar: Everbright"
+			x: 2.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["38FF493B384D67BC"]
+			description: ["Derrote o Invocador."]
+			id: "5FEC6A08E4F5DE51"
+			rewards: [
+				{
+					command: "/frx xp {p} 2000"
+					elevate_perms: true
+					id: "12AB5BD239375E7D"
+					silent: true
+					title: "2000 XP"
+					type: "command"
+				}
+				{
+					command: "/frx moedas {p} 1000"
+					elevate_perms: true
+					id: "44FCAC40F3E82677"
+					silent: true
+					title: "10 ouro"
+					type: "command"
+				}
+			]
+			shape: "hexagon"
+			size: 1.25d
+			tasks: [
+				{
+					entity: "blue_skies:summoner"
+					id: "51C7169A1F02A176"
+					type: "kill"
+					value: 1L
+				}
+			]
+			title: "o Invocador"
+			x: 4.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["5FEC6A08E4F5DE51"]
+			description: ["Derrote o Alquimista."]
+			id: "14376B9901BBE0AC"
+			rewards: [
+				{
+					count: 3
+					id: "1DFE27129FB8F26B"
+					item: "minecraft:diamond"
+					type: "item"
+				}
+				{
+					command: "/frx xp {p} 3000"
+					elevate_perms: true
+					id: "37E43ECE4F38F13D"
+					silent: true
+					title: "3000 XP"
+					type: "command"
+				}
+				{
+					command: "/frx moedas {p} 2000"
+					elevate_perms: true
+					id: "7EDE3E5B9C6C25DC"
+					silent: true
+					title: "20 ouro"
+					type: "command"
+				}
+			]
+			shape: "hexagon"
+			size: 1.25d
+			tasks: [
+				{
+					entity: "blue_skies:alchemist"
+					id: "46379AC74F737ACA"
+					type: "kill"
+					value: 1L
+				}
+			]
+			title: "o Alquimista"
+			x: 6.0d
+			y: 0.0d
+		}
+	]
+	title: "Everbright · Nv 25"
+}

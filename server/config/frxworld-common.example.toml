@@ -1,0 +1,28 @@
+
+[painel]
+	#Endereço do painel (sem barra no final).
+	url = "http://localhost:3000"
+	#Mesmo valor de SERVIDOR_TOKEN no .env do painel.
+	token = "troque-pelo-SERVIDOR_TOKEN-do-painel"
+
+[acesso]
+	#Exigir convite no primeiro login. Desligue só para testes locais.
+	exigirConvite = true
+	#Tempo que o jogador novo tem para digitar /convite antes de ser desconectado.
+	#Range: 30 ~ 1800
+	segundosParaConvite = 180
+
+[progressao]
+	#Nível máximo do jogador.
+	#Range: 10 ~ 1000
+	nivelMaximo = 100
+	#XP para ir do nível 1 ao 2. Fórmula: base * nivel ^ expoente.
+	#Range: 1.0 ~ 100000.0
+	xpBase = 100.0
+	#Quanto a curva acelera nos níveis altos (1.0 = linear).
+	#Range: 1.0 ~ 4.0
+	xpExpoente = 1.5
+	#Multiplicador geral de XP ganho (eventos de XP em dobro = 2.0).
+	#Range: 0.0 ~ 100.0
+	xpMultiplicador = 1.0
+

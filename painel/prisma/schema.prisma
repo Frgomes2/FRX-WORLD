@@ -1,0 +1,221 @@
+// FRX-WORLD — banco do painel
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Admin {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  nome      String
+  senhaHash String
+  criadoEm  DateTime @default(now())
+}
+
+model Convite {
+  id        String    @id @default(cuid())
+  codigo    String    @unique
+  nota      String?
+  revogado  Boolean   @default(false)
+  criadoEm  DateTime  @default(now())
+  usadoEm   DateTime?
+  jogador   Jogador?  @relation(fields: [jogadorId], references: [id])
+  jogadorId String?
+}
+
+model Jogador {
+  id          String    @id @default(cuid())
+  uuid        String    @unique
+  nick        String
+  ativo       Boolean   @default(true)
+  criadoEm    DateTime  @default(now())
+  ultimoLogin DateTime?
+  nivel       Int       @default(1)
+  xp          Int       @default(0)
+  rank        String    @default("F")
+  mortes      Int       @default(0)
+  classe      String    @default("")
+  moedas      Int       @default(0) // na bolsa (cobre), enviado pelo servidor
+  banco       Int       @default(0) // guardado no banqueiro (cobre)
+  titulo      String    @default("") // título escolhido no jogo (/titulo)
+  conquistas  Int       @default(0)  // quantas conquistas já tem
+  reputacao   Json      @default("{}") // reino → pontos
+  campanhas   Json      @default("{}") // reino → {etapa, total, progresso, qtd, nome, etapaTitulo}
+  detalhe     Json?     // ficha completa enviada pelo mod (inventário, armadura, habilidades...)
+  detalheEm   DateTime?
+  online      Boolean   @default(false)
+  convites    Convite[]
+}
+
+/// Configurações do jogo editadas no painel (o servidor lê por /api/servidor/config)
+model Configuracao {
+  chave        String   @id
+  valor        Json
+  atualizadoEm DateTime @updatedAt
+}
+
+/// Missão do quadro da taverna
+model Missao {
+  id             String   @id @default(cuid())
+  titulo         String
+  descricao      String   @default("")
+  tipo           String   @default("MATAR") // MATAR | COLETAR
+  alvo           String   // ex.: minecraft:zombie ou minecraft:iron_ingot
+  quantidade     Int      @default(10)
+  nivelMin       Int      @default(1)
+  recompensaXp   Int      @default(100)
+  recompensaMoedas Int    @default(20) // em cobre: 10 = 1 prata, 100 = 1 ouro
+  recompensaItens Json    @default("[]") // [{ "item": "minecraft:bread", "qtd": 5 }]
+  repetivel      Boolean  @default(false)
+  intervaloHoras Int      @default(0)
+  preRequisitoId String?
+  ativa          Boolean  @default(true)
+  ordem          Int      @default(0)
+  criadoEm       DateTime @default(now())
+  atualizadoEm   DateTime @updatedAt
+}
+
+/// Dungeon: configuração aplicada às criptas do mapa conforme a distância do spawn
+model Dungeon {
+  id               String   @id @default(cuid())
+  nome             String
+  descricao        String   @default("")
+  distanciaMin     Int      @default(0)
+  distanciaMax     Int      @default(100000)
+  nivelRecomendado Int      @default(1)
+  bossTipo         String   @default("minecraft:zombie")
+  bossNome         String   @default("Guardião")
+  bossVida         Int      @default(100)
+  bossDano         Float    @default(6)
+  bossVelocidade   Float    @default(1)
+  lacaioTipo       String   @default("minecraft:zombie")
+  lacaioQtd        Int      @default(3)
+  recompensaXp     Int      @default(500)
+  loot             Json     @default("[]") // [{ "item": "minecraft:diamond", "qtd": 1, "chance": 50 }]
+  recargaHoras     Int      @default(24)
+  andares          Json     @default("[]") // guardiões das camadas 1 e 2
+  ativa            Boolean  @default(true)
+  criadoEm         DateTime @default(now())
+  atualizadoEm     DateTime @updatedAt
+}
+
+/// Chefe de outro mod (Cataclysm, Dungeon Now Loading...) que paga XP/loot do FRX ao morrer.
+model ChefeExterno {
+  id               String   @id @default(cuid())
+  entidade         String   @unique // ex.: cataclysm:ignis
+  nome             String
+  origem           String   @default("")
+  nivelRecomendado Int      @default(1)
+  recompensaXp     Int      @default(0)
+  loot             Json     @default("[]")
+  recargaHoras     Int      @default(0)
+  ativo            Boolean  @default(true)
+  criadoEm         DateTime @default(now())
+  atualizadoEm     DateTime @updatedAt
+}
+
+/// Estrutura de outro mod: ao entrar, o jogador vê o nome e o nível recomendado.
+model EstruturaExterna {
+  id               String   @id @default(cuid())
+  estrutura        String   @unique // ex.: cataclysm:acropolis
+  nome             String
+  origem           String   @default("")
+  nivelRecomendado Int      @default(1)
+  ativa            Boolean  @default(true)
+  criadoEm         DateTime @default(now())
+  atualizadoEm     DateTime @updatedAt
+}
+
+/// Evento sorteado enquanto o jogador viaja (aba Eventos de estrada).
+model EventoEstrada {
+  id           String   @id @default(cuid())
+  nome         String
+  tipo         String   @default("EMBOSCADA") // EMBOSCADA | CHEFE | MERCADOR | TESOURO
+  mensagem     String   @default("")
+  peso         Int      @default(10)
+  nivelMin     Int      @default(1)
+  nivelMax     Int      @default(1000)
+  mobTipo      String   @default("minecraft:zombie")
+  mobQtd       Int      @default(4)
+  vida         Int      @default(0) // 0 = vida normal do mob
+  dano         Float    @default(0) // 0 = dano normal do mob
+  preco        Int      @default(0) // MERCADOR: esmeraldas por item
+  recompensaXp Int      @default(0)
+  loot         Json     @default("[]")
+  ativo        Boolean  @default(true)
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+}
+
+/// Habilidade de classe (aba Habilidades). O servidor executa pelo tipo; os números vêm daqui.
+model Habilidade {
+  id           String   @id @default(cuid())
+  codigo       String   @unique // ex.: bola_de_fogo
+  nome         String
+  descricao    String   @default("")
+  classe       String // GUERREIRO | ARQUEIRO | MAGO | CLERIGO | LADINO | ASSASSINO | INVOCADOR
+  tipo         String // SKILLSHOT | ALVO | AREA | MOBILIDADE | BUFF | INVOCAR
+  elemento     String   @default("FISICO")
+  icone        String   @default("minecraft:book")
+  custo        Int      @default(20)
+  cooldown     Float    @default(5) // segundos
+  dano         Float    @default(0) // negativo = cura
+  alcance      Float    @default(0)
+  raio         Float    @default(0)
+  duracao      Float    @default(0) // segundos
+  efeito       String   @default("") // efeito de poção, ou mob para INVOCAR
+  potencia     Int      @default(0) // nível do efeito, ou quantidade para INVOCAR
+  nivelReq     Int      @default(1)
+  ultimate     Boolean  @default(false)
+  aprendizado  String   @default("NIVEL") // NIVEL | ITEM (Tomo Arcano)
+  ativa        Boolean  @default(true)
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+}
+
+/// Item das lojas das capitais (aba Economia). MERCADOR = jogador compra; COMPRADOR = jogador vende.
+model ItemLoja {
+  id           String   @id @default(cuid())
+  loja         String   // MERCADOR | COMPRADOR
+  item         String   // ex.: minecraft:bread
+  qtd          Int      @default(1)
+  preco        Int      // em cobre: 10 = 1 prata, 100 = 1 ouro
+  ativo        Boolean  @default(true)
+  ordem        Int      @default(0)
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+}
+
+/// Masmorra fixa (estrutura de outro mod colocada uma vez por mundo ao ligar o servidor)
+model Masmorra {
+  id                String    @id // slug, ex.: dwargon-ferro
+  nome              String
+  chefe             String    @default("")
+  estrutura         String    // ids separados por | (vale a primeira que gerar)
+  x                 Int
+  z                 Int
+  entradaX          Int?
+  entradaY          Int?
+  entradaZ          Int?
+  ativo             Boolean   @default(true)
+  ordem             Int       @default(0)
+  refazer           Boolean   @default(false) // colocar de novo no próximo início
+  colocadaX         Int?
+  colocadaY         Int?
+  colocadaZ         Int?
+  colocadaEstrutura String?
+  colocadaEm        DateTime?
+  atualizadoEm      DateTime  @updatedAt
+}
+
+/// Skin personalizada de um tipo de NPC (aba NPCs). chave: "papel:<papel>" ou "reino:<reino>:<papel>"
+model NpcSkin {
+  chave        String   @id
+  slim         Boolean  @default(false)
+  png          Bytes
+  atualizadoEm DateTime @updatedAt
+}

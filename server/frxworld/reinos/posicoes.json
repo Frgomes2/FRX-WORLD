@@ -1,0 +1,427 @@
+{
+  "sarion": {
+    "nome": "Dinastia Feiticeira de Sarion",
+    "x": 2200,
+    "z": -1400
+  },
+  "leste": {
+    "nome": "Império do Leste",
+    "x": -2600,
+    "z": -300
+  },
+  "dwargon": {
+    "nome": "Reino Armado de Dwargon",
+    "x": 680,
+    "z": 2100,
+    "npcs": {
+      "rei": [
+        680,
+        -8,
+        2042
+      ],
+      "ferreiro": [
+        658,
+        -11,
+        2131
+      ],
+      "armeiro": [
+        658,
+        -11,
+        2147
+      ],
+      "mercador": [
+        702,
+        -11,
+        2131
+      ],
+      "cartografo": [
+        702,
+        -11,
+        2147
+      ],
+      "sacerdote": [
+        668,
+        -11,
+        2153
+      ],
+      "sabio": [
+        692,
+        -11,
+        2153
+      ],
+      "taverneiro": [
+        680,
+        -11,
+        2125
+      ],
+      "guarda1": [
+        675,
+        -11,
+        2121
+      ],
+      "guarda2": [
+        685,
+        -11,
+        2121
+      ],
+      "guarda3": [
+        668,
+        -11,
+        2138
+      ],
+      "guarda4": [
+        692,
+        -11,
+        2138
+      ],
+      "guarda5": [
+        675,
+        -11,
+        2157
+      ],
+      "guarda6": [
+        685,
+        -11,
+        2157
+      ]
+    }
+  },
+  "oeste": {
+    "nome": "Nações do Oeste",
+    "x": -1200,
+    "z": 2400,
+    "praca": [
+      -1200,
+      2400
+    ],
+    "npcs": {
+      "rei": [
+        -1200,
+        71,
+        2375
+      ],
+      "ferreiro": [
+        -1188,
+        71,
+        2402
+      ],
+      "armeiro": [
+        -1190,
+        71,
+        2407
+      ],
+      "mercador": [
+        -1194,
+        71,
+        2410
+      ],
+      "sacerdote": [
+        -1199,
+        71,
+        2412
+      ],
+      "sabio": [
+        -1204,
+        71,
+        2411
+      ],
+      "cartografo": [
+        -1208,
+        71,
+        2409
+      ],
+      "comprador": [
+        -1211,
+        71,
+        2405
+      ],
+      "banqueiro": [
+        -1212,
+        71,
+        2400
+      ],
+      "taverneiro": [
+        -1211,
+        71,
+        2395
+      ],
+      "guarda1": [
+        -1208,
+        71,
+        2391
+      ],
+      "guarda2": [
+        -1204,
+        71,
+        2389
+      ],
+      "guarda3": [
+        -1199,
+        71,
+        2388
+      ],
+      "guarda4": [
+        -1194,
+        71,
+        2390
+      ],
+      "guarda5": [
+        -1190,
+        71,
+        2393
+      ],
+      "guarda6": [
+        -1188,
+        71,
+        2397
+      ]
+    }
+  },
+  "lubelius": {
+    "nome": "Império Sagrado de Lubelius",
+    "x": 1800,
+    "z": 1600,
+    "praca": [
+      1792,
+      1600
+    ],
+    "npcs": {
+      "rei": [
+        1792,
+        71,
+        1575
+      ],
+      "ferreiro": [
+        1804,
+        71,
+        1602
+      ],
+      "armeiro": [
+        1802,
+        71,
+        1607
+      ],
+      "mercador": [
+        1798,
+        71,
+        1610
+      ],
+      "sacerdote": [
+        1793,
+        71,
+        1612
+      ],
+      "sabio": [
+        1788,
+        71,
+        1611
+      ],
+      "cartografo": [
+        1784,
+        71,
+        1609
+      ],
+      "comprador": [
+        1781,
+        71,
+        1605
+      ],
+      "banqueiro": [
+        1780,
+        71,
+        1600
+      ],
+      "taverneiro": [
+        1781,
+        71,
+        1595
+      ],
+      "guarda1": [
+        1784,
+        71,
+        1591
+      ],
+      "guarda2": [
+        1788,
+        71,
+        1589
+      ],
+      "guarda3": [
+        1793,
+        71,
+        1588
+      ],
+      "guarda4": [
+        1798,
+        71,
+        1590
+      ],
+      "guarda5": [
+        1802,
+        71,
+        1593
+      ],
+      "guarda6": [
+        1804,
+        71,
+        1597
+      ]
+    }
+  },
+  "demonios": {
+    "nome": "Territórios dos Lordes Demônios",
+    "x": -1600,
+    "z": -2600,
+    "praca": [
+      -1600,
+      -2608
+    ],
+    "npcs": {
+      "rei": [
+        -1600,
+        71,
+        -2633
+      ],
+      "ferreiro": [
+        -1588,
+        71,
+        -2606
+      ],
+      "armeiro": [
+        -1590,
+        71,
+        -2601
+      ],
+      "mercador": [
+        -1594,
+        71,
+        -2598
+      ],
+      "sacerdote": [
+        -1599,
+        71,
+        -2596
+      ],
+      "sabio": [
+        -1604,
+        71,
+        -2597
+      ],
+      "cartografo": [
+        -1608,
+        71,
+        -2599
+      ],
+      "comprador": [
+        -1611,
+        71,
+        -2603
+      ],
+      "banqueiro": [
+        -1612,
+        71,
+        -2608
+      ],
+      "taverneiro": [
+        -1611,
+        71,
+        -2613
+      ],
+      "guarda1": [
+        -1608,
+        71,
+        -2617
+      ],
+      "guarda2": [
+        -1604,
+        71,
+        -2619
+      ],
+      "guarda3": [
+        -1599,
+        71,
+        -2620
+      ],
+      "guarda4": [
+        -1594,
+        71,
+        -2618
+      ],
+      "guarda5": [
+        -1590,
+        71,
+        -2615
+      ],
+      "guarda6": [
+        -1588,
+        71,
+        -2611
+      ]
+    }
+  },
+  "tempest": {
+    "nome": "Federação de Jura Tempest",
+    "x": 128,
+    "z": 8,
+    "praca": [
+      26,
+      -22
+    ]
+  },
+  "leste-sakura": {
+    "nome": "Império do Leste — Distrito Sakura",
+    "x": -2600,
+    "z": 500
+  },
+  "spawn": [
+    26,
+    -22
+  ],
+  "masmorras": [
+    {
+      "id": "coliseu-tempest",
+      "nome": "Fábrica Ancestral sob o Coliseu de Tempest",
+      "chefe": "The Harbinger",
+      "estrutura": "cataclysm:ancient_factory",
+      "x": 255,
+      "z": 125,
+      "entrada": [
+        255,
+        72,
+        125
+      ]
+    },
+    {
+      "id": "dwargon-ferro",
+      "nome": "Câmara do Cavaleiro de Ferro (perto de Dwargon)",
+      "chefe": "Ferrous Wroughtnaut",
+      "estrutura": "mowziesmobs:wrought_chamber|dungeons_arise:foundry|cataclysm:cursed_pyramid",
+      "x": 1150,
+      "z": 2300
+    },
+    {
+      "id": "sarion-gelo",
+      "nome": "Prisão Congelada (norte de Sarion)",
+      "chefe": "Maledictus",
+      "estrutura": "cataclysm:frosted_prison|dungeons_arise:keep_kayra",
+      "x": 2200,
+      "z": -950
+    },
+    {
+      "id": "leste-mosteiro",
+      "nome": "Mosteiro da Montanha (norte do Império do Leste)",
+      "chefe": "Sculptor",
+      "estrutura": "mowziesmobs:monastery|dungeons_arise:shiraz_palace",
+      "x": -2600,
+      "z": -1050
+    },
+    {
+      "id": "sakura-gorgona",
+      "nome": "Templo da Górgona (sul de Sakura)",
+      "chefe": "Górgona",
+      "estrutura": "iceandfire:gorgon_temple|dungeons_arise:plague_asylum",
+      "x": -2600,
+      "z": 1000
+    }
+  ]
+}

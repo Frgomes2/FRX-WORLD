@@ -1,0 +1,151 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "everdawn"
+	group: ""
+	icon: "blue_skies:lunar_stonebrick"
+	id: "59F5D89139403D5B"
+	order_index: 8
+	quest_links: [ ]
+	quests: [
+		{
+			description: ["Chegue ao nível 35." "" "Abaixo disso a região é extremamente perigosa."]
+			id: "34A9BA9EE92E1A53"
+			rewards: [
+				{
+					command: "/frx moedas {p} 700"
+					elevate_perms: true
+					id: "5A33713C3CB2E80F"
+					silent: true
+					title: "7 ouro"
+					type: "command"
+				}
+			]
+			tasks: [
+				{
+					advancement: "frxworld:frx/nivel_35"
+					criterion: ""
+					id: "491B2C4E0C63B676"
+					type: "advancement"
+				}
+			]
+			title: "Pronto para Everdawn"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["34A9BA9EE92E1A53"]
+			description: ["A dimensão do crepúsculo eterno do Blue Skies. Monstros Nv 35–50."]
+			id: "65F5937C5C67F072"
+			rewards: [
+				{
+					command: "/frx xp {p} 1750"
+					elevate_perms: true
+					id: "225CD038F024BCBB"
+					silent: true
+					title: "1750 XP"
+					type: "command"
+				}
+				{
+					command: "/frx moedas {p} 1750"
+					elevate_perms: true
+					id: "52191F4841428BB6"
+					silent: true
+					title: "17 ouro"
+					type: "command"
+				}
+			]
+			shape: "gear"
+			size: 1.5d
+			tasks: [
+				{
+					dimension: "blue_skies:everdawn"
+					id: "3ECFB7309F4E9980"
+					type: "dimension"
+				}
+			]
+			title: "Entrar: Everdawn"
+			x: 2.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["65F5937C5C67F072"]
+			description: ["Derrote o Esmagador Estelar."]
+			id: "7F30724820272AE9"
+			rewards: [
+				{
+					command: "/frx xp {p} 2800"
+					elevate_perms: true
+					id: "29B5189DFF54AFED"
+					silent: true
+					title: "2800 XP"
+					type: "command"
+				}
+				{
+					command: "/frx moedas {p} 1400"
+					elevate_perms: true
+					id: "525CD08A7F896AA6"
+					silent: true
+					title: "14 ouro"
+					type: "command"
+				}
+			]
+			shape: "hexagon"
+			size: 1.25d
+			tasks: [
+				{
+					entity: "blue_skies:starlit_crusher"
+					id: "73363001ADDAFA11"
+					type: "kill"
+					value: 1L
+				}
+			]
+			title: "o Esmagador Estelar"
+			x: 4.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["7F30724820272AE9"]
+			description: ["Derrote a Aracnarca."]
+			id: "7D79D18C03509E77"
+			rewards: [
+				{
+					count: 2
+					id: "5D45615126ED8798"
+					item: "minecraft:netherite_scrap"
+					type: "item"
+				}
+				{
+					command: "/frx xp {p} 4200"
+					elevate_perms: true
+					id: "6D2FE0B0B367B89B"
+					silent: true
+					title: "4200 XP"
+					type: "command"
+				}
+				{
+					command: "/frx moedas {p} 2800"
+					elevate_perms: true
+					id: "27672C1BA5CFB7AB"
+					silent: true
+					title: "28 ouro"
+					type: "command"
+				}
+			]
+			shape: "hexagon"
+			size: 1.25d
+			tasks: [
+				{
+					entity: "blue_skies:arachnarch"
+					id: "64253EAE5E4E5EC1"
+					type: "kill"
+					value: 1L
+				}
+			]
+			title: "a Aracnarca"
+			x: 6.0d
+			y: 0.0d
+		}
+	]
+	title: "Everdawn · Nv 35"
+}

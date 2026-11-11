@@ -1,0 +1,18 @@
+{
+  "placement": {
+    "type": "minecraft:random_spread",
+    "exclusion_zone": {
+      "chunk_count": 8,
+      "other_set": "minecraft:villages"
+    },
+    "salt": 748201365,
+    "separation": 40,
+    "spacing": 90
+  },
+  "structures": [
+    {
+      "structure": "frxworld:catacumba",
+      "weight": 1
+    }
+  ]
+}

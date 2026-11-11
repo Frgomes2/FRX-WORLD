@@ -1,0 +1,149 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "outro_lado"
+	group: ""
+	icon: "deeperdarker:heart_of_the_deep"
+	id: "232DD1AB63B78A3D"
+	order_index: 9
+	quest_links: [ ]
+	quests: [
+		{
+			description: ["Chegue ao nível 45." "" "Abaixo disso a região é extremamente perigosa."]
+			id: "219DA4431463B7E1"
+			rewards: [
+				{
+					command: "/frx moedas {p} 900"
+					elevate_perms: true
+					id: "76C494C3F275A90B"
+					silent: true
+					title: "9 ouro"
+					type: "command"
+				}
+			]
+			tasks: [
+				{
+					advancement: "frxworld:frx/nivel_45"
+					criterion: ""
+					id: "76DCB6D8EB75A7A8"
+					type: "advancement"
+				}
+			]
+			title: "Pronto para O Outro Lado"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["219DA4431463B7E1"]
+			description: ["Portal escondido nas Cidades Antigas, aceso com o coração do Warden." "" "Monstros Nv 45–60. A região mais perigosa do mundo."]
+			id: "231AF8FD1A484322"
+			rewards: [
+				{
+					command: "/frx xp {p} 2250"
+					elevate_perms: true
+					id: "53150AE41A97C9FA"
+					silent: true
+					title: "2250 XP"
+					type: "command"
+				}
+				{
+					command: "/frx moedas {p} 2250"
+					elevate_perms: true
+					id: "270D6E3ECE726CE6"
+					silent: true
+					title: "22 ouro"
+					type: "command"
+				}
+			]
+			shape: "gear"
+			size: 1.5d
+			tasks: [
+				{
+					dimension: "deeperdarker:otherside"
+					id: "2E79B2E6B1D61379"
+					type: "dimension"
+				}
+			]
+			title: "Entrar: O Outro Lado"
+			x: 2.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["231AF8FD1A484322"]
+			description: ["Derrote 3× Espreitadores."]
+			id: "24186787BC5C08BE"
+			rewards: [
+				{
+					command: "/frx xp {p} 3600"
+					elevate_perms: true
+					id: "3C4BBBCB1D0A1A13"
+					silent: true
+					title: "3600 XP"
+					type: "command"
+				}
+				{
+					command: "/frx moedas {p} 1800"
+					elevate_perms: true
+					id: "227286AE37787111"
+					silent: true
+					title: "18 ouro"
+					type: "command"
+				}
+			]
+			tasks: [
+				{
+					entity: "deeperdarker:stalker"
+					id: "6B6A9E4B71643F10"
+					type: "kill"
+					value: 3L
+				}
+			]
+			title: "Espreitadores"
+			x: 4.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["24186787BC5C08BE"]
+			description: ["Derrote o Warden."]
+			id: "6D7F56FE15BEA738"
+			rewards: [
+				{
+					count: 1
+					id: "7810111786A7DD4E"
+					item: "minecraft:netherite_ingot"
+					type: "item"
+				}
+				{
+					command: "/frx xp {p} 5400"
+					elevate_perms: true
+					id: "7928E0DC91807588"
+					silent: true
+					title: "5400 XP"
+					type: "command"
+				}
+				{
+					command: "/frx moedas {p} 3600"
+					elevate_perms: true
+					id: "62A5DCB58351E906"
+					silent: true
+					title: "36 ouro"
+					type: "command"
+				}
+			]
+			shape: "hexagon"
+			size: 1.25d
+			tasks: [
+				{
+					entity: "minecraft:warden"
+					id: "42BC916098E14E5E"
+					type: "kill"
+					value: 1L
+				}
+			]
+			title: "o Warden"
+			x: 6.0d
+			y: 0.0d
+		}
+	]
+	title: "O Outro Lado · Nv 45"
+}

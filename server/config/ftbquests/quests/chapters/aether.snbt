@@ -1,0 +1,187 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "aether"
+	group: ""
+	icon: "aether:holystone"
+	id: "4AAE88CC16834641"
+	order_index: 6
+	quest_links: [ ]
+	quests: [
+		{
+			description: ["Chegue ao nível 30." "" "Abaixo disso a região é extremamente perigosa."]
+			id: "57D378070437401A"
+			rewards: [
+				{
+					command: "/frx moedas {p} 600"
+					elevate_perms: true
+					id: "1D546BA5CC0E4BC2"
+					silent: true
+					title: "6 ouro"
+					type: "command"
+				}
+			]
+			tasks: [
+				{
+					advancement: "frxworld:frx/nivel_30"
+					criterion: ""
+					id: "1A54F9EBFEB22FB0"
+					type: "advancement"
+				}
+			]
+			title: "Pronto para Aether"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["57D378070437401A"]
+			description: ["Portal: moldura de glowstone acesa com um balde de água." "" "Monstros Nv 30–45."]
+			id: "3BA6BEFFFAC8D1B6"
+			rewards: [
+				{
+					command: "/frx xp {p} 1500"
+					elevate_perms: true
+					id: "3551A954B4CCA9A4"
+					silent: true
+					title: "1500 XP"
+					type: "command"
+				}
+				{
+					command: "/frx moedas {p} 1500"
+					elevate_perms: true
+					id: "5C23F6E955A3CCEB"
+					silent: true
+					title: "15 ouro"
+					type: "command"
+				}
+			]
+			shape: "gear"
+			size: 1.5d
+			tasks: [
+				{
+					dimension: "aether:the_aether"
+					id: "2D65AA9D917269B0"
+					type: "dimension"
+				}
+			]
+			title: "Entrar: Aether"
+			x: 2.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["3BA6BEFFFAC8D1B6"]
+			description: ["Derrote o Deslizador."]
+			id: "577A9A65F1DD6B33"
+			rewards: [
+				{
+					command: "/frx xp {p} 2400"
+					elevate_perms: true
+					id: "62A145A2B38F64B8"
+					silent: true
+					title: "2400 XP"
+					type: "command"
+				}
+				{
+					command: "/frx moedas {p} 1200"
+					elevate_perms: true
+					id: "6B48F089C3CEF56B"
+					silent: true
+					title: "12 ouro"
+					type: "command"
+				}
+			]
+			shape: "hexagon"
+			size: 1.25d
+			tasks: [
+				{
+					entity: "aether:slider"
+					id: "1EA81EE6813992B1"
+					type: "kill"
+					value: 1L
+				}
+			]
+			title: "o Deslizador"
+			x: 4.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["577A9A65F1DD6B33"]
+			description: ["Derrote a Rainha Valquíria."]
+			id: "34958FB980645ECF"
+			rewards: [
+				{
+					command: "/frx xp {p} 3600"
+					elevate_perms: true
+					id: "7474F1972B5457C5"
+					silent: true
+					title: "3600 XP"
+					type: "command"
+				}
+				{
+					command: "/frx moedas {p} 2400"
+					elevate_perms: true
+					id: "41D85F6498130C70"
+					silent: true
+					title: "24 ouro"
+					type: "command"
+				}
+			]
+			shape: "hexagon"
+			size: 1.25d
+			tasks: [
+				{
+					entity: "aether:valkyrie_queen"
+					id: "183FB6058D0ACB05"
+					type: "kill"
+					value: 1L
+				}
+			]
+			title: "a Rainha Valquíria"
+			x: 6.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["34958FB980645ECF"]
+			description: ["Derrote o Espírito do Sol."]
+			id: "43D42F13C35117B3"
+			rewards: [
+				{
+					count: 2
+					id: "2794128E6FB9DBEF"
+					item: "minecraft:netherite_scrap"
+					type: "item"
+				}
+				{
+					command: "/frx xp {p} 4800"
+					elevate_perms: true
+					id: "51D68B7C930D4784"
+					silent: true
+					title: "4800 XP"
+					type: "command"
+				}
+				{
+					command: "/frx moedas {p} 3600"
+					elevate_perms: true
+					id: "569D88E0C8A36383"
+					silent: true
+					title: "36 ouro"
+					type: "command"
+				}
+			]
+			shape: "hexagon"
+			size: 1.25d
+			tasks: [
+				{
+					entity: "aether:sun_spirit"
+					id: "106DE00B7374C7EA"
+					type: "kill"
+					value: 1L
+				}
+			]
+			title: "o Espírito do Sol"
+			x: 8.0d
+			y: 0.0d
+		}
+	]
+	title: "Aether · Nv 30"
+}

@@ -1,0 +1,10 @@
+Pasta para guardar coisas que voce gostou e quer no FRX-WORLD.
+
+  asset-packs\          - pacotes de varias construcoes (casas, torres, arvores, decoracao) para montar cidades
+  construcoes\          - mapas, schematics, cidades, castelos (.zip, .schem, .litematic, pasta de mundo)
+  mods\                 - mods baixados (.jar) ou so o link no links.txt
+  texturas-e-shaders\   - resource packs e shaders
+  outros\               - qualquer outra coisa
+
+Se nao quiser baixar agora, cole o link em links.txt (um por linha, com uma nota).
+Quando quiser, e so pedir: "aplica o que tem nos favoritos".

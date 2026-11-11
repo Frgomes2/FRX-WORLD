@@ -1,0 +1,13 @@
+name = "Portable Pet Sphere"
+filename = "petcapturetool-1.20.1-1.0.1.jar"
+side = "both"
+
+[download]
+url = "https://cdn.modrinth.com/data/63kbXEIV/versions/EHd3IWWw/petcapturetool-1.20.1-1.0.1.jar"
+hash-format = "sha512"
+hash = "1952f990fef930ee91e882f9109bdb8e22ae28e6465ce9c72cc7c49e8b7f17571655f32c195f9cc1b2ba93235fc12bb000ab7571099e71ad6b5ce2cb6715c05a"
+
+[update]
+[update.modrinth]
+mod-id = "63kbXEIV"
+version = "EHd3IWWw"

@@ -1,0 +1,65 @@
+-- AlterTable
+ALTER TABLE "Jogador" ADD COLUMN     "banco" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "moedas" INTEGER NOT NULL DEFAULT 0;
+
+-- CreateTable
+CREATE TABLE "ItemLoja" (
+    "id" TEXT NOT NULL,
+    "loja" TEXT NOT NULL,
+    "item" TEXT NOT NULL,
+    "qtd" INTEGER NOT NULL DEFAULT 1,
+    "preco" INTEGER NOT NULL,
+    "ativo" BOOLEAN NOT NULL DEFAULT true,
+    "ordem" INTEGER NOT NULL DEFAULT 0,
+    "criadoEm" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "atualizadoEm" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "ItemLoja_pkey" PRIMARY KEY ("id")
+);
+
+-- Tabelas iniciais (as mesmas que o mod usava)
+INSERT INTO "ItemLoja" ("id", "loja", "item", "qtd", "preco", "ordem", "atualizadoEm") VALUES
+('ini_mercador_0', 'MERCADOR', 'minecraft:bread', 6, 3, 0, CURRENT_TIMESTAMP),
+('ini_mercador_1', 'MERCADOR', 'minecraft:cooked_beef', 4, 5, 1, CURRENT_TIMESTAMP),
+('ini_mercador_2', 'MERCADOR', 'minecraft:torch', 16, 4, 2, CURRENT_TIMESTAMP),
+('ini_mercador_3', 'MERCADOR', 'minecraft:lantern', 2, 6, 3, CURRENT_TIMESTAMP),
+('ini_mercador_4', 'MERCADOR', 'minecraft:arrow', 16, 5, 4, CURRENT_TIMESTAMP),
+('ini_mercador_5', 'MERCADOR', 'minecraft:map', 1, 5, 5, CURRENT_TIMESTAMP),
+('ini_mercador_6', 'MERCADOR', 'minecraft:red_bed', 1, 10, 6, CURRENT_TIMESTAMP),
+('ini_mercador_7', 'MERCADOR', 'minecraft:shield', 1, 10, 7, CURRENT_TIMESTAMP),
+('ini_mercador_8', 'MERCADOR', 'minecraft:bow', 1, 10, 8, CURRENT_TIMESTAMP),
+('ini_mercador_9', 'MERCADOR', 'minecraft:iron_sword', 1, 20, 9, CURRENT_TIMESTAMP),
+('ini_mercador_10', 'MERCADOR', 'minecraft:iron_pickaxe', 1, 20, 10, CURRENT_TIMESTAMP),
+('ini_mercador_11', 'MERCADOR', 'minecraft:firework_rocket', 8, 10, 11, CURRENT_TIMESTAMP),
+('ini_mercador_12', 'MERCADOR', 'minecraft:experience_bottle', 4, 10, 12, CURRENT_TIMESTAMP),
+('ini_mercador_13', 'MERCADOR', 'minecraft:ender_pearl', 1, 20, 13, CURRENT_TIMESTAMP),
+('ini_mercador_14', 'MERCADOR', 'minecraft:saddle', 1, 40, 14, CURRENT_TIMESTAMP),
+('ini_mercador_15', 'MERCADOR', 'minecraft:name_tag', 1, 30, 15, CURRENT_TIMESTAMP),
+('ini_mercador_16', 'MERCADOR', 'minecraft:golden_apple', 1, 80, 16, CURRENT_TIMESTAMP),
+('ini_mercador_17', 'MERCADOR', 'minecraft:potion#healing', 1, 10, 17, CURRENT_TIMESTAMP),
+('ini_mercador_18', 'MERCADOR', 'minecraft:potion#strong_healing', 1, 30, 18, CURRENT_TIMESTAMP),
+('ini_comprador_0', 'COMPRADOR', 'minecraft:rotten_flesh', 16, 3, 0, CURRENT_TIMESTAMP),
+('ini_comprador_1', 'COMPRADOR', 'minecraft:bone', 8, 4, 1, CURRENT_TIMESTAMP),
+('ini_comprador_2', 'COMPRADOR', 'minecraft:string', 8, 4, 2, CURRENT_TIMESTAMP),
+('ini_comprador_3', 'COMPRADOR', 'minecraft:spider_eye', 4, 4, 3, CURRENT_TIMESTAMP),
+('ini_comprador_4', 'COMPRADOR', 'minecraft:arrow', 32, 3, 4, CURRENT_TIMESTAMP),
+('ini_comprador_5', 'COMPRADOR', 'minecraft:gunpowder', 4, 6, 5, CURRENT_TIMESTAMP),
+('ini_comprador_6', 'COMPRADOR', 'minecraft:leather', 6, 5, 6, CURRENT_TIMESTAMP),
+('ini_comprador_7', 'COMPRADOR', 'minecraft:feather', 16, 3, 7, CURRENT_TIMESTAMP),
+('ini_comprador_8', 'COMPRADOR', 'minecraft:slime_ball', 4, 6, 8, CURRENT_TIMESTAMP),
+('ini_comprador_9', 'COMPRADOR', 'minecraft:phantom_membrane', 2, 8, 9, CURRENT_TIMESTAMP),
+('ini_comprador_10', 'COMPRADOR', 'minecraft:ender_pearl', 1, 8, 10, CURRENT_TIMESTAMP),
+('ini_comprador_11', 'COMPRADOR', 'minecraft:blaze_rod', 1, 10, 11, CURRENT_TIMESTAMP),
+('ini_comprador_12', 'COMPRADOR', 'minecraft:ghast_tear', 1, 20, 12, CURRENT_TIMESTAMP),
+('ini_comprador_13', 'COMPRADOR', 'minecraft:coal', 16, 4, 13, CURRENT_TIMESTAMP),
+('ini_comprador_14', 'COMPRADOR', 'minecraft:redstone', 16, 5, 14, CURRENT_TIMESTAMP),
+('ini_comprador_15', 'COMPRADOR', 'minecraft:lapis_lazuli', 16, 6, 15, CURRENT_TIMESTAMP),
+('ini_comprador_16', 'COMPRADOR', 'minecraft:iron_ingot', 4, 8, 16, CURRENT_TIMESTAMP),
+('ini_comprador_17', 'COMPRADOR', 'minecraft:gold_ingot', 3, 10, 17, CURRENT_TIMESTAMP),
+('ini_comprador_18', 'COMPRADOR', 'minecraft:emerald', 1, 10, 18, CURRENT_TIMESTAMP),
+('ini_comprador_19', 'COMPRADOR', 'minecraft:diamond', 1, 30, 19, CURRENT_TIMESTAMP),
+('ini_comprador_20', 'COMPRADOR', 'minecraft:netherite_scrap', 1, 200, 20, CURRENT_TIMESTAMP),
+('ini_comprador_21', 'COMPRADOR', 'minecraft:wheat', 20, 3, 21, CURRENT_TIMESTAMP),
+('ini_comprador_22', 'COMPRADOR', 'minecraft:potato', 20, 3, 22, CURRENT_TIMESTAMP),
+('ini_comprador_23', 'COMPRADOR', 'minecraft:carrot', 20, 3, 23, CURRENT_TIMESTAMP),
+('ini_comprador_24', 'COMPRADOR', 'minecraft:cod', 6, 4, 24, CURRENT_TIMESTAMP);

@@ -1,0 +1,383 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "crepusculo"
+	group: ""
+	icon: "twilightforest:twilight_portal_miniature_structure"
+	id: "2999D186EA24D5A4"
+	order_index: 2
+	quest_links: [ ]
+	quests: [
+		{
+			description: ["Chegue ao nível 10." "" "Abaixo disso a região é extremamente perigosa."]
+			id: "1CC8A261B34BD31E"
+			rewards: [
+				{
+					command: "/frx moedas {p} 200"
+					elevate_perms: true
+					id: "199B7AC7143A0236"
+					silent: true
+					title: "2 ouro"
+					type: "command"
+				}
+			]
+			tasks: [
+				{
+					advancement: "frxworld:frx/nivel_10"
+					criterion: ""
+					id: "24ED202CD1BC8C82"
+					type: "advancement"
+				}
+			]
+			title: "Pronto para Floresta do Crepúsculo"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["1CC8A261B34BD31E"]
+			description: ["Construa o portal: um lago de 2×2 cercado de flores, e jogue um diamante." "" "Monstros Nv 10–25. A Floresta tem sua própria trilha de chefes."]
+			id: "3B1AC220D42CEF89"
+			rewards: [
+				{
+					command: "/frx xp {p} 500"
+					elevate_perms: true
+					id: "7C6EA878823F5747"
+					silent: true
+					title: "500 XP"
+					type: "command"
+				}
+				{
+					command: "/frx moedas {p} 500"
+					elevate_perms: true
+					id: "10776B8494A6C71B"
+					silent: true
+					title: "5 ouro"
+					type: "command"
+				}
+			]
+			shape: "gear"
+			size: 1.5d
+			tasks: [
+				{
+					dimension: "twilightforest:twilight_forest"
+					id: "23DA1460B800C098"
+					type: "dimension"
+				}
+			]
+			title: "Entrar: Floresta do Crepúsculo"
+			x: 2.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["3B1AC220D42CEF89"]
+			description: ["Derrote a Naga."]
+			id: "3111D35D8F55FB3B"
+			rewards: [
+				{
+					count: 1
+					id: "327A7B7A61C924BF"
+					item: "minecraft:diamond"
+					type: "item"
+				}
+				{
+					command: "/frx xp {p} 800"
+					elevate_perms: true
+					id: "52F3841D2B6FBE5B"
+					silent: true
+					title: "800 XP"
+					type: "command"
+				}
+				{
+					command: "/frx moedas {p} 400"
+					elevate_perms: true
+					id: "7037222E0A0B2BF5"
+					silent: true
+					title: "4 ouro"
+					type: "command"
+				}
+			]
+			shape: "hexagon"
+			size: 1.25d
+			tasks: [
+				{
+					entity: "twilightforest:naga"
+					id: "2037608B8D6BAB44"
+					type: "kill"
+					value: 1L
+				}
+			]
+			title: "a Naga"
+			x: 4.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["3111D35D8F55FB3B"]
+			description: ["Derrote o Lich."]
+			id: "7008A83F2C2C09B1"
+			rewards: [
+				{
+					count: 2
+					id: "57E76235FEE179B8"
+					item: "minecraft:diamond"
+					type: "item"
+				}
+				{
+					command: "/frx xp {p} 1200"
+					elevate_perms: true
+					id: "23FAB352D7C94C3E"
+					silent: true
+					title: "1200 XP"
+					type: "command"
+				}
+				{
+					command: "/frx moedas {p} 800"
+					elevate_perms: true
+					id: "1D891C0A3423DDA0"
+					silent: true
+					title: "8 ouro"
+					type: "command"
+				}
+			]
+			shape: "hexagon"
+			size: 1.25d
+			tasks: [
+				{
+					entity: "twilightforest:lich"
+					id: "5DFC3BB608887AF8"
+					type: "kill"
+					value: 1L
+				}
+			]
+			title: "o Lich"
+			x: 6.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["7008A83F2C2C09B1"]
+			description: ["Derrote o Minoshroom."]
+			id: "5536EE98ED92B966"
+			rewards: [
+				{
+					command: "/frx xp {p} 1600"
+					elevate_perms: true
+					id: "4D18155524D7C994"
+					silent: true
+					title: "1600 XP"
+					type: "command"
+				}
+				{
+					command: "/frx moedas {p} 1200"
+					elevate_perms: true
+					id: "64E2E394AF2AC08D"
+					silent: true
+					title: "12 ouro"
+					type: "command"
+				}
+			]
+			shape: "hexagon"
+			size: 1.25d
+			tasks: [
+				{
+					entity: "twilightforest:minoshroom"
+					id: "284399E16CEAE34C"
+					type: "kill"
+					value: 1L
+				}
+			]
+			title: "o Minoshroom"
+			x: 8.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["5536EE98ED92B966"]
+			description: ["Derrote a Hidra."]
+			id: "34C3EB2559FAE812"
+			rewards: [
+				{
+					count: 3
+					id: "13B77149065A21A2"
+					item: "minecraft:diamond"
+					type: "item"
+				}
+				{
+					command: "/frx xp {p} 2000"
+					elevate_perms: true
+					id: "1CA54C8040A1F00D"
+					silent: true
+					title: "2000 XP"
+					type: "command"
+				}
+				{
+					command: "/frx moedas {p} 1600"
+					elevate_perms: true
+					id: "3C9C01AD7FD14980"
+					silent: true
+					title: "16 ouro"
+					type: "command"
+				}
+			]
+			shape: "hexagon"
+			size: 1.25d
+			tasks: [
+				{
+					entity: "twilightforest:hydra"
+					id: "5DBDBBA281D1596E"
+					type: "kill"
+					value: 1L
+				}
+			]
+			title: "a Hidra"
+			x: 10.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["34C3EB2559FAE812"]
+			description: ["Derrote 3× o Cavaleiro Fantasma."]
+			id: "642ABAAB61E8CFA3"
+			rewards: [
+				{
+					command: "/frx xp {p} 2400"
+					elevate_perms: true
+					id: "44F5E57A2E734E94"
+					silent: true
+					title: "2400 XP"
+					type: "command"
+				}
+				{
+					command: "/frx moedas {p} 2000"
+					elevate_perms: true
+					id: "27E296CBC216BD86"
+					silent: true
+					title: "20 ouro"
+					type: "command"
+				}
+			]
+			tasks: [
+				{
+					entity: "twilightforest:knight_phantom"
+					id: "47BC7202B575CA64"
+					type: "kill"
+					value: 3L
+				}
+			]
+			title: "o Cavaleiro Fantasma"
+			x: 12.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["642ABAAB61E8CFA3"]
+			description: ["Derrote o Ur-Ghast."]
+			id: "25AD12C89B52410A"
+			rewards: [
+				{
+					command: "/frx xp {p} 2800"
+					elevate_perms: true
+					id: "25CFBC5B0975F95B"
+					silent: true
+					title: "2800 XP"
+					type: "command"
+				}
+				{
+					command: "/frx moedas {p} 2400"
+					elevate_perms: true
+					id: "472DEE945ED931F9"
+					silent: true
+					title: "24 ouro"
+					type: "command"
+				}
+			]
+			shape: "hexagon"
+			size: 1.25d
+			tasks: [
+				{
+					entity: "twilightforest:ur_ghast"
+					id: "4B0866534BF15CDD"
+					type: "kill"
+					value: 1L
+				}
+			]
+			title: "o Ur-Ghast"
+			x: 14.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["25AD12C89B52410A"]
+			description: ["Derrote o Yeti Alfa."]
+			id: "742F7686FB3A16C8"
+			rewards: [
+				{
+					command: "/frx xp {p} 3200"
+					elevate_perms: true
+					id: "50F7B0A6A150273B"
+					silent: true
+					title: "3200 XP"
+					type: "command"
+				}
+				{
+					command: "/frx moedas {p} 2800"
+					elevate_perms: true
+					id: "56DD233C4190C773"
+					silent: true
+					title: "28 ouro"
+					type: "command"
+				}
+			]
+			shape: "hexagon"
+			size: 1.25d
+			tasks: [
+				{
+					entity: "twilightforest:alpha_yeti"
+					id: "4A089BA8CEABBF0E"
+					type: "kill"
+					value: 1L
+				}
+			]
+			title: "o Yeti Alfa"
+			x: 16.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["742F7686FB3A16C8"]
+			description: ["Derrote a Rainha da Neve."]
+			id: "3FA49CD39A013130"
+			rewards: [
+				{
+					count: 1
+					id: "29691BA2E824AF8F"
+					item: "minecraft:netherite_scrap"
+					type: "item"
+				}
+				{
+					command: "/frx xp {p} 3600"
+					elevate_perms: true
+					id: "48BE4E70F17C52E8"
+					silent: true
+					title: "3600 XP"
+					type: "command"
+				}
+				{
+					command: "/frx moedas {p} 3200"
+					elevate_perms: true
+					id: "3BC53B420241D015"
+					silent: true
+					title: "32 ouro"
+					type: "command"
+				}
+			]
+			shape: "hexagon"
+			size: 1.25d
+			tasks: [
+				{
+					entity: "twilightforest:snow_queen"
+					id: "45EFED97412ABFB8"
+					type: "kill"
+					value: 1L
+				}
+			]
+			title: "a Rainha da Neve"
+			x: 18.0d
+			y: 0.0d
+		}
+	]
+	title: "Floresta do Crepúsculo · Nv 10"
+}

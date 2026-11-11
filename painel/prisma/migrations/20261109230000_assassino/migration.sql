@@ -1,0 +1,10 @@
+-- Classe Assassino: habilidades sugeridas (não mexe se o código já existir)
+INSERT INTO "Habilidade" ("id", "codigo", "nome", "descricao", "classe", "tipo", "elemento", "icone", "custo", "cooldown", "dano", "alcance", "raio", "duracao", "efeito", "potencia", "nivelReq", "ultimate", "aprendizado", "atualizadoEm") VALUES
+('hab_golpe_mortal', 'golpe_mortal', 'Golpe Mortal', 'Corte rápido e preciso. Brilha contra alvos feridos.', 'ASSASSINO', 'ALVO', 'FISICO', 'minecraft:iron_sword', 20, 3, 9, 4, 0, 0, '', 0, 1, false, 'NIVEL', CURRENT_TIMESTAMP),
+('hab_investida_sombria', 'investida_sombria', 'Investida Sombria', 'Some nas sombras e reaparece à frente.', 'ASSASSINO', 'MOBILIDADE', 'SOMBRA', 'minecraft:ender_eye', 25, 8, 5, 10, 0, 0, '', 0, 3, false, 'NIVEL', CURRENT_TIMESTAMP),
+('hab_corte_hemorragico', 'corte_hemorragico', 'Corte Hemorrágico', 'Abre uma ferida que sangra por alguns segundos.', 'ASSASSINO', 'ALVO', 'FISICO', 'minecraft:redstone', 25, 8, 6, 4, 0, 6, 'minecraft:wither', 1, 5, false, 'NIVEL', CURRENT_TIMESTAMP),
+('hab_marca_da_morte', 'marca_da_morte', 'Marca da Morte', 'Marca o alvo: ele fica fraco e mais fácil de executar.', 'ASSASSINO', 'ALVO', 'SOMBRA', 'minecraft:wither_rose', 30, 14, 3, 12, 0, 10, 'minecraft:weakness', 1, 8, false, 'NIVEL', CURRENT_TIMESTAMP),
+('hab_frenesi_de_laminas', 'frenesi_de_laminas', 'Frenesi de Lâminas', 'Fica mais forte por alguns segundos.', 'ASSASSINO', 'BUFF', 'FISICO', 'minecraft:blaze_powder', 40, 30, 0, 0, 0, 10, 'minecraft:strength', 1, 10, false, 'NIVEL', CURRENT_TIMESTAMP),
+('hab_danca_das_adagas', 'danca_das_adagas', 'Dança das Adagas', 'Gira cortando todos em volta.', 'ASSASSINO', 'AREA', 'FISICO', 'minecraft:shears', 35, 10, 9, 0, 3.5, 0, '', 0, 12, false, 'ITEM', CURRENT_TIMESTAMP),
+('hab_mil_cortes', 'mil_cortes', 'Mil Cortes', 'Uma rajada de golpes no alvo da mira. Quase sempre fatal num alvo ferido.', 'ASSASSINO', 'ALVO', 'SOMBRA', 'minecraft:netherite_sword', 90, 100, 34, 8, 0, 0, '', 0, 20, true, 'NIVEL', CURRENT_TIMESTAMP)
+ON CONFLICT ("codigo") DO NOTHING;

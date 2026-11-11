@@ -1,0 +1,7 @@
+Coloque aqui os mapas/schematics de cada reino, um arquivo por reino:
+  sarion.zip        - Elven Themed Town (Planet Minecraft)
+  dwargon.zip       - Underground Dwarf City (Planet Minecraft)
+  leste.zip         - Japanese City (Planet Minecraft)
+  leste-sakura.zip  - Sakura Spawn (BuiltByBit, gratis)
+  tempest.zip       - Tempest City Map (BuiltByBit, gratis) - opcional
+Pode ser .zip, .schem, .schematic, .litematic ou pasta de mundo.

@@ -1,0 +1,7 @@
+{
+  "values": [
+    "minecraft:plains", "minecraft:sunflower_plains", "minecraft:meadow", "minecraft:desert",
+    "minecraft:savanna", "minecraft:savanna_plateau", "minecraft:snowy_plains", "minecraft:swamp",
+    "#minecraft:is_forest", "#minecraft:is_taiga", "#minecraft:is_badlands", "#minecraft:is_jungle"
+  ]
+}

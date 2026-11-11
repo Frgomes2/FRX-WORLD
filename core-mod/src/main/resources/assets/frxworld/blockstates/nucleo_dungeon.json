@@ -1,0 +1,5 @@
+{ "variants": {
+  "andar=0": { "model": "frxworld:block/nucleo_dungeon" },
+  "andar=1": { "model": "frxworld:block/nucleo_andar" },
+  "andar=2": { "model": "frxworld:block/nucleo_andar" }
+} }

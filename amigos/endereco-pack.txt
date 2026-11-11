@@ -1,0 +1,2 @@
+# Endereco do pack do FRX-WORLD (servido pelo Cloudflare Tunnel do dono do servidor)
+https://pack.frgomes.com.br/pack.toml

@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    { "rolls": 1, "entries": [ { "type": "minecraft:item", "name": "frxworld:quadro_missoes" } ],
+      "conditions": [ { "condition": "minecraft:survives_explosion" } ] }
+  ]
+}

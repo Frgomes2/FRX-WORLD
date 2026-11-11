@@ -1,0 +1,252 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "prologo"
+	group: ""
+	icon: "minecraft:compass"
+	id: "3AE30D4507A50C79"
+	order_index: 0
+	quest_links: [ ]
+	quests: [
+		{
+			description: ["Aperte K e escolha sua classe." "" "Cada classe tem 4 habilidades, uma ultimate e um Despertar inspirado num anime."]
+			id: "2382F005858D62E4"
+			rewards: [
+				{
+					command: "/frx xp {p} 100"
+					elevate_perms: true
+					id: "23A136559E80A0AF"
+					silent: true
+					title: "100 XP"
+					type: "command"
+				}
+				{
+					command: "/frx moedas {p} 50"
+					elevate_perms: true
+					id: "411537E17C91692D"
+					silent: true
+					title: "50 cobre"
+					type: "command"
+				}
+			]
+			shape: "gear"
+			size: 1.5d
+			tasks: [
+				{
+					advancement: "frxworld:frx/classe"
+					criterion: ""
+					id: "18B61FB6DDFC4BDB"
+					type: "advancement"
+				}
+			]
+			title: "Escolha seu caminho"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["2382F005858D62E4"]
+			description: ["Abra a aba Status (E) → ✦ Raça, ou use /raca." "" "Principal 100%, secundária pela compatibilidade."]
+			id: "29EC39EF4584F689"
+			rewards: [
+				{
+					command: "/frx xp {p} 100"
+					elevate_perms: true
+					id: "7A3A13A3F57C9C80"
+					silent: true
+					title: "100 XP"
+					type: "command"
+				}
+				{
+					command: "/frx moedas {p} 50"
+					elevate_perms: true
+					id: "7721091402B322B8"
+					silent: true
+					title: "50 cobre"
+					type: "command"
+				}
+			]
+			tasks: [
+				{
+					advancement: "frxworld:frx/raca"
+					criterion: ""
+					id: "1028DBBFDD6B78CC"
+					type: "advancement"
+				}
+			]
+			title: "Sangue e origem"
+			x: 2.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["29EC39EF4584F689"]
+			description: ["Tempest é a capital onde tudo começa. Visite a praça e fale com os NPCs."]
+			id: "27C287CC723D59B6"
+			rewards: [
+				{
+					command: "/frx xp {p} 150"
+					elevate_perms: true
+					id: "6C74A767B5AE264F"
+					silent: true
+					title: "150 XP"
+					type: "command"
+				}
+				{
+					command: "/frx moedas {p} 100"
+					elevate_perms: true
+					id: "47260718AFE13857"
+					silent: true
+					title: "1 ouro"
+					type: "command"
+				}
+			]
+			tasks: [
+				{
+					advancement: "frxworld:frx/capital_tempest"
+					criterion: ""
+					id: "250277047E6D3561"
+					type: "advancement"
+				}
+			]
+			title: "A Federação de Jura Tempest"
+			x: 4.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["27C287CC723D59B6"]
+			description: ["Na taverna, o Quadro de Missões tem contratos repetíveis: caça, coleta e mais." "" "Conclua um."]
+			id: "4BE1C9C5C3B08965"
+			rewards: [
+				{
+					command: "/frx xp {p} 200"
+					elevate_perms: true
+					id: "1F97F2961BEB51C3"
+					silent: true
+					title: "200 XP"
+					type: "command"
+				}
+				{
+					command: "/frx moedas {p} 150"
+					elevate_perms: true
+					id: "6E096D91E1E99B5C"
+					silent: true
+					title: "1 ouro"
+					type: "command"
+				}
+			]
+			tasks: [
+				{
+					advancement: "frxworld:frx/taverna_1"
+					criterion: ""
+					id: "7426F001EB738CD5"
+					type: "advancement"
+				}
+			]
+			title: "Primeiro contrato"
+			x: 6.0d
+			y: -1.0d
+		}
+		{
+			dependencies: ["27C287CC723D59B6"]
+			description: ["Chegue ao nível 5."]
+			id: "6F6BEE40A5AD0519"
+			rewards: [
+				{
+					command: "/frx moedas {p} 200"
+					elevate_perms: true
+					id: "7CAC1A986282E361"
+					silent: true
+					title: "2 ouro"
+					type: "command"
+				}
+			]
+			tasks: [
+				{
+					advancement: "frxworld:frx/nivel_5"
+					criterion: ""
+					id: "293FCC4F0D4A402C"
+					type: "advancement"
+				}
+			]
+			title: "Aventureiro"
+			x: 6.0d
+			y: 1.0d
+		}
+		{
+			dependencies: ["4BE1C9C5C3B08965" "6F6BEE40A5AD0519"]
+			description: ["Chegue ao nível 10." "" "O Despertar libera e a Floresta do Crepúsculo passa a ser a sua faixa."]
+			id: "274A7F3865303758"
+			rewards: [
+				{
+					count: 2
+					id: "5AE5E975D98AFF69"
+					item: "minecraft:golden_apple"
+					type: "item"
+				}
+				{
+					command: "/frx xp {p} 300"
+					elevate_perms: true
+					id: "17133AE894C42E41"
+					silent: true
+					title: "300 XP"
+					type: "command"
+				}
+				{
+					command: "/frx moedas {p} 300"
+					elevate_perms: true
+					id: "57570E1F9210CDC8"
+					silent: true
+					title: "3 ouro"
+					type: "command"
+				}
+			]
+			shape: "gear"
+			size: 1.5d
+			tasks: [
+				{
+					advancement: "frxworld:frx/nivel_10"
+					criterion: ""
+					id: "28ECE05ED5DDC1F4"
+					type: "advancement"
+				}
+			]
+			title: "O mundo se abre"
+			x: 8.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["274A7F3865303758"]
+			description: ["Encha a barra lutando e aperte B para soltar o poder da sua classe."]
+			id: "3125E30E1613D241"
+			rewards: [
+				{
+					command: "/frx xp {p} 300"
+					elevate_perms: true
+					id: "529D846FF53C4E20"
+					silent: true
+					title: "300 XP"
+					type: "command"
+				}
+				{
+					command: "/frx moedas {p} 200"
+					elevate_perms: true
+					id: "2BB6FCA259EE432E"
+					silent: true
+					title: "2 ouro"
+					type: "command"
+				}
+			]
+			tasks: [
+				{
+					advancement: "frxworld:frx/despertar"
+					criterion: ""
+					id: "78C665FEBC6D5D99"
+					type: "advancement"
+				}
+			]
+			title: "Despertar"
+			x: 10.0d
+			y: 0.0d
+		}
+	]
+	title: "Prólogo: O Despertar"
+}

@@ -1,0 +1,16 @@
+# Banco do painel FRX-WORLD. Suba com: docker compose up -d
+services:
+  banco:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: frx
+      POSTGRES_PASSWORD: frx
+      POSTGRES_DB: frxworld
+    ports:
+      - "5433:5432"
+    volumes:
+      - frxworld-db:/var/lib/postgresql/data
+
+volumes:
+  frxworld-db:

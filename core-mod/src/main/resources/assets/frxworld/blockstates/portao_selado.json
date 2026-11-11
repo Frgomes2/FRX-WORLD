@@ -1,0 +1,4 @@
+{ "variants": {
+  "camada=1": { "model": "frxworld:block/portao_selado" },
+  "camada=2": { "model": "frxworld:block/portao_selado" }
+} }

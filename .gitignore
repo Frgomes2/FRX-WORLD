@@ -1,0 +1,58 @@
+# ===== FRX-WORLD — o que NAO vai para o git =====
+
+# Segredos (tokens e senhas): nunca versionar
+painel/.env
+server/config/frxworld-common.toml
+server/config/resourceful-config-web.json
+
+# Servidor: so entram os scripts, a configuracao dos mods e os dados dos reinos
+server/*
+!server/instalar-servidor.bat
+!server/iniciar.bat
+!server/atualizar-mods.bat
+!server/server.properties
+!server/user_jvm_args.txt
+!server/config/
+!server/kubejs/
+!server/frxworld/
+server/frxworld/reinos-originais/
+
+# Core mod (gerado na compilacao)
+core-mod/build/
+core-mod/run/
+core-mod/run-data/
+core-mod/.gradle/
+core-mod/.idea/
+core-mod/out/
+
+# Pack: o jar do core mod e o packwiz.exe sao gerados/baixados
+pack/packwiz.exe
+pack/mods/frxworld-*.jar
+pack/pendentes.txt
+
+# Painel
+painel/node_modules/
+painel/.next/
+painel/src/generated/
+painel/next-env.d.ts
+
+# Cliente local do Flavio
+cliente/jogo/*
+!cliente/jogo/packwiz-installer-bootstrap.jar
+cliente/forge-installer.jar
+cliente/forge-installer.jar.log
+
+# Mapas baixados (originais grandes; os reinos prontos estao em server/frxworld/reinos)
+reinos/*.zip
+frx-world-fase0.zip
+
+# Ferramentas baixadas
+tools/jdk-*/
+
+# Gerados em execucao
+logs/
+backups/
+*.log
+
+# Pacotes antigos de transferencia
+painel/*.zip

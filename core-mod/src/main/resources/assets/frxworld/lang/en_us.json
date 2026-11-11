@@ -1,0 +1,23 @@
+{
+  "effect.frxworld.ferido": "Wounded",
+  "block.frxworld.quadro_missoes": "Quest Board",
+  "block.frxworld.nucleo_dungeon": "Dungeon Core",
+  "block.frxworld.portao_selado": "Sealed Gate",
+  "item.frxworld.chave_camada": "Layer Key",
+  "item.frxworld.tomo_arcano": "Arcane Tome",
+  "key.categories.frxworld": "FRX-WORLD",
+  "key.frxworld.hab1": "Ability 1",
+  "key.frxworld.hab2": "Ability 2",
+  "key.frxworld.hab3": "Ability 3",
+  "key.frxworld.hab4": "Ability 4",
+  "key.frxworld.ultimate": "Ultimate",
+  "key.frxworld.habilidades": "Status window",
+  "item.frxworld.moeda_cobre": "Copper Coin",
+  "item.frxworld.moeda_prata": "Silver Coin",
+  "item.frxworld.moeda_ouro": "Gold Coin",
+  "key.frxworld.sombra1": "Shadow: shortcut 1",
+  "key.frxworld.sombra2": "Shadow: shortcut 2",
+  "key.frxworld.sombra3": "Shadow: shortcut 3",
+  "key.frxworld.sombras_todas": "Shadows: summon/recall all",
+  "key.frxworld.despertar": "Awakening (class power)"
+}

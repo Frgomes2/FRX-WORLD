@@ -1,0 +1,23 @@
+{
+  "effect.frxworld.ferido": "Ferido",
+  "block.frxworld.quadro_missoes": "Quadro de Missões",
+  "block.frxworld.nucleo_dungeon": "Núcleo da Dungeon",
+  "block.frxworld.portao_selado": "Portão Selado",
+  "item.frxworld.chave_camada": "Chave da Camada",
+  "item.frxworld.tomo_arcano": "Tomo Arcano",
+  "key.categories.frxworld": "FRX-WORLD",
+  "key.frxworld.hab1": "Habilidade 1",
+  "key.frxworld.hab2": "Habilidade 2",
+  "key.frxworld.hab3": "Habilidade 3",
+  "key.frxworld.hab4": "Habilidade 4",
+  "key.frxworld.ultimate": "Ultimate",
+  "key.frxworld.habilidades": "Janela de Status",
+  "item.frxworld.moeda_cobre": "Moeda de Cobre",
+  "item.frxworld.moeda_prata": "Moeda de Prata",
+  "item.frxworld.moeda_ouro": "Moeda de Ouro",
+  "key.frxworld.sombra1": "Sombra: atalho 1",
+  "key.frxworld.sombra2": "Sombra: atalho 2",
+  "key.frxworld.sombra3": "Sombra: atalho 3",
+  "key.frxworld.sombras_todas": "Sombras: chamar/recolher todas",
+  "key.frxworld.despertar": "Despertar (poder da classe)"
+}

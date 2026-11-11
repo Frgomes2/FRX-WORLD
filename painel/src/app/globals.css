@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+@theme {
+  --color-pedra-950: #0f0d0b;
+  --color-pedra-900: #17140f;
+  --color-pedra-800: #221d17;
+  --color-pedra-700: #332b22;
+  --color-pedra-500: #6b5f50;
+  --color-pergaminho: #e9dfc8;
+  --color-ouro: #d4a93a;
+  --color-ouro-escuro: #9c7a22;
+  --color-sangue: #9b2c2c;
+  --font-titulo: "Georgia", "Times New Roman", serif;
+}
+
+body {
+  background: var(--color-pedra-950);
+  color: var(--color-pergaminho);
+  font-family: ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+}

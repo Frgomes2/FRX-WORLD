@@ -1,0 +1,13 @@
+name = "FRX-WORLD"
+author = "Flavio Raphael Gomes"
+version = "0.1.0"
+pack-format = "packwiz:1.1.0"
+
+[index]
+file = "index.toml"
+hash-format = "sha256"
+hash = "7ca1106f9fd23c61184131632306b42c5647b319eb36270a6f1008b153075418"
+
+[versions]
+forge = "47.4.10"
+minecraft = "1.20.1"
