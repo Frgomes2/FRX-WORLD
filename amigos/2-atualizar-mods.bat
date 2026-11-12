@@ -44,6 +44,7 @@ if errorlevel 1 (
 )
 echo.
 echo Pronto! Os mods estao em: %PASTA%
+if /i "%~1"=="/jogar" exit /b 0
 echo Abra o Minecraft Launcher e jogue com a instalacao "FRX-WORLD" (veja o LEIA-ME).
 pause
 exit /b 0

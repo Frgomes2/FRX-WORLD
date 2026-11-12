@@ -11,7 +11,7 @@ import { IconeCriatura, useCriaturas } from "@/components/criaturas";
 type Talento = { id: string; nome: string; atual: number; max: number; liberado: boolean; porPonto: string; efeito: string; pede: string };
 type Ficha = {
   nome: string; uuid: string; online: boolean; nivel: number; nivelMax: number; rank: string; xp: number; xpProximo: number;
-  classe: string; classeId?: string; recurso?: string; recursoAtual?: number; recursoMax?: number;
+  classe: string; classeId?: string; raca?: { principal: string; secundaria: string; nivel: string; descricao?: string; bonus: string[] }; unica?: { nome: string; descricao: string; nivel: number; efeito: string; abates: number }; recurso?: string; recursoAtual?: number; recursoMax?: number;
   moedas: string; banco: string; moedasCobre?: number; bancoCobre?: number; titulo: string; titulos: string[]; zona: number;
   x: number; y: number; z: number; dim: string; modo: string; fome: number; nivelVanilla: number;
   tempoJogoMin?: number; mobsMortos?: number; mortesVanilla?: number; blocosAndados?: number;
@@ -68,7 +68,8 @@ function Progresso({ v, max, cor = "bg-ouro" }: { v: number; max: number; cor?: 
 
 // ------------------------------------------------------------------ tela
 
-export function FichaJogador({ base, inicial, inicialEm, inicialOnline }: { base: JogadorBase; inicial: Ficha | null; inicialEm: number | null; inicialOnline: boolean }) {
+export function FichaJogador({ base, inicial, inicialEm, inicialOnline, inicialOp }: { base: JogadorBase; inicial: Ficha | null; inicialEm: number | null; inicialOnline: boolean; inicialOp: boolean }) {
+  const [op, setOp] = useState(inicialOp);
   const [ficha, setFicha] = useState<Ficha | null>(inicial);
   const [em, setEm] = useState(inicialEm);
   const [online, setOnline] = useState(inicialOnline);
@@ -99,6 +100,8 @@ export function FichaJogador({ base, inicial, inicialEm, inicialOnline }: { base
     setEnviando(false);
     if (!r?.ok) { setAviso({ ok: false, texto: j.erro ?? "Falhou." }); return; }
     setAviso({ ok: true, texto: texto ?? `Feito: /${j.comando}` });
+    if (nome === "op") setOp(true);
+    if (nome === "deop") setOp(false);
     setTimeout(recarregar, 1500);
     setTimeout(recarregar, 4000);
   }, [base.uuid, recarregar]);
@@ -126,10 +129,16 @@ export function FichaJogador({ base, inicial, inicialEm, inicialOnline }: { base
                 {online ? "● online" : "○ offline"}
               </span>
               {!base.ativo && <span className="rounded-full bg-red-500/20 px-2.5 py-0.5 text-xs text-red-300">acesso revogado</span>}
+              {op && <span className="rounded-full bg-ouro/20 px-2.5 py-0.5 text-xs text-ouro">👑 admin do servidor</span>}
+              <button disabled={enviando}
+                onClick={() => { if (confirm(op ? `Tirar o admin de ${base.nick}?` : `Tornar ${base.nick} admin do servidor? Ele vai poder usar todos os comandos (/gamemode, /give, /tp, /frx...).`)) acao(op ? "deop" : "op", undefined, undefined, op ? `${base.nick} não é mais admin.` : `${base.nick} agora é admin.`); }}
+                className={`rounded border px-2 py-0.5 text-xs disabled:opacity-40 ${op ? "border-red-500/50 text-red-300 hover:bg-red-500/15" : "border-ouro/50 text-ouro hover:bg-ouro/15"}`}>
+                {op ? "Remover admin" : "Tornar admin"}
+              </button>
             </div>
             {(f?.titulo || base.titulo) && <p className="text-purple-300">«{f?.titulo || base.titulo}»</p>}
             <p className="mt-1 text-sm text-pedra-500">
-              {ICONE_CLASSE[f?.classe ?? ""] ?? "❔"} {f?.classe || "sem classe"} · Rank <span className="font-titulo text-ouro">{f?.rank ?? base.rank}</span>
+              {ICONE_CLASSE[f?.classe ?? ""] ?? "❔"} {f?.classe || "sem classe"}{f?.raca ? ` · 🧬 ${f.raca.principal}${f.raca.secundaria ? ` / ${f.raca.secundaria}` : ""}` : ""} · Rank <span className="font-titulo text-ouro">{f?.rank ?? base.rank}</span>
               {" "}· entrou em {quando(base.criadoEm)} · último login {quando(base.ultimoLogin)}
             </p>
           </div>
@@ -192,6 +201,30 @@ export function FichaJogador({ base, inicial, inicialEm, inicialOnline }: { base
 
             {aba === "status" && (
               <div className="grid gap-4 lg:grid-cols-2">
+                <Cartao titulo="Raça" className="lg:col-span-2">
+                  {f.raca ? (
+                    <div className="flex flex-wrap items-start gap-x-8 gap-y-3">
+                      <div>
+                        <p className="font-titulo text-xl text-ouro">🧬 {f.raca.principal}{f.raca.secundaria ? <span className="text-pergaminho"> / {f.raca.secundaria}</span> : null}</p>
+                        <p className="text-xs text-pedra-500">{f.raca.secundaria ? "Raça principal / secundária" : "Raça pura"} · {f.raca.nivel}</p>
+                        {f.raca.descricao && <p className="mt-1 max-w-md text-sm text-pedra-500">{f.raca.descricao}</p>}
+                      </div>
+                      <ul className="flex flex-1 flex-wrap gap-1.5">
+                        {f.raca.bonus.map((b) => <li key={b} className={`rounded-full border px-2.5 py-0.5 text-xs ${/^[−-]/.test(b) ? "border-red-500/40 text-red-300" : "border-green-500/40 text-green-300"}`}>{b}</li>)}
+                      </ul>
+                    </div>
+                  ) : <p className="text-sm text-pedra-500">Ainda não escolheu a raça (no jogo: <code>/raca</code>).</p>}
+                </Cartao>
+                <Cartao titulo="Habilidade única" className="lg:col-span-2">
+                  {f.unica ? (
+                    <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+                      <p className="font-titulo text-xl text-purple-300">✦ {f.unica.nome} <span className="text-sm text-pedra-500">Nv {f.unica.nivel}/5</span></p>
+                      <p className="text-sm">{f.unica.descricao}</p>
+                      <span className="rounded-full border border-purple-500/40 px-2.5 py-0.5 text-xs text-purple-200">{f.unica.efeito}</span>
+                      <span className="text-xs text-pedra-500">{fmt(f.unica.abates)} monstros abatidos com ela</span>
+                    </div>
+                  ) : <p className="text-sm text-pedra-500">Desperta sozinha no próximo login do jogador.</p>}
+                </Cartao>
                 <Cartao titulo="Atributos">
                   <ul className="grid grid-cols-2 gap-2">
                     {Object.entries(f.atributos).map(([k, v]) => {

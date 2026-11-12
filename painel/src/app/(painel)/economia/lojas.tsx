@@ -92,6 +92,12 @@ function Loja({ cfg, inicial, outra }: { cfg: (typeof LOJAS)[number]; inicial: I
                     <input type="number" min={1} max={64} value={i.qtd} onChange={(e) => mudar(idx, { qtd: Math.min(64, Math.max(1, +e.target.value || 1)) })} className="w-12 rounded border border-pedra-700 bg-pedra-950 px-1 py-0.5 text-pergaminho" />
                   </label>
                   <CampoMoedas cobre={i.preco} onChange={(c) => mudar(idx, { preco: Math.max(1, c) })} />
+                  {cfg.id === "MERCADOR" && (
+                    <label className="flex items-center gap-1 text-pedra-500" title="O item só aparece para jogadores deste nível para cima">nv mín
+                      <input type="number" min={1} max={1000} value={i.nivelMin} onChange={(e) => mudar(idx, { nivelMin: Math.min(1000, Math.max(1, +e.target.value || 1)) })}
+                        className={`w-12 rounded border bg-pedra-950 px-1 py-0.5 ${i.nivelMin > 1 ? "border-ouro/60 text-ouro" : "border-pedra-700 text-pergaminho"}`} />
+                    </label>
+                  )}
                 </div>
                 <p className="mt-0.5 text-[11px] text-pedra-500">
                   {i.qtd > 1 && <>≈ {(i.preco / i.qtd).toFixed(1)} cobre cada · </>}
@@ -120,7 +126,7 @@ function Loja({ cfg, inicial, outra }: { cfg: (typeof LOJAS)[number]; inicial: I
       {trocar !== null && <SeletorItem titulo="Trocar item" aoEscolher={(id) => { mudar(trocar, { item: id }); setTrocar(null); setMsg(null); }} aoFechar={() => setTrocar(null)} />}
       {adicionar && (
         <SeletorItem titulo={`Adicionar ao ${cfg.titulo}`} aoFechar={() => setAdicionar(false)}
-          aoEscolher={(id) => { setItens((l) => [...l, { item: id, qtd: 1, preco: outraUnit.has(id) ? Math.max(1, Math.round(outraUnit.get(id)! * (cfg.id === "MERCADOR" ? 2 : 0.5))) : 10, ativo: true }]); setAdicionar(false); setMsg(null); }} />
+          aoEscolher={(id) => { setItens((l) => [...l, { item: id, qtd: 1, preco: outraUnit.has(id) ? Math.max(1, Math.round(outraUnit.get(id)! * (cfg.id === "MERCADOR" ? 2 : 0.5))) : 10, ativo: true, nivelMin: 1 }]); setAdicionar(false); setMsg(null); }} />
       )}
     </section>
   );

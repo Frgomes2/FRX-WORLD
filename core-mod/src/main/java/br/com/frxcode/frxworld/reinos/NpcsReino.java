@@ -67,14 +67,17 @@ public class NpcsReino {
 
     private static final List<Papel> PAPEIS = List.of(
             new Papel("rei", "", 0, 0, new String[]{"Seja bem-vindo ao meu reino, viajante.", "Meus súditos contam com heróis como você.", "Prove seu valor e terá a gratidão da coroa."}),
-            new Papel("ferreiro", "weaponsmith", 7, 0, new String[]{"Lâminas afiadas, preço justo! Agachado com a arma na mão, eu aprimoro.", "Traga minério e moedas e eu levo sua arma até +10.", "Cuidado com a fornalha, está quente."}),
-            new Papel("armeiro", "armorer", 7, 5, new String[]{"Uma boa armadura salva vidas.", "Agachado com o item na mão, eu reforjo a qualidade dele."}),
+            new Papel("ferreiro", "weaponsmith", 7, 0, new String[]{"Lâminas afiadas, preço justo! Fale comigo e eu aprimoro a sua arma.", "Traga minério e moedas e eu levo sua arma até +10.", "Cuidado com a fornalha, está quente."}),
+            new Papel("armeiro", "armorer", 7, 5, new String[]{"Uma boa armadura salva vidas.", "Fale comigo: eu reforjo a qualidade da sua arma ou armadura."}),
             new Papel("mercador", "toolsmith", -7, 0, new String[]{"Tudo o que um aventureiro precisa!", "Hoje tenho ofertas especiais."}),
             new Papel("sacerdote", "cleric", 0, 7, new String[]{"Que a luz guie seus passos.", "Poções e bênçãos para quem precisa."}),
             new Papel("sabio", "librarian", 0, -7, new String[]{"Conhecimento é a arma mais poderosa.", "Tenho livros que nem o rei leu."}),
             new Papel("cartografo", "cartographer", -7, 5, new String[]{"Mapas de terras distantes, quer ver?"}),
             new Papel("comprador", "toolsmith", 7, -5, new String[]{"Compro tudo que você trouxer das aventuras!", "Ossos, pólvora, diamantes... pago em moedas."}),
             new Papel("banqueiro", "nitwit", 0, 10, new String[]{"Moedas no banco não se perdem na morte.", "Guardo seu ouro com a minha vida."}),
+            new Papel("cambista", "nitwit", -10, 0, new String[]{"Troco ouro, prata e cobre sem cobrar taxa!", "1 ouro vale 10 pratas; 1 prata vale 10 cobres."}),
+            new Papel("recepcionista", "librarian", 10, -5, new String[]{"Bem-vindo à Guilda de Aventureiros!", "Suba de rank e o reino inteiro vai saber o seu nome."}),
+            new Papel("cozinheiro", "butcher", 0, -10, new String[]{"Comida quente para a viagem!", "Barriga cheia, espada firme.", "O cardápio muda todo dia, volte sempre."}),
             new Papel("taverneiro", "nitwit", -7, -5, new String[]{"Procurando trabalho? Veja o quadro de missões!", "Hoje a cerveja está por conta da casa... brincadeira."})
     );
     private static final int GUARDAS = 6;
@@ -367,6 +370,7 @@ public class NpcsReino {
         MerchantOffers ofertas = v.getOffers();
         if (p.id().equals("comprador")) { ofertas.clear(); ofertas.addAll(Lojas.comprador()); }
         else if (p.id().equals("mercador")) { ofertas.clear(); ofertas.addAll(Lojas.mercador()); }
+        else if (p.id().equals("cambista")) { ofertas.clear(); ofertas.addAll(Lojas.cambio()); }
         // parado não reabastece na bancada: estoque praticamente infinito
         for (int i = 0; i < ofertas.size(); i++) ofertas.set(i, Lojas.infinita(ofertas.get(i)));
         v.setVillagerXp(10_000);
@@ -427,8 +431,15 @@ public class NpcsReino {
             return;
         }
         String papel = e.getPersistentData().getString("frx_papel");
-        if ((papel.equals("ferreiro") || papel.equals("armeiro")) && evento.getEntity().isShiftKeyDown()) {
-            if (evento.getEntity() instanceof ServerPlayer jogador) br.com.frxcode.frxworld.armas.Forja.aoClicar(jogador, e, papel.equals("armeiro"));
+        // ferreiro/armeiro: clique abre o menu (forja + loja); agachado abre a troca clássica do aldeão
+        if ((papel.equals("ferreiro") || papel.equals("armeiro") || papel.equals("cozinheiro")) && !evento.getEntity().isShiftKeyDown()) {
+            if (evento.getEntity() instanceof ServerPlayer jogador) MenusNpc.abrirForja(jogador, e, "", true);
+            evento.setCanceled(true);
+            evento.setCancellationResult(InteractionResult.SUCCESS);
+            return;
+        }
+        if (papel.equals("recepcionista")) {
+            if (evento.getEntity() instanceof ServerPlayer jogador) br.com.frxcode.frxworld.progressao.Guilda.abrir(jogador, e, "", true);
             evento.setCanceled(true);
             evento.setCancellationResult(InteractionResult.SUCCESS);
             return;
@@ -439,11 +450,8 @@ public class NpcsReino {
             evento.setCancellationResult(InteractionResult.SUCCESS);
             return;
         }
-        if (papel.equals("banqueiro")) {
-            if (evento.getEntity() instanceof ServerPlayer jogador) {
-                if (jogador.isShiftKeyDown()) br.com.frxcode.frxworld.moedas.Banco.depositar(jogador, 0);
-                else br.com.frxcode.frxworld.moedas.Banco.mostrar(jogador);
-            }
+        if (papel.equals("banqueiro") || papel.equals("cambista") && !evento.getEntity().isShiftKeyDown()) {
+            if (evento.getEntity() instanceof ServerPlayer jogador) MenusNpc.abrirBanco(jogador, e, "", true);
             evento.setCanceled(true);
             evento.setCancellationResult(InteractionResult.SUCCESS);
             return;
@@ -457,7 +465,7 @@ public class NpcsReino {
                 double desc = Reputacao.desconto(jogador, reinoId);
                 Reino rr = Reputacao.reino(reinoId);
                 ofertas.addAll(papel.equals("mercador")
-                        ? Lojas.mercador(desc, Reputacao.indice(Reputacao.pontos(jogador, reinoId)), rr != null ? rr.nome() : "")
+                        ? Lojas.mercador(desc, Reputacao.indice(Reputacao.pontos(jogador, reinoId)), rr != null ? rr.nome() : "", br.com.frxcode.frxworld.progressao.Progressao.dados(jogador).nivel())
                         : Lojas.comprador(desc));
             } else {
                 ofertas.addAll(papel.equals("mercador") ? Lojas.mercador() : Lojas.comprador());
@@ -466,7 +474,16 @@ public class NpcsReino {
                 && !papel.equals("rei") && !papel.equals("guarda")) {
             // demais lojistas do reino: desconto da reputação no preço (volta ao normal ao fechar a troca)
             double desc = Reputacao.desconto(jogador, e.getPersistentData().getString("frx_reino"));
-            if (desc > 0) for (net.minecraft.world.item.trading.MerchantOffer o : v.getOffers())
+            if (papel.equals("ferreiro") || papel.equals("armeiro")) {
+                // loja pelo nível do jogador (o desconto já entra no preço)
+                v.getOffers().clear();
+                v.getOffers().addAll(Lojas.forja(papel.equals("armeiro"), br.com.frxcode.frxworld.progressao.Progressao.dados(jogador).nivel(), desc,
+                        jogador.server, e.getPersistentData().getString("frx_reino") + papel));
+            } else if (papel.equals("cozinheiro")) {
+                v.getOffers().clear();
+                v.getOffers().addAll(Lojas.comida(br.com.frxcode.frxworld.progressao.Progressao.dados(jogador).nivel(), desc,
+                        jogador.server, e.getPersistentData().getString("frx_reino") + papel));
+            } else if (desc > 0) for (net.minecraft.world.item.trading.MerchantOffer o : v.getOffers())
                 o.addToSpecialPriceDiff(-(int) Math.floor(o.getBaseCostA().getCount() * desc));
         }
         if (evento.getEntity() instanceof ServerPlayer jogador) {

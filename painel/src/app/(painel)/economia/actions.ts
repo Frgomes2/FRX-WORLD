@@ -49,13 +49,14 @@ export async function excluirItem(f: FormData) {
   revalidatePath("/economia");
 }
 
-export type ItemLojaDados = { item: string; qtd: number; preco: number; ativo: boolean };
+export type ItemLojaDados = { item: string; qtd: number; preco: number; ativo: boolean; nivelMin: number };
 
 /** Salva a lista inteira de uma loja (a ordem é a posição na lista). */
 export async function salvarLoja(loja: string, itens: ItemLojaDados[]): Promise<{ ok: boolean; erro?: string }> {
   await exigirAdmin();
   const lista = z.array(z.object({
     item: schema.shape.item, qtd: schema.shape.qtd, preco: schema.shape.preco, ativo: z.boolean(),
+    nivelMin: z.coerce.number().int().min(1).max(1000).default(1),
   })).max(200).safeParse(itens);
   const l = z.enum(["MERCADOR", "COMPRADOR"]).safeParse(loja);
   if (!lista.success || !l.success) {

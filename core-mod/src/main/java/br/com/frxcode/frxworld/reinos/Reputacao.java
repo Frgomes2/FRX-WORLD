@@ -193,6 +193,7 @@ public class Reputacao {
         if (t.equalsIgnoreCase("nenhum")) Progressao.dados(p).definirTitulo("");
         else if (titulos(p).contains(t)) Progressao.dados(p).definirTitulo(t);
         else { p.sendSystemMessage(Component.literal("Você não tem esse título.").withStyle(ChatFormatting.RED)); return; }
+        br.com.frxcode.frxworld.rede.Rede.sincronizar(p);   // o título aparece em cima da cabeça para os outros
         Progressao.atualizarNome(p);
         Progressao.enviarAoPainel(p, false);
         p.sendSystemMessage(Component.literal(t.equalsIgnoreCase("nenhum") ? "Título removido." : "Agora você é \"" + t + "\".").withStyle(ChatFormatting.GREEN));

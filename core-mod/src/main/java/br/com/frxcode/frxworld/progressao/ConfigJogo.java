@@ -62,6 +62,21 @@ public final class ConfigJogo {
     public static double xpMultiplicador() { return num(secao("progressao"), "xpMultiplicador", Config.XP_MULTIPLICADOR.get()); }
 
     // ------------------------------------------------------------------ ranks
+    public static int totalRanks() { return RANKS.length; }
+    public static String nomeRank(int indice) { return RANKS[Math.max(0, Math.min(RANKS.length - 1, indice))]; }
+    /** Nível mínimo do rank de índice i (0 = F ... 6 = S). */
+    public static int nivelMinDoRank(int indice) {
+        String alvo = nomeRank(indice);
+        for (int n = 1; n <= 1000; n++) if (rankDoNivel(n).equals(alvo)) return n;
+        return RANKS_PADRAO[Math.max(0, Math.min(RANKS.length - 1, indice))];
+    }
+    /** Índice do rank que o nível permitiria (o rank de verdade também depende da prova da Guilda). */
+    public static int indiceDoNivel(int nivel) {
+        String r = rankDoNivel(nivel);
+        for (int i = 0; i < RANKS.length; i++) if (RANKS[i].equals(r)) return i;
+        return 0;
+    }
+
     public static String rankDoNivel(int nivel) {
         int[] minimos = RANKS_PADRAO.clone();
         JsonObject a = atual;

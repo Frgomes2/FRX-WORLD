@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { DIMENSOES_PADRAO } from "@/lib/dimensoes";
 import type { Prisma } from "@/generated/prisma/client";
 
 /** Configuração de jogo editada no painel e lida pelo servidor Minecraft. */
@@ -44,9 +45,10 @@ export const configSchema = z.object({
       eliteNivelMin: z.number().int().min(1).max(200).default(3),
       campeaoChance: z.number().min(0).max(10).default(0.5),   // % de nascer Campeão
       campeaoNivelMin: z.number().int().min(1).max(200).default(10),
+      dimensoes: z.record(z.string().regex(/^[a-z0-9_.-]+:[a-z0-9_./-]+$/), z.tuple([z.number().int().min(1).max(200), z.number().int().min(1).max(200)])).default(DIMENSOES_PADRAO),
     })
     .default({ blocosPorNivel: 250, nivelMax: 60, vidaPct: 10, danoPct: 6, armaduraPorNivel: 0.25, moedaChance: 30, moedaPorNivel: 1,
-      eliteChance: 5, eliteNivelMin: 3, campeaoChance: 0.5, campeaoNivelMin: 10 }),
+      eliteChance: 5, eliteNivelMin: 3, campeaoChance: 0.5, campeaoNivelMin: 10, dimensoes: DIMENSOES_PADRAO }),
   invasoes: z
     .object({
       ativo: z.boolean(),
@@ -147,7 +149,7 @@ export const CONFIG_PADRAO: ConfigJogo = {
   forja: FORJA_PADRAO,
   floresta: FLORESTA_PADRAO,
   zonas: { blocosPorNivel: 250, nivelMax: 60, vidaPct: 6, danoPct: 3.5, armaduraPorNivel: 0.2, moedaChance: 30, moedaPorNivel: 1,
-    eliteChance: 5, eliteNivelMin: 3, campeaoChance: 0.5, campeaoNivelMin: 10 },
+    eliteChance: 5, eliteNivelMin: 3, campeaoChance: 0.5, campeaoNivelMin: 10, dimensoes: DIMENSOES_PADRAO },
   taverna: {
     nome: "Bartolomeu",
     falas: [

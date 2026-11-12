@@ -13,7 +13,7 @@ import net.minecraftforge.network.simple.SimpleChannel;
 
 /** Canal de rede do FRX-WORLD. Cliente e servidor precisam do mod na mesma versão de protocolo. */
 public final class Rede {
-    private static final String PROTOCOLO = "10";
+    private static final String PROTOCOLO = "13";
 
     public static final SimpleChannel CANAL = NetworkRegistry.newSimpleChannel(
             new ResourceLocation(FrxWorld.MOD_ID, "principal"),
@@ -106,14 +106,24 @@ public final class Rede {
                 .encoder(SyncRotuloMob::codificar).decoder(SyncRotuloMob::decodificar).consumerMainThread(SyncRotuloMob::tratar).add();
         CANAL.messageBuilder(AcaoRaca.class, id++, NetworkDirection.PLAY_TO_SERVER)
                 .encoder(AcaoRaca::codificar).decoder(AcaoRaca::decodificar).consumerMainThread(AcaoRaca::tratar).add();
+        CANAL.messageBuilder(NumeroDano.class, id++, NetworkDirection.PLAY_TO_CLIENT)
+                .encoder(NumeroDano::codificar).decoder(NumeroDano::decodificar).consumerMainThread(NumeroDano::tratar).add();
+        CANAL.messageBuilder(AvisoSistema.class, id++, NetworkDirection.PLAY_TO_CLIENT)
+                .encoder(AvisoSistema::codificar).decoder(AvisoSistema::decodificar).consumerMainThread(AvisoSistema::tratar).add();
+        CANAL.messageBuilder(AbrirMenu.class, id++, NetworkDirection.PLAY_TO_CLIENT)
+                .encoder(AbrirMenu::codificar).decoder(AbrirMenu::decodificar).consumerMainThread(AbrirMenu::tratar).add();
+        CANAL.messageBuilder(AcaoMenu.class, id++, NetworkDirection.PLAY_TO_SERVER)
+                .encoder(AcaoMenu::codificar).decoder(AcaoMenu::decodificar).consumerMainThread(AcaoMenu::tratar).add();
     }
+
+    private static String titulo(DadosJogador d) { String t = d.titulo(); return t == null ? "" : t.length() > 60 ? t.substring(0, 60) : t; }
 
     /** Manda os dados completos para o próprio jogador e o nível dele para todos os outros. */
     public static void sincronizar(ServerPlayer jogador) {
         DadosJogador d = Progressao.dados(jogador);
         CANAL.send(PacketDistributor.PLAYER.with(() -> jogador),
-                new SyncNivel(jogador.getUUID(), d.nivel(), ConfigJogo.rankDoNivel(d.nivel()), d.xp(), Progressao.xpParaProximo(d.nivel())));
-        SyncNivel publico = new SyncNivel(jogador.getUUID(), d.nivel(), ConfigJogo.rankDoNivel(d.nivel()), 0, 0);
+                new SyncNivel(jogador.getUUID(), d.nivel(), Progressao.rank(jogador), d.xp(), Progressao.xpParaProximo(d.nivel()), titulo(d)));
+        SyncNivel publico = new SyncNivel(jogador.getUUID(), d.nivel(), Progressao.rank(jogador), 0, 0, titulo(d));
         for (ServerPlayer outro : jogador.server.getPlayerList().getPlayers()) {
             if (outro != jogador) CANAL.send(PacketDistributor.PLAYER.with(() -> outro), publico);
         }
@@ -124,7 +134,7 @@ public final class Rede {
         for (ServerPlayer outro : jogador.server.getPlayerList().getPlayers()) {
             if (outro == jogador) continue;
             DadosJogador d = Progressao.dados(outro);
-            CANAL.send(PacketDistributor.PLAYER.with(() -> jogador), new SyncNivel(outro.getUUID(), d.nivel(), ConfigJogo.rankDoNivel(d.nivel()), 0, 0));
+            CANAL.send(PacketDistributor.PLAYER.with(() -> jogador), new SyncNivel(outro.getUUID(), d.nivel(), Progressao.rank(outro), 0, 0, titulo(d)));
         }
     }
 }

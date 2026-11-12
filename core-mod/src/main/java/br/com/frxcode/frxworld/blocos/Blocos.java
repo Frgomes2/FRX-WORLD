@@ -26,6 +26,8 @@ public final class Blocos {
 
     public static final RegistryObject<Item> TOMO_ARCANO = ITENS.register("tomo_arcano",
             br.com.frxcode.frxworld.habilidades.ItemTomo::new);
+    public static final RegistryObject<Item> CARTAO = ITENS.register("cartao_aventureiro",
+            br.com.frxcode.frxworld.progressao.ItemCartao::new);
 
     public static final RegistryObject<Block> NUCLEO_DUNGEON = BLOCOS.register("nucleo_dungeon",
             () -> new BlocoNucleo(BlockBehaviour.Properties.copy(Blocks.BEDROCK).lightLevel(s -> 7)));

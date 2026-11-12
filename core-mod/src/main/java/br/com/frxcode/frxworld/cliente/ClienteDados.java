@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /** Dados recebidos do servidor (só existe no cliente). */
 public final class ClienteDados {
     private static final Map<UUID, String> ROTULOS = new ConcurrentHashMap<>();
+    private static final Map<UUID, String> TITULOS = new ConcurrentHashMap<>();
 
     public static int meuNivel = 1;
     public static String meuRank = "F";
@@ -23,6 +24,7 @@ public final class ClienteDados {
     public static void aplicar(SyncNivel msg) {
         Minecraft mc = Minecraft.getInstance();
         ROTULOS.put(msg.jogador(), msg.rank() + " · Nv " + msg.nivel());
+        if (msg.titulo().isEmpty()) TITULOS.remove(msg.jogador()); else TITULOS.put(msg.jogador(), msg.titulo());
 
         if (mc.player != null && mc.player.getUUID().equals(msg.jogador())) {
             meuNivel = msg.nivel();
@@ -43,8 +45,14 @@ public final class ClienteDados {
         return ROTULOS.get(jogador);
     }
 
+    /** Título escolhido pelo jogador ("" se não tem). */
+    public static String tituloDe(UUID jogador) {
+        return TITULOS.getOrDefault(jogador, "");
+    }
+
     public static void limpar() {
         ROTULOS.clear();
+        TITULOS.clear();
         recebido = false;
     }
 }

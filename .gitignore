@@ -41,6 +41,10 @@ cliente/jogo/*
 !cliente/jogo/packwiz-installer-bootstrap.jar
 cliente/forge-installer.jar
 cliente/forge-installer.jar.log
+amigos/forge-installer.jar
+amigos/forge-installer.jar.log
+# jar do AutoModpack: copiado do server/mods pelo tools/automodpack-sincronizar.ps1
+amigos/automodpack-*.jar
 
 # Mapas baixados (originais grandes; os reinos prontos estao em server/frxworld/reinos)
 reinos/*.zip
@@ -63,3 +67,8 @@ server/frxworld/senhas.json
 # Kit compactado para mandar aos amigos
 amigos.rar
 amigos.zip
+
+# Agente de controle (estado e pedidos em tempo de execucao)
+controle/pedido.txt
+controle/estado.txt
+controle/batida.txt

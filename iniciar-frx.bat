@@ -2,11 +2,30 @@
 chcp 65001 >nul
 title FRX-WORLD
 cd /d "%~dp0"
+rem /auto = chamado pelo agente (sem perguntas, sem pausas, sem abrir o navegador)
+set "AUTO="
+if /i "%~1"=="/auto" set "AUTO=1"
 echo.
 echo   ========================================
 echo                FRX-WORLD
 echo   ========================================
 echo.
+
+rem ---------- 0. Ja esta ligado? (ligar de novo por cima derrubava o servidor sem salvar)
+curl -s -m 3 -o nul http://localhost:3000/login
+if errorlevel 1 goto :naoLigado
+echo   O FRX-WORLD ja esta ligado.
+echo   Para aplicar atualizacoes e preciso desligar com seguranca (salva o mundo e faz backup) e ligar de novo.
+if defined AUTO goto :reiniciarAuto
+choice /c SN /n /m "  Reiniciar tudo agora? [S/N] "
+if errorlevel 2 (
+  start "" http://localhost:3000/servidor
+  exit /b 0
+)
+:reiniciarAuto
+call "%~dp0desligar-frx.bat"
+cd /d "%~dp0"
+:naoLigado
 
 rem ---------- 1. Docker (banco do painel)
 echo [1/4] Banco de dados...
@@ -22,21 +41,21 @@ if not errorlevel 1 goto :dockerOk
 set /a TENTATIVAS+=1
 if %TENTATIVAS% LSS 60 goto :esperaDocker
 echo [ERRO] O Docker nao abriu. Abra o Docker Desktop e rode o atalho de novo.
-pause & exit /b 1
+(if not defined AUTO pause) & exit /b 1
 :dockerOk
 docker compose up -d >nul 2>&1
 echo       ok
 
 rem ---------- 1b. Core mod: compila sozinho se o codigo mudou
 set "PRECISA="
-for /f %%R in ('powershell -NoProfile -Command "$j=Get-ChildItem 'core-mod\build\libs\frxworld-*.jar' -ErrorAction SilentlyContinue ^| Sort-Object LastWriteTime -Descending ^| Select-Object -First 1; $s=Get-ChildItem 'core-mod\src','core-mod\gradle.properties','core-mod\build.gradle' -Recurse -File ^| Sort-Object LastWriteTime -Descending ^| Select-Object -First 1; if (-not $j -or $s.LastWriteTime -gt $j.LastWriteTime) {'SIM'} else {'NAO'}"') do set "PRECISA=%%R"
+for /f %%R in ('powershell -NoProfile -Command "$j=Get-ChildItem 'core-mod\build\libs\frxworld-*.jar' -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1; $s=Get-ChildItem 'core-mod\src','core-mod\gradle.properties','core-mod\build.gradle' -Recurse -File | Sort-Object LastWriteTime -Descending | Select-Object -First 1; if (-not $j -or $s.LastWriteTime -gt $j.LastWriteTime) {'SIM'} else {'NAO'}"') do set "PRECISA=%%R"
 if /i "%PRECISA%"=="SIM" (
   echo [1b] Core mod mudou: compilando, pode levar alguns minutos...
   call core-mod\compilar.bat /sem-pausa > logs\compilacao.log 2>&1
   if errorlevel 1 (
     echo [ERRO] A compilacao do core mod falhou. Detalhes em logs\compilacao.log
     powershell -NoProfile -Command "Get-Content '%~dp0logs\compilacao.log' -Tail 25"
-    pause & exit /b 1
+    (if not defined AUTO pause) & exit /b 1
   )
   echo       ok
 )
@@ -76,6 +95,8 @@ java -jar packwiz-installer-bootstrap.jar -g -s server http://localhost:8080/pac
 popd
 echo       Atualizando mods do seu jogo...
 call "%~dp0cliente\atualizar-mods.bat" /sem-pausa >nul 2>&1
+rem AutoModpack: mods so de cliente + jar para o kit dos amigos
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0tools\automodpack-sincronizar.ps1" > logs\automodpack.log 2>&1
 echo       ok
 cd /d "%~dp0"
 
@@ -88,18 +109,18 @@ if not exist "painel\node_modules" (
 )
 pushd painel
 echo       Atualizando banco do painel...
-call npx prisma migrate deploy || ( echo [ERRO] Falha ao atualizar o banco. & popd & pause & exit /b 1 )
-call npx prisma generate || ( echo [ERRO] Falha ao gerar o Prisma Client. & popd & pause & exit /b 1 )
+call npx prisma migrate deploy || ( echo [ERRO] Falha ao atualizar o banco. & popd & (if not defined AUTO pause) & exit /b 1 )
+call npx prisma generate || ( echo [ERRO] Falha ao gerar o Prisma Client. & popd & (if not defined AUTO pause) & exit /b 1 )
 rem Modo producao (o painel fica acessivel de fora pelo Cloudflare Tunnel): so recompila se o codigo mudou
 set "BUILD="
-for /f %%R in ('powershell -NoProfile -Command "$b=Get-Item '.next\BUILD_ID' -ErrorAction SilentlyContinue; $s=Get-ChildItem 'src','prisma','public','package.json','.env' -Recurse -File -ErrorAction SilentlyContinue ^| Where-Object { $_.FullName -notmatch '\\generated\\' } ^| Sort-Object LastWriteTime -Descending ^| Select-Object -First 1; if (-not $b -or $s.LastWriteTime -gt $b.LastWriteTime) {'SIM'} else {'NAO'}"') do set "BUILD=%%R"
+for /f %%R in ('powershell -NoProfile -Command "$b=Get-Item '.next\BUILD_ID' -EA 0; $t=[DateTime[]](@(Get-ChildItem 'src','prisma','public','package.json','.env' -Recurse -File -EA 0).Where({$_.FullName -notmatch 'generated'}).ForEach('LastWriteTime')); [Array]::Sort($t); if (-not $b -or $t[-1] -gt $b.LastWriteTime) {'SIM'} else {'NAO'}"') do set "BUILD=%%R"
 if /i "%BUILD%"=="SIM" (
   echo       Painel mudou: compilando, pode levar uns minutos...
   call npm run build > "%~dp0logs\painel-build.log" 2>&1
   if errorlevel 1 (
     echo [ERRO] A compilacao do painel falhou. Detalhes em logs\painel-build.log
     powershell -NoProfile -Command "Get-Content '%~dp0logs\painel-build.log' -Tail 25"
-    popd & pause & exit /b 1
+    popd & (if not defined AUTO pause) & exit /b 1
   )
 )
 popd
@@ -113,7 +134,7 @@ if not errorlevel 1 goto :painelOk
 set /a TENTATIVAS+=1
 if %TENTATIVAS% LSS 60 goto :esperaPainel
 echo [ERRO] O painel nao respondeu. Veja a janela "FRX-WORLD Painel" na barra de tarefas.
-pause & exit /b 1
+(if not defined AUTO pause) & exit /b 1
 :painelOk
 echo       ok
 
@@ -141,7 +162,7 @@ echo       ok (acompanhe pelo console na aba Servidor)
 
 rem ---------- 4. Abre o navegador
 echo [4/4] Abrindo o painel...
-start "" http://localhost:3000/servidor
+if not defined AUTO start "" http://localhost:3000/servidor
 echo.
 echo   Tudo no ar. O servidor esta ligando: quando o console mostrar "Done", abra o jogo.
 echo   As janelas "FRX-WORLD Pack" e "FRX-WORLD Painel" ficam minimizadas: nao feche.

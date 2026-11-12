@@ -366,7 +366,39 @@
     "praca": [
       26,
       -22
-    ]
+    ],
+    "npcs": {
+      "cambista": [
+        -84,
+        75,
+        -22
+      ],
+      "banqueiro": [
+        -62,
+        71,
+        -3
+      ],
+      "armeiro": [
+        -50,
+        71,
+        1
+      ],
+      "cozinheiro": [
+        -105,
+        71,
+        -2
+      ],
+      "mercador": [
+        -98,
+        71,
+        -2
+      ],
+      "recepcionista": [
+        -88,
+        71,
+        1
+      ]
+    }
   },
   "leste-sakura": {
     "nome": "Império do Leste — Distrito Sakura",

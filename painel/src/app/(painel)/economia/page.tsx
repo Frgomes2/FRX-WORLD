@@ -5,7 +5,7 @@ import { Riqueza } from "./riqueza";
 export default async function EconomiaPage() {
   const itens = await prisma.itemLoja.findMany({ orderBy: [{ ordem: "asc" }, { criadoEm: "asc" }] });
   const jogadores = await prisma.jogador.findMany({ orderBy: [{ banco: "desc" }, { moedas: "desc" }], select: { uuid: true, nick: true, moedas: true, banco: true } });
-  const lista = (loja: string) => itens.filter((i) => i.loja === loja).map((i) => ({ item: i.item, qtd: i.qtd, preco: i.preco, ativo: i.ativo }));
+  const lista = (loja: string) => itens.filter((i) => i.loja === loja).map((i) => ({ item: i.item, qtd: i.qtd, preco: i.preco, ativo: i.ativo, nivelMin: i.nivelMin }));
 
   return (
     <>

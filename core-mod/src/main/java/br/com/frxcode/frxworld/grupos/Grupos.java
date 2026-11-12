@@ -20,10 +20,8 @@ import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
@@ -285,12 +283,7 @@ public class Grupos {
 
     // ------------------------------------------------------------------ eventos
 
-    /** Sem dano entre membros do grupo. */
-    @SubscribeEvent(priority = EventPriority.HIGH)
-    public void semFogoAmigo(LivingAttackEvent e) {
-        if (e.getEntity() instanceof ServerPlayer alvo && e.getSource().getEntity() instanceof ServerPlayer atacante
-                && alvo != atacante && mesmoGrupo(alvo, atacante)) e.setCanceled(true);
-    }
+    // Dano entre membros do grupo é permitido (decisão de 10/11/2026): o antigo "sem fogo amigo" foi removido.
 
     @SubscribeEvent
     public void aoMorrer(LivingDeathEvent e) {

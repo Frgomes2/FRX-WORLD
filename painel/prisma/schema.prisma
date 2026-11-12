@@ -184,6 +184,7 @@ model ItemLoja {
   item         String   // ex.: minecraft:bread
   qtd          Int      @default(1)
   preco        Int      // em cobre: 10 = 1 prata, 100 = 1 ouro
+  nivelMin     Int      @default(1) // mercador: só aparece para jogadores deste nível para cima
   ativo        Boolean  @default(true)
   ordem        Int      @default(0)
   criadoEm     DateTime @default(now())

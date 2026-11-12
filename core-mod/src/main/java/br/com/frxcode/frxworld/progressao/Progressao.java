@@ -51,7 +51,7 @@ public final class Progressao {
     }
 
     public static String rank(ServerPlayer jogador) {
-        return ConfigJogo.rankDoNivel(dados(jogador).nivel());
+        return Guilda.rank(jogador);
     }
 
     /** Soma XP, sobe quantos níveis couberem, avisa o jogador e sincroniza. */
@@ -59,6 +59,8 @@ public final class Progressao {
         if (quantidade <= 0) return;
         double bonusRaca = br.com.frxcode.frxworld.racas.RacasJogador.num(jogador, "xp");
         if (bonusRaca != 0) quantidade = Math.max(1, Math.round(quantidade * (1 + bonusRaca / 100)));
+        double bonusUnica = br.com.frxcode.frxworld.habilidades.Unica.bonusXp(jogador);
+        if (bonusUnica > 0) quantidade = Math.max(1, Math.round(quantidade * (1 + bonusUnica)));
         DadosJogador d = dados(jogador);
         int maximo = ConfigJogo.nivelMaximo();
         int nivel = d.nivel();
@@ -94,7 +96,7 @@ public final class Progressao {
     public static void enviarAoPainel(ServerPlayer jogador, boolean morreu) {
         DadosJogador d = dados(jogador);
         PainelApi.enviarProgresso(jogador.getUUID(), jogador.getGameProfile().getName(),
-                d.nivel(), d.xp(), ConfigJogo.rankDoNivel(d.nivel()), morreu, d.classe(),
+                d.nivel(), d.xp(), Guilda.rank(jogador), morreu, d.classe(),
                 br.com.frxcode.frxworld.moedas.Moedas.contar(jogador), br.com.frxcode.frxworld.moedas.Banco.saldo(jogador),
                 d.titulo(), d.conquistas().size(), br.com.frxcode.frxworld.reinos.Campanhas.resumoPainel(d));
     }
@@ -105,20 +107,11 @@ public final class Progressao {
     }
 
     private static void aoSubirNivel(ServerPlayer jogador, int nivel, String rankNovo) {
-        jogador.connection.send(new ClientboundSetTitlesAnimationPacket(10, 50, 20));
-        if (rankNovo != null) {
-            jogador.connection.send(new ClientboundSetTitleTextPacket(
-                    Component.literal("Rank " + rankNovo).withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD)));
-            jogador.connection.send(new ClientboundSetSubtitleTextPacket(
-                    Component.literal("Nível " + nivel + " · novas áreas liberadas").withStyle(ChatFormatting.YELLOW)));
-            jogador.level().playSound(null, jogador.blockPosition(), SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.PLAYERS, 1.0f, 1.0f);
-        } else {
-            jogador.connection.send(new ClientboundSetTitleTextPacket(
-                    Component.literal("Nível " + nivel).withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD)));
-            jogador.connection.send(new ClientboundSetSubtitleTextPacket(
-                    Component.literal("Você ficou mais forte").withStyle(ChatFormatting.YELLOW)));
-            jogador.level().playSound(null, jogador.blockPosition(), SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 1.0f, 0.8f);
-        }
+        Sistema.avisar(jogador, "Você subiu de nível!", "Nível " + nivel + ". Você ficou mais forte.", Sistema.OURO);
+        jogador.level().playSound(null, jogador.blockPosition(), SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 1.0f, 0.8f);
+        // o nível liberou um rank novo: o rank só muda depois da prova na Guilda
+        if (rankNovo != null && ConfigJogo.indiceDoNivel(nivel) > Guilda.indice(jogador))
+            Sistema.avisar(jogador, "Prova de promoção liberada", "Procure a recepcionista da Guilda numa capital para tentar o Rank " + rankNovo + ".", Sistema.AZUL);
         atualizarNome(jogador);
     }
 }

@@ -119,7 +119,7 @@ public class EventosProgressao {
     public void nome(PlayerEvent.NameFormat evento) {
         if (evento.getEntity() instanceof ServerPlayer p) {
             p.getCapability(ProvedorDados.DADOS).ifPresent(d -> evento.setDisplayname(
-                    Component.literal("[" + ConfigJogo.rankDoNivel(d.nivel()) + " · Nv " + d.nivel() + "] ").withStyle(ChatFormatting.GOLD)
+                    Component.literal("[" + Guilda.rank(p) + " · Nv " + d.nivel() + "] ").withStyle(ChatFormatting.GOLD)
                             .append(evento.getDisplayname())
                             .append(d.titulo().isEmpty() ? Component.empty() : Component.literal(" «" + d.titulo() + "»").withStyle(ChatFormatting.LIGHT_PURPLE))));
         }
@@ -130,7 +130,7 @@ public class EventosProgressao {
     public void nomeTab(PlayerEvent.TabListNameFormat evento) {
         if (evento.getEntity() instanceof ServerPlayer p) {
             p.getCapability(ProvedorDados.DADOS).ifPresent(d -> evento.setDisplayName(
-                    Component.literal("[" + ConfigJogo.rankDoNivel(d.nivel()) + " · Nv " + d.nivel() + "] ").withStyle(ChatFormatting.GOLD)
+                    Component.literal("[" + Guilda.rank(p) + " · Nv " + d.nivel() + "] ").withStyle(ChatFormatting.GOLD)
                             .append(Component.literal(p.getGameProfile().getName()))
                             .append(d.titulo().isEmpty() ? Component.empty() : Component.literal(" «" + d.titulo() + "»").withStyle(ChatFormatting.LIGHT_PURPLE))));
         }
@@ -144,7 +144,7 @@ public class EventosProgressao {
         evento.getDispatcher().register(Commands.literal("nivel").executes(ctx -> {
             ServerPlayer p = ctx.getSource().getPlayerOrException();
             DadosJogador d = Progressao.dados(p);
-            p.sendSystemMessage(Component.literal("Rank " + ConfigJogo.rankDoNivel(d.nivel()) + " · Nível " + d.nivel()).withStyle(ChatFormatting.GOLD)
+            p.sendSystemMessage(Component.literal("Rank " + Guilda.rank(p) + " · Nível " + d.nivel()).withStyle(ChatFormatting.GOLD)
                     .append(Component.literal("  " + d.xp() + " / " + Progressao.xpParaProximo(d.nivel()) + " XP")
                             .withStyle(ChatFormatting.GRAY)));
             return 1;

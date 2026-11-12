@@ -101,18 +101,19 @@ No painel: **Administradores** → Adicionar admin (nome, e-mail, senha inicial)
 
 Esses launchers não fazem login na Mojang. Para eles entrarem, o servidor precisa rodar com `online-mode=false` em `server\server.properties` (e `enforce-secure-profile=false`). **Essa troca é decisão do dono do servidor e se faz à mão.** Sem autenticação, qualquer pessoa pode entrar com qualquer nick, inclusive o seu.
 
-O core mod (0.41+) protege isso sozinho quando detecta o servidor offline:
+O acesso continua só pelo **convite**: no primeiro login o jogador usa `/convite CÓDIGO` e, a partir daí, o nick fica liberado para sempre, sem senha (decisão do Flavio, 10/11/2026). Até usar o convite, o jogador fica parado, sem chat e sem comandos.
 
-1. Primeiro login: `/convite CÓDIGO` e depois `/registrar SENHA SENHA`. A senha fica presa ao nick.
-2. Nas outras vezes: `/login SENHA`.
-3. Até entrar na conta, o jogador fica parado e protegido, sem chat e sem comandos (só convite, login e registrar). Com 5 senhas erradas, é desconectado.
-4. Esqueceu a senha: `/frx senha <nick> resetar`. No próximo login ele cria outra.
-
-As senhas ficam só como hash (PBKDF2 com sal) em `server\frxworld\senhas.json`, fora do mundo e fora do git.
-
-Com o servidor online (`online-mode=true`), nada disso aparece: só o convite.
+**Cuidado:** sem a Mojang, quem souber um nick liberado entra como ele. Por isso não deixe OP em nick de jogador; para comandos de admin, use o console do painel.
 
 **Ao trocar para offline:**
 - Os UUIDs mudam, então os jogadores começam do zero. Faça a troca junto com o mundo novo.
-- Dê OP de novo ao seu nick pelo console: `op SeuNick`.
+- Se quiser OP no jogo, dê pelo console (`op SeuNick`), sabendo que quem usar esse nick também terá OP.
 - O kit do amigo (`2-atualizar-mods.bat`) pergunta o launcher: com TLauncher ou Shiginima, os mods vão para a `.minecraft`. O LEIA-ME explica cada launcher.
+
+## AutoModpack (mods baixam sozinhos ao entrar)
+
+- Mod `automodpack` (5.0.0-rc.7, Forge 1.20.1) no pack, lado `both`. O servidor gera o modpack a partir de `server/mods` a cada start.
+- Config: `server/automodpack/server.conf` — nome `FRX-WORLD`, `auto-exclude-server-side-mods: DISABLED` (o modo METADATA tirava o `mezz_config`, que o JEI precisa), `connection-mode: HOLEPUNCH` (usa a mesma porta do Minecraft, funciona pelo playit).
+- Mods só de cliente (ex.: embeddium) entram por `server/automodpack/host-modpack/main/mods/`, sincronizados por `tools/automodpack-sincronizar.ps1` (chamado no `iniciar-frx.bat`), que também copia o jar do AutoModpack para `amigos/`.
+- Fingerprint do servidor (amigos confirmam na 1ª conexão): `50ebed6e2080396bf702d77fd8b25ecb7e52ce793adc6d49680ba60d51d23129` (também em `/automodpack host fingerprint`).
+- Kit novo: `amigos/INSTALAR.bat` (Forge + AutoModpack em `%APPDATA%\.minecraft\mods`). O kit antigo com packwiz continua funcionando.

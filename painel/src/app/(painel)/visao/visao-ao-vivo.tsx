@@ -250,7 +250,7 @@ function ListaRanking({ itens, formato, vazio }: { itens: Ranking[]; formato: (v
   return (
     <ol className="space-y-2">
       {itens.map((j, i) => (
-        <li key={j.nick} className="flex items-center gap-2.5 rounded-lg bg-pedra-950/60 px-2 py-1.5">
+        <li key={`${j.nick}-${i}`} className="flex items-center gap-2.5 rounded-lg bg-pedra-950/60 px-2 py-1.5">
           <span className="w-6 text-center text-sm">{medalha[i]}</span>
           <Avatar uuid={j.uuid} nick={j.nick} tam={24} />
           <div className="min-w-0 flex-1">
@@ -324,7 +324,7 @@ export function VisaoAoVivo({ banco }: { banco: DadosBanco }) {
               {r?.servidor?.iniciadoEm ? <>No ar há <span className="text-pergaminho">{duracao(agora - r.servidor.iniciadoEm)}</span></> : online ? "Ligado fora do painel" : "Ligue pela aba Servidor"}
               {s && <> · core mod <span className="text-pergaminho">v{s.versaoMod}</span></>}
             </p>
-            <p className="text-xs text-pedra-500">
+            <p className="text-xs text-pedra-500" suppressHydrationWarning>
               {new Date(agora).toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })} · {new Date(agora).toLocaleTimeString("pt-BR")}
               {erro && <span className="ml-2 text-red-400">· sem resposta do painel</span>}
             </p>

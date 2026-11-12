@@ -185,6 +185,7 @@ public final class Missoes {
                     r.progresso = 0;
                     darRecompensa(p, m);
                     msg = "Missão concluída: " + m.titulo();
+                    br.com.frxcode.frxworld.progressao.Sistema.avisar(p, "Missão concluída", m.titulo() + " — recompensa: " + textoRecompensa(m), br.com.frxcode.frxworld.progressao.Sistema.VERDE);
                     p.sendSystemMessage(Component.literal("✔ " + m.titulo() + " ").withStyle(ChatFormatting.GREEN)
                             .append(Component.literal("+" + textoRecompensa(m)).withStyle(ChatFormatting.GOLD)));
                     p.level().playSound(null, p.blockPosition(), SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 0.8f, 1.4f);

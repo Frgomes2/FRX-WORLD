@@ -12,6 +12,7 @@ O pack é gerenciado pelo **packwiz** em `pack/`. Cada mod é um `mods/<slug>.pw
 | Estruturas | When Dungeons Arise, Dungeons Enhanced, Dungeons and Taverns, IDAS, Repurposed Structures, Structory (+ Towers), Towns and Towers, The Graveyard, Moogs (Voyager/Nether/End), YUNG's (todos), Explorify, Incendium, Nether Depths Upgrade, Nullscape, Unusual End |
 | Mundo | Terralith |
 | NPCs e vilas | Easy NPC (+ config UI), Guard Villagers, Villagers Trading Plus |
+| Equipamento | Rings of Ascension (29 anéis no slot do Curios; só achados em baús, inclusive nas masmorras e no baú do chefe) |
 | Utilidade | Waystones, JourneyMap, JEI, Lootr, Sophisticated Backpacks/Storage, Curios, Supplementaries, Quark, Create, Portable Pet Sphere, KubeJS |
 | Desempenho | Embeddium, ModernFix, FerriteCore, Chunky (pré-geração), spark |
 | Bibliotecas | Architectury, Balm, Blueprint, Citadel, Cristel Lib, GeckoLib, Integrated API, Lionfish API, Moonlight, Obscure API, Puzzles Lib, Resourceful Config/Lib, Rhino, Structure Gel, YUNG's API, Zeta, Fragmentum, MezzConfig, Moogs Structure Lib |

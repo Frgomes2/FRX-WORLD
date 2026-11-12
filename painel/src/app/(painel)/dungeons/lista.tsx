@@ -49,7 +49,7 @@ function Aneis({ dungeons, foco, setFoco }: { dungeons: DungeonLista[]; foco: st
             <path key={d.id} fillRule="evenodd" fill={cor} fillOpacity={ativo ? 0.35 : 0.08} stroke={cor} strokeOpacity={ativo ? 0.9 : 0.3}
               className="cursor-pointer transition-all" onMouseEnter={() => setFoco(d.id)} onMouseLeave={() => setFoco(null)}
               d={`M ${b} 0 A ${b} ${b} 0 1 0 ${-b} 0 A ${b} ${b} 0 1 0 ${b} 0 M ${a} 0 A ${a} ${a} 0 1 1 ${-a} 0 A ${a} ${a} 0 1 1 ${a} 0`}>
-              <title>{d.nome}: {dist(d.distanciaMin)}–{dist(d.distanciaMax)} blocos</title>
+              <title>{`${d.nome}: ${dist(d.distanciaMin)}–${dist(d.distanciaMax)} blocos`}</title>
             </path>
           );
         })}

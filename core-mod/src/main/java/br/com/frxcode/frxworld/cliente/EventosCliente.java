@@ -21,6 +21,8 @@ public final class EventosCliente {
         public static void registrarHud(RegisterGuiOverlaysEvent evento) {
             evento.registerAbove(VanillaGuiOverlay.CHAT_PANEL.id(), "nivel", new HudNivel());
             evento.registerAbove(VanillaGuiOverlay.HOTBAR.id(), "habilidades", new HudHabilidades());
+            evento.registerAboveAll("chefe", new HudChefe());
+            evento.registerAboveAll("sistema", new HudSistema());
         }
 
         /** Traços de raça (orelhas, chifres, cauda...) nos dois modelos de jogador. */
@@ -71,11 +73,12 @@ public final class EventosCliente {
             ClienteStatus.limpar();
             ClienteSombras.limpar();
             ClienteRacas.limpar();
+            HudChefe.limpar();
         }
 
         @SubscribeEvent
         public static void tick(net.minecraftforge.event.TickEvent.ClientTickEvent evento) {
-            if (evento.phase == net.minecraftforge.event.TickEvent.Phase.END) { Teclas.processar(); ClienteStatus.tick(); ClienteRacas.tick(); }
+            if (evento.phase == net.minecraftforge.event.TickEvent.Phase.END) { Teclas.processar(); ClienteStatus.tick(); ClienteRacas.tick(); HudChefe.tick(); }
         }
     }
 }

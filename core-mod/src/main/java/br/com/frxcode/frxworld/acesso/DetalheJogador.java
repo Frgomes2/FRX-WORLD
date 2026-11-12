@@ -117,6 +117,29 @@ public class DetalheJogador {
             efeitos.add(x);
         }
         o.add("efeitos", efeitos);
+        if (br.com.frxcode.frxworld.habilidades.Unica.def(p) != null) {
+            JsonObject u = new JsonObject();
+            u.addProperty("nome", br.com.frxcode.frxworld.habilidades.Unica.def(p).nome());
+            u.addProperty("descricao", br.com.frxcode.frxworld.habilidades.Unica.def(p).descricao());
+            u.addProperty("nivel", br.com.frxcode.frxworld.habilidades.Unica.nivel(p));
+            u.addProperty("efeito", br.com.frxcode.frxworld.habilidades.Unica.efeito(p));
+            u.addProperty("abates", br.com.frxcode.frxworld.habilidades.Unica.abates(p));
+            o.add("unica", u);
+        }
+
+        String racaP = br.com.frxcode.frxworld.racas.RacasJogador.principal(p), racaS = br.com.frxcode.frxworld.racas.RacasJogador.secundaria(p);
+        br.com.frxcode.frxworld.racas.DefRacas.Raca racaDef = br.com.frxcode.frxworld.racas.DefRacas.de(racaP);
+        if (br.com.frxcode.frxworld.racas.RacasJogador.escolheu(p) && racaDef != null) {
+            JsonObject r = new JsonObject();
+            r.addProperty("principal", racaDef.nome());
+            r.addProperty("secundaria", br.com.frxcode.frxworld.racas.DefRacas.nome(racaS));
+            r.addProperty("nivel", br.com.frxcode.frxworld.racas.DefRacas.NOME_NIVEL[Math.max(0, Math.min(3, racaDef.nivel()))]);
+            r.addProperty("descricao", racaDef.descricao());
+            JsonArray bonus = new JsonArray();
+            for (String s : br.com.frxcode.frxworld.racas.DefRacas.resumo(br.com.frxcode.frxworld.racas.DefRacas.somar(racaP, racaS))) bonus.add(s);
+            r.add("bonus", bonus);
+            o.add("raca", r);
+        }
 
         if (Progressao.temDados(p)) {
             DadosJogador d = Progressao.dados(p);

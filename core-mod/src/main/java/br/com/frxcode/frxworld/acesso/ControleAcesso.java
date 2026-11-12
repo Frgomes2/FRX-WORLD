@@ -38,8 +38,6 @@ public class ControleAcesso {
         final double x, y, z;
         int ticksRestantes;
         boolean conferindo = true; // ainda esperando a primeira resposta do painel
-        boolean senha = false;     // já passou do convite; falta /login ou /registrar (servidor sem autenticação da Mojang)
-        int erros = 0;
 
         Pendente(ServerPlayer p, int segundos) {
             this.x = p.getX();
@@ -58,10 +56,10 @@ public class ControleAcesso {
         if (!(evento.getEntity() instanceof ServerPlayer jogador)) return;
 
         if (!Config.ACESSO_ATIVO.get()) {
-            // sem convite: no servidor offline ainda pede a senha da conta
+            // convite desligado: entra direto
             Pendente p = new Pendente(jogador, Config.SEGUNDOS_PARA_CONVITE.get());
             pendentes.put(jogador.getUUID(), p);
-            liberarOuPedirSenha(jogador, p);
+            liberar(jogador, p);
             return;
         }
 
@@ -84,7 +82,7 @@ public class ControleAcesso {
             }
 
             if (Boolean.TRUE.equals(permitido)) {
-                liberarOuPedirSenha(atual, pendente);
+                liberar(atual, pendente);
             } else {
                 pendente.conferindo = false;
                 pedirConvite(atual);
@@ -104,115 +102,33 @@ public class ControleAcesso {
         evento.getDispatcher().register(Commands.literal("convite")
                 .then(Commands.argument("codigo", StringArgumentType.word())
                         .executes(ctx -> usarConvite(ctx.getSource(), StringArgumentType.getString(ctx, "codigo")))));
-        // senha da conta (só vale quando o servidor roda sem autenticação da Mojang: TLauncher, Shiginima...)
-        evento.getDispatcher().register(Commands.literal("registrar")
-                .then(Commands.argument("senha", StringArgumentType.word())
-                        .then(Commands.argument("confirmacao", StringArgumentType.word())
-                                .executes(ctx -> registrar(ctx.getSource(), StringArgumentType.getString(ctx, "senha"),
-                                        StringArgumentType.getString(ctx, "confirmacao"))))));
-        evento.getDispatcher().register(Commands.literal("login")
-                .then(Commands.argument("senha", StringArgumentType.word())
-                        .executes(ctx -> entrar(ctx.getSource(), StringArgumentType.getString(ctx, "senha")))));
-        evento.getDispatcher().register(Commands.literal("frx").requires(f -> f.hasPermission(2))
-                .then(Commands.literal("senha").then(Commands.argument("nick", StringArgumentType.word())
-                        .then(Commands.literal("resetar").executes(ctx -> {
-                            String nick = StringArgumentType.getString(ctx, "nick");
-                            boolean tinha = SenhasContas.apagar(nick);
-                            ctx.getSource().sendSuccess(() -> Component.literal(tinha
-                                    ? "Senha de " + nick + " apagada: no próximo login ele cria outra com /registrar."
-                                    : nick + " não tinha senha.").withStyle(ChatFormatting.GOLD), true);
-                            return 1;
-                        })))));
     }
 
-    // ------------------------------------------------------------------ senha (servidor offline)
+    // ------------------------------------------------------------------ liberação
 
-    /** Convite ok: no servidor original (Mojang) já entra; no offline ainda pede a senha da conta. */
-    private void liberarOuPedirSenha(ServerPlayer jogador, Pendente pendente) {
-        MinecraftServer server = jogador.getServer();
-        if (server == null || server.usesAuthentication()) {
-            pendentes.remove(jogador.getUUID());
-            boasVindas(jogador);
-            return;
-        }
-        pendente.senha = true;
-        pendente.conferindo = false;
-        pendente.ticksRestantes = Math.max(pendente.ticksRestantes, 120 * 20);
-        pedirSenha(jogador);
-    }
-
-    private int registrar(CommandSourceStack fonte, String senha, String confirmacao) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
-        ServerPlayer jogador = fonte.getPlayerOrException();
-        Pendente pd = pendentes.get(jogador.getUUID());
-        String nick = jogador.getGameProfile().getName();
-        if (pd == null || !pd.senha) {
-            jogador.sendSystemMessage(Component.literal(pd == null ? "Você já está logado." : "Primeiro use o convite: /convite CÓDIGO").withStyle(ChatFormatting.GRAY));
-            return 0;
-        }
-        if (SenhasContas.tem(nick)) {
-            jogador.sendSystemMessage(Component.literal("Esta conta já tem senha. Use /login SUA-SENHA").withStyle(ChatFormatting.RED));
-            return 0;
-        }
-        if (!senha.equals(confirmacao)) {
-            jogador.sendSystemMessage(Component.literal("As duas senhas não são iguais. Digite /registrar SENHA SENHA").withStyle(ChatFormatting.RED));
-            return 0;
-        }
-        if (senha.length() < 6) {
-            jogador.sendSystemMessage(Component.literal("A senha precisa ter pelo menos 6 caracteres.").withStyle(ChatFormatting.RED));
-            return 0;
-        }
-        SenhasContas.definir(nick, senha);
-        pendentes.remove(jogador.getUUID());
-        jogador.sendSystemMessage(Component.literal("Senha criada! Nas próximas vezes entre com /login SUA-SENHA").withStyle(ChatFormatting.GREEN));
-        boasVindas(jogador);
-        return 1;
-    }
-
-    private int entrar(CommandSourceStack fonte, String senha) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
-        ServerPlayer jogador = fonte.getPlayerOrException();
-        Pendente pd = pendentes.get(jogador.getUUID());
-        String nick = jogador.getGameProfile().getName();
-        if (pd == null || !pd.senha) {
-            jogador.sendSystemMessage(Component.literal(pd == null ? "Você já está logado." : "Primeiro use o convite: /convite CÓDIGO").withStyle(ChatFormatting.GRAY));
-            return 0;
-        }
-        if (!SenhasContas.tem(nick)) {
-            jogador.sendSystemMessage(Component.literal("Esta conta ainda não tem senha. Crie com /registrar SENHA SENHA").withStyle(ChatFormatting.RED));
-            return 0;
-        }
-        if (!SenhasContas.confere(nick, senha)) {
-            pd.erros++;
-            if (pd.erros >= 5) {
-                pendentes.remove(jogador.getUUID());
-                FrxWorld.LOG.warn("Login: 5 senhas erradas para {} ({})", nick, jogador.getIpAddress());
-                jogador.connection.disconnect(Component.literal("Senha errada 5 vezes. Se esqueceu, peça ao administrador para resetar."));
-            } else {
-                jogador.sendSystemMessage(Component.literal("Senha errada (" + pd.erros + "/5).").withStyle(ChatFormatting.RED));
-            }
-            return 0;
-        }
+    /** Convite ok (ou conta já liberada): entra direto. A conta fica presa ao nick pelo convite. */
+    private void liberar(ServerPlayer jogador, Pendente pendente) {
         pendentes.remove(jogador.getUUID());
         boasVindas(jogador);
-        return 1;
     }
 
-    /** Enquanto não entra: nada de comandos (só convite/login/registrar) nem chat. */
+    /** Enquanto não usa o convite: nada de comandos (só /convite) nem chat. */
     @SubscribeEvent
     public void bloquearComandos(net.minecraftforge.event.CommandEvent e) {
         if (!(e.getParseResults().getContext().getSource().getEntity() instanceof ServerPlayer p) || !pendente(p)) return;
         String cmd = e.getParseResults().getReader().getString().trim();
         if (cmd.startsWith("/")) cmd = cmd.substring(1);
         String raiz = cmd.split(" ")[0].toLowerCase();
-        if (raiz.equals("convite") || raiz.equals("login") || raiz.equals("registrar")) return;
+        if (raiz.equals("convite")) return;
         e.setCanceled(true);
-        p.sendSystemMessage(Component.literal("Entre na sua conta primeiro.").withStyle(ChatFormatting.RED));
+        p.sendSystemMessage(Component.literal("Use o convite primeiro: /convite CÓDIGO").withStyle(ChatFormatting.RED));
     }
 
     @SubscribeEvent
     public void bloquearChat(net.minecraftforge.event.ServerChatEvent e) {
         if (pendente(e.getPlayer())) {
             e.setCanceled(true);
-            e.getPlayer().sendSystemMessage(Component.literal("Entre na sua conta primeiro.").withStyle(ChatFormatting.RED));
+            e.getPlayer().sendSystemMessage(Component.literal("Use o convite primeiro: /convite CÓDIGO").withStyle(ChatFormatting.RED));
         }
     }
 
@@ -220,7 +136,7 @@ public class ControleAcesso {
         ServerPlayer jogador = fonte.getPlayerOrException();
         UUID uuid = jogador.getUUID();
 
-        if (!pendentes.containsKey(uuid) || pendentes.get(uuid).senha) {
+        if (!pendentes.containsKey(uuid)) {
             jogador.sendSystemMessage(Component.literal("Seu convite já foi aceito.").withStyle(ChatFormatting.GRAY));
             return 1;
         }
@@ -243,7 +159,7 @@ public class ControleAcesso {
                     if (resultado.ok()) {
                         atual.sendSystemMessage(Component.literal(resultado.motivo()).withStyle(ChatFormatting.GREEN));
                         Pendente pd = pendentes.get(uuid);
-                        if (pd != null) liberarOuPedirSenha(atual, pd);
+                        if (pd != null) liberar(atual, pd);
                     } else {
                         atual.sendSystemMessage(Component.literal(resultado.motivo()).withStyle(ChatFormatting.RED));
                     }
@@ -271,11 +187,10 @@ public class ControleAcesso {
         pendente.ticksRestantes--;
         if (pendente.ticksRestantes <= 0) {
             pendentes.remove(jogador.getUUID());
-            jogador.connection.disconnect(Component.literal(pendente.senha
-                    ? "Tempo esgotado. Entre de novo e use /login SUA-SENHA."
-                    : "Tempo esgotado. Peça um código de convite ao administrador do FRX-WORLD."));
+            jogador.connection.disconnect(Component.literal(
+                    "Tempo esgotado. Peça um código de convite ao administrador do FRX-WORLD."));
         } else if (pendente.ticksRestantes % (20 * 30) == 0) {
-            if (pendente.senha) pedirSenha(jogador); else pedirConvite(jogador);
+            pedirConvite(jogador);
         }
     }
 
@@ -330,14 +245,6 @@ public class ControleAcesso {
                 .append(Component.literal("Este é um servidor privado. Digite ").withStyle(ChatFormatting.WHITE))
                 .append(Component.literal("/convite SEU-CÓDIGO").withStyle(ChatFormatting.YELLOW))
                 .append(Component.literal(" para liberar sua conta.").withStyle(ChatFormatting.WHITE)));
-    }
-
-    private static void pedirSenha(ServerPlayer jogador) {
-        boolean tem = SenhasContas.tem(jogador.getGameProfile().getName());
-        jogador.sendSystemMessage(Component.literal("🔒 ").withStyle(ChatFormatting.GOLD)
-                .append(Component.literal(tem ? "Digite " : "Crie a senha da sua conta: ").withStyle(ChatFormatting.WHITE))
-                .append(Component.literal(tem ? "/login SUA-SENHA" : "/registrar SENHA SENHA").withStyle(ChatFormatting.YELLOW))
-                .append(Component.literal(tem ? " para entrar." : " (ela protege seu nick: ninguém mais entra com ele).").withStyle(ChatFormatting.WHITE)));
     }
 
     private static void boasVindas(ServerPlayer jogador) {

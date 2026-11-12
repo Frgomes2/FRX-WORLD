@@ -35,7 +35,7 @@ public class Oficios {
     /** chão, poste, parede, telhado, balcão (3, da esquerda p/ direita), fundo (3), luz. */
     private record Tema(String chao, String poste, String parede, String telhado, String[] balcao, String[] fundo, String luz) {}
 
-    private static final Map<String, Tema> TEMAS = Map.of(
+    private static final Map<String, Tema> TEMAS = new java.util.HashMap<>(Map.of(
             "ferreiro", new Tema("minecraft:polished_andesite", "minecraft:stripped_dark_oak_log", "minecraft:cobblestone", "minecraft:deepslate_tiles",
                     new String[]{"minecraft:grindstone", "minecraft:anvil", "minecraft:grindstone"},
                     new String[]{"minecraft:blast_furnace", "minecraft:lava_cauldron", "minecraft:blast_furnace"}, "minecraft:lantern"),
@@ -62,14 +62,25 @@ public class Oficios {
                     new String[]{"minecraft:bookshelf", "minecraft:cartography_table", "minecraft:bookshelf"}, "minecraft:lantern"),
             "taverneiro", new Tema("minecraft:spruce_planks", "minecraft:stripped_spruce_log", "minecraft:spruce_planks", "minecraft:brown_wool",
                     new String[]{"minecraft:barrel", "minecraft:spruce_slab", "minecraft:barrel"},
-                    new String[]{"minecraft:barrel", "minecraft:smoker", "minecraft:barrel"}, "minecraft:lantern"));
+                    new String[]{"minecraft:barrel", "minecraft:smoker", "minecraft:barrel"}, "minecraft:lantern"),
+            "cambista", new Tema("minecraft:polished_granite", "minecraft:stripped_acacia_log", "minecraft:smooth_sandstone", "minecraft:orange_wool",
+                    new String[]{"minecraft:iron_bars", "minecraft:acacia_slab", "minecraft:iron_bars"},
+                    new String[]{"minecraft:barrel", "minecraft:lectern", "minecraft:barrel"}, "minecraft:lantern")));
+    static {
+        TEMAS.put("recepcionista", new Tema("minecraft:dark_oak_planks", "minecraft:stripped_dark_oak_log", "minecraft:dark_oak_planks", "minecraft:blue_wool",
+                new String[]{"minecraft:dark_oak_slab", "minecraft:lectern", "minecraft:dark_oak_slab"},
+                new String[]{"minecraft:bookshelf", "minecraft:chiseled_bookshelf", "minecraft:bookshelf"}, "minecraft:lantern"));
+        TEMAS.put("cozinheiro", new Tema("minecraft:bricks", "minecraft:stripped_oak_log", "minecraft:bricks", "minecraft:red_wool",
+                new String[]{"minecraft:barrel", "minecraft:oak_slab", "minecraft:hay_block"},
+                new String[]{"minecraft:smoker", "minecraft:cauldron", "minecraft:smoker"}, "minecraft:lantern"));
+    }
 
     /** Ofícios com casinha, na ordem em que ocupam o anel em volta da praça. */
-    public static final List<String> ORDEM = List.of("mercador", "comprador", "ferreiro", "armeiro", "banqueiro",
-            "sacerdote", "sabio", "cartografo", "taverneiro");
-    /** Ângulos do anel (graus; 0 = leste, 90 = sul), longe das 4 ruas que saem da praça. */
-    private static final int[] ANGULOS = {22, 45, 68, 120, 150, 210, 240, 300, 330};
-    public static final int RAIO = 12;
+    public static final List<String> ORDEM = List.of("mercador", "cambista", "comprador", "ferreiro", "armeiro", "banqueiro",
+            "sacerdote", "sabio", "cartografo", "taverneiro", "cozinheiro", "recepcionista");
+    /** Ângulos do anel (graus; 0 = leste, 90 = sul): 3 por quadrante, longe das 4 ruas que saem da praça. */
+    private static final int[] ANGULOS = {18, 45, 72, 108, 135, 162, 198, 225, 252, 288, 315, 342};
+    public static final int RAIO = 14;
 
     public static boolean temCasa(String papel) { return TEMAS.containsKey(papel); }
 

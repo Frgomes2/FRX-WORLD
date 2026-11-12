@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { FichaJogador } from "./ficha";
@@ -6,6 +8,10 @@ export default async function JogadorPage({ params }: { params: Promise<{ uuid: 
   const { uuid } = await params;
   const j = await prisma.jogador.findUnique({ where: { uuid } });
   if (!j) notFound();
+  // admin do servidor = está no ops.json do Minecraft
+  const ops = await readFile(path.resolve(process.cwd(), process.env.SERVIDOR_DIR ?? "../server", "ops.json"), "utf8")
+    .then((t) => JSON.parse(t) as { uuid?: string; name?: string }[]).catch(() => []);
+  const ehOp = ops.some((o) => o.uuid === j.uuid || o.name?.toLowerCase() === j.nick.toLowerCase());
   return (
     <FichaJogador
       base={{
@@ -16,6 +22,7 @@ export default async function JogadorPage({ params }: { params: Promise<{ uuid: 
       inicial={(j.detalhe as any) ?? null}
       inicialEm={j.detalheEm?.getTime() ?? null}
       inicialOnline={j.online}
+      inicialOp={ehOp}
     />
   );
 }

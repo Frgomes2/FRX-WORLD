@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState, useTransition } from "react";
 import type { ConfigJogo } from "@/lib/config-jogo";
 import { salvarProgressao } from "./actions";
+import { NOMES_DIMENSOES } from "@/lib/dimensoes";
 import { IconeCriatura, SeletorCriaturas, useCriaturas } from "@/components/criaturas";
 
 type Dados = Pick<ConfigJogo, "progressao" | "ranks" | "morte" | "ferido" | "invasoes" | "chefeMundial" | "floresta" | "zonas">;
@@ -369,7 +370,7 @@ export function EditorProgressao({ inicial, padrao }: { inicial: Dados; padrao: 
         {/* ---------------- zonas */}
         {secao === "zonas" && (
           <div className="grid gap-4 xl:grid-cols-2">
-            <Cartao titulo="Regras" ajuda="Quanto mais longe do spawn, mais fortes os monstros (e mais XP e moedas). Nether começa no nível 15 e o End no 30. Nas capitais não nascem monstros.">
+            <Cartao titulo="Regras" ajuda="Quanto mais longe do spawn, mais fortes os monstros (e mais XP e moedas). As outras dimensões têm faixa própria (cartão Dimensões). Nas capitais não nascem monstros.">
               <div className="space-y-4">
                 <Numero rotulo="Sobe 1 nível a cada" valor={z.blocosPorNivel} onChange={(v) => set("zonas", { blocosPorNivel: v })} min={50} max={2000} passo={10} unidade="blocos" />
                 <Numero rotulo="Nível máximo da zona" valor={z.nivelMax} onChange={(v) => set("zonas", { nivelMax: v })} min={1} max={200} />
@@ -388,6 +389,42 @@ export function EditorProgressao({ inicial, padrao }: { inicial: Dados; padrao: 
                 <Numero rotulo="Campeão a partir do nível" valor={z.campeaoNivelMin} onChange={(v) => set("zonas", { campeaoNivelMin: v })} min={1} max={200} />
                 <p className="text-xs text-pedra-500">Em 1.000 monstros: cerca de {Math.round(z.eliteChance * 10)} Elites e {Math.round(z.campeaoChance * 10)} Campeões (nas zonas liberadas).</p>
               </div>
+            </Cartao>
+            <Cartao titulo="Dimensões" ajuda="Cada dimensão é uma etapa da jornada: os monstros de lá nascem entre o nível mínimo e o máximo. Quem entra abaixo do mínimo recebe o aviso de perigo. A superfície segue a distância do spawn.">
+              <div className="overflow-x-auto"><table className="w-full text-sm">
+                <thead className="text-left text-xs text-pedra-500"><tr><th>Dimensão</th><th className="w-24">Nível mín.</th><th className="w-24">Nível máx.</th><th className="hidden sm:table-cell">Faixa</th><th /></tr></thead>
+                <tbody>
+                  {Object.entries(z.dimensoes).sort((a, b) => a[1][0] - b[1][0] || a[0].localeCompare(b[0])).map(([id, f]) => {
+                    const mudar = (i: 0 | 1, v: number) => set("zonas", { dimensoes: { ...z.dimensoes, [id]: (i === 0 ? [v, f[1]] : [f[0], v]) as [number, number] } });
+                    const campoN = "w-20 rounded-md border border-pedra-700 bg-pedra-950 px-2 py-1 text-right font-mono outline-none focus:border-ouro";
+                    return (
+                      <tr key={id} className="border-t border-pedra-800">
+                        <td className="py-1.5"><p>{NOMES_DIMENSOES[id] ?? id.split(":")[1]}</p><p className="font-mono text-xs text-pedra-500">{id}</p></td>
+                        <td><input type="number" min={1} max={200} value={f[0]} onChange={(e) => mudar(0, Math.max(1, Math.min(200, Math.round(Number(e.target.value) || 1))))} className={campoN} /></td>
+                        <td><input type="number" min={1} max={200} value={f[1]} onChange={(e) => mudar(1, Math.max(1, Math.min(200, Math.round(Number(e.target.value) || 1))))} className={`${campoN} ${f[1] < f[0] ? "border-red-500" : ""}`} /></td>
+                        <td className="hidden sm:table-cell">
+                          <div className="relative h-2 w-40 rounded-full bg-pedra-800">
+                            <div className="absolute h-2 rounded-full bg-ouro" style={{ left: `${Math.min(100, (f[0] / Math.max(1, z.nivelMax)) * 100)}%`, width: `${Math.max(2, Math.min(100, ((f[1] - f[0]) / Math.max(1, z.nivelMax)) * 100))}%` }} />
+                          </div>
+                        </td>
+                        <td className="text-right"><button type="button" title="Tirar da lista (volta ao padrão do mod)" onClick={() => { const r = { ...z.dimensoes }; delete r[id]; set("zonas", { dimensoes: r }); }} className="text-xs text-red-400 hover:underline">remover</button></td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table></div>
+              <form className="mt-3 flex flex-wrap items-center gap-2 text-sm" onSubmit={(e) => {
+                e.preventDefault();
+                const campo = e.currentTarget.elements.namedItem("dim") as HTMLInputElement;
+                const id = campo.value.trim().toLowerCase();
+                if (!/^[a-z0-9_.-]+:[a-z0-9_./-]+$/.test(id) || z.dimensoes[id]) return;
+                set("zonas", { dimensoes: { ...z.dimensoes, [id]: [20, 40] } });
+                campo.value = "";
+              }}>
+                <input name="dim" placeholder="mod:dimensao (ex.: alexscaves:... )" className="w-64 max-w-full rounded-md border border-pedra-700 bg-pedra-950 px-2 py-1 font-mono text-xs outline-none focus:border-ouro" />
+                <button className="rounded-md border border-pedra-700 px-3 py-1 text-xs hover:border-ouro">+ Adicionar dimensão</button>
+                <span className="text-xs text-pedra-500">Dimensão fora da lista usa 20–40.</span>
+              </form>
             </Cartao>
             <Cartao titulo="Como um zumbi fica pelo mapa" ajuda="Zumbi normal: 20 de vida e 3 de dano.">
               <div className="overflow-x-auto"><table className="w-full text-sm">

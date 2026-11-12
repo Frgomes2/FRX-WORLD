@@ -239,6 +239,66 @@
        "treasure": true
       }
      ]
+    },
+    {
+     "type": "minecraft:item",
+     "name": "ringsofascension:ring_experience",
+     "weight": 1
+    },
+    {
+     "type": "minecraft:item",
+     "name": "ringsofascension:ring_jump_boost",
+     "weight": 1
+    },
+    {
+     "type": "minecraft:item",
+     "name": "ringsofascension:ring_night_vision",
+     "weight": 1
+    },
+    {
+     "type": "minecraft:item",
+     "name": "ringsofascension:ring_slow_resistance",
+     "weight": 1
+    },
+    {
+     "type": "minecraft:item",
+     "name": "ringsofascension:ring_water_breathing",
+     "weight": 1
+    },
+    {
+     "type": "minecraft:item",
+     "name": "ringsofascension:ring_fire_resistance",
+     "weight": 1
+    },
+    {
+     "type": "minecraft:item",
+     "name": "ringsofascension:ring_dolphin",
+     "weight": 1
+    },
+    {
+     "type": "minecraft:item",
+     "name": "ringsofascension:ring_luck",
+     "weight": 1
+    },
+    {
+     "type": "minecraft:item",
+     "name": "ringsofascension:ring_magnetism",
+     "weight": 1
+    },
+    {
+     "type": "minecraft:item",
+     "name": "ringsofascension:ring_mining",
+     "weight": 1
+    },
+    {
+     "type": "minecraft:item",
+     "name": "ringsofascension:ring_poison_resistance",
+     "weight": 1
+    },
+    {
+     "type": "minecraft:item",
+     "name": "ringsofascension:ring_speed",
+     "weight": 1
     }
    ]
   }

@@ -4,6 +4,8 @@ import { lerConfigEventos } from "@/lib/eventos";
 import { carregarSugestoesEventos, excluirEvento } from "./actions";
 import { FormConfig, FormEvento } from "./linhas";
 
+const TIPOS: Record<string, [string, string]> = { EMBOSCADA: ["⚔️", "Emboscada"], CHEFE: ["👹", "Chefe errante"], MERCADOR: ["🧙", "Mercador raro"], TESOURO: ["💎", "Tesouro"] };
+
 export default async function EventosPage() {
   const [config, eventos] = await Promise.all([
     lerConfigEventos(),
@@ -37,22 +39,44 @@ export default async function EventosPage() {
         </p>
       </section>
 
-      <section className="rounded-xl border border-pedra-700 bg-pedra-900 p-5">
-        <h2 className="mb-3 font-titulo text-xl text-ouro">Eventos</h2>
-        <div className="flex flex-col gap-5">
-          {eventos.map((e) => (
-            <div key={e.id} className="rounded-lg border border-pedra-800 p-3">
-              <div className="mb-2 flex justify-between text-xs text-pedra-500">
-                <span>{e.ativo && pesoTotal > 0 ? `${Math.round((e.peso / pesoTotal) * 100)}% dos sorteios (entre os do nível)` : "desativado"}</span>
-                <form action={excluirEvento}><input type="hidden" name="id" value={e.id} /><button className="text-red-400 hover:underline">Excluir</button></form>
-              </div>
-              <FormEvento e={{ ...e, loot: lootParaTexto(e.loot) }} />
+      <section className="rounded-xl border border-pedra-700 bg-pedra-900 p-3 md:p-5">
+        <h2 className="mb-3 font-titulo text-xl text-ouro">Eventos <span className="text-sm text-pedra-500">· {eventos.length}</span></h2>
+        <div className="flex flex-col gap-2">
+          {eventos.map((e) => {
+            const [icone, tipo] = TIPOS[e.tipo] ?? ["❔", e.tipo];
+            return (
+              <details key={e.id} className={`group rounded-lg border border-pedra-800 open:border-ouro/40 open:bg-pedra-950/40 ${e.ativo ? "" : "opacity-50"}`}>
+                <summary className="flex cursor-pointer list-none flex-wrap items-center gap-x-3 gap-y-1 p-2.5 hover:bg-pedra-800/50">
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-md bg-pedra-950 text-lg">{icone}</span>
+                  <span className="min-w-0 flex-1">
+                    <span className="flex flex-wrap items-center gap-2">
+                      <b>{e.nome}</b>
+                      <span className="rounded-full border border-pedra-700 px-2 py-0.5 text-[11px] text-pedra-500">{tipo}</span>
+                      <span className="rounded-full border border-ouro/40 px-2 py-0.5 text-[11px] text-ouro">Nv {e.nivelMin}{e.nivelMax >= 1000 ? "+" : `–${e.nivelMax}`}</span>
+                    </span>
+                    <span className="block truncate text-xs text-pedra-500">{e.mensagem}</span>
+                  </span>
+                  <span className="flex shrink-0 items-center gap-3 font-mono text-xs text-pedra-500">
+                    {e.tipo !== "TESOURO" && <span title="Criatura">{e.mobQtd > 1 ? `${e.mobQtd}× ` : ""}{e.mobTipo.split(":")[1]?.replace(/_/g, " ")}</span>}
+                    {e.recompensaXp > 0 && <span title="XP">✨{e.recompensaXp}</span>}
+                    <span title="Chance entre os eventos do nível" className="text-pergaminho">{e.ativo && pesoTotal > 0 ? `${Math.round((e.peso / pesoTotal) * 100)}%` : "off"}</span>
+                  </span>
+                  <span className="text-xs text-pedra-500 group-open:hidden">editar ▾</span>
+                  <span className="hidden text-xs text-ouro group-open:inline">fechar ▴</span>
+                </summary>
+                <div className="border-t border-pedra-800 p-3">
+                  <FormEvento e={{ ...e, loot: lootParaTexto(e.loot) }} />
+                  <form action={excluirEvento} className="mt-2 text-right"><input type="hidden" name="id" value={e.id} /><button className="text-xs text-red-400 hover:underline">Excluir evento</button></form>
+                </div>
+              </details>
+            );
+          })}
+          <details className="rounded-lg border border-dashed border-pedra-700 p-3">
+            <summary className="cursor-pointer text-sm hover:text-ouro">+ Novo evento</summary>
+            <div className="mt-3">
+              <FormEvento e={{ nome: "", tipo: "EMBOSCADA", mensagem: "", peso: 10, nivelMin: 1, nivelMax: 1000, mobTipo: "minecraft:zombie", mobQtd: 4, vida: 0, dano: 0, preco: 0, recompensaXp: 200, loot: "", ativo: true }} />
             </div>
-          ))}
-          <div className="rounded-lg border border-dashed border-pedra-700 p-3">
-            <p className="mb-2 text-xs text-pedra-500">Novo evento</p>
-            <FormEvento e={{ nome: "", tipo: "EMBOSCADA", mensagem: "", peso: 10, nivelMin: 1, nivelMax: 1000, mobTipo: "minecraft:zombie", mobQtd: 4, vida: 0, dano: 0, preco: 0, recompensaXp: 200, loot: "", ativo: true }} />
-          </div>
+          </details>
         </div>
       </section>
     </>

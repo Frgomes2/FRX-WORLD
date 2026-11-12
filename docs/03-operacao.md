@@ -39,6 +39,17 @@ No dia a dia só se usam os **dois atalhos da área de trabalho**. Eles são cri
 
 > O EULA do Minecraft (`server\eula.txt`) é aceito pelo próprio dono do servidor, nunca por script.
 
+## Controle remoto pelo Claude (agente)
+
+O Claude também pode ligar, desligar e reiniciar o servidor sem ninguém clicar nos atalhos.
+
+- **Instalação, uma vez:** `controle\instalar-agente.bat`. Ele cria o atalho "FRX-WORLD agente" na pasta Inicializar do Windows e já põe o agente para rodar.
+- O agente (`controle\agente-frx.ps1`) roda escondido e olha `controle\pedido.txt` a cada 3 s. Os pedidos são `ligar`, `desligar` e `reiniciar`.
+  - Ele roda os mesmos `.bat` dos atalhos. O `iniciar-frx.bat /auto` funciona sem perguntas, sem pausas e sem abrir o navegador.
+- **Estado:** `controle\estado.txt` (ligando, ligado, desligado, erro…). Eventos em `logs\agente-eventos.log`; a saída de cada execução vai para um arquivo próprio em `logs\agente\`.
+- **Atualização:** se o `agente-frx.ps1` mudar, o agente se reinicia sozinho com a versão nova.
+- **Para remover:** apague "FRX-WORLD agente" em `shell:startup`.
+
 ## Compilar o mod
 
 - Automático: o atalho de ligar compila sempre que o código mudou.

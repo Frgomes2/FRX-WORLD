@@ -105,6 +105,7 @@ public class Conquistas {
             if (!c.titulo().isEmpty()) msg.append(Component.literal("  (título: " + c.titulo() + ")").withStyle(ChatFormatting.LIGHT_PURPLE));
             if (p.getServer() != null) p.getServer().getPlayerList().broadcastSystemMessage(msg, false);
             p.level().playSound(null, p.blockPosition(), SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.PLAYERS, 1f, 1f);
+            Sistema.avisar(p, "Conquista desbloqueada: " + c.nome(), c.titulo().isEmpty() ? c.descricao() : c.descricao() + " Novo título: «" + c.titulo() + "».", Sistema.ROXO);
             Progressao.enviarAoPainel(p, false);
         }
     }

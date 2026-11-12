@@ -29,7 +29,7 @@ public final class JanelaStatus {
         o.addProperty("nome", p.getGameProfile().getName());
         o.addProperty("nivel", d.nivel());
         o.addProperty("nivelMax", ConfigJogo.nivelMaximo());
-        o.addProperty("rank", ConfigJogo.rankDoNivel(d.nivel()));
+        o.addProperty("rank", Guilda.rank(p));
         o.addProperty("xp", d.xp());
         o.addProperty("xpProximo", Progressao.xpParaProximo(d.nivel()));
         o.addProperty("classe", d.classe().isEmpty() ? "" : Habilidades.nomeClasse(d.classe()));

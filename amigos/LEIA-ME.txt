@@ -3,6 +3,16 @@ FRX-WORLD - COMO ENTRAR NO SERVIDOR
 
 Voce precisa de: Minecraft Java 1.20.1 (Launcher oficial, TLauncher ou Shiginima), Windows e uns 8 GB de RAM livres.
 
+JEITO FACIL (recomendado) - os mods baixam sozinhos quando voce entra no servidor
+1. Instale o Java 17: https://adoptium.net/temurin/releases/?version=17  (Windows x64, JDK, .msi)
+2. Rode o INSTALAR.bat (uma vez so). Ele instala o Forge e coloca o AutoModpack na pasta mods.
+3. Abra o launcher com o Forge 1.20.1 (6 GB de memoria) e entre em: impairment-marcus.tun.ply.gg
+4. Na primeira vez o jogo pede para confirmar o fingerprint do servidor. Cole este:
+   50ebed6e2080396bf702d77fd8b25ecb7e52ce793adc6d49680ba60d51d23129
+   Depois ele baixa todos os mods. Reinicie o jogo quando ele pedir e entre de novo.
+5. Pronto. Quando o servidor ganhar mods novos, o jogo baixa sozinho ao entrar.
+
+JEITO ANTIGO (se o facil der problema)
 UMA VEZ SO (Launcher oficial)
 1. Instale o Java 17: https://adoptium.net/temurin/releases/?version=17  (Windows x64, JDK, .msi)
 2. Rode o 1-instalar-forge.bat (feche o Minecraft Launcher antes).
@@ -29,15 +39,16 @@ SHIGINIMA
 3. No Shiginima escolha a versao 1.20.1-forge-47.4.10 e use sempre o mesmo nick.
 
 TODA VEZ QUE FOR JOGAR
-- Rode o 2-atualizar-mods.bat antes de abrir o jogo (o servidor recebe atualizacoes direto
-  e a versao do mod precisa ser igual a dele).
+- Use o "Jogar FRX-WORLD" (o .bat desta pasta ou o atalho que ele cria na area de trabalho):
+  ele atualiza os mods sozinho e ja abre o seu launcher. A versao dos mods precisa ser igual
+  a do servidor, entao jogue sempre por ele.
+- Shiginima ou launcher em outro lugar: escreva o caminho do .exe dele no arquivo
+  launcher-caminho.txt (uma linha) e o "Jogar FRX-WORLD" passa a abrir ele tambem.
 
 PRIMEIRO LOGIN
 - O servidor pede um convite: digite no chat  /convite CODIGO  (o dono te passa o codigo).
   Voce tem 3 minutos depois de entrar.
-- Se o servidor pedir senha (TLauncher/Shiginima): crie com  /registrar SUASENHA SUASENHA
-  Ela protege o seu nick. Nas proximas vezes, ao entrar:  /login SUASENHA
-  Esqueceu? Peca ao dono do servidor para resetar.
+- O convite fica preso ao seu NICK: entre sempre com o mesmo nick e nao precisa digitar mais nada.
 
 PROBLEMAS
 - "versao de rede incompativel" / "mismatched mods": rode o 2-atualizar-mods.bat de novo.

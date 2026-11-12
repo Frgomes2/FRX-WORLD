@@ -26,6 +26,8 @@ export async function salvarProgressao(novo: Editavel): Promise<Resultado> {
   if (!r.every((x, i) => i === 0 || x.nivelMin > r[i - 1].nivelMin)) return { ok: false, mensagem: "Ranks: os níveis precisam crescer de F até S." };
   const m = dados.data.morte;
   if (!m.every((x, i) => i === 0 || x.ate > m[i - 1].ate)) return { ok: false, mensagem: "Morte: cada faixa precisa ir até um nível maior que a anterior." };
+  const errada = Object.entries(dados.data.zonas.dimensoes).find(([, f]) => f[1] < f[0]);
+  if (errada) return { ok: false, mensagem: `Dimensões: em ${errada[0]} o nível máximo precisa ser maior ou igual ao mínimo.` };
   if (dados.data.chefeMundial.distanciaMax <= dados.data.chefeMundial.distanciaMin) return { ok: false, mensagem: "Chefe mundial: a distância máxima precisa ser maior que a mínima." };
   await salvarConfig(dados.data);
   revalidatePath("/progressao");

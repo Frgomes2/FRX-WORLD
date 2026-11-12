@@ -31,6 +31,8 @@ echo [3/4] Fechando painel, pack e tunel...
 taskkill /fi "WINDOWTITLE eq FRX-WORLD Painel*" /t /f >nul 2>&1
 taskkill /fi "WINDOWTITLE eq FRX-WORLD Pack*" /t /f >nul 2>&1
 taskkill /fi "WINDOWTITLE eq FRX-WORLD Tunel*" /t /f >nul 2>&1
+rem garante: mata quem ainda estiver ouvindo nas portas do painel (3000) e do pack (8080)
+for %%Q in (3000 8080) do for /f "tokens=5" %%P in ('netstat -ano ^| findstr /r /c:":%%Q .*LISTENING"') do taskkill /pid %%P /t /f >nul 2>&1
 echo       ok
 
 echo [4/4] Parando o banco...

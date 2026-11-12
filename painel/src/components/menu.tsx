@@ -24,8 +24,7 @@ const itens = [
 ];
 
 // Módulos do documento de design que entram nas próximas fases
-const futuros = ["Conteúdo", "Mobs e bosses", "Códex de Armas",
-  "Estados", "Lei e crimes", "Rituais", "Eventos globais", "Versões do pack"];
+const futuros = ["Códex de Armas", "Estados", "Lei e crimes", "Rituais", "Eventos globais"];
 
 export function Menu({ aoNavegar }: { aoNavegar?: () => void }) {
   const atual = usePathname();

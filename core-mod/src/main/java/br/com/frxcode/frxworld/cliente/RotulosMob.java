@@ -77,6 +77,29 @@ public final class RotulosMob {
         return Component.literal("█".repeat(cheio)).withStyle(cor).append(Component.literal("█".repeat(tam - cheio)).withStyle(ChatFormatting.DARK_GRAY));
     }
 
+    /** Chefes (e chefes mundiais) à vista: usado pela apresentação e pela música de chefe. */
+    public static boolean chefe(int entidade) {
+        Info i = INFO.get(entidade);
+        return i != null && ("chefe".equals(i.rank()) || "mundial".equals(i.rank()));
+    }
+
+    public static boolean mundial(int entidade) {
+        Info i = INFO.get(entidade);
+        return i != null && "mundial".equals(i.rank());
+    }
+
+    public static int nivelDe(int entidade) {
+        Info i = INFO.get(entidade);
+        return i == null ? 0 : i.nivel();
+    }
+
+    public static java.util.Set<Integer> conhecidos() { return INFO.keySet(); }
+
+    public static String nomeDe(LivingEntity e) {
+        Info i = INFO.get(e.getId());
+        return (i == null ? e.getDisplayName().getString() : nome(e, i).getString()).replace("☠", "").trim();
+    }
+
     private static MutableComponent nome(LivingEntity e, Info i) {
         if (e.hasCustomName() && e.getCustomName() != null) return Component.literal(e.getCustomName().getString());
         MutableComponent n = e.getType().getDescription().copy();
@@ -87,10 +110,27 @@ public final class RotulosMob {
         return n;
     }
 
+    /** Título do jogador numa segunda linha, acima do nome. */
+    private static void tituloJogador(RenderLivingEvent.Post<?, ?> ev, Player p) {
+        Minecraft mc = Minecraft.getInstance();
+        String t = ClienteDados.tituloDe(p.getUUID());
+        if (t.isEmpty() || p == mc.player || mc.player == null || mc.options.hideGui || p.isInvisible() || p.isDiscrete()) return;
+        if (mc.player.distanceToSqr(p) > 32 * 32 || !mc.player.hasLineOfSight(p)) return;
+        Component linha = Component.literal("«" + t + "»").withStyle(ChatFormatting.LIGHT_PURPLE);
+        PoseStack ps = ev.getPoseStack();
+        ps.pushPose();
+        ps.translate(0, p.getBbHeight() + 0.5f, 0);
+        ps.mulPose(mc.getEntityRenderDispatcher().cameraOrientation());
+        ps.scale(-0.025f, -0.025f, 0.025f);
+        int fundo = (int) (mc.options.getBackgroundOpacity(0.25f) * 255f) << 24;
+        mc.font.drawInBatch(linha, -mc.font.width(linha) / 2f, -10, 0xFFFFFFFF, false, ps.last().pose(), ev.getMultiBufferSource(), Font.DisplayMode.NORMAL, fundo, ev.getPackedLight());
+        ps.popPose();
+    }
+
     @SubscribeEvent
     public static void desenhar(RenderLivingEvent.Post<?, ?> ev) {
         LivingEntity e = ev.getEntity();
-        if (e instanceof Player) return;
+        if (e instanceof Player pl) { tituloJogador(ev, pl); return; }
         Info i = INFO.get(e.getId());
         Minecraft mc = Minecraft.getInstance();
         if (i == null || e.isInvisible() || mc.player == null || !e.isAlive() || mc.options.hideGui) return;

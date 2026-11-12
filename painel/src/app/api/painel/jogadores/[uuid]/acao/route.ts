@@ -45,6 +45,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ uuid: s
       case "curar": cmd = `frx admin ${n} curar`; break;
       case "dar": cmd = `give ${n} ${precisaId(a)} ${INT.test(v) ? v : "1"}`; break;
       case "modo": cmd = `gamemode ${precisaId(v)} ${n}`; break;
+      case "op": cmd = `op ${n}`; break;
+      case "deop": cmd = `deop ${n}`; break;
       default: throw new Error("Ação desconhecida.");
     }
     if (!["survival", "creative", "adventure", "spectator"].includes(v) && acao === "modo") throw new Error("Modo inválido.");

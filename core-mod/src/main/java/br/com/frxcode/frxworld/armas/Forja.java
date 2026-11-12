@@ -165,6 +165,73 @@ public final class Forja {
         }
     }
 
+    // ------------------------------------------------------------------ menu visual (reinos/MenusNpc)
+
+    /** Dados para a tela da forja: item na mão, custo, chance e o que falta. */
+    public static net.minecraft.nbt.CompoundTag infoMenu(ServerPlayer p, Entity npc, boolean reforjar) {
+        net.minecraft.nbt.CompoundTag d = new net.minecraft.nbt.CompoundTag();
+        ItemStack item = p.getMainHandItem();
+        if (!Armas.forjavel(item)) { d.putString("estado", "semItem"); return d; }
+        d.put("item", item.save(new net.minecraft.nbt.CompoundTag()));
+        int r = Armas.raridade(item), n = Armas.nivel(item);
+        d.putString("raridade", Raridade.de(r).nome);
+        d.putInt("raridadeCor", Raridade.de(r).cor.getColor() == null ? 0xFFFFFF : Raridade.de(r).cor.getColor());
+        d.putInt("nivel", n);
+        Custo c;
+        if (reforjar) {
+            if (r >= 4) { d.putString("estado", "max"); return d; }
+            c = comDesconto(p, npc, custoReforjar(r));
+            d.putString("linha", Raridade.de(r).nome + " → novo sorteio (nunca piora)");
+            d.putInt("chance", 100);
+        } else {
+            if (n >= Armas.NIVEL_MAX) { d.putString("estado", "max"); return d; }
+            c = comDesconto(p, npc, custoAprimorar(n + 1));
+            d.putString("linha", "+" + n + " → +" + (n + 1));
+            d.putInt("chance", chance(n + 1));
+        }
+        d.putString("estado", "ok");
+        d.putLong("moedas", c.moedas());
+        d.put("material", new ItemStack(c.material(), Math.max(1, c.qtd())).save(new net.minecraft.nbt.CompoundTag()));
+        d.putInt("materialQtd", c.qtd());
+        d.putInt("temMaterial", contar(p, c.material()));
+        return d;
+    }
+
+    /** Faz a forja pelo menu. Retorna {"1" ou "0", mensagem}. */
+    public static String[] executarMenu(ServerPlayer p, Entity npc, boolean reforjar) {
+        ItemStack item = p.getMainHandItem();
+        if (!Armas.forjavel(item)) return new String[]{"0", "Escolha uma arma, ferramenta ou armadura."};
+        int r = Armas.raridade(item), n = Armas.nivel(item);
+        if (reforjar ? r >= 4 : n >= Armas.NIVEL_MAX) return new String[]{"0", "Esse item já está no máximo."};
+        Custo c = comDesconto(p, npc, reforjar ? custoReforjar(r) : custoAprimorar(n + 1));
+        if (contar(p, c.material()) < c.qtd())
+            return new String[]{"0", "Faltam " + (c.qtd() - contar(p, c.material())) + "× " + new ItemStack(c.material()).getHoverName().getString() + "."};
+        if (Moedas.contar(p) < c.moedas()) return new String[]{"0", "Faltam moedas: " + Moedas.texto(c.moedas() - Moedas.contar(p)) + "."};
+        tirar(p, c.material(), c.qtd());
+        Moedas.cobrar(p, c.moedas());
+        item = p.getMainHandItem();   // a cobrança pode ter mexido nas pilhas de moedas, não no item da mão
+        if (reforjar) {
+            int novo = Math.max(r, Armas.sortear(Armas.BAU, p.getRandom()));
+            Armas.definirRaridade(item, novo);
+            if (novo == 4 && r < 4) br.com.frxcode.frxworld.progressao.Conquistas.somar(p, "reforja_lendaria", 1);
+            p.level().playSound(null, npc.blockPosition(), SoundEvents.SMITHING_TABLE_USE, SoundSource.NEUTRAL, 1f, 1f);
+            return novo > r ? new String[]{"1", "Ficou " + Raridade.de(novo).nome + "!"}
+                    : new String[]{"0", "Continua " + Raridade.de(novo).nome + ". O metal não colaborou desta vez."};
+        }
+        int alvo = n + 1;
+        if (p.getRandom().nextInt(100) < chance(alvo)) {
+            Armas.definirNivel(item, alvo);
+            br.com.frxcode.frxworld.progressao.Conquistas.maximo(p, "forja_max", alvo);
+            p.level().playSound(null, npc.blockPosition(), SoundEvents.ANVIL_USE, SoundSource.NEUTRAL, 1f, 1f);
+            if (alvo >= anunciarAPartirDe() && p.getServer() != null)
+                p.getServer().getPlayerList().broadcastSystemMessage(Component.literal("⚒ " + p.getName().getString() + " forjou "
+                        + item.getHoverName().getString() + " +" + alvo + "!").withStyle(ChatFormatting.GOLD), false);
+            return new String[]{"1", "Pronto! Agora é +" + alvo + "."};
+        }
+        p.level().playSound(null, npc.blockPosition(), SoundEvents.ANVIL_DESTROY, SoundSource.NEUTRAL, 1f, 0.8f);
+        return new String[]{"0", "A forja falhou... o material se perdeu. Tente de novo."};
+    }
+
     /** Desconto da reputação com o reino do ferreiro/armeiro. */
     private static Custo comDesconto(ServerPlayer p, Entity npc, Custo c) {
         double desc = br.com.frxcode.frxworld.reinos.Reputacao.desconto(p, npc.getPersistentData().getString("frx_reino"));
