@@ -11,7 +11,6 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.FormattedCharSequence;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -24,7 +23,7 @@ import java.util.function.Consumer;
 public class TelaStatus extends Screen {
     public static final String[][] ABAS = {
             {"INVENTARIO", "Inventário"}, {"STATUS", "Status"}, {"HABILIDADES", "Habilidades"}, {"TALENTOS", "Talentos"},
-            {"REINOS", "Reinos"}, {"MISSOES", "Missões"}, {"CONQUISTAS", "Conquistas"}, {"GRUPO", "Grupo"}};
+            {"REINOS", "Reinos"}, {"GRUPO", "Grupo"}};
 
     // mesmas cores da tela de Habilidades (painel marrom-escuro, moldura marrom, títulos dourados)
     static final int FUNDO = 0xF017140F, MOLDURA = 0xFF5A3A1E, BORDA2 = 0xFF5A3A1E, TITULO = 0xFFD4A93A, TEXTO = 0xFFE9DFC8,
@@ -50,8 +49,6 @@ public class TelaStatus extends Screen {
             case "HABILIDADES" -> net.minecraft.world.item.Items.ENCHANTED_BOOK;
             case "TALENTOS" -> net.minecraft.world.item.Items.NETHER_STAR;
             case "REINOS" -> net.minecraft.world.item.Items.GOLDEN_HELMET;
-            case "MISSOES" -> net.minecraft.world.item.Items.WRITABLE_BOOK;
-            case "CONQUISTAS" -> net.minecraft.world.item.Items.TOTEM_OF_UNDYING;
             default -> net.minecraft.world.item.Items.SHIELD;
         });
     }
@@ -250,8 +247,6 @@ public class TelaStatus extends Screen {
                 case "STATUS" -> renderStatus(g);
                 case "TALENTOS" -> renderTalentos(g);
                 case "REINOS" -> renderReinos(g);
-                case "MISSOES" -> renderMissoes(g);
-                case "CONQUISTAS" -> renderConquistas(g);
                 case "GRUPO" -> renderGrupo(g);
                 default -> {}
             }
@@ -389,69 +384,6 @@ public class TelaStatus extends Screen {
             String txt = prox < 0 ? pts + " pts (máximo)" : pts + " / " + prox + " pts";
             g.drawString(font, txt, x0 + larg - 12 - font.width(txt), y + 11, TEXTO, false);
             y += h;
-        }
-        g.disableScissor();
-    }
-
-    private void renderMissoes(GuiGraphics g) {
-        cabecalho(g, "MISSÕES ÉPICAS DOS REIS");
-        JsonArray cs = arr(d(), "campanhas");
-        int y = y0 + 30 - rolagem;
-        int inicio = y;
-        g.enableScissor(x0 + 2, y0 + 26, x0 + larg - 2, y0 + alt - 4);
-        for (JsonElement e : cs) {
-            JsonObject c = e.getAsJsonObject();
-            int etapa = (int) n(c, "etapa"), total = (int) n(c, "total");
-            g.drawString(font, s(c, "nome"), x0 + 10, y, OURO, false);
-            String reino = s(c, "reino");
-            g.drawString(font, reino, x0 + larg - 10 - font.width(reino), y, CINZA, false);
-            y += 11;
-            if (etapa < 0) {
-                g.drawString(font, "Fale com " + s(c, "rei") + " na capital (nível " + (int) n(c, "nivelMin") + "+).", x0 + 14, y, CINZA, false);
-                y += 14;
-            } else if (etapa >= total) {
-                g.drawString(font, "✔ Concluída", x0 + 14, y, VERDE, false);
-                y += 14;
-            } else {
-                barra(g, x0 + 14, y, 90, 7, etapa / (double) total, 0xFFD4A93A, null);
-                g.drawString(font, "Etapa " + (etapa + 1) + "/" + total + ": " + s(c, "etapaTitulo"), x0 + 110, y, TEXTO, false);
-                y += 11;
-                for (FormattedCharSequence l : font.split(Component.literal(s(c, "pedido")), larg - 40)) {
-                    g.drawString(font, l, x0 + 14, y, CINZA, false);
-                    y += 10;
-                }
-                int qtd = (int) n(c, "qtd");
-                if (qtd > 1) {
-                    g.drawString(font, "Progresso: " + Math.min((int) n(c, "progresso"), qtd) + "/" + qtd, x0 + 14, y, VERDE, false);
-                    y += 10;
-                }
-                y += 4;
-            }
-        }
-        g.disableScissor();
-        maxRolagem = Math.max(0, (y + rolagem - inicio) - (alt - 40));
-    }
-
-    private void renderConquistas(GuiGraphics g) {
-        JsonArray cs = arr(d(), "conquistas");
-        int obt = 0;
-        for (JsonElement e : cs) if (b(e.getAsJsonObject(), "obtida")) obt++;
-        cabecalho(g, "CONQUISTAS  ·  " + obt + " de " + cs.size());
-        int colW = (larg - 24) / 2, h = 34;
-        int linhas = (cs.size() + 1) / 2;
-        maxRolagem = Math.max(0, linhas * h - (alt - 40));
-        g.enableScissor(x0 + 2, y0 + 26, x0 + larg - 2, y0 + alt - 4);
-        for (int i = 0; i < cs.size(); i++) {
-            JsonObject c = cs.get(i).getAsJsonObject();
-            int x = x0 + 8 + (i % 2) * (colW + 8), y = y0 + 30 + (i / 2) * h - rolagem;
-            boolean ok = b(c, "obtida");
-            g.fill(x, y, x + colW, y + h - 4, ok ? 0x5040A060 : 0x50000000);
-            g.drawString(font, (ok ? "✔ " : "✘ ") + s(c, "nome"), x + 4, y + 3, ok ? OURO : TEXTO, false);
-            g.drawString(font, font.plainSubstrByWidth(s(c, "descricao"), colW - 8), x + 4, y + 13, CINZA, false);
-            String tit = s(c, "titulo");
-            int alvo = (int) n(c, "alvo"), prog = (int) n(c, "progresso");
-            String pr = ok ? (tit.isEmpty() ? "" : "título: " + tit) : prog + "/" + alvo + (tit.isEmpty() ? "" : " · título: " + tit);
-            g.drawString(font, font.plainSubstrByWidth(pr, colW - 8), x + 4, y + 22, ok ? ROXO : 0xFF6A5E4E, false);
         }
         g.disableScissor();
     }

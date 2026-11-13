@@ -9,33 +9,37 @@
 	quest_links: [ ]
 	quests: [
 		{
-			description: ["Chegue ao nível 45." "" "Abaixo disso a região é extremamente perigosa."]
+			description: [
+				"Chegue ao nível 45."
+				""
+				"Abaixo disso a região é extremamente perigosa."
+			]
 			id: "219DA4431463B7E1"
-			rewards: [
-				{
-					command: "/frx moedas {p} 900"
-					elevate_perms: true
-					id: "76C494C3F275A90B"
-					silent: true
-					title: "9 ouro"
-					type: "command"
-				}
-			]
-			tasks: [
-				{
-					advancement: "frxworld:frx/nivel_45"
-					criterion: ""
-					id: "76DCB6D8EB75A7A8"
-					type: "advancement"
-				}
-			]
+			rewards: [{
+				command: "/frx moedas {p} 900"
+				elevate_perms: true
+				id: "76C494C3F275A90B"
+				silent: true
+				title: "9 ouro"
+				type: "command"
+			}]
+			tasks: [{
+				advancement: "frxworld:frx/nivel_45"
+				criterion: ""
+				id: "76DCB6D8EB75A7A8"
+				type: "advancement"
+			}]
 			title: "Pronto para O Outro Lado"
 			x: 0.0d
 			y: 0.0d
 		}
 		{
 			dependencies: ["219DA4431463B7E1"]
-			description: ["Portal escondido nas Cidades Antigas, aceso com o coração do Warden." "" "Monstros Nv 45–60. A região mais perigosa do mundo."]
+			description: [
+				"Portal escondido nas Cidades Antigas, aceso com o coração do Warden."
+				""
+				"Monstros Nv 45–60. A região mais perigosa do mundo."
+			]
 			id: "231AF8FD1A484322"
 			rewards: [
 				{
@@ -57,13 +61,11 @@
 			]
 			shape: "gear"
 			size: 1.5d
-			tasks: [
-				{
-					dimension: "deeperdarker:otherside"
-					id: "2E79B2E6B1D61379"
-					type: "dimension"
-				}
-			]
+			tasks: [{
+				dimension: "deeperdarker:otherside"
+				id: "2E79B2E6B1D61379"
+				type: "dimension"
+			}]
 			title: "Entrar: O Outro Lado"
 			x: 2.0d
 			y: 0.0d
@@ -90,14 +92,12 @@
 					type: "command"
 				}
 			]
-			tasks: [
-				{
-					entity: "deeperdarker:stalker"
-					id: "6B6A9E4B71643F10"
-					type: "kill"
-					value: 3L
-				}
-			]
+			tasks: [{
+				entity: "deeperdarker:stalker"
+				id: "6B6A9E4B71643F10"
+				type: "kill"
+				value: 3L
+			}]
 			title: "Espreitadores"
 			x: 4.0d
 			y: 0.0d
@@ -108,7 +108,6 @@
 			id: "6D7F56FE15BEA738"
 			rewards: [
 				{
-					count: 1
 					id: "7810111786A7DD4E"
 					item: "minecraft:netherite_ingot"
 					type: "item"
@@ -132,14 +131,12 @@
 			]
 			shape: "hexagon"
 			size: 1.25d
-			tasks: [
-				{
-					entity: "minecraft:warden"
-					id: "42BC916098E14E5E"
-					type: "kill"
-					value: 1L
-				}
-			]
+			tasks: [{
+				entity: "minecraft:warden"
+				id: "42BC916098E14E5E"
+				type: "kill"
+				value: 1L
+			}]
 			title: "o Warden"
 			x: 6.0d
 			y: 0.0d

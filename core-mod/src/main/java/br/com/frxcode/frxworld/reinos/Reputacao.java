@@ -86,6 +86,7 @@ public class Reputacao {
                     .append(Component.literal(" — " + Math.round(n.desconto() * 100) + "% de desconto" + (id >= 2 ? " e itens novos no mercador" : "")
                             + (id >= 4 ? ". Novo título liberado: /titulo" : "")).withStyle(ChatFormatting.WHITE)));
             p.level().playSound(null, p.blockPosition(), SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.PLAYERS, 1f, 1.2f);
+            br.com.frxcode.frxworld.racas.Evolucao.checar(p);   // honra com um reino pode liberar a evolução
         } else if (avisar) {
             p.displayClientMessage(Component.literal("+" + quanto + " reputação com " + nomeR).withStyle(ChatFormatting.GREEN), true);
         }

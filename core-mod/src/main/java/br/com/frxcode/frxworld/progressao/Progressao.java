@@ -108,6 +108,7 @@ public final class Progressao {
 
     private static void aoSubirNivel(ServerPlayer jogador, int nivel, String rankNovo) {
         Sistema.avisar(jogador, "Você subiu de nível!", "Nível " + nivel + ". Você ficou mais forte.", Sistema.OURO);
+        br.com.frxcode.frxworld.racas.Evolucao.checar(jogador);
         jogador.level().playSound(null, jogador.blockPosition(), SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 1.0f, 0.8f);
         // o nível liberou um rank novo: o rank só muda depois da prova na Guilda
         if (rankNovo != null && ConfigJogo.indiceDoNivel(nivel) > Guilda.indice(jogador))

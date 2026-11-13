@@ -120,6 +120,10 @@ public final class MenusNpc {
         int nivel = br.com.frxcode.frxworld.progressao.Progressao.dados(p).nivel();
         double desc = Reputacao.desconto(p, reino);
         if (papel.equals("cozinheiro")) return Lojas.comida(nivel, desc, p.server, reino + papel);
+        if (papel.equals("mercador")) {
+            Reino rr = Reputacao.reino(reino);
+            return Lojas.mercadorMenu(desc, Reputacao.indice(Reputacao.pontos(p, reino)), rr != null ? rr.nome() : "", nivel, p.server, reino + papel);
+        }
         return Lojas.forja(papel.equals("armeiro"), nivel, desc, p.server, reino + papel);
     }
 
@@ -131,11 +135,12 @@ public final class MenusNpc {
 
     public static void abrirForja(ServerPlayer p, Entity npc, String msg, boolean ok) {
         boolean reforjar = "armeiro".equals(npc.getPersistentData().getString("frx_papel"));
-        boolean soLoja = "cozinheiro".equals(npc.getPersistentData().getString("frx_papel"));
+        String papelNpc = npc.getPersistentData().getString("frx_papel");
+        boolean soLoja = papelNpc.equals("cozinheiro") || papelNpc.equals("mercador");
         CompoundTag d = soLoja ? new CompoundTag() : Forja.infoMenu(p, npc, reforjar);
         d.putBoolean("soLoja", soLoja);
         d.putInt("npc", npc.getId());
-        d.putString("nome", nome(npc, soLoja ? "Cozinheiro" : reforjar ? "Armeiro" : "Ferreiro"));
+        d.putString("nome", nome(npc, soLoja ? (papelNpc.equals("mercador") ? "Mercador" : "Cozinheiro") : reforjar ? "Armeiro" : "Ferreiro"));
         d.putBoolean("reforjar", reforjar);
         d.putLong("bolsa", Moedas.contar(p));
         d.putInt("slot", p.getInventory().selected);
@@ -145,7 +150,8 @@ public final class MenusNpc {
         for (int i = 0; i < 9; i++) barra.add(p.getInventory().getItem(i).save(new CompoundTag()));
         d.put("barra", barra);
         ListTag ofertas = new ListTag();
-        d.putString("dicaLoja", soLoja ? "O cardápio muda todo dia e melhora com o seu nível." : Lojas.proximoTier(br.com.frxcode.frxworld.progressao.Progressao.dados(p).nivel()));
+        d.putString("dicaLoja", soLoja ? (papelNpc.equals("mercador") ? "O estoque muda todo dia e melhora com o seu nível."
+                : "O cardápio muda todo dia e melhora com o seu nível.") : Lojas.proximoTier(br.com.frxcode.frxworld.progressao.Progressao.dados(p).nivel()));
         {
             for (MerchantOffer o : ofertasDe(p, npc)) {
                 CompoundTag x = new CompoundTag();
@@ -170,7 +176,8 @@ public final class MenusNpc {
 
     private static void forja(ServerPlayer p, Entity npc, AcaoMenu a) {
         boolean reforjar = "armeiro".equals(npc.getPersistentData().getString("frx_papel"));
-        if ("cozinheiro".equals(npc.getPersistentData().getString("frx_papel")) && a.acao() != AcaoMenu.COMPRAR) { abrirForja(p, npc, "", true); return; }
+        String papelLoja = npc.getPersistentData().getString("frx_papel");
+        if ((papelLoja.equals("cozinheiro") || papelLoja.equals("mercador")) && a.acao() != AcaoMenu.COMPRAR) { abrirForja(p, npc, "", true); return; }
         switch (a.acao()) {
             case AcaoMenu.FORJAR -> {
                 String[] r = Forja.executarMenu(p, npc, reforjar);
@@ -211,13 +218,96 @@ public final class MenusNpc {
         }
     }
 
+    // ------------------------------------------------------------------ comprador (aceita qualquer item)
+
+    /** Lista o que dá para vender da mochila, com o preço de cada pilha e o teto do dia. */
+    public static void abrirVender(ServerPlayer p, Entity npc, String msg, boolean ok) {
+        CompoundTag d = new CompoundTag();
+        d.putInt("npc", npc.getId());
+        d.putString("nome", nome(npc, "Comprador"));
+        d.putLong("limite", Avaliador.limiteDiario(p));
+        d.putLong("recebido", Avaliador.recebidoHoje(p));
+        d.putLong("resta", Avaliador.restaHoje(p));
+        d.putString("renova", Avaliador.quandoRenova());
+        d.putLong("bolsa", Moedas.contar(p));
+        d.putString("msg", msg);
+        d.putBoolean("ok", ok);
+        ListTag itens = new ListTag();
+        long total = 0;
+        for (int i = 0; i < p.getInventory().items.size(); i++) {
+            ItemStack s = p.getInventory().items.get(i);
+            long unidade = Avaliador.precoUnidade(p.server, s);
+            if (unidade <= 0) continue;
+            CompoundTag x = new CompoundTag();
+            x.putInt("slot", i);
+            x.put("item", s.save(new CompoundTag()));
+            x.putLong("unidade", unidade);
+            x.putLong("total", unidade * s.getCount());
+            itens.add(x);
+            total += unidade * s.getCount();
+        }
+        d.put("itens", itens);
+        d.putLong("totalTudo", total);
+        enviar(p, "vender", d);
+    }
+
+    /** Paga o jogador respeitando o teto do dia. Retorna o que foi pago. */
+    private static long pagar(ServerPlayer p, long valor) {
+        long cabe = Math.min(valor, Avaliador.restaHoje(p));
+        if (cabe <= 0) return 0;
+        Moedas.dar(p, cabe);
+        Avaliador.somarRecebido(p, cabe);
+        return cabe;
+    }
+
+    private static void vender(ServerPlayer p, Entity npc, AcaoMenu a) {
+        if (Avaliador.restaHoje(p) <= 0) {
+            abrirVender(p, npc, "Você já recebeu o máximo de hoje. Volta em " + Avaliador.quandoRenova() + ".", false);
+            return;
+        }
+        long pago = 0;
+        int vendidos = 0;
+        String nomeItem = "";
+        java.util.List<Integer> slots = new java.util.ArrayList<>();
+        if (a.acao() == AcaoMenu.VENDER_TUDO) {
+            for (int i = 0; i < p.getInventory().items.size(); i++) slots.add(i);
+        } else {
+            slots.add((int) a.valor());
+        }
+        for (int slot : slots) {
+            if (slot < 0 || slot >= p.getInventory().items.size()) continue;
+            ItemStack s = p.getInventory().items.get(slot);
+            long unidade = Avaliador.precoUnidade(p.server, s);
+            if (unidade <= 0) continue;
+            long resta = Avaliador.restaHoje(p);
+            if (resta <= 0) break;
+            int cabem = (int) Math.min(s.getCount(), Math.max(1, resta / unidade));
+            if (unidade > resta) cabem = 0;
+            if (cabem <= 0) continue;
+            long valor = unidade * cabem;
+            pago += pagar(p, valor);
+            nomeItem = s.getHoverName().getString();
+            vendidos += cabem;
+            s.shrink(cabem);
+        }
+        p.getInventory().setChanged();
+        if (pago <= 0) { abrirVender(p, npc, "Não deu para pagar: o teto de hoje acabou.", false); return; }
+        p.level().playSound(null, npc.blockPosition(), SoundEvents.VILLAGER_YES, SoundSource.NEUTRAL, 1f, 1f);
+        String texto = slots.size() > 1 ? "Vendido: " + vendidos + " itens por " + Moedas.texto(pago) + "."
+                : "Vendido: " + vendidos + "× " + nomeItem + " por " + Moedas.texto(pago) + ".";
+        if (Avaliador.restaHoje(p) <= 0) texto += " Teto de hoje atingido.";
+        abrirVender(p, npc, texto, true);
+    }
+
     // ------------------------------------------------------------------ entrada
 
     public static void acao(ServerPlayer p, AcaoMenu a) {
         Entity npc = p.level().getEntity(a.npc());
         if (npc == null || !npc.getTags().contains(NpcsReino.TAG) || npc.distanceToSqr(p) > 100) return;
         String papel = npc.getPersistentData().getString("frx_papel");
-        if (a.tipo().equals("banco") && (papel.equals("banqueiro") || papel.equals("cambista"))) banco(p, npc, a);
-        else if (a.tipo().equals("forja") && (papel.equals("ferreiro") || papel.equals("armeiro") || papel.equals("cozinheiro"))) forja(p, npc, a);
+        if (a.tipo().equals("dialogo") && Dialogos.temDialogo(papel)) Dialogos.acao(p, a, npc);
+        else if (a.tipo().equals("vender") && papel.equals("comprador")) vender(p, npc, a);
+        else if (a.tipo().equals("banco") && (papel.equals("banqueiro") || papel.equals("cambista"))) banco(p, npc, a);
+        else if (a.tipo().equals("forja") && (papel.equals("ferreiro") || papel.equals("armeiro") || papel.equals("cozinheiro") || papel.equals("mercador"))) forja(p, npc, a);
     }
 }

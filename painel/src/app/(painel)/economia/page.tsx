@@ -1,10 +1,13 @@
 import { prisma } from "@/lib/prisma";
 import { Lojas } from "./lojas";
 import { Riqueza } from "./riqueza";
+import { Comprador } from "./comprador";
+import { lerConfig } from "@/lib/config-jogo";
 
 export default async function EconomiaPage() {
   const itens = await prisma.itemLoja.findMany({ orderBy: [{ ordem: "asc" }, { criadoEm: "asc" }] });
   const jogadores = await prisma.jogador.findMany({ orderBy: [{ banco: "desc" }, { moedas: "desc" }], select: { uuid: true, nick: true, moedas: true, banco: true } });
+  const config = await lerConfig();
   const lista = (loja: string) => itens.filter((i) => i.loja === loja).map((i) => ({ item: i.item, qtd: i.qtd, preco: i.preco, ativo: i.ativo, nivelMin: i.nivelMin }));
 
   return (
@@ -15,6 +18,7 @@ export default async function EconomiaPage() {
       </div>
       <Riqueza jogadores={jogadores} />
       <Lojas mercador={lista("MERCADOR")} comprador={lista("COMPRADOR")} />
+      <Comprador inicial={config.comprador} />
     </>
   );
 }

@@ -9,26 +9,26 @@
 	quest_links: [ ]
 	quests: [
 		{
-			description: ["Chegue ao nível 25." "" "Abaixo disso a região é extremamente perigosa."]
+			description: [
+				"Chegue ao nível 25."
+				""
+				"Abaixo disso a região é extremamente perigosa."
+			]
 			id: "710E9095CEF81DD0"
-			rewards: [
-				{
-					command: "/frx moedas {p} 500"
-					elevate_perms: true
-					id: "447FD13EA4A7A47C"
-					silent: true
-					title: "5 ouro"
-					type: "command"
-				}
-			]
-			tasks: [
-				{
-					advancement: "frxworld:frx/nivel_25"
-					criterion: ""
-					id: "7C7260D8DE34047B"
-					type: "advancement"
-				}
-			]
+			rewards: [{
+				command: "/frx moedas {p} 500"
+				elevate_perms: true
+				id: "447FD13EA4A7A47C"
+				silent: true
+				title: "5 ouro"
+				type: "command"
+			}]
+			tasks: [{
+				advancement: "frxworld:frx/nivel_25"
+				criterion: ""
+				id: "7C7260D8DE34047B"
+				type: "advancement"
+			}]
 			title: "Pronto para Everbright"
 			x: 0.0d
 			y: 0.0d
@@ -57,13 +57,11 @@
 			]
 			shape: "gear"
 			size: 1.5d
-			tasks: [
-				{
-					dimension: "blue_skies:everbright"
-					id: "533FE37185FEA8DF"
-					type: "dimension"
-				}
-			]
+			tasks: [{
+				dimension: "blue_skies:everbright"
+				id: "533FE37185FEA8DF"
+				type: "dimension"
+			}]
 			title: "Entrar: Everbright"
 			x: 2.0d
 			y: 0.0d
@@ -92,14 +90,12 @@
 			]
 			shape: "hexagon"
 			size: 1.25d
-			tasks: [
-				{
-					entity: "blue_skies:summoner"
-					id: "51C7169A1F02A176"
-					type: "kill"
-					value: 1L
-				}
-			]
+			tasks: [{
+				entity: "blue_skies:summoner"
+				id: "51C7169A1F02A176"
+				type: "kill"
+				value: 1L
+			}]
 			title: "o Invocador"
 			x: 4.0d
 			y: 0.0d
@@ -134,14 +130,12 @@
 			]
 			shape: "hexagon"
 			size: 1.25d
-			tasks: [
-				{
-					entity: "blue_skies:alchemist"
-					id: "46379AC74F737ACA"
-					type: "kill"
-					value: 1L
-				}
-			]
+			tasks: [{
+				entity: "blue_skies:alchemist"
+				id: "46379AC74F737ACA"
+				type: "kill"
+				value: 1L
+			}]
 			title: "o Alquimista"
 			x: 6.0d
 			y: 0.0d

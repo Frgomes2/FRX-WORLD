@@ -1,9 +1,12 @@
 import { prisma } from "@/lib/prisma";
 import { criarConvite, revogarConvite } from "./actions";
+import { Abertura } from "./abertura";
+import { lerConfig } from "@/lib/config-jogo";
 
 const data = (d: Date) => d.toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short", timeZone: "America/Sao_Paulo" });
 
 export default async function ConvitesPage() {
+  const config = await lerConfig();
   const convites = await prisma.convite.findMany({
     orderBy: { criadoEm: "desc" },
     include: { jogador: true },
@@ -71,6 +74,7 @@ export default async function ConvitesPage() {
           </tbody>
         </table>
       </div>
+      <Abertura inicial={config.abertura} />
     </>
   );
 }

@@ -59,5 +59,6 @@ public class Marcos {
         if (missoes >= 10) marcar(p, "taverna_10");
         if (!d.dungeons().isEmpty()) marcar(p, "dungeon");
         if (d.contadores().getOrDefault("chefes", 0) > 0) marcar(p, "chefe_mundial");
+        for (String id : d.conquistas().keySet()) marcar(p, "conq_" + id);
     }
 }

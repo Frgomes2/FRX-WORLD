@@ -1,0 +1,829 @@
+{
+	default_hide_dependency_lines: true
+	default_quest_shape: "rsquare"
+	filename: "conquistas"
+	group: ""
+	icon: "minecraft:totem_of_undying"
+	id: "68F80A65FED2FD69"
+	order_index: 11
+	quest_links: [ ]
+	quests: [
+		{
+			description: [
+				"Derrote seu primeiro monstro"
+				""
+				"A conquista entra sozinha quando você cumpre o objetivo no jogo."
+			]
+			icon: {
+				Count: 1
+				id: "minecraft:wooden_sword"
+				tag: {
+					Damage: 0
+				}
+			}
+			id: "18B7DC64C68B0C02"
+			rewards: [{
+				command: "/frx xp {p} 100"
+				elevate_perms: true
+				id: "15896CBC6D234972"
+				silent: true
+				title: "100 XP"
+				type: "command"
+			}]
+			subtitle: "Caçada"
+			tasks: [{
+				advancement: "frxworld:frx/conq_primeiro_sangue"
+				criterion: ""
+				id: "30C75C7889074BDD"
+				type: "advancement"
+			}]
+			title: "Primeiro Sangue"
+			x: -4.0d
+			y: 0.0d
+		}
+		{
+			description: [
+				"Derrote 100 monstros"
+				""
+				"A conquista entra sozinha quando você cumpre o objetivo no jogo."
+			]
+			icon: {
+				Count: 1
+				id: "minecraft:stone_sword"
+				tag: {
+					Damage: 0
+				}
+			}
+			id: "5EF63C4E76CA93A3"
+			rewards: [{
+				command: "/frx xp {p} 300"
+				elevate_perms: true
+				id: "005B8E4255CD2A1B"
+				silent: true
+				title: "300 XP"
+				type: "command"
+			}]
+			subtitle: "Caçada"
+			tasks: [{
+				advancement: "frxworld:frx/conq_cacador"
+				criterion: ""
+				id: "7172556C67CB59B0"
+				type: "advancement"
+			}]
+			title: "Caçador"
+			x: -2.0d
+			y: 0.0d
+		}
+		{
+			description: [
+				"Derrote 1.000 monstros"
+				""
+				"A conquista entra sozinha quando você cumpre o objetivo no jogo."
+			]
+			icon: {
+				Count: 1
+				id: "minecraft:iron_sword"
+				tag: {
+					Damage: 0
+				}
+			}
+			id: "5D9F8C5260B03D7A"
+			rewards: [{
+				command: "/frx xp {p} 1200"
+				elevate_perms: true
+				id: "381D0839DC0CE574"
+				silent: true
+				title: "1200 XP"
+				type: "command"
+			}]
+			subtitle: "Caçada"
+			tasks: [{
+				advancement: "frxworld:frx/conq_exterminador"
+				criterion: ""
+				id: "638339D8607F5C51"
+				type: "advancement"
+			}]
+			title: "Exterminador"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			description: [
+				"Derrote 5.000 monstros"
+				""
+				"A conquista entra sozinha quando você cumpre o objetivo no jogo."
+			]
+			icon: {
+				Count: 1
+				id: "minecraft:netherite_sword"
+				tag: {
+					Damage: 0
+				}
+			}
+			id: "27EE0D8664FC67FA"
+			rewards: [{
+				command: "/frx xp {p} 4000"
+				elevate_perms: true
+				id: "5580F0FD43F0FC3E"
+				silent: true
+				title: "4000 XP"
+				type: "command"
+			}]
+			subtitle: "Caçada"
+			tasks: [{
+				advancement: "frxworld:frx/conq_lenda_viva"
+				criterion: ""
+				id: "58BFA62438A89E71"
+				type: "advancement"
+			}]
+			title: "Lenda Viva"
+			x: 2.0d
+			y: 0.0d
+		}
+		{
+			description: [
+				"Derrote 100 zumbis"
+				""
+				"A conquista entra sozinha quando você cumpre o objetivo no jogo."
+			]
+			icon: "minecraft:rotten_flesh"
+			id: "26A1A0B9DCC41A65"
+			rewards: [{
+				command: "/frx xp {p} 400"
+				elevate_perms: true
+				id: "7DE2D4BD884E76EC"
+				silent: true
+				title: "400 XP"
+				type: "command"
+			}]
+			subtitle: "Presas"
+			tasks: [{
+				advancement: "frxworld:frx/conq_zumbis"
+				criterion: ""
+				id: "4FA7C82032332652"
+				type: "advancement"
+			}]
+			title: "Matador de Zumbis"
+			x: -4.0d
+			y: 3.0d
+		}
+		{
+			description: [
+				"Derrote 100 esqueletos"
+				""
+				"A conquista entra sozinha quando você cumpre o objetivo no jogo."
+			]
+			icon: "minecraft:bone"
+			id: "5B1683DD964E6DAE"
+			rewards: [{
+				command: "/frx xp {p} 400"
+				elevate_perms: true
+				id: "11BA99E6DA6D0202"
+				silent: true
+				title: "400 XP"
+				type: "command"
+			}]
+			subtitle: "Presas"
+			tasks: [{
+				advancement: "frxworld:frx/conq_esqueletos"
+				criterion: ""
+				id: "42A32D911248A5DB"
+				type: "advancement"
+			}]
+			title: "Quebra-Ossos"
+			x: -2.0d
+			y: 3.0d
+		}
+		{
+			description: [
+				"Derrote 50 aranhas"
+				""
+				"A conquista entra sozinha quando você cumpre o objetivo no jogo."
+			]
+			icon: "minecraft:string"
+			id: "6E2617A9210F0561"
+			rewards: [{
+				command: "/frx xp {p} 300"
+				elevate_perms: true
+				id: "5213C7B8C8B77B49"
+				silent: true
+				title: "300 XP"
+				type: "command"
+			}]
+			subtitle: "Presas"
+			tasks: [{
+				advancement: "frxworld:frx/conq_aranhas"
+				criterion: ""
+				id: "7D0241027D789284"
+				type: "advancement"
+			}]
+			title: "Aracnofóbico"
+			x: 0.0d
+			y: 3.0d
+		}
+		{
+			description: [
+				"Derrote 50 creepers"
+				""
+				"A conquista entra sozinha quando você cumpre o objetivo no jogo."
+			]
+			icon: "minecraft:gunpowder"
+			id: "45EB52E4275E3F8B"
+			rewards: [{
+				command: "/frx xp {p} 300"
+				elevate_perms: true
+				id: "1066EE8C3F76579E"
+				silent: true
+				title: "300 XP"
+				type: "command"
+			}]
+			subtitle: "Presas"
+			tasks: [{
+				advancement: "frxworld:frx/conq_creepers"
+				criterion: ""
+				id: "5C8D41F65EE8E894"
+				type: "advancement"
+			}]
+			title: "Desarmador"
+			x: 2.0d
+			y: 3.0d
+		}
+		{
+			description: [
+				"Derrote 50 endermen"
+				""
+				"A conquista entra sozinha quando você cumpre o objetivo no jogo."
+			]
+			icon: "minecraft:ender_pearl"
+			id: "41B21212BC32C6BD"
+			rewards: [{
+				command: "/frx xp {p} 400"
+				elevate_perms: true
+				id: "62CC5573AFFFDC00"
+				silent: true
+				title: "400 XP"
+				type: "command"
+			}]
+			subtitle: "Presas"
+			tasks: [{
+				advancement: "frxworld:frx/conq_endermen"
+				criterion: ""
+				id: "66084443B4D747D4"
+				type: "advancement"
+			}]
+			title: "Olhar Firme"
+			x: 4.0d
+			y: 3.0d
+		}
+		{
+			description: [
+				"Derrote o Dragão do Fim"
+				""
+				"A conquista entra sozinha quando você cumpre o objetivo no jogo."
+			]
+			icon: "minecraft:dragon_head"
+			id: "1585C1707832EAAC"
+			rewards: [{
+				command: "/frx xp {p} 3000"
+				elevate_perms: true
+				id: "104DA2AC69026E24"
+				silent: true
+				title: "3000 XP"
+				type: "command"
+			}]
+			subtitle: "Chefes"
+			tasks: [{
+				advancement: "frxworld:frx/conq_dragao_end"
+				criterion: ""
+				id: "1C5F01DFEF8FB14E"
+				type: "advancement"
+			}]
+			title: "Matador de Dragões"
+			x: -4.0d
+			y: 6.0d
+		}
+		{
+			description: [
+				"Derrote o Wither"
+				""
+				"A conquista entra sozinha quando você cumpre o objetivo no jogo."
+			]
+			icon: "minecraft:wither_skeleton_skull"
+			id: "1EB34D6E25F2D5FB"
+			rewards: [{
+				command: "/frx xp {p} 2500"
+				elevate_perms: true
+				id: "304F706922B767DD"
+				silent: true
+				title: "2500 XP"
+				type: "command"
+			}]
+			subtitle: "Chefes"
+			tasks: [{
+				advancement: "frxworld:frx/conq_wither"
+				criterion: ""
+				id: "25A16F9CF2FF4C23"
+				type: "advancement"
+			}]
+			title: "Ruína do Wither"
+			x: -2.0d
+			y: 6.0d
+		}
+		{
+			description: [
+				"Derrote um dragão de Ice and Fire"
+				""
+				"A conquista entra sozinha quando você cumpre o objetivo no jogo."
+			]
+			icon: "minecraft:fire_charge"
+			id: "66E53833E7E46587"
+			rewards: [{
+				command: "/frx xp {p} 2500"
+				elevate_perms: true
+				id: "71A8D179405A61D2"
+				silent: true
+				title: "2500 XP"
+				type: "command"
+			}]
+			subtitle: "Chefes"
+			tasks: [{
+				advancement: "frxworld:frx/conq_dragoes"
+				criterion: ""
+				id: "3078588818CDC8D4"
+				type: "advancement"
+			}]
+			title: "Domador de Dragões"
+			x: 0.0d
+			y: 6.0d
+		}
+		{
+			description: [
+				"Derrote o Harbinger da Fábrica Ancestral"
+				""
+				"A conquista entra sozinha quando você cumpre o objetivo no jogo."
+			]
+			icon: "minecraft:redstone_block"
+			id: "308B5A7B79E4C52D"
+			rewards: [{
+				command: "/frx xp {p} 2500"
+				elevate_perms: true
+				id: "2165BA40B43B1112"
+				silent: true
+				title: "2500 XP"
+				type: "command"
+			}]
+			subtitle: "Chefes"
+			tasks: [{
+				advancement: "frxworld:frx/conq_harbinger"
+				criterion: ""
+				id: "0A9F306828ACA024"
+				type: "advancement"
+			}]
+			title: "Desmontador"
+			x: 2.0d
+			y: 6.0d
+		}
+		{
+			description: [
+				"Ajude a derrotar um chefe mundial"
+				""
+				"A conquista entra sozinha quando você cumpre o objetivo no jogo."
+			]
+			icon: "minecraft:nether_star"
+			id: "32C7DF920DB14376"
+			rewards: [{
+				command: "/frx xp {p} 1500"
+				elevate_perms: true
+				id: "1B865F623283D3AE"
+				silent: true
+				title: "1500 XP"
+				type: "command"
+			}]
+			subtitle: "Chefes"
+			tasks: [{
+				advancement: "frxworld:frx/conq_chefe1"
+				criterion: ""
+				id: "0A9A4ECE9C3929AC"
+				type: "advancement"
+			}]
+			title: "Caçador de Titãs"
+			x: 4.0d
+			y: 6.0d
+		}
+		{
+			description: [
+				"Ajude a derrotar 5 chefes mundiais"
+				""
+				"A conquista entra sozinha quando você cumpre o objetivo no jogo."
+			]
+			icon: "minecraft:beacon"
+			id: "762DAB10EE6484BB"
+			rewards: [{
+				command: "/frx xp {p} 5000"
+				elevate_perms: true
+				id: "61183279FADAE181"
+				silent: true
+				title: "5000 XP"
+				type: "command"
+			}]
+			subtitle: "Chefes"
+			tasks: [{
+				advancement: "frxworld:frx/conq_chefe5"
+				criterion: ""
+				id: "4D483A2F6756EBC8"
+				type: "advancement"
+			}]
+			title: "Flagelo dos Titãs"
+			x: -4.0d
+			y: 8.0d
+		}
+		{
+			description: [
+				"Chegue ao nível 10"
+				""
+				"A conquista entra sozinha quando você cumpre o objetivo no jogo."
+			]
+			icon: {
+				Count: 1
+				id: "minecraft:leather_chestplate"
+				tag: {
+					Damage: 0
+				}
+			}
+			id: "7496F0E937001595"
+			rewards: [{
+				command: "/frx xp {p} 200"
+				elevate_perms: true
+				id: "0F4D7E7A8D6461DA"
+				silent: true
+				title: "200 XP"
+				type: "command"
+			}]
+			subtitle: "Jornada"
+			tasks: [{
+				advancement: "frxworld:frx/conq_nivel10"
+				criterion: ""
+				id: "40BD9028510D6A52"
+				type: "advancement"
+			}]
+			title: "Aventureiro"
+			x: -4.0d
+			y: 9.0d
+		}
+		{
+			description: [
+				"Chegue ao nível 25"
+				""
+				"A conquista entra sozinha quando você cumpre o objetivo no jogo."
+			]
+			icon: {
+				Count: 1
+				id: "minecraft:iron_chestplate"
+				tag: {
+					Damage: 0
+				}
+			}
+			id: "28D52A6C54C9593B"
+			rewards: [{
+				command: "/frx xp {p} 800"
+				elevate_perms: true
+				id: "07BFAA025C190DF4"
+				silent: true
+				title: "800 XP"
+				type: "command"
+			}]
+			subtitle: "Jornada"
+			tasks: [{
+				advancement: "frxworld:frx/conq_nivel25"
+				criterion: ""
+				id: "5FE25D348BA17444"
+				type: "advancement"
+			}]
+			title: "Experiente"
+			x: -2.0d
+			y: 9.0d
+		}
+		{
+			description: [
+				"Chegue ao nível 50"
+				""
+				"A conquista entra sozinha quando você cumpre o objetivo no jogo."
+			]
+			icon: {
+				Count: 1
+				id: "minecraft:diamond_chestplate"
+				tag: {
+					Damage: 0
+				}
+			}
+			id: "74E378D515E8229C"
+			rewards: [{
+				command: "/frx xp {p} 2500"
+				elevate_perms: true
+				id: "37E4ED6970AB94D5"
+				silent: true
+				title: "2500 XP"
+				type: "command"
+			}]
+			subtitle: "Jornada"
+			tasks: [{
+				advancement: "frxworld:frx/conq_nivel50"
+				criterion: ""
+				id: "1E323C02D7F150DD"
+				type: "advancement"
+			}]
+			title: "Veterano"
+			x: 0.0d
+			y: 9.0d
+		}
+		{
+			description: [
+				"Chegue ao nível 100"
+				""
+				"A conquista entra sozinha quando você cumpre o objetivo no jogo."
+			]
+			icon: {
+				Count: 1
+				id: "minecraft:netherite_chestplate"
+				tag: {
+					Damage: 0
+				}
+			}
+			id: "5E2A74FA6A505DE4"
+			rewards: [{
+				command: "/frx xp {p} 8000"
+				elevate_perms: true
+				id: "58B67726F8FFEBA1"
+				silent: true
+				title: "8000 XP"
+				type: "command"
+			}]
+			subtitle: "Jornada"
+			tasks: [{
+				advancement: "frxworld:frx/conq_nivel100"
+				criterion: ""
+				id: "493DE0185C52C20B"
+				type: "advancement"
+			}]
+			title: "Imortal"
+			x: 2.0d
+			y: 9.0d
+		}
+		{
+			description: [
+				"Aprimore um item até +5"
+				""
+				"A conquista entra sozinha quando você cumpre o objetivo no jogo."
+			]
+			icon: "minecraft:anvil"
+			id: "7AE3AE1615CB1BEA"
+			rewards: [{
+				command: "/frx xp {p} 600"
+				elevate_perms: true
+				id: "1414E58790A14DB7"
+				silent: true
+				title: "600 XP"
+				type: "command"
+			}]
+			subtitle: "Ofício e riqueza"
+			tasks: [{
+				advancement: "frxworld:frx/conq_forja5"
+				criterion: ""
+				id: "6A377CAF6D4EB87F"
+				type: "advancement"
+			}]
+			title: "Aprendiz de Ferreiro"
+			x: -4.0d
+			y: 12.0d
+		}
+		{
+			description: [
+				"Aprimore um item até +10"
+				""
+				"A conquista entra sozinha quando você cumpre o objetivo no jogo."
+			]
+			icon: "minecraft:netherite_ingot"
+			id: "55F4F203EC1FFCF7"
+			rewards: [{
+				command: "/frx xp {p} 3000"
+				elevate_perms: true
+				id: "4A51E86B9E80B24C"
+				silent: true
+				title: "3000 XP"
+				type: "command"
+			}]
+			subtitle: "Ofício e riqueza"
+			tasks: [{
+				advancement: "frxworld:frx/conq_forja10"
+				criterion: ""
+				id: "72A4691E54DDFAE8"
+				type: "advancement"
+			}]
+			title: "Mestre Ferreiro"
+			x: -2.0d
+			y: 12.0d
+		}
+		{
+			description: [
+				"Reforje um item até Lendário"
+				""
+				"A conquista entra sozinha quando você cumpre o objetivo no jogo."
+			]
+			icon: "minecraft:amethyst_shard"
+			id: "65EFAF193BB2CC84"
+			rewards: [{
+				command: "/frx xp {p} 1500"
+				elevate_perms: true
+				id: "45771C1A1F873D83"
+				silent: true
+				title: "1500 XP"
+				type: "command"
+			}]
+			subtitle: "Ofício e riqueza"
+			tasks: [{
+				advancement: "frxworld:frx/conq_lendario"
+				criterion: ""
+				id: "120749A2A56508BE"
+				type: "advancement"
+			}]
+			title: "Toque de Ouro"
+			x: 0.0d
+			y: 12.0d
+		}
+		{
+			description: [
+				"Tenha 100 ouro guardados no banco"
+				""
+				"A conquista entra sozinha quando você cumpre o objetivo no jogo."
+			]
+			icon: "frxworld:moeda_ouro"
+			id: "4FB9BBAE7D358565"
+			rewards: [{
+				command: "/frx xp {p} 1500"
+				elevate_perms: true
+				id: "565F1D1712B02DFF"
+				silent: true
+				title: "1500 XP"
+				type: "command"
+			}]
+			subtitle: "Ofício e riqueza"
+			tasks: [{
+				advancement: "frxworld:frx/conq_magnata"
+				criterion: ""
+				id: "61CE49D786D7B6AF"
+				type: "advancement"
+			}]
+			title: "Magnata"
+			x: 2.0d
+			y: 12.0d
+		}
+		{
+			description: [
+				"Vença uma invasão"
+				""
+				"A conquista entra sozinha quando você cumpre o objetivo no jogo."
+			]
+			icon: {
+				Count: 1
+				id: "minecraft:shield"
+				tag: {
+					Damage: 0
+				}
+			}
+			id: "0216EED85B95A895"
+			rewards: [{
+				command: "/frx xp {p} 600"
+				elevate_perms: true
+				id: "543F3D3D440F3850"
+				silent: true
+				title: "600 XP"
+				type: "command"
+			}]
+			subtitle: "Os reinos"
+			tasks: [{
+				advancement: "frxworld:frx/conq_invasao1"
+				criterion: ""
+				id: "32C64FC8CDF07F9C"
+				type: "advancement"
+			}]
+			title: "Defensor"
+			x: -4.0d
+			y: 15.0d
+		}
+		{
+			description: [
+				"Vença 10 invasões"
+				""
+				"A conquista entra sozinha quando você cumpre o objetivo no jogo."
+			]
+			icon: "minecraft:bell"
+			id: "5AC855B9C27C766D"
+			rewards: [{
+				command: "/frx xp {p} 3000"
+				elevate_perms: true
+				id: "39C60CB04925543D"
+				silent: true
+				title: "3000 XP"
+				type: "command"
+			}]
+			subtitle: "Os reinos"
+			tasks: [{
+				advancement: "frxworld:frx/conq_invasao10"
+				criterion: ""
+				id: "04C8670371FD3195"
+				type: "advancement"
+			}]
+			title: "Guardião dos Reinos"
+			x: -2.0d
+			y: 15.0d
+		}
+		{
+			description: [
+				"Complete a missão épica de um rei"
+				""
+				"A conquista entra sozinha quando você cumpre o objetivo no jogo."
+			]
+			icon: {
+				Count: 1
+				id: "minecraft:golden_helmet"
+				tag: {
+					Damage: 0
+				}
+			}
+			id: "2CA6EFBB7A6F9F48"
+			rewards: [{
+				command: "/frx xp {p} 1500"
+				elevate_perms: true
+				id: "6C43019C1D645713"
+				silent: true
+				title: "1500 XP"
+				type: "command"
+			}]
+			subtitle: "Os reinos"
+			tasks: [{
+				advancement: "frxworld:frx/conq_campanha1"
+				criterion: ""
+				id: "140055865F45A6EA"
+				type: "advancement"
+			}]
+			title: "Escolhido do Rei"
+			x: 0.0d
+			y: 15.0d
+		}
+		{
+			description: [
+				"Complete a missão épica dos 5 reis"
+				""
+				"A conquista entra sozinha quando você cumpre o objetivo no jogo."
+			]
+			icon: "minecraft:golden_apple"
+			id: "197A042F87DFDF90"
+			rewards: [{
+				command: "/frx xp {p} 6000"
+				elevate_perms: true
+				id: "724389912B4AAE90"
+				silent: true
+				title: "6000 XP"
+				type: "command"
+			}]
+			subtitle: "Os reinos"
+			tasks: [{
+				advancement: "frxworld:frx/conq_campanha5"
+				criterion: ""
+				id: "129F2716B8148B04"
+				type: "advancement"
+			}]
+			title: "Herói das Cinco Coroas"
+			x: 2.0d
+			y: 15.0d
+		}
+		{
+			description: [
+				"Morra 50 vezes"
+				""
+				"A conquista entra sozinha quando você cumpre o objetivo no jogo."
+			]
+			icon: "minecraft:totem_of_undying"
+			id: "7631865CD2E9AC93"
+			rewards: [{
+				command: "/frx xp {p} 500"
+				elevate_perms: true
+				id: "68CE602497B47C87"
+				silent: true
+				title: "500 XP"
+				type: "command"
+			}]
+			subtitle: "Cicatrizes"
+			tasks: [{
+				advancement: "frxworld:frx/conq_teimoso"
+				criterion: ""
+				id: "677E2EEFEC915026"
+				type: "advancement"
+			}]
+			title: "Cabeça Dura"
+			x: -4.0d
+			y: 18.0d
+		}
+	]
+	title: "Conquistas"
+}

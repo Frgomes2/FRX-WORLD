@@ -9,26 +9,26 @@
 	quest_links: [ ]
 	quests: [
 		{
-			description: ["Chegue ao nível 35." "" "Abaixo disso a região é extremamente perigosa."]
+			description: [
+				"Chegue ao nível 35."
+				""
+				"Abaixo disso a região é extremamente perigosa."
+			]
 			id: "34A9BA9EE92E1A53"
-			rewards: [
-				{
-					command: "/frx moedas {p} 700"
-					elevate_perms: true
-					id: "5A33713C3CB2E80F"
-					silent: true
-					title: "7 ouro"
-					type: "command"
-				}
-			]
-			tasks: [
-				{
-					advancement: "frxworld:frx/nivel_35"
-					criterion: ""
-					id: "491B2C4E0C63B676"
-					type: "advancement"
-				}
-			]
+			rewards: [{
+				command: "/frx moedas {p} 700"
+				elevate_perms: true
+				id: "5A33713C3CB2E80F"
+				silent: true
+				title: "7 ouro"
+				type: "command"
+			}]
+			tasks: [{
+				advancement: "frxworld:frx/nivel_35"
+				criterion: ""
+				id: "491B2C4E0C63B676"
+				type: "advancement"
+			}]
 			title: "Pronto para Everdawn"
 			x: 0.0d
 			y: 0.0d
@@ -57,13 +57,11 @@
 			]
 			shape: "gear"
 			size: 1.5d
-			tasks: [
-				{
-					dimension: "blue_skies:everdawn"
-					id: "3ECFB7309F4E9980"
-					type: "dimension"
-				}
-			]
+			tasks: [{
+				dimension: "blue_skies:everdawn"
+				id: "3ECFB7309F4E9980"
+				type: "dimension"
+			}]
 			title: "Entrar: Everdawn"
 			x: 2.0d
 			y: 0.0d
@@ -92,14 +90,12 @@
 			]
 			shape: "hexagon"
 			size: 1.25d
-			tasks: [
-				{
-					entity: "blue_skies:starlit_crusher"
-					id: "73363001ADDAFA11"
-					type: "kill"
-					value: 1L
-				}
-			]
+			tasks: [{
+				entity: "blue_skies:starlit_crusher"
+				id: "73363001ADDAFA11"
+				type: "kill"
+				value: 1L
+			}]
 			title: "o Esmagador Estelar"
 			x: 4.0d
 			y: 0.0d
@@ -134,14 +130,12 @@
 			]
 			shape: "hexagon"
 			size: 1.25d
-			tasks: [
-				{
-					entity: "blue_skies:arachnarch"
-					id: "64253EAE5E4E5EC1"
-					type: "kill"
-					value: 1L
-				}
-			]
+			tasks: [{
+				entity: "blue_skies:arachnarch"
+				id: "64253EAE5E4E5EC1"
+				type: "kill"
+				value: 1L
+			}]
 			title: "a Aracnarca"
 			x: 6.0d
 			y: 0.0d

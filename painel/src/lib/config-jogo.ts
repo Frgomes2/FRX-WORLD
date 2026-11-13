@@ -19,6 +19,30 @@ export const FORJA_PADRAO = { anunciarAPartirDe: 7, niveis: [{ moedas: 15, mater
 
 export const FLORESTA_PADRAO = { ativo: true, reino: "tempest", inicio: 40, largura: 220, maxMonstros: 10, intervaloSeg: 5, chanceForte: 35, escuridao: true, soAPe: true, monstros1: ["minecraft:zombie", "minecraft:spider", "minecraft:cave_spider", "graveyard:ghoul", "born_in_chaos_v1:decaying_zombie", "born_in_chaos_v1:decrepit_skeleton", "born_in_chaos_v1:restless_spirit", "mowziesmobs:foliaath"], monstros2: ["graveyard:revenant", "graveyard:wraith", "born_in_chaos_v1:dread_hound", "born_in_chaos_v1:nightmare_stalker", "born_in_chaos_v1:skeleton_thrasher", "minecraft:witch", "graveyard:nightmare"] };
 
+export const ABERTURA_PADRAO = {
+  ativo: true,
+  reino: "tempest",
+  falas: [
+    "Você morreu.",
+    "…mas a sua história não acabou aqui.",
+    "Um mundo de oito reinos abre os olhos com você.",
+    "Monstros caminham pelas estradas. Reis procuram heróis.",
+    "Eu sou o Sistema. Vou acompanhar cada passo seu daqui em diante.",
+    "Antes de nascer, preciso saber quem você é.",
+  ],
+};
+
+export const COMPRADOR_PADRAO = {
+  precoComum: 2, precoIncomum: 10, precoRaro: 40, precoEpico: 150,
+  fracaoVenda: 0.3, bonusEncanto: 0.15, multiplicador: 1,
+  limiteBaseOuro: 20, limitePorNivelOuro: 3,
+};
+
+/** Falas da caixa de diálogo, por papel de NPC. {jogador} vira o nick. */
+export const DIALOGOS_PADRAO: Record<string, string[]> = {
+  rei: [], taverneiro: [], sacerdote: [], sabio: [], cartografo: [],
+};
+
 export const configSchema = z.object({
   progressao: z.object({
     nivelMaximo: z.number().int().min(10).max(1000),
@@ -115,6 +139,27 @@ export const configSchema = z.object({
       monstros2: z.array(z.string().min(3).max(80)).min(1).max(30),
     })
     .default(FLORESTA_PADRAO),
+  abertura: z
+    .object({
+      ativo: z.boolean(),
+      reino: z.string().trim().min(2).max(40),      // capital onde o jogador nasce
+      falas: z.array(z.string().trim().min(1).max(120)).min(1).max(12),
+    })
+    .default(ABERTURA_PADRAO),
+  comprador: z
+    .object({
+      precoComum: z.number().min(0).max(100000),      // cobre por unidade, item comum
+      precoIncomum: z.number().min(0).max(100000),
+      precoRaro: z.number().min(0).max(100000),
+      precoEpico: z.number().min(0).max(100000),
+      fracaoVenda: z.number().min(0).max(1),          // do preço de venda do ferreiro/mercador
+      bonusEncanto: z.number().min(0).max(2),         // por nível de encantamento
+      multiplicador: z.number().min(0.1).max(10),
+      limiteBaseOuro: z.number().min(0).max(100000),  // teto diário no nível 1
+      limitePorNivelOuro: z.number().min(0).max(10000),
+    })
+    .default(COMPRADOR_PADRAO),
+  dialogos: z.record(z.string(), z.array(z.string().trim().min(1).max(200)).max(12)).default(DIALOGOS_PADRAO),
   taverna: z
     .object({
       nome: z.string().trim().min(1).max(32),
@@ -150,6 +195,9 @@ export const CONFIG_PADRAO: ConfigJogo = {
   floresta: FLORESTA_PADRAO,
   zonas: { blocosPorNivel: 250, nivelMax: 60, vidaPct: 6, danoPct: 3.5, armaduraPorNivel: 0.2, moedaChance: 30, moedaPorNivel: 1,
     eliteChance: 5, eliteNivelMin: 3, campeaoChance: 0.5, campeaoNivelMin: 10, dimensoes: DIMENSOES_PADRAO },
+  abertura: ABERTURA_PADRAO,
+  comprador: COMPRADOR_PADRAO,
+  dialogos: DIALOGOS_PADRAO,
   taverna: {
     nome: "Bartolomeu",
     falas: [

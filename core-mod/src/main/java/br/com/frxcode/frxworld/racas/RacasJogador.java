@@ -188,6 +188,18 @@ public class RacasJogador {
                 .append(Component.literal(rs != null && !secundaria.equals(principal) ? "  · compatibilidade " + c.nome : "").withStyle(ChatFormatting.GRAY)));
         p.level().playSound(null, p.blockPosition(), SoundEvents.AMETHYST_BLOCK_RESONATE, SoundSource.PLAYERS, 1f, 1f);
         sincronizar(p, false);
+        br.com.frxcode.frxworld.acesso.Abertura.aposRaca(p);
+    }
+
+    /** Apaga a raça (usado pelo teste da abertura). */
+    public static void limpar(ServerPlayer p) {
+        CompoundTag d = dados(p);
+        d.putBoolean("escolheu", false);
+        d.putString("principal", "");
+        d.putString("secundaria", "");
+        d.putInt("trocas", 0);
+        aplicar(p);
+        sincronizar(p, false);
     }
 
     public static void alternarRevelar(ServerPlayer p) {

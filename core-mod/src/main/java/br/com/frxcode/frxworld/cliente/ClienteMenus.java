@@ -18,6 +18,12 @@ public final class ClienteMenus {
         Minecraft mc = Minecraft.getInstance();
         if (msg.tipo().equals("banco")) {
             if (mc.screen instanceof TelaBanco t) t.atualizar(msg.dados()); else mc.setScreen(new TelaBanco(msg.dados()));
+        } else if (msg.tipo().equals("abertura")) {
+            if (mc.screen instanceof TelaAbertura t) t.atualizar(msg.dados()); else mc.setScreen(new TelaAbertura(msg.dados()));
+        } else if (msg.tipo().equals("dialogo")) {
+            if (mc.screen instanceof TelaDialogo t) t.atualizar(msg.dados()); else mc.setScreen(new TelaDialogo(msg.dados()));
+        } else if (msg.tipo().equals("vender")) {
+            if (mc.screen instanceof TelaVender t) t.atualizar(msg.dados()); else mc.setScreen(new TelaVender(msg.dados()));
         } else if (msg.tipo().equals("guilda")) {
             if (mc.screen instanceof TelaGuilda t) t.atualizar(msg.dados()); else mc.setScreen(new TelaGuilda(msg.dados()));
         } else if (msg.tipo().equals("forja")) {

@@ -110,6 +110,7 @@ public class ControleAcesso {
     private void liberar(ServerPlayer jogador, Pendente pendente) {
         pendentes.remove(jogador.getUUID());
         boasVindas(jogador);
+        Abertura.iniciar(jogador);
     }
 
     /** Enquanto não usa o convite: nada de comandos (só /convite) nem chat. */

@@ -38,7 +38,7 @@ public final class Catalogo {
 
     public record Entrada(Item item, int qtd, int nivel, int preco) {}
 
-    private static List<Entrada> armas, armaduras, comidas;
+    private static List<Entrada> armas, armaduras, comidas, utilidades;
 
     private static int dez(double v) { return (int) Math.max(10, Math.round(v / 10.0) * 10); }
 
@@ -61,7 +61,7 @@ public final class Catalogo {
                 if (!s.isEmpty()) comReceita.add(s.getItem());
             } catch (Throwable ignorado) { }
         }
-        List<Entrada> la = new ArrayList<>(), ld = new ArrayList<>(), lc = new ArrayList<>();
+        List<Entrada> la = new ArrayList<>(), ld = new ArrayList<>(), lc = new ArrayList<>(), lu = new ArrayList<>();
         for (Item item : ForgeRegistries.ITEMS.getValues()) {
             try {
                 ResourceLocation id = ForgeRegistries.ITEMS.getKey(item);
@@ -81,7 +81,18 @@ public final class Catalogo {
                     lc.add(especial ? new Entrada(item, 1, nivel, Math.max(60, unidade * 40)) : new Entrada(item, 4, nivel, unidade * 4));
                     continue;
                 }
-                if (vanilla || !comReceita.contains(item)) continue;   // as vanilla já estão na lista fixa do ferreiro/armeiro
+                if (vanilla || !comReceita.contains(item)) continue;   // as vanilla já estão nas listas fixas das lojas
+
+                // utilidades do mercador: itens de mod com receita que não são arma, armadura, comida nem bloco
+                if (!(item instanceof ArmorItem) && !(item instanceof TieredItem) && !(item instanceof net.minecraft.world.item.BlockItem)
+                        && !(item instanceof net.minecraft.world.item.SpawnEggItem) && !id.getNamespace().equals("frxworld")) {
+                    Rarity rar = item.getRarity(new ItemStack(item));
+                    if (rar != Rarity.EPIC) {   // épico costuma ser item de evento ou de criativo
+                        int nivel = switch (rar) { case RARE -> 25; case UNCOMMON -> 10; default -> 1; };
+                        int preco = switch (rar) { case RARE -> 600; case UNCOMMON -> 150; default -> 40; };
+                        lu.add(new Entrada(item, 1, nivel, preco));
+                    }
+                }
 
                 if (item instanceof ArmorItem a) {
                     ArmorMaterial m = a.getMaterial();
@@ -102,13 +113,14 @@ public final class Catalogo {
                 }
             } catch (Throwable ignorado) { }
         }
-        armas = la; armaduras = ld; comidas = lc;
-        br.com.frxcode.frxworld.FrxWorld.LOG.info("Catálogo das lojas: {} armas, {} armaduras e {} comidas de mods.", la.size(), ld.size(), lc.size());
+        armas = la; armaduras = ld; comidas = lc; utilidades = lu;
+        br.com.frxcode.frxworld.FrxWorld.LOG.info("Catálogo das lojas: {} armas, {} armaduras, {} comidas e {} utilidades.", la.size(), ld.size(), lc.size(), lu.size());
     }
 
     public static List<Entrada> armas(MinecraftServer s) { montar(s); return armas; }
     public static List<Entrada> armaduras(MinecraftServer s) { montar(s); return armaduras; }
     public static List<Entrada> comidas(MinecraftServer s) { montar(s); return comidas; }
+    public static List<Entrada> utilidades(MinecraftServer s) { montar(s); return utilidades; }
 
     /** Estoque do dia: até `max` itens entre os níveis piso..nivel, sorteados pela semente (muda a cada dia), do melhor para o mais simples. */
     public static List<Entrada> escolher(List<Entrada> todas, int nivel, int piso, int max, String semente) {

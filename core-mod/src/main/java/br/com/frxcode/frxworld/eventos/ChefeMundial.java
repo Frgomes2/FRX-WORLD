@@ -328,6 +328,7 @@ public class ChefeMundial {
             Moedas.dar(p, moedas);
             Progressao.ganharXp(p, Math.max(100, Math.round(xp * Math.max(0.2, parte))));
             br.com.frxcode.frxworld.progressao.Conquistas.somar(p, "chefes", 1);
+            br.com.frxcode.frxworld.racas.Evolucao.checar(p);
             String premio = "";
             if (lugar <= 3) {
                 ItemStack arma = sortearArma();

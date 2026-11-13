@@ -444,14 +444,29 @@ public class NpcsReino {
             evento.setCancellationResult(InteractionResult.SUCCESS);
             return;
         }
-        if (papel.equals("rei")) {
-            if (evento.getEntity() instanceof ServerPlayer jogador) Campanhas.falar(jogador, e.getPersistentData().getString("frx_reino"));
+        // rei, taverneiro e lojistas: caixa de fala com retrato e opções
+        if (Dialogos.temDialogo(papel) && !evento.getEntity().isShiftKeyDown()) {
+            if (evento.getEntity() instanceof ServerPlayer jogador) Dialogos.abrir(jogador, e, "");
             evento.setCanceled(true);
             evento.setCancellationResult(InteractionResult.SUCCESS);
             return;
         }
         if (papel.equals("banqueiro") || papel.equals("cambista") && !evento.getEntity().isShiftKeyDown()) {
             if (evento.getEntity() instanceof ServerPlayer jogador) MenusNpc.abrirBanco(jogador, e, "", true);
+            evento.setCanceled(true);
+            evento.setCancellationResult(InteractionResult.SUCCESS);
+            return;
+        }
+        // mercador: mesma loja do ferreiro (estoque do dia pelo nivel)
+        if (papel.equals("mercador") && !evento.getEntity().isShiftKeyDown()) {
+            if (evento.getEntity() instanceof ServerPlayer jogador) MenusNpc.abrirForja(jogador, e, "", true);
+            evento.setCanceled(true);
+            evento.setCancellationResult(InteractionResult.SUCCESS);
+            return;
+        }
+        // comprador: menu proprio (aceita qualquer item, preco pela raridade)
+        if (papel.equals("comprador") && !evento.getEntity().isShiftKeyDown()) {
+            if (evento.getEntity() instanceof ServerPlayer jogador) MenusNpc.abrirVender(jogador, e, "", true);
             evento.setCanceled(true);
             evento.setCancellationResult(InteractionResult.SUCCESS);
             return;

@@ -9,33 +9,37 @@
 	quest_links: [ ]
 	quests: [
 		{
-			description: ["Chegue ao nível 20." "" "Abaixo disso a região é extremamente perigosa."]
+			description: [
+				"Chegue ao nível 20."
+				""
+				"Abaixo disso a região é extremamente perigosa."
+			]
 			id: "1AD8AB1A0D691AC3"
-			rewards: [
-				{
-					command: "/frx moedas {p} 400"
-					elevate_perms: true
-					id: "1A5BAA9671CA3589"
-					silent: true
-					title: "4 ouro"
-					type: "command"
-				}
-			]
-			tasks: [
-				{
-					advancement: "frxworld:frx/nivel_20"
-					criterion: ""
-					id: "66CA8BE86AE5AF65"
-					type: "advancement"
-				}
-			]
+			rewards: [{
+				command: "/frx moedas {p} 400"
+				elevate_perms: true
+				id: "1A5BAA9671CA3589"
+				silent: true
+				title: "4 ouro"
+				type: "command"
+			}]
+			tasks: [{
+				advancement: "frxworld:frx/nivel_20"
+				criterion: ""
+				id: "66CA8BE86AE5AF65"
+				type: "advancement"
+			}]
 			title: "Pronto para Undergarden"
 			x: 0.0d
 			y: 0.0d
 		}
 		{
 			dependencies: ["1AD8AB1A0D691AC3"]
-			description: ["Portal: moldura de pedra-abismal (como a do Nether) acesa com o Catalisador." "" "Monstros Nv 20–35."]
+			description: [
+				"Portal: moldura de pedra-abismal (como a do Nether) acesa com o Catalisador."
+				""
+				"Monstros Nv 20–35."
+			]
 			id: "13444CA1B6E229E1"
 			rewards: [
 				{
@@ -57,13 +61,11 @@
 			]
 			shape: "gear"
 			size: 1.5d
-			tasks: [
-				{
-					dimension: "undergarden:undergarden"
-					id: "525D1DD4AD9B74B9"
-					type: "dimension"
-				}
-			]
+			tasks: [{
+				dimension: "undergarden:undergarden"
+				id: "525D1DD4AD9B74B9"
+				type: "dimension"
+			}]
 			title: "Entrar: Undergarden"
 			x: 2.0d
 			y: 0.0d
@@ -92,14 +94,12 @@
 			]
 			shape: "hexagon"
 			size: 1.25d
-			tasks: [
-				{
-					entity: "undergarden:masticator"
-					id: "5DFB8DAEF7AA5889"
-					type: "kill"
-					value: 1L
-				}
-			]
+			tasks: [{
+				entity: "undergarden:masticator"
+				id: "5DFB8DAEF7AA5889"
+				type: "kill"
+				value: 1L
+			}]
 			title: "o Mastigador"
 			x: 4.0d
 			y: 0.0d
@@ -134,14 +134,12 @@
 			]
 			shape: "hexagon"
 			size: 1.25d
-			tasks: [
-				{
-					entity: "undergarden:forgotten_guardian"
-					id: "539A4589FDCB6243"
-					type: "kill"
-					value: 1L
-				}
-			]
+			tasks: [{
+				entity: "undergarden:forgotten_guardian"
+				id: "539A4589FDCB6243"
+				type: "kill"
+				value: 1L
+			}]
 			title: "o Guardião Esquecido"
 			x: 6.0d
 			y: 0.0d

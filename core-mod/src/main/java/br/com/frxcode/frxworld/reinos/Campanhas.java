@@ -333,6 +333,7 @@ public class Campanhas {
         d.campanhaEtapa().put(c.reino(), prox);
         d.campanhaProgresso().put(c.reino(), 0);
         Progressao.enviarAoPainel(p, false);
+        br.com.frxcode.frxworld.racas.Evolucao.checar(p);
         p.level().playSound(null, p.blockPosition(), SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 1f, 1.1f);
         if (prox < c.etapas().size()) {
             Etapa n = c.etapas().get(prox);

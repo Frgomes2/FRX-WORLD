@@ -9,33 +9,37 @@
 	quest_links: [ ]
 	quests: [
 		{
-			description: ["Chegue ao nível 30." "" "Abaixo disso a região é extremamente perigosa."]
+			description: [
+				"Chegue ao nível 30."
+				""
+				"Abaixo disso a região é extremamente perigosa."
+			]
 			id: "59F6AB64FCD1FA71"
-			rewards: [
-				{
-					command: "/frx moedas {p} 600"
-					elevate_perms: true
-					id: "36473545093C2B44"
-					silent: true
-					title: "6 ouro"
-					type: "command"
-				}
-			]
-			tasks: [
-				{
-					advancement: "frxworld:frx/nivel_30"
-					criterion: ""
-					id: "4337B2E5D9F5CF9A"
-					type: "advancement"
-				}
-			]
+			rewards: [{
+				command: "/frx moedas {p} 600"
+				elevate_perms: true
+				id: "36473545093C2B44"
+				silent: true
+				title: "6 ouro"
+				type: "command"
+			}]
+			tasks: [{
+				advancement: "frxworld:frx/nivel_30"
+				criterion: ""
+				id: "4337B2E5D9F5CF9A"
+				type: "advancement"
+			}]
 			title: "Pronto para O Fim"
 			x: 0.0d
 			y: 0.0d
 		}
 		{
 			dependencies: ["59F6AB64FCD1FA71"]
-			description: ["Encontre a fortaleza e ative o portal com olhos de Ender." "" "Monstros Nv 30–50."]
+			description: [
+				"Encontre a fortaleza e ative o portal com olhos de Ender."
+				""
+				"Monstros Nv 30–50."
+			]
 			id: "223BB776DB2ABC33"
 			rewards: [
 				{
@@ -57,13 +61,11 @@
 			]
 			shape: "gear"
 			size: 1.5d
-			tasks: [
-				{
-					dimension: "minecraft:the_end"
-					id: "4902D4DC0EAA21DE"
-					type: "dimension"
-				}
-			]
+			tasks: [{
+				dimension: "minecraft:the_end"
+				id: "4902D4DC0EAA21DE"
+				type: "dimension"
+			}]
 			title: "Entrar: O Fim"
 			x: 2.0d
 			y: 0.0d
@@ -74,9 +76,14 @@
 			id: "6667FEFC18065C02"
 			rewards: [
 				{
-					count: 1
 					id: "373C727561CF2842"
-					item: "minecraft:elytra"
+					item: {
+						Count: 1
+						id: "minecraft:elytra"
+						tag: {
+							Damage: 0
+						}
+					}
 					type: "item"
 				}
 				{
@@ -98,14 +105,12 @@
 			]
 			shape: "hexagon"
 			size: 1.25d
-			tasks: [
-				{
-					entity: "minecraft:ender_dragon"
-					id: "332DBB95C8C72461"
-					type: "kill"
-					value: 1L
-				}
-			]
+			tasks: [{
+				entity: "minecraft:ender_dragon"
+				id: "332DBB95C8C72461"
+				type: "kill"
+				value: 1L
+			}]
 			title: "o Dragão do Fim"
 			x: 4.0d
 			y: 0.0d

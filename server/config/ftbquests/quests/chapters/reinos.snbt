@@ -29,21 +29,23 @@
 					type: "command"
 				}
 			]
-			tasks: [
-				{
-					advancement: "frxworld:frx/capital_tempest"
-					criterion: ""
-					id: "26E3B0AEFBED094F"
-					type: "advancement"
-				}
-			]
+			tasks: [{
+				advancement: "frxworld:frx/capital_tempest"
+				criterion: ""
+				id: "26E3B0AEFBED094F"
+				type: "advancement"
+			}]
 			title: "Chegar a Tempest"
 			x: 0.0d
 			y: 0.0d
 		}
 		{
 			dependencies: ["29ABF9AA1645876E"]
-			description: ["Chegue a Honrado (500 de reputação) com Tempest." "" "Libera a raça especial ligada a este reino."]
+			description: [
+				"Chegue a Honrado (500 de reputação) com Tempest."
+				""
+				"Libera a raça especial ligada a este reino."
+			]
 			id: "76B0EACCF4A91FEE"
 			rewards: [
 				{
@@ -63,14 +65,12 @@
 					type: "command"
 				}
 			]
-			tasks: [
-				{
-					advancement: "frxworld:frx/honrado_tempest"
-					criterion: ""
-					id: "6CA2814D7DA8DD38"
-					type: "advancement"
-				}
-			]
+			tasks: [{
+				advancement: "frxworld:frx/honrado_tempest"
+				criterion: ""
+				id: "6CA2814D7DA8DD38"
+				type: "advancement"
+			}]
 			title: "Honrado em Tempest"
 			x: 2.0d
 			y: 0.0d
@@ -103,14 +103,12 @@
 					type: "command"
 				}
 			]
-			tasks: [
-				{
-					advancement: "frxworld:frx/campanha_tempest"
-					criterion: ""
-					id: "1689BBF91931C111"
-					type: "advancement"
-				}
-			]
+			tasks: [{
+				advancement: "frxworld:frx/campanha_tempest"
+				criterion: ""
+				id: "1689BBF91931C111"
+				type: "advancement"
+			}]
 			title: "A palavra do rei: Tempest"
 			x: 4.0d
 			y: 0.0d
@@ -136,21 +134,23 @@
 					type: "command"
 				}
 			]
-			tasks: [
-				{
-					advancement: "frxworld:frx/capital_dwargon"
-					criterion: ""
-					id: "42D395BD2A3DA8B5"
-					type: "advancement"
-				}
-			]
+			tasks: [{
+				advancement: "frxworld:frx/capital_dwargon"
+				criterion: ""
+				id: "42D395BD2A3DA8B5"
+				type: "advancement"
+			}]
 			title: "Chegar a Dwargon"
 			x: 0.0d
 			y: 1.5d
 		}
 		{
 			dependencies: ["7BB275FF151DE6F3"]
-			description: ["Chegue a Honrado (500 de reputação) com Dwargon." "" "Libera a raça especial ligada a este reino."]
+			description: [
+				"Chegue a Honrado (500 de reputação) com Dwargon."
+				""
+				"Libera a raça especial ligada a este reino."
+			]
 			id: "4133AAE094146690"
 			rewards: [
 				{
@@ -170,14 +170,12 @@
 					type: "command"
 				}
 			]
-			tasks: [
-				{
-					advancement: "frxworld:frx/honrado_dwargon"
-					criterion: ""
-					id: "3E1B11F97DA489C0"
-					type: "advancement"
-				}
-			]
+			tasks: [{
+				advancement: "frxworld:frx/honrado_dwargon"
+				criterion: ""
+				id: "3E1B11F97DA489C0"
+				type: "advancement"
+			}]
 			title: "Honrado em Dwargon"
 			x: 2.0d
 			y: 1.5d
@@ -210,14 +208,12 @@
 					type: "command"
 				}
 			]
-			tasks: [
-				{
-					advancement: "frxworld:frx/campanha_dwargon"
-					criterion: ""
-					id: "2666AA0508FD183B"
-					type: "advancement"
-				}
-			]
+			tasks: [{
+				advancement: "frxworld:frx/campanha_dwargon"
+				criterion: ""
+				id: "2666AA0508FD183B"
+				type: "advancement"
+			}]
 			title: "A palavra do rei: Dwargon"
 			x: 4.0d
 			y: 1.5d
@@ -243,21 +239,23 @@
 					type: "command"
 				}
 			]
-			tasks: [
-				{
-					advancement: "frxworld:frx/capital_sarion"
-					criterion: ""
-					id: "60C00E3FCB280DB7"
-					type: "advancement"
-				}
-			]
+			tasks: [{
+				advancement: "frxworld:frx/capital_sarion"
+				criterion: ""
+				id: "60C00E3FCB280DB7"
+				type: "advancement"
+			}]
 			title: "Chegar a Sarion"
 			x: 0.0d
 			y: 3.0d
 		}
 		{
 			dependencies: ["2DF4091210D984F8"]
-			description: ["Chegue a Honrado (500 de reputação) com Sarion." "" "Libera a raça especial ligada a este reino."]
+			description: [
+				"Chegue a Honrado (500 de reputação) com Sarion."
+				""
+				"Libera a raça especial ligada a este reino."
+			]
 			id: "5514B61DB305FAC1"
 			rewards: [
 				{
@@ -277,14 +275,12 @@
 					type: "command"
 				}
 			]
-			tasks: [
-				{
-					advancement: "frxworld:frx/honrado_sarion"
-					criterion: ""
-					id: "533A2FCF65FA98B0"
-					type: "advancement"
-				}
-			]
+			tasks: [{
+				advancement: "frxworld:frx/honrado_sarion"
+				criterion: ""
+				id: "533A2FCF65FA98B0"
+				type: "advancement"
+			}]
 			title: "Honrado em Sarion"
 			x: 2.0d
 			y: 3.0d
@@ -317,14 +313,12 @@
 					type: "command"
 				}
 			]
-			tasks: [
-				{
-					advancement: "frxworld:frx/campanha_sarion"
-					criterion: ""
-					id: "2C8206CA4F8B12AC"
-					type: "advancement"
-				}
-			]
+			tasks: [{
+				advancement: "frxworld:frx/campanha_sarion"
+				criterion: ""
+				id: "2C8206CA4F8B12AC"
+				type: "advancement"
+			}]
 			title: "A palavra do rei: Sarion"
 			x: 4.0d
 			y: 3.0d
@@ -350,21 +344,23 @@
 					type: "command"
 				}
 			]
-			tasks: [
-				{
-					advancement: "frxworld:frx/capital_leste"
-					criterion: ""
-					id: "14591BB0D86C45D9"
-					type: "advancement"
-				}
-			]
+			tasks: [{
+				advancement: "frxworld:frx/capital_leste"
+				criterion: ""
+				id: "14591BB0D86C45D9"
+				type: "advancement"
+			}]
 			title: "Chegar a Império do Leste"
 			x: 0.0d
 			y: 4.5d
 		}
 		{
 			dependencies: ["794201E17C7A1AD8"]
-			description: ["Chegue a Honrado (500 de reputação) com Império do Leste." "" "Libera a raça especial ligada a este reino."]
+			description: [
+				"Chegue a Honrado (500 de reputação) com Império do Leste."
+				""
+				"Libera a raça especial ligada a este reino."
+			]
 			id: "21A0E3F005C2DBE7"
 			rewards: [
 				{
@@ -384,14 +380,12 @@
 					type: "command"
 				}
 			]
-			tasks: [
-				{
-					advancement: "frxworld:frx/honrado_leste"
-					criterion: ""
-					id: "4F3D5B407A7EA4AE"
-					type: "advancement"
-				}
-			]
+			tasks: [{
+				advancement: "frxworld:frx/honrado_leste"
+				criterion: ""
+				id: "4F3D5B407A7EA4AE"
+				type: "advancement"
+			}]
 			title: "Honrado em Império do Leste"
 			x: 2.0d
 			y: 4.5d
@@ -424,14 +418,12 @@
 					type: "command"
 				}
 			]
-			tasks: [
-				{
-					advancement: "frxworld:frx/campanha_leste"
-					criterion: ""
-					id: "238BE9A9A838304D"
-					type: "advancement"
-				}
-			]
+			tasks: [{
+				advancement: "frxworld:frx/campanha_leste"
+				criterion: ""
+				id: "238BE9A9A838304D"
+				type: "advancement"
+			}]
 			title: "A palavra do rei: Império do Leste"
 			x: 4.0d
 			y: 4.5d
@@ -457,21 +449,23 @@
 					type: "command"
 				}
 			]
-			tasks: [
-				{
-					advancement: "frxworld:frx/capital_leste-sakura"
-					criterion: ""
-					id: "78E759103289247B"
-					type: "advancement"
-				}
-			]
+			tasks: [{
+				advancement: "frxworld:frx/capital_leste-sakura"
+				criterion: ""
+				id: "78E759103289247B"
+				type: "advancement"
+			}]
 			title: "Chegar a Sakura"
 			x: 0.0d
 			y: 6.0d
 		}
 		{
 			dependencies: ["2EF51B7F050505D9"]
-			description: ["Chegue a Honrado (500 de reputação) com Sakura." "" "Libera a raça especial ligada a este reino."]
+			description: [
+				"Chegue a Honrado (500 de reputação) com Sakura."
+				""
+				"Libera a raça especial ligada a este reino."
+			]
 			id: "3473E1EBFC94F514"
 			rewards: [
 				{
@@ -491,14 +485,12 @@
 					type: "command"
 				}
 			]
-			tasks: [
-				{
-					advancement: "frxworld:frx/honrado_leste-sakura"
-					criterion: ""
-					id: "2085C9E5FAFF8309"
-					type: "advancement"
-				}
-			]
+			tasks: [{
+				advancement: "frxworld:frx/honrado_leste-sakura"
+				criterion: ""
+				id: "2085C9E5FAFF8309"
+				type: "advancement"
+			}]
 			title: "Honrado em Sakura"
 			x: 2.0d
 			y: 6.0d
@@ -531,14 +523,12 @@
 					type: "command"
 				}
 			]
-			tasks: [
-				{
-					advancement: "frxworld:frx/campanha_leste-sakura"
-					criterion: ""
-					id: "427152D92A3897BF"
-					type: "advancement"
-				}
-			]
+			tasks: [{
+				advancement: "frxworld:frx/campanha_leste-sakura"
+				criterion: ""
+				id: "427152D92A3897BF"
+				type: "advancement"
+			}]
 			title: "A palavra do rei: Sakura"
 			x: 4.0d
 			y: 6.0d
@@ -564,21 +554,23 @@
 					type: "command"
 				}
 			]
-			tasks: [
-				{
-					advancement: "frxworld:frx/capital_oeste"
-					criterion: ""
-					id: "69CCC439910F5367"
-					type: "advancement"
-				}
-			]
+			tasks: [{
+				advancement: "frxworld:frx/capital_oeste"
+				criterion: ""
+				id: "69CCC439910F5367"
+				type: "advancement"
+			}]
 			title: "Chegar a Oeste"
 			x: 0.0d
 			y: 7.5d
 		}
 		{
 			dependencies: ["1F7DFE7BA93654A9"]
-			description: ["Chegue a Honrado (500 de reputação) com Oeste." "" "Libera a raça especial ligada a este reino."]
+			description: [
+				"Chegue a Honrado (500 de reputação) com Oeste."
+				""
+				"Libera a raça especial ligada a este reino."
+			]
 			id: "7999430331B1AA37"
 			rewards: [
 				{
@@ -598,14 +590,12 @@
 					type: "command"
 				}
 			]
-			tasks: [
-				{
-					advancement: "frxworld:frx/honrado_oeste"
-					criterion: ""
-					id: "205ECE6AEFAB26E8"
-					type: "advancement"
-				}
-			]
+			tasks: [{
+				advancement: "frxworld:frx/honrado_oeste"
+				criterion: ""
+				id: "205ECE6AEFAB26E8"
+				type: "advancement"
+			}]
 			title: "Honrado em Oeste"
 			x: 2.0d
 			y: 7.5d
@@ -638,14 +628,12 @@
 					type: "command"
 				}
 			]
-			tasks: [
-				{
-					advancement: "frxworld:frx/campanha_oeste"
-					criterion: ""
-					id: "46379CE4EE402A20"
-					type: "advancement"
-				}
-			]
+			tasks: [{
+				advancement: "frxworld:frx/campanha_oeste"
+				criterion: ""
+				id: "46379CE4EE402A20"
+				type: "advancement"
+			}]
 			title: "A palavra do rei: Oeste"
 			x: 4.0d
 			y: 7.5d
@@ -671,21 +659,23 @@
 					type: "command"
 				}
 			]
-			tasks: [
-				{
-					advancement: "frxworld:frx/capital_lubelius"
-					criterion: ""
-					id: "74A4F9386D360874"
-					type: "advancement"
-				}
-			]
+			tasks: [{
+				advancement: "frxworld:frx/capital_lubelius"
+				criterion: ""
+				id: "74A4F9386D360874"
+				type: "advancement"
+			}]
 			title: "Chegar a Lubelius"
 			x: 0.0d
 			y: 9.0d
 		}
 		{
 			dependencies: ["7F4F412659EFA7B9"]
-			description: ["Chegue a Honrado (500 de reputação) com Lubelius." "" "Libera a raça especial ligada a este reino."]
+			description: [
+				"Chegue a Honrado (500 de reputação) com Lubelius."
+				""
+				"Libera a raça especial ligada a este reino."
+			]
 			id: "1FB94A5E7823B172"
 			rewards: [
 				{
@@ -705,14 +695,12 @@
 					type: "command"
 				}
 			]
-			tasks: [
-				{
-					advancement: "frxworld:frx/honrado_lubelius"
-					criterion: ""
-					id: "78771EE8454C46E4"
-					type: "advancement"
-				}
-			]
+			tasks: [{
+				advancement: "frxworld:frx/honrado_lubelius"
+				criterion: ""
+				id: "78771EE8454C46E4"
+				type: "advancement"
+			}]
 			title: "Honrado em Lubelius"
 			x: 2.0d
 			y: 9.0d
@@ -745,14 +733,12 @@
 					type: "command"
 				}
 			]
-			tasks: [
-				{
-					advancement: "frxworld:frx/campanha_lubelius"
-					criterion: ""
-					id: "240859EDB9A52A17"
-					type: "advancement"
-				}
-			]
+			tasks: [{
+				advancement: "frxworld:frx/campanha_lubelius"
+				criterion: ""
+				id: "240859EDB9A52A17"
+				type: "advancement"
+			}]
 			title: "A palavra do rei: Lubelius"
 			x: 4.0d
 			y: 9.0d
@@ -778,21 +764,23 @@
 					type: "command"
 				}
 			]
-			tasks: [
-				{
-					advancement: "frxworld:frx/capital_demonios"
-					criterion: ""
-					id: "18CA98809C68B479"
-					type: "advancement"
-				}
-			]
+			tasks: [{
+				advancement: "frxworld:frx/capital_demonios"
+				criterion: ""
+				id: "18CA98809C68B479"
+				type: "advancement"
+			}]
 			title: "Chegar a Lordes Demônios"
 			x: 0.0d
 			y: 10.5d
 		}
 		{
 			dependencies: ["42EF5D001184B29D"]
-			description: ["Chegue a Honrado (500 de reputação) com Lordes Demônios." "" "Libera a raça especial ligada a este reino."]
+			description: [
+				"Chegue a Honrado (500 de reputação) com Lordes Demônios."
+				""
+				"Libera a raça especial ligada a este reino."
+			]
 			id: "13C84713D7090201"
 			rewards: [
 				{
@@ -812,14 +800,12 @@
 					type: "command"
 				}
 			]
-			tasks: [
-				{
-					advancement: "frxworld:frx/honrado_demonios"
-					criterion: ""
-					id: "653BD8735D10F68C"
-					type: "advancement"
-				}
-			]
+			tasks: [{
+				advancement: "frxworld:frx/honrado_demonios"
+				criterion: ""
+				id: "653BD8735D10F68C"
+				type: "advancement"
+			}]
 			title: "Honrado em Lordes Demônios"
 			x: 2.0d
 			y: 10.5d
@@ -852,14 +838,12 @@
 					type: "command"
 				}
 			]
-			tasks: [
-				{
-					advancement: "frxworld:frx/campanha_demonios"
-					criterion: ""
-					id: "4A1EA067374D1D36"
-					type: "advancement"
-				}
-			]
+			tasks: [{
+				advancement: "frxworld:frx/campanha_demonios"
+				criterion: ""
+				id: "4A1EA067374D1D36"
+				type: "advancement"
+			}]
 			title: "A palavra do rei: Lordes Demônios"
 			x: 4.0d
 			y: 10.5d

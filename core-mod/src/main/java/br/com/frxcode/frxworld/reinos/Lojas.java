@@ -120,6 +120,19 @@ public final class Lojas {
         return t;
     }
 
+    /** Mercador no menu novo: a lista do painel (pelo nível) mais o estoque do dia com utilidades dos mods. */
+    public static List<MerchantOffer> mercadorMenu(double desconto, int nivelRep, String nomeReino, int nivel,
+                                                   net.minecraft.server.MinecraftServer servidor, String semente) {
+        List<MerchantOffer> l = new ArrayList<>(mercador(desconto, nivelRep, nomeReino, nivel));
+        fatorVenda = 1 - desconto;
+        try {
+            if (servidor != null)
+                for (Catalogo.Entrada e : Catalogo.escolher(Catalogo.utilidades(servidor), nivel, 1, 10, semente))
+                    l.add(venda(new ItemStack(e.item(), e.qtd()), e.preco()));
+        } finally { fatorVenda = 1; }
+        return l;
+    }
+
     /** Cozinheiro: só comida, de todos os mods. O que aparece depende do nível do jogador; o estoque muda a cada dia. */
     public static List<MerchantOffer> comida(int nivel, double desconto, net.minecraft.server.MinecraftServer servidor, String semente) {
         fatorVenda = 1 - desconto;

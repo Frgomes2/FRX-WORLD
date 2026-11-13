@@ -150,7 +150,11 @@ public class Unica {
     @SubscribeEvent
     public void aoEntrar(PlayerEvent.PlayerLoggedInEvent ev) {
         if (!(ev.getEntity() instanceof ServerPlayer p)) return;
-        if (def(p) == null) sortear(p); else aplicarAtributos(p);
+        if (def(p) != null) { aplicarAtributos(p); return; }
+        // quem ainda vai ver a abertura descobre a habilidade lá, não no chat
+        boolean calado = !br.com.frxcode.frxworld.racas.RacasJogador.escolheu(p);
+        List<String> ids = new ArrayList<>(TODAS.keySet());
+        definir(p, ids.get(ThreadLocalRandom.current().nextInt(ids.size())), !calado);
     }
 
     @SubscribeEvent

@@ -214,6 +214,7 @@ public class Habilidades {
         }
         aprenderPorNivel(p);
         Progressao.enviarAoPainel(p, false);
+        if (!classe.isEmpty()) br.com.frxcode.frxworld.acesso.Abertura.aposClasse(p);
     }
 
     /** Aprende as habilidades "por nível" já liberadas e coloca na barra se houver espaço. Sempre sincroniza. */

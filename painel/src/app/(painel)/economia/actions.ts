@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { configSchema, lerConfig, salvarConfig } from "@/lib/config-jogo";
 
 async function exigirAdmin() {
   if (!(await auth())?.user) throw new Error("Não autorizado");
@@ -47,6 +48,20 @@ export async function excluirItem(f: FormData) {
   await exigirAdmin();
   await prisma.itemLoja.delete({ where: { id: String(f.get("id")) } });
   revalidatePath("/economia");
+}
+
+/** Avaliação automática do comprador (preços por raridade e teto diário de ouro). */
+export async function salvarComprador(c: unknown): Promise<{ ok: boolean; mensagem: string }> {
+  if (!(await auth())?.user) return { ok: false, mensagem: "Sessão expirada. Entre de novo." };
+  const atual = await lerConfig();
+  const dados = configSchema.safeParse({ ...atual, comprador: c });
+  if (!dados.success) {
+    const p = dados.error.issues[0];
+    return { ok: false, mensagem: `${p.path.slice(1).join(".")}: ${p.message}` };
+  }
+  await salvarConfig(dados.data);
+  revalidatePath("/economia");
+  return { ok: true, mensagem: "Salvo. O servidor aplica em até 1 minuto (ou use /frx recarregar)." };
 }
 
 export type ItemLojaDados = { item: string; qtd: number; preco: number; ativo: boolean; nivelMin: number };

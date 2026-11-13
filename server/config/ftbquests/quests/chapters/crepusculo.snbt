@@ -9,33 +9,37 @@
 	quest_links: [ ]
 	quests: [
 		{
-			description: ["Chegue ao nível 10." "" "Abaixo disso a região é extremamente perigosa."]
+			description: [
+				"Chegue ao nível 10."
+				""
+				"Abaixo disso a região é extremamente perigosa."
+			]
 			id: "1CC8A261B34BD31E"
-			rewards: [
-				{
-					command: "/frx moedas {p} 200"
-					elevate_perms: true
-					id: "199B7AC7143A0236"
-					silent: true
-					title: "2 ouro"
-					type: "command"
-				}
-			]
-			tasks: [
-				{
-					advancement: "frxworld:frx/nivel_10"
-					criterion: ""
-					id: "24ED202CD1BC8C82"
-					type: "advancement"
-				}
-			]
+			rewards: [{
+				command: "/frx moedas {p} 200"
+				elevate_perms: true
+				id: "199B7AC7143A0236"
+				silent: true
+				title: "2 ouro"
+				type: "command"
+			}]
+			tasks: [{
+				advancement: "frxworld:frx/nivel_10"
+				criterion: ""
+				id: "24ED202CD1BC8C82"
+				type: "advancement"
+			}]
 			title: "Pronto para Floresta do Crepúsculo"
 			x: 0.0d
 			y: 0.0d
 		}
 		{
 			dependencies: ["1CC8A261B34BD31E"]
-			description: ["Construa o portal: um lago de 2×2 cercado de flores, e jogue um diamante." "" "Monstros Nv 10–25. A Floresta tem sua própria trilha de chefes."]
+			description: [
+				"Construa o portal: um lago de 2×2 cercado de flores, e jogue um diamante."
+				""
+				"Monstros Nv 10–25. A Floresta tem sua própria trilha de chefes."
+			]
 			id: "3B1AC220D42CEF89"
 			rewards: [
 				{
@@ -57,13 +61,11 @@
 			]
 			shape: "gear"
 			size: 1.5d
-			tasks: [
-				{
-					dimension: "twilightforest:twilight_forest"
-					id: "23DA1460B800C098"
-					type: "dimension"
-				}
-			]
+			tasks: [{
+				dimension: "twilightforest:twilight_forest"
+				id: "23DA1460B800C098"
+				type: "dimension"
+			}]
 			title: "Entrar: Floresta do Crepúsculo"
 			x: 2.0d
 			y: 0.0d
@@ -74,7 +76,6 @@
 			id: "3111D35D8F55FB3B"
 			rewards: [
 				{
-					count: 1
 					id: "327A7B7A61C924BF"
 					item: "minecraft:diamond"
 					type: "item"
@@ -98,14 +99,12 @@
 			]
 			shape: "hexagon"
 			size: 1.25d
-			tasks: [
-				{
-					entity: "twilightforest:naga"
-					id: "2037608B8D6BAB44"
-					type: "kill"
-					value: 1L
-				}
-			]
+			tasks: [{
+				entity: "twilightforest:naga"
+				id: "2037608B8D6BAB44"
+				type: "kill"
+				value: 1L
+			}]
 			title: "a Naga"
 			x: 4.0d
 			y: 0.0d
@@ -140,14 +139,12 @@
 			]
 			shape: "hexagon"
 			size: 1.25d
-			tasks: [
-				{
-					entity: "twilightforest:lich"
-					id: "5DFC3BB608887AF8"
-					type: "kill"
-					value: 1L
-				}
-			]
+			tasks: [{
+				entity: "twilightforest:lich"
+				id: "5DFC3BB608887AF8"
+				type: "kill"
+				value: 1L
+			}]
 			title: "o Lich"
 			x: 6.0d
 			y: 0.0d
@@ -176,14 +173,12 @@
 			]
 			shape: "hexagon"
 			size: 1.25d
-			tasks: [
-				{
-					entity: "twilightforest:minoshroom"
-					id: "284399E16CEAE34C"
-					type: "kill"
-					value: 1L
-				}
-			]
+			tasks: [{
+				entity: "twilightforest:minoshroom"
+				id: "284399E16CEAE34C"
+				type: "kill"
+				value: 1L
+			}]
 			title: "o Minoshroom"
 			x: 8.0d
 			y: 0.0d
@@ -218,14 +213,12 @@
 			]
 			shape: "hexagon"
 			size: 1.25d
-			tasks: [
-				{
-					entity: "twilightforest:hydra"
-					id: "5DBDBBA281D1596E"
-					type: "kill"
-					value: 1L
-				}
-			]
+			tasks: [{
+				entity: "twilightforest:hydra"
+				id: "5DBDBBA281D1596E"
+				type: "kill"
+				value: 1L
+			}]
 			title: "a Hidra"
 			x: 10.0d
 			y: 0.0d
@@ -252,14 +245,12 @@
 					type: "command"
 				}
 			]
-			tasks: [
-				{
-					entity: "twilightforest:knight_phantom"
-					id: "47BC7202B575CA64"
-					type: "kill"
-					value: 3L
-				}
-			]
+			tasks: [{
+				entity: "twilightforest:knight_phantom"
+				id: "47BC7202B575CA64"
+				type: "kill"
+				value: 3L
+			}]
 			title: "o Cavaleiro Fantasma"
 			x: 12.0d
 			y: 0.0d
@@ -288,14 +279,12 @@
 			]
 			shape: "hexagon"
 			size: 1.25d
-			tasks: [
-				{
-					entity: "twilightforest:ur_ghast"
-					id: "4B0866534BF15CDD"
-					type: "kill"
-					value: 1L
-				}
-			]
+			tasks: [{
+				entity: "twilightforest:ur_ghast"
+				id: "4B0866534BF15CDD"
+				type: "kill"
+				value: 1L
+			}]
 			title: "o Ur-Ghast"
 			x: 14.0d
 			y: 0.0d
@@ -324,14 +313,12 @@
 			]
 			shape: "hexagon"
 			size: 1.25d
-			tasks: [
-				{
-					entity: "twilightforest:alpha_yeti"
-					id: "4A089BA8CEABBF0E"
-					type: "kill"
-					value: 1L
-				}
-			]
+			tasks: [{
+				entity: "twilightforest:alpha_yeti"
+				id: "4A089BA8CEABBF0E"
+				type: "kill"
+				value: 1L
+			}]
 			title: "o Yeti Alfa"
 			x: 16.0d
 			y: 0.0d
@@ -342,7 +329,6 @@
 			id: "3FA49CD39A013130"
 			rewards: [
 				{
-					count: 1
 					id: "29691BA2E824AF8F"
 					item: "minecraft:netherite_scrap"
 					type: "item"
@@ -366,14 +352,12 @@
 			]
 			shape: "hexagon"
 			size: 1.25d
-			tasks: [
-				{
-					entity: "twilightforest:snow_queen"
-					id: "45EFED97412ABFB8"
-					type: "kill"
-					value: 1L
-				}
-			]
+			tasks: [{
+				entity: "twilightforest:snow_queen"
+				id: "45EFED97412ABFB8"
+				type: "kill"
+				value: 1L
+			}]
 			title: "a Rainha da Neve"
 			x: 18.0d
 			y: 0.0d

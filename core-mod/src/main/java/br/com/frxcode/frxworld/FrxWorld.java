@@ -82,6 +82,8 @@ public class FrxWorld {
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.progressao.Guilda());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.habilidades.Unica());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.progressao.Combate());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.racas.Evolucao());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.acesso.Abertura());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.reinos.Portais());
         LOG.info("FRX-WORLD Core carregado.");
     }
