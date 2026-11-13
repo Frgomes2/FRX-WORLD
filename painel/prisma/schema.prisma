@@ -67,6 +67,7 @@ model Missao {
   alvo           String   // ex.: minecraft:zombie ou minecraft:iron_ingot
   quantidade     Int      @default(10)
   nivelMin       Int      @default(1)
+  rankMin        Int      @default(0) // rank da Guilda exigido: 0 = F ... 6 = S
   recompensaXp   Int      @default(100)
   recompensaMoedas Int    @default(20) // em cobre: 10 = 1 prata, 100 = 1 ouro
   recompensaItens Json    @default("[]") // [{ "item": "minecraft:bread", "qtd": 5 }]

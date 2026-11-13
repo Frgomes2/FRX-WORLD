@@ -38,6 +38,9 @@ export const COMPRADOR_PADRAO = {
   limiteBaseOuro: 20, limitePorNivelOuro: 3,
 };
 
+/** Missões urgentes da Guilda: de quanto em quanto tempo, prazo e quanto a recompensa cresce. */
+export const URGENTES_PADRAO = { ativo: true, intervaloMin: 45, duracaoMin: 20, multiplicador: 2 };
+
 /** Falas da caixa de diálogo, por papel de NPC. {jogador} vira o nick. */
 export const DIALOGOS_PADRAO: Record<string, string[]> = {
   rei: [], taverneiro: [], sacerdote: [], sabio: [], cartografo: [],
@@ -160,6 +163,14 @@ export const configSchema = z.object({
     })
     .default(COMPRADOR_PADRAO),
   dialogos: z.record(z.string(), z.array(z.string().trim().min(1).max(200)).max(12)).default(DIALOGOS_PADRAO),
+  urgentes: z
+    .object({
+      ativo: z.boolean(),
+      intervaloMin: z.number().int().min(5).max(1440),
+      duracaoMin: z.number().int().min(3).max(240),
+      multiplicador: z.number().min(1).max(10),
+    })
+    .default(URGENTES_PADRAO),
   taverna: z
     .object({
       nome: z.string().trim().min(1).max(32),
@@ -198,6 +209,7 @@ export const CONFIG_PADRAO: ConfigJogo = {
   abertura: ABERTURA_PADRAO,
   comprador: COMPRADOR_PADRAO,
   dialogos: DIALOGOS_PADRAO,
+  urgentes: URGENTES_PADRAO,
   taverna: {
     nome: "Bartolomeu",
     falas: [

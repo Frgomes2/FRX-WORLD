@@ -89,6 +89,12 @@ export function EditorMissao({ id, inicial, outras }: { id: string | null; inici
                 <label className={rotulo}>Nível mínimo</label>
                 <input type="number" min={1} max={1000} className={campo} value={d.nivelMin} onChange={(e) => mudar("nivelMin", Math.max(1, +e.target.value || 1))} />
               </div>
+              <div>
+                <label className={rotulo}>Rank da Guilda</label>
+                <select className={campo} value={d.rankMin} onChange={(e) => mudar("rankMin", +e.target.value)}>
+                  {["F", "E", "D", "C", "B", "A", "S"].map((r, i) => <option key={r} value={i}>Rank {r}{i === 0 ? " (qualquer jogador)" : ""}</option>)}
+                </select>
+              </div>
             </div>
           </Caixa>
 
@@ -158,7 +164,7 @@ export function EditorMissao({ id, inicial, outras }: { id: string | null; inici
           <p className={rotulo}>Como aparece no quadro</p>
           <div className="rounded-lg border-4 border-[#5b3a1e] bg-[#e9d9b0] p-5 text-[#3b2a17] shadow-xl" style={{ backgroundImage: "radial-gradient(circle at 20% 10%, #f4e7c4, transparent 60%), radial-gradient(circle at 90% 90%, #d4bf8a, transparent 50%)" }}>
             <div className="mb-1 flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-[#7a5a2e]">
-              <span>{d.tipo === "MATAR" ? "⚔ Caçada" : "📦 Encomenda"}</span><span>Nível {d.nivelMin}+</span>
+              <span>{d.tipo === "MATAR" ? "⚔ Caçada" : "📦 Encomenda"}</span><span>Rank {"FEDCBAS"[d.rankMin] ?? "F"} · Nível {d.nivelMin}+</span>
             </div>
             <p className="font-titulo text-2xl leading-tight">{d.titulo || "Sem título"}</p>
             <p className="mt-2 text-sm italic">{d.descricao || "…"}</p>

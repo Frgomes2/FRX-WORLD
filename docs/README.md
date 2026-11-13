@@ -32,6 +32,7 @@ Na ordem da cadeia de progressão:
 | Reinos, NPCs, reputação e waystones | [sistemas/reinos.md](sistemas/reinos.md) |
 | Dungeons, masmorras e chefes | [sistemas/dungeons-chefes.md](sistemas/dungeons-chefes.md) |
 | Economia, moedas, lojas e banco | [sistemas/economia.md](sistemas/economia.md) |
+| Imersão: Sistema, Guilda, habilidade única/suprema, nomeação, NPCs reativos, portais e bestiário | [sistemas/imersao.md](sistemas/imersao.md) |
 
 ## A cadeia de sistemas
 

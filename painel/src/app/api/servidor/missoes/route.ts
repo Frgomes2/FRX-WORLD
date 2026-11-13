@@ -9,12 +9,12 @@ export async function GET(req: Request) {
   if (!tokenValido(req)) return naoAutorizado();
   const missoes = await prisma.missao.findMany({
     where: { ativa: true },
-    orderBy: [{ nivelMin: "asc" }, { ordem: "asc" }],
+    orderBy: [{ rankMin: "asc" }, { nivelMin: "asc" }, { ordem: "asc" }],
   });
   return NextResponse.json(
     missoes.map((m) => ({
       id: m.id, titulo: m.titulo, descricao: m.descricao, tipo: m.tipo, alvo: m.alvo,
-      quantidade: m.quantidade, nivelMin: m.nivelMin, recompensaXp: m.recompensaXp, recompensaMoedas: m.recompensaMoedas,
+      quantidade: m.quantidade, nivelMin: m.nivelMin, rankMin: m.rankMin, recompensaXp: m.recompensaXp, recompensaMoedas: m.recompensaMoedas,
       recompensaItens: m.recompensaItens, repetivel: m.repetivel, intervaloHoras: m.intervaloHoras,
       preRequisitoId: m.preRequisitoId,
     })),

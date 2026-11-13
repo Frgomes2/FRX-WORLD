@@ -505,6 +505,8 @@ public class NpcsReino {
             String[] falas = PAPEIS.stream().filter(p -> p.id().equals(papel)).findFirst().map(Papel::falas)
                     .orElse(new String[]{"Mantenha a ordem no reino.", "Siga em frente, viajante."});
             String fala = falas[ThreadLocalRandom.current().nextInt(falas.length)];
+            String reacao = Reacoes.fala(jogador, papel);
+            if (!reacao.isEmpty() && ThreadLocalRandom.current().nextInt(100) < 65) fala = reacao;
             jogador.sendSystemMessage(Component.literal("[" + (e.getCustomName() != null ? e.getCustomName().getString() : "Morador") + "] ")
                     .withStyle(ChatFormatting.GOLD).append(Component.literal(fala).withStyle(ChatFormatting.WHITE)));
         }

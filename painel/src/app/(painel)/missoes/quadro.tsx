@@ -7,7 +7,7 @@ import { alternarMissaoId, criarExemplos, duplicarMissao, excluirMissaoId } from
 import { Alvo } from "./alvo";
 
 export type MissaoLista = {
-  id: string; titulo: string; descricao: string; tipo: string; alvo: string; quantidade: number; nivelMin: number;
+  id: string; titulo: string; descricao: string; tipo: string; alvo: string; quantidade: number; nivelMin: number; rankMin: number;
   recompensaXp: number; recompensaMoedas: number; recompensaItens: { item: string; qtd: number }[];
   repetivel: boolean; intervaloHoras: number; preRequisitoId: string | null; ativa: boolean; ordem: number;
 };
@@ -88,6 +88,7 @@ export function QuadroMissoes({ missoes }: { missoes: MissaoLista[] }) {
                       <div className="grid h-14 w-14 shrink-0 place-items-center rounded-lg border border-pedra-700 bg-pedra-950/70"><Alvo tipo={m.tipo} alvo={m.alvo} tam={40} soIcone /></div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
+                          <span className="rounded border border-ouro/50 px-1.5 py-0.5 font-titulo text-sm text-ouro" title="Rank da Guilda exigido">{"FEDCBAS"[m.rankMin] ?? "F"}</span>
                           <span className="rounded px-1.5 py-0.5 font-titulo text-sm text-black/80" style={{ background: faixa(m.nivelMin).cor }}>Nv {m.nivelMin}+</span>
                           <p className="truncate font-titulo text-lg">{m.titulo}</p>
                         </div>

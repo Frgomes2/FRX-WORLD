@@ -73,10 +73,18 @@ public class Unica {
     public static Def def(Player p) { return TODAS.get(id(p)); }
     public static int abates(Player p) { return dados(p).getInt("abates"); }
 
+    /** 1 a 5 pelos abates; 6 depois que vira Habilidade Suprema (um degrau a mais no efeito passivo). */
     public static int nivel(Player p) {
         int a = abates(p), n = 1;
         for (int i = 0; i < DEGRAUS.length; i++) if (a >= DEGRAUS[i]) n = i + 1;
-        return n;
+        return n >= 5 && dados(p).getBoolean("suprema") ? 6 : n;
+    }
+
+    static CompoundTag dadosDe(Player p) { return dados(p); }
+
+    static void tornarSuprema(ServerPlayer p) {
+        dados(p).putBoolean("suprema", true);
+        aplicarAtributos(p);
     }
 
     /** Valor do efeito se a habilidade do jogador for `qual` (senão 0): base no nível 1, mais `porNivel` a cada nível. */
@@ -105,7 +113,9 @@ public class Unica {
     /** "Grande Sábio Nv 2" (ou "" se ainda não despertou). */
     public static String resumo(Player p) {
         Def d = def(p);
-        return d == null ? "" : d.nome() + " Nv " + nivel(p);
+        if (d == null) return "";
+        Suprema.Def s = Suprema.def(p);
+        return s != null ? s.nome() + " (Suprema)" : d.nome() + " Nv " + nivel(p);
     }
 
     public static double bonusXp(Player p) { return v(p, "sabio", 0.08, 0.04); }
@@ -123,6 +133,7 @@ public class Unica {
         if (d == null) return;
         dados(p).putString("id", id);
         dados(p).putInt("abates", 0);
+        dados(p).remove("suprema");
         aplicarAtributos(p);
         if (anunciar) {
             Sistema.avisar(p, "Habilidade Única despertada: " + d.nome(), d.descricao() + " Ela evolui conforme você luta. Veja em /unica.", Sistema.ROXO);
@@ -139,10 +150,11 @@ public class Unica {
         Def d = def(p);
         if (d == null) { p.sendSystemMessage(Component.literal("Você ainda não despertou uma Habilidade Única.").withStyle(ChatFormatting.GRAY)); return; }
         int n = nivel(p), a = abates(p);
+        if (Suprema.tem(p)) { p.server.getCommands().performPrefixedCommand(p.createCommandSourceStack(), "suprema"); return; }
         p.sendSystemMessage(Component.literal("✦ " + d.nome() + " · Nível " + n + "/5").withStyle(ChatFormatting.LIGHT_PURPLE, ChatFormatting.BOLD));
         p.sendSystemMessage(Component.literal("  " + d.descricao()).withStyle(ChatFormatting.WHITE));
         p.sendSystemMessage(Component.literal("  Agora: " + efeito(p)).withStyle(ChatFormatting.AQUA));
-        p.sendSystemMessage(Component.literal(n >= 5 ? "  Nível máximo." : "  Evolução: " + a + "/" + DEGRAUS[n] + " monstros abatidos").withStyle(ChatFormatting.GRAY));
+        p.sendSystemMessage(Component.literal(n >= 5 ? "  Nível máximo. A prova da Habilidade Suprema está aberta: /suprema" : "  Evolução: " + a + "/" + DEGRAUS[n] + " monstros abatidos").withStyle(ChatFormatting.GRAY));
     }
 
     // ------------------------------------------------------------------ eventos
@@ -229,7 +241,8 @@ public class Unica {
         if (nivel(p) > antes) {
             aplicarAtributos(p);
             p.level().playSound(null, p.blockPosition(), SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.PLAYERS, 1f, 1.2f);
-            Sistema.avisar(p, def(p).nome() + " evoluiu para o nível " + nivel(p), "Agora: " + efeito(p) + ".", Sistema.ROXO);
+            Sistema.avisar(p, def(p).nome() + " evoluiu para o nível " + nivel(p), "Agora: " + efeito(p) + "."
+                    + (nivel(p) == 5 ? " Ela pode se tornar uma Habilidade Suprema: use /suprema." : ""), Sistema.ROXO);
         }
     }
 

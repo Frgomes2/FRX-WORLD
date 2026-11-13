@@ -120,6 +120,7 @@ public class Reputacao {
         }
         for (String t : br.com.frxcode.frxworld.progressao.Conquistas.titulos(p)) if (!l.contains(t)) l.add(t);
         for (String t : Campanhas.titulos(p)) if (!l.contains(t)) l.add(t);
+        if (!Nomeacao.titulo(p).isEmpty()) l.add(Nomeacao.titulo(p));
         return l;
     }
 

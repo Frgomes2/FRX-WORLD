@@ -72,3 +72,9 @@ amigos.zip
 controle/pedido.txt
 controle/estado.txt
 controle/batida.txt
+
+# Kit dos amigos (gerado) e estado do agente
+FRX-WORLD-kit-amigos.zip
+controle/desejado.txt
+controle/vigia.txt
+server/config/ftbquests/quests/chapters/bestiario.snbt

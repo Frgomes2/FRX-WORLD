@@ -280,6 +280,7 @@ public class Campanhas {
                     .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/campanha aceitar " + reino))));
             return;
         }
+        if (i >= c.etapas().size() && !Nomeacao.tem(p, reino)) { Nomeacao.aoConcluir(p, c); return; }
         if (i >= c.etapas().size()) { falaRei(p, c, "Salve, " + c.titulo() + "! " + c.nomeReino() + " jamais esquecerá o que você fez."); return; }
         Etapa e = c.etapas().get(i);
         int prog = progresso(d, reino);
@@ -356,6 +357,7 @@ public class Campanhas {
         p.level().playSound(null, p.blockPosition(), SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.PLAYERS, 1f, 1f);
         if (p.getServer() != null) p.getServer().getPlayerList().broadcastSystemMessage(Component.literal("👑 " + p.getGameProfile().getName()
                 + " completou a missão épica \"" + c.nome() + "\" e agora é " + c.titulo() + "!").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD), false);
+        Nomeacao.aoConcluir(p, c);
     }
 
     /** Títulos "Lenda de X" das campanhas concluídas. */

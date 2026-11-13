@@ -81,6 +81,10 @@ public class FrxWorld {
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.progressao.Marcos());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.progressao.Guilda());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.habilidades.Unica());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.reinos.Nomeacao());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.habilidades.Suprema());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.progressao.Bestiario());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.missoes.Urgentes());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.progressao.Combate());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.racas.Evolucao());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.acesso.Abertura());

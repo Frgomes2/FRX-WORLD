@@ -47,6 +47,11 @@ O Claude também pode ligar, desligar e reiniciar o servidor sem ninguém clicar
 - O agente (`controle\agente-frx.ps1`) roda escondido e olha `controle\pedido.txt` a cada 3 s. Os pedidos são `ligar`, `desligar` e `reiniciar`.
   - Ele roda os mesmos `.bat` dos atalhos. O `iniciar-frx.bat /auto` funciona sem perguntas, sem pausas e sem abrir o navegador.
 - **Estado:** `controle\estado.txt` (ligando, ligado, desligado, erro…). Eventos em `logs\agente-eventos.log`; a saída de cada execução vai para um arquivo próprio em `logs\agente\`.
+- **Vigia do servidor:** depois de um `ligar` ou `reiniciar`, o agente confere a porta 25565 a cada 30 s. Se ela ficar fechada por 1 minuto, ele roda o desligar e o ligar sozinho (até 3 vezes em 30 minutos; na quarta queda ele para e avisa no estado).
+  - `desligar` desarma a vigia. Parar o servidor pelo console do painel **não** desarma: a vigia religa. Use o atalho Desligar ou o pedido `desligar`.
+  - Para pausar sem mexer no servidor, crie `controle\vigia.txt` com a palavra `desligada`.
+  - Quando o PC acaba de ligar, a vigia não sobe o servidor sozinha: ela espera um `ligar`.
+- **Console:** o pedido `comando <texto>` manda uma linha para o console do Minecraft (várias linhas, vários comandos). Passa pela rota `/api/servidor/comando` do painel, que só aceita chamadas do próprio PC.
 - **Atualização:** se o `agente-frx.ps1` mudar, o agente se reinicia sozinho com a versão nova.
 - **Para remover:** apague "FRX-WORLD agente" em `shell:startup`.
 
@@ -101,6 +106,8 @@ Depois sobe com `next start` apontando `SERVIDOR_DIR` para uma cópia do servido
 ## Mundo novo (definitivo)
 
 Antes de abrir o servidor para os amigos num mundo novo, gere o mapa antes com o Chunky. Gerar na hora em que alguém chega trava o servidor ("Can't keep up"), por causa dos mods de estruturas, dos reinos e das casinhas.
+
+> **Feito em 13/11/2026:** o mundo de teste foi movido para `backups\mundo-teste-20261113` e o mundo atual já nasceu com os reinos reduzidos, as barracas e os baús. A pré-geração do Overworld (raio 3000) começou no mesmo dia; as outras dimensões ainda faltam.
 
 1. Desligue o servidor, apague a pasta `server\FRX-WORLD` e ligue pelo atalho.
 2. No console do painel (aba Servidor), digite:

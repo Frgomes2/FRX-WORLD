@@ -22,7 +22,9 @@ No playit grátis, o túnel TCP genérico (que serviria para o pack) é só do p
 
 ## Kit do amigo (`amigos\`)
 
-Compacte a pasta `amigos\` (já com o `endereco-pack.txt` preenchido) e mande para cada amigo.
+O kit pronto é o `FRX-WORLD-kit-amigos.zip`, na raiz do projeto (fica fora do git). Mande esse arquivo para cada amigo. O caminho recomendado é o `INSTALAR.bat`: ele instala o Forge e o AutoModpack, e os mods baixam sozinhos ao entrar no servidor.
+
+Para refazer o zip depois de mudar algo, compacte a pasta `amigos\` sem o `forge-installer.jar` e o `.log`.
 
 | Arquivo | O que faz |
 |---|---|

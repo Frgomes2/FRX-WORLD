@@ -6,7 +6,7 @@ import { salvarMissao } from "../actions";
 
 type Valores = {
   id: string; titulo: string; descricao: string; tipo: string; alvo: string; quantidade: number;
-  nivelMin: number; recompensaXp: number; recompensaMoedas: number; recompensaItens: string; repetivel: boolean;
+  nivelMin: number; rankMin?: number; recompensaXp: number; recompensaMoedas: number; recompensaItens: string; repetivel: boolean;
   intervaloHoras: number; preRequisitoId: string | null; ativa: boolean; ordem: number;
 };
 
@@ -37,6 +37,11 @@ export function FormMissao({ valores, outras }: { valores: Valores; outras: { id
       </label>
       <label>Quantidade<input name="quantidade" type="number" min={1} defaultValue={valores.quantidade} className={campo} /></label>
       <label>Nível mínimo<input name="nivelMin" type="number" min={1} defaultValue={valores.nivelMin} className={campo} /></label>
+      <label>Rank da Guilda
+        <select name="rankMin" defaultValue={valores.rankMin ?? 0} className={campo}>
+          {["F", "E", "D", "C", "B", "A", "S"].map((r, i) => <option key={r} value={i}>Rank {r}</option>)}
+        </select>
+      </label>
 
       <label>Recompensa em XP<input name="recompensaXp" type="number" min={0} defaultValue={valores.recompensaXp} className={campo} /></label>
       <label>Recompensa em moedas (cobre: 10 = 1 prata, 100 = 1 ouro)<input name="recompensaMoedas" type="number" min={0} defaultValue={valores.recompensaMoedas} className={campo} /></label>

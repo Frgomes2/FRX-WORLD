@@ -19,6 +19,7 @@ const schema = z.object({
   alvo: z.string().trim().min(3).transform((a) => (a.includes(":") ? a : `minecraft:${a}`).toLowerCase()),
   quantidade: z.coerce.number().int().min(1).max(10000),
   nivelMin: z.coerce.number().int().min(1).max(1000),
+  rankMin: z.coerce.number().int().min(0).max(6),
   recompensaXp: z.coerce.number().int().min(0).max(10_000_000),
   recompensaMoedas: z.coerce.number().int().min(0).max(1_000_000),
   repetivel: z.boolean(),
@@ -31,7 +32,7 @@ const schema = z.object({
 export type EstadoMissao = { erro: string } | null;
 
 export type DadosMissao = {
-  titulo: string; descricao: string; tipo: string; alvo: string; quantidade: number; nivelMin: number;
+  titulo: string; descricao: string; tipo: string; alvo: string; quantidade: number; nivelMin: number; rankMin: number;
   recompensaXp: number; recompensaMoedas: number; recompensaItens: { item: string; qtd: number }[];
   repetivel: boolean; intervaloHoras: number; preRequisitoId: string | null; ativa: boolean; ordem: number;
 };
@@ -87,6 +88,7 @@ export async function salvarMissao(_e: EstadoMissao, f: FormData): Promise<Estad
     alvo: f.get("alvo"),
     quantidade: f.get("quantidade"),
     nivelMin: f.get("nivelMin"),
+    rankMin: f.get("rankMin") || 0,
     recompensaXp: f.get("recompensaXp"),
     recompensaMoedas: f.get("recompensaMoedas") || 0,
     repetivel: f.get("repetivel") === "on",
@@ -141,6 +143,24 @@ export async function criarExemplos() {
     criadas.set(m.titulo, nova.id);
   }
   revalidatePath("/missoes");
+}
+
+export async function salvarUrgentes(_e: { ok: boolean; mensagem: string } | null, f: FormData) {
+  await exigirAdmin();
+  const n = (chave: string, min: number, max: number, padrao: number) => {
+    const v = Number(f.get(chave));
+    return Number.isFinite(v) ? Math.max(min, Math.min(max, v)) : padrao;
+  };
+  try {
+    await salvarConfig({
+      ...(await lerConfig()),
+      urgentes: { ativo: f.get("ativo") === "on", intervaloMin: Math.round(n("intervaloMin", 5, 1440, 45)), duracaoMin: Math.round(n("duracaoMin", 3, 240, 20)), multiplicador: n("multiplicador", 1, 10, 2) },
+    });
+  } catch {
+    return { ok: false, mensagem: "Valores inválidos." };
+  }
+  revalidatePath("/missoes");
+  return { ok: true, mensagem: "Salvo. Vale no servidor em até 1 minuto." };
 }
 
 export async function salvarTaverneiro(_e: { ok: boolean; mensagem: string } | null, f: FormData) {

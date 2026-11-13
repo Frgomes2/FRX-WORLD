@@ -9,7 +9,7 @@ import java.util.List;
 /** Missão cadastrada no painel (aba Missões). */
 public record MissaoDef(String id, String titulo, String descricao, String tipo, String alvo, int quantidade,
                         int nivelMin, long recompensaXp, List<ItemRecompensa> itens, boolean repetivel,
-                        int intervaloHoras, String preRequisitoId, long recompensaMoedas) {
+                        int intervaloHoras, String preRequisitoId, long recompensaMoedas, int rankMin) {
 
     public record ItemRecompensa(String item, int qtd) {}
 
@@ -37,6 +37,7 @@ public record MissaoDef(String id, String titulo, String descricao, String tipo,
                 o.get("repetivel").getAsBoolean(),
                 o.get("intervaloHoras").getAsInt(),
                 pre == null || pre.isJsonNull() ? null : pre.getAsString(),
-                o.has("recompensaMoedas") && !o.get("recompensaMoedas").isJsonNull() ? o.get("recompensaMoedas").getAsLong() : o.get("recompensaXp").getAsLong() / 5);
+                o.has("recompensaMoedas") && !o.get("recompensaMoedas").isJsonNull() ? o.get("recompensaMoedas").getAsLong() : o.get("recompensaXp").getAsLong() / 5,
+                o.has("rankMin") && !o.get("rankMin").isJsonNull() ? Math.max(0, Math.min(6, o.get("rankMin").getAsInt())) : 0);
     }
 }

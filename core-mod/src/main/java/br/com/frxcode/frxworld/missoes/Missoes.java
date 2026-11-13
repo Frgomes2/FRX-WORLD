@@ -59,6 +59,19 @@ public final class Missoes {
         });
     }
 
+    static java.util.Collection<MissaoDef> todas() { return catalogo.values(); }
+    static MissaoDef porId(String id) { return catalogo.get(id); }
+
+    /** O jogador aceitou a missão e ainda não entregou. */
+    static boolean emAndamento(ServerPlayer p, String id) {
+        if (!Progressao.temDados(p)) return false;
+        RegistroMissao r = Progressao.dados(p).missoes().get(id);
+        return r != null && !r.concluida;
+    }
+
+    private static int rankDe(ServerPlayer p) { return br.com.frxcode.frxworld.progressao.Guilda.indice(p); }
+    private static String nomeRank(int i) { return br.com.frxcode.frxworld.progressao.ConfigJogo.nomeRank(i); }
+
     // ------------------------------------------------------------------ nomes amigáveis
 
     private static String nomeDoAlvo(MissaoDef m) {
@@ -73,8 +86,9 @@ public final class Missoes {
     }
 
     private static String textoRecompensa(MissaoDef m) {
-        StringBuilder sb = new StringBuilder(m.recompensaXp() + " XP");
-        if (m.recompensaMoedas() > 0) sb.append(" · ").append(br.com.frxcode.frxworld.moedas.Moedas.texto(m.recompensaMoedas()));
+        double x = Urgentes.ativa(m.id()) ? Urgentes.multiplicador() : 1;
+        StringBuilder sb = new StringBuilder(Math.round(m.recompensaXp() * x) + " XP");
+        if (m.recompensaMoedas() > 0) sb.append(" · ").append(br.com.frxcode.frxworld.moedas.Moedas.texto(Math.round(m.recompensaMoedas() * x)));
         for (MissaoDef.ItemRecompensa i : m.itens()) {
             Item item = ForgeRegistries.ITEMS.getValue(ResourceLocation.tryParse(i.item()));
             String nome = item != null ? new ItemStack(item).getHoverName().getString() : i.item();
@@ -113,11 +127,20 @@ public final class Missoes {
         int estado;
         int prog = 0;
         String nota = "";
+        boolean urgente = Urgentes.ativa(m.id());
+        String aviso = urgente ? "URGENTE: entregue em " + Urgentes.restaMin() + " min para a recompensa maior" : "";
 
         if (r != null && !r.concluida) {
             prog = Math.min(m.quantidade(), progresso(p, m, r));
             estado = prog >= m.quantidade() ? VisaoMissao.PRONTA : VisaoMissao.ATIVA;
-        } else if (r != null && !liberadaDeNovo(m, r)) {
+            nota = aviso;
+        } else if (m.rankMin() > 0 && !br.com.frxcode.frxworld.progressao.Guilda.registrado(p)) {
+            estado = VisaoMissao.BLOQUEADA;
+            nota = "Registre-se na Guilda (recepcionista) para missões de Rank " + nomeRank(m.rankMin());
+        } else if (rankDe(p) < m.rankMin()) {
+            estado = VisaoMissao.BLOQUEADA;
+            nota = "Requer Rank " + nomeRank(m.rankMin()) + " na Guilda (você é Rank " + nomeRank(rankDe(p)) + ")";
+        } else if (r != null && !liberadaDeNovo(m, r) && !urgente) {
             estado = VisaoMissao.CONCLUIDA;
             if (m.repetivel()) {
                 long falta = m.intervaloHoras() * 3_600_000L - (System.currentTimeMillis() - r.concluidaEm);
@@ -133,8 +156,9 @@ public final class Missoes {
             nota = "Conclua antes: " + (pre != null ? pre.titulo() : "?");
         } else {
             estado = VisaoMissao.DISPONIVEL;
+            nota = aviso;
         }
-        return new VisaoMissao(m.id(), m.titulo(), m.descricao(), objetivo, m.nivelMin(),
+        return new VisaoMissao(m.id(), (urgente ? "⚠ " : "") + "[Rank " + nomeRank(m.rankMin()) + "] " + m.titulo(), m.descricao(), objetivo, m.nivelMin(),
                 textoRecompensa(m), estado, prog, m.quantidade(), nota);
     }
 
@@ -147,8 +171,13 @@ public final class Missoes {
     private static void enviarQuadro(ServerPlayer p, String mensagem) {
         DadosJogador d = Progressao.dados(p);
         List<VisaoMissao> lista = new ArrayList<>();
-        for (MissaoDef m : catalogo.values()) lista.add(visao(p, d, m));
-        lista.sort(Comparator.comparingInt(VisaoMissao::estado).thenComparingInt(VisaoMissao::nivelMin));
+        // urgente no topo; depois por estado, rank e nível
+        List<MissaoDef> ordem = new ArrayList<>(catalogo.values());
+        Map<String, VisaoMissao> visoes = new LinkedHashMap<>();
+        for (MissaoDef m : ordem) visoes.put(m.id(), visao(p, d, m));
+        ordem.sort(Comparator.comparing((MissaoDef m) -> !(Urgentes.ativa(m.id()) && visoes.get(m.id()).estado() <= VisaoMissao.DISPONIVEL))
+                .thenComparingInt(m -> visoes.get(m.id()).estado()).thenComparingInt(MissaoDef::rankMin).thenComparingInt(MissaoDef::nivelMin));
+        for (MissaoDef m : ordem) lista.add(visoes.get(m.id()));
         if (lista.isEmpty() && mensagem.isEmpty()) mensagem = "O quadro está vazio. Volte mais tarde, aventureiro.";
         Rede.CANAL.send(PacketDistributor.PLAYER.with(() -> p), new AbrirQuadro(lista, mensagem));
     }
@@ -180,14 +209,19 @@ public final class Missoes {
                 else {
                     if (!m.caca()) removerItens(p, m.alvo(), m.quantidade());
                     RegistroMissao r = d.missoes().get(id);
+                    boolean urgente = Urgentes.ativa(id);
+                    String premio = textoRecompensa(m);
                     r.concluida = true;
                     r.concluidaEm = System.currentTimeMillis();
                     r.progresso = 0;
-                    darRecompensa(p, m);
+                    darRecompensa(p, m, urgente ? Urgentes.multiplicador() : 1);
                     msg = "Missão concluída: " + m.titulo();
-                    br.com.frxcode.frxworld.progressao.Sistema.avisar(p, "Missão concluída", m.titulo() + " — recompensa: " + textoRecompensa(m), br.com.frxcode.frxworld.progressao.Sistema.VERDE);
+                    br.com.frxcode.frxworld.progressao.Sistema.avisar(p, urgente ? "Missão urgente concluída" : "Missão concluída",
+                            m.titulo() + " — recompensa: " + premio, br.com.frxcode.frxworld.progressao.Sistema.VERDE);
                     p.sendSystemMessage(Component.literal("✔ " + m.titulo() + " ").withStyle(ChatFormatting.GREEN)
-                            .append(Component.literal("+" + textoRecompensa(m)).withStyle(ChatFormatting.GOLD)));
+                            .append(Component.literal("+" + premio).withStyle(ChatFormatting.GOLD)));
+                    if (urgente && p.getServer() != null) p.getServer().getPlayerList().broadcastSystemMessage(Component.literal("⚠ " + p.getGameProfile().getName()
+                            + " cumpriu a missão urgente da Guilda: " + m.titulo() + "!").withStyle(ChatFormatting.RED), false);
                     p.level().playSound(null, p.blockPosition(), SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 0.8f, 1.4f);
                 }
             }
@@ -220,7 +254,7 @@ public final class Missoes {
         p.getInventory().setChanged();
     }
 
-    private static void darRecompensa(ServerPlayer p, MissaoDef m) {
+    private static void darRecompensa(ServerPlayer p, MissaoDef m, double vezes) {
         for (MissaoDef.ItemRecompensa i : m.itens()) {
             Item item = ForgeRegistries.ITEMS.getValue(ResourceLocation.tryParse(i.item()));
             if (item == null) continue;
@@ -232,9 +266,9 @@ public final class Missoes {
                 resto -= lote;
             }
         }
-        br.com.frxcode.frxworld.moedas.Moedas.dar(p, m.recompensaMoedas());
+        br.com.frxcode.frxworld.moedas.Moedas.dar(p, Math.round(m.recompensaMoedas() * vezes));
         br.com.frxcode.frxworld.reinos.Reputacao.porMissao(p, m.recompensaXp());
-        Progressao.ganharXp(p, m.recompensaXp());
+        Progressao.ganharXp(p, Math.round(m.recompensaXp() * vezes));
     }
 
     // ------------------------------------------------------------------ progresso e HUD

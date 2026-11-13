@@ -264,6 +264,14 @@ public class RacasJogador {
         return r != null && r.lendaria() && !dados(p).getBoolean("revelar");
     }
 
+    /** Id da raça que os outros enxergam (a lendária disfarçada aparece como a secundária ou humano). */
+    public static String racaVisivel(Player p) {
+        if (!escolheu(p)) return "";
+        String pr = principal(p), se = secundaria(p);
+        if (disfarcada(p)) return se.isEmpty() || se.equals(pr) ? "humano" : se;
+        return pr;
+    }
+
     /** "Elfo/Oni"; lendária disfarçada mostra só a secundária (ou Humano). */
     public static String textoVisivel(Player p) {
         if (!escolheu(p)) return "";

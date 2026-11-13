@@ -55,6 +55,8 @@ public final class Dialogos {
     }
 
     private static String falaPadrao(ServerPlayer p, Entity npc, String papel) {
+        String reacao = Reacoes.fala(p, papel);
+        if (!reacao.isEmpty() && ThreadLocalRandom.current().nextInt(100) < 70) return reacao;
         String doPainel = falaDoPainel(papel);
         if (!doPainel.isEmpty()) return doPainel.replace("{jogador}", p.getGameProfile().getName());
         Reino r = Reputacao.reino(npc.getPersistentData().getString("frx_reino"));
