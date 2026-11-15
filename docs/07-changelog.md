@@ -31,6 +31,19 @@ Formato: versão, depois o que entrou. A versão do mod fica em `core-mod/gradle
   - A migração `20261113230000_missao_rank` dá às missões já cadastradas o rank da faixa de nível delas.
   - **Urgentes:** a cada 45 minutos uma caçada vira urgente por 20 minutos, com aviso do Sistema e recompensa em dobro para quem entregar no prazo. Os três números e o liga/desliga ficam no painel (Missões → Missões urgentes). Admin: `/frx urgente` e `/frx urgente encerrar`.
 
+- **Música na abertura isekai** (`acesso/Abertura.java`): a cena toca uma música presa ao jogador, que para quando ele nasce na capital (opcional). Painel: **Convites → Abertura do primeiro login → Música** (lista de músicas do jogo, volume e a opção "Música própria"). Para usar uma música sua, salve o OGG em `core-mod/src/main/resources/assets/frxworld/sounds/abertura.ogg` e reinicie.
+
+- **Entrada sem convite e sem fingerprint (13/11):** `exigirConvite = false` em `server/config/frxworld-common.toml` (decisão do Flavio). O kit dos amigos passou a usar o endereço fixado do AutoModpack (`host#amp1=<fingerprint>`, em `amigos/endereco-servidor.txt`), que dispensa a tela de confirmação do certificado. Com `online-mode=false` e sem convite, qualquer pessoa com o endereço entra com qualquer nick.
+
+- **Entradas das masmorras (14/11)** (`reinos/EntradasMasmorra.java`): toda masmorra fixa enterrada ganha um pórtico de pedra negra na superfície, com o nome flutuando e um portal (obsidiana chorosa) que leva à primeira sala; lá dentro, outro portal traz de volta. As de superfície ganham só um marco com o nome ao lado da construção. Registro por mundo em `frx_entradas.txt`. Admin: `/frx masmorra entradas` e `/frx masmorra entradas refazer`. O `/masmorras` passou a mostrar a entrada, não o centro da estrutura.
+- **Dano entre aliados** ligado nos grupos; **ficha do painel** criada no login quando o convite está desligado; mods **Golden Age Combat**, **Sword Blocking Mechanics** e **Just Zoom** (cliente).
+
+- **Tempest só com o coliseu (14/11):** caixa reduzida para 29×15 chunks (x 64 a 527, z −16 a 223), com centro em 296, 104. A praça passou para o centro do coliseu (`praca: [296, 105]`) e os NPCs voltaram ao arranjo automático em anel (as posições fixas antigas ficaram em `npcs_antes_20261114` no `posicoes.json`). Original em `server/frxworld/reinos-originais/tempest-20261114-1146`; as regiões antigas do mapa estão em `backups/regiao-tempest-20261114`.
+- **Ponto inicial livre:** se o admin mudar o spawn do mundo com `/setworldspawn`, a abertura isekai passa a nascer e renascer ali e o Sistema indica a distância e a direção da capital.
+
+- **`/publicar` (15/11):** padrão de publicação em `.claude/commands/publicar.md`: atualiza a documentação desde o último `/publicar`, faz o commit (primeira linha `publicar: …`) e envia direto para a `main`.
+- **Portal de Tempest (15/11):** a chegada passou para dentro da Fábrica Ancestral (223, −19, 118); antes caía numa caverna encostada nela. A escolha da sala agora exige piso, teto e paredes de construção.
+
 ## 0.41.0 — Balanceamento, túmulo e reinos menores
 
 - **Monstros mais fracos:** por nível, +6% de vida (era 10%), +3,5% de dano (era 6%) e +0,2 de armadura (era 0,25). Dificuldade do servidor de *hard* para *normal*.

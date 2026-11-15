@@ -25,6 +25,24 @@
 - **Chefe derrotado:** um baú de prêmio aparece onde ele caiu (`frxworld:chests/masmorra_chefe`).
 - `/masmorras` · admin `/frx masmorra` (lista) e `/frx masmorra baus` (põe 5 baús nas salas em volta de você).
 
+### Entradas (`reinos/EntradasMasmorra.java`)
+
+- **Masmorra enterrada** (o topo da estrutura fica abaixo do chão): ganha um **pórtico** de pedra negra na superfície, com o nome flutuando. No centro há um bloco de obsidiana chorosa: quem pisa é levado para dentro. Na sala de chegada, outro bloco igual ("Saída") traz de volta. Há 4 s de recarga entre viagens e 3 s de proteção ao chegar.
+- **Masmorra de superfície:** ganha só um **marco** (o mesmo pórtico, sem portal) ao lado da construção. A entrada é a da própria estrutura.
+- **Sala de chegada:** o mod recalcula a estrutura (mesma semente, sem colocar blocos), percorre as peças e só aceita um ponto com 3×3×3 livre e com piso, teto e paredes de construção em pelo menos três lados. Pedra e terra natural são descartadas, para não cair em caverna encostada. Entre os pontos válidos, fica o mais alto e mais central.
+- O pórtico usa a `entrada` da configuração quando existe; senão, fica sobre o centro da estrutura.
+- Registro por mundo em `<mundo>/frx_entradas.txt` (`id;sx;sy;sz;dx;dy;dz`, ou só `id;sx;sy;sz` para marco). Masmorras novas ganham a entrada cerca de 30 s depois de colocadas.
+- `/masmorras` e o painel mostram a entrada, não o centro da estrutura.
+- Admin: `/frx masmorra entradas` lista; `/frx masmorra entradas refazer` refaz todas; `/frx masmorra entradas refazer <id>` refaz uma, no mesmo lugar.
+
+| Masmorra | Tipo | Entrada (x, y, z) |
+|---|---|---|
+| Fábrica Ancestral (Tempest) | portal | 255, 72, 125 |
+| Câmara do Cavaleiro de Ferro (Dwargon) | portal | 1144, 63, 2276 |
+| Templo da Górgona (Sakura) | portal | −2605, 65, 989 |
+| Prisão Congelada (Sarion) | marco | 2061, 74, −984 |
+| Mosteiro (Leste) | marco | −2708, 58, −1079 |
+
 ## Chefes e estruturas de mods (`dungeon/Externos.java`)
 
 - Cadastro no painel (menu **Chefes de mods**, modelos `ChefeExterno` e `EstruturaExterna`).

@@ -1,0 +1,6 @@
+Musica propria da abertura isekai
+=================================
+1. Converta a musica para OGG Vorbis (ex.: Audacity > Exportar > OGG).
+2. Salve aqui com o nome abertura.ogg
+3. No painel: Convites > Abertura do primeiro login > Musica > "Musica propria (abertura.ogg)".
+4. Reinicie o servidor (o mod e recompilado e os jogadores recebem o arquivo pelo AutoModpack).

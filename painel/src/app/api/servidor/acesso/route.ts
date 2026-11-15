@@ -3,11 +3,12 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { naoAutorizado, tokenValido } from "@/lib/servidor";
 
-const schema = z.object({ uuid: z.string().min(1), nick: z.string().min(1) });
+const schema = z.object({ uuid: z.string().min(1), nick: z.string().min(1), registrar: z.boolean().optional() });
 
 /**
  * O servidor chama ao jogador entrar.
  * Resposta: { permitido: true } se a conta já usou um convite e está ativa.
+ * Com `registrar: true` (servidor sem convite), quem ainda não tem ficha ganha uma na hora.
  */
 export async function POST(req: Request) {
   if (!tokenValido(req)) return naoAutorizado();
@@ -20,6 +21,9 @@ export async function POST(req: Request) {
     // Quem já usou convite com esse nick continua liberado; a ficha passa para o UUID novo.
     const peloNick = await prisma.jogador.findFirst({ where: { nick: { equals: dados.data.nick, mode: "insensitive" }, ativo: true } });
     if (peloNick) jogador = await prisma.jogador.update({ where: { id: peloNick.id }, data: { uuid: dados.data.uuid } });
+  }
+  if (!jogador && dados.data.registrar) {
+    jogador = await prisma.jogador.create({ data: { uuid: dados.data.uuid, nick: dados.data.nick, ativo: true, ultimoLogin: new Date() } });
   }
   if (!jogador || !jogador.ativo) return NextResponse.json({ permitido: false });
 

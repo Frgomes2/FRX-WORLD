@@ -9,7 +9,7 @@ O painel abre sozinho pelo atalho **FRX-WORLD**, em `http://localhost:3000`. Par
 | Menu | Rota | O que faz |
 |---|---|---|
 | Visão geral | `/visao` | Status do servidor, jogadores online, mapa do mundo com os reinos |
-| Convites | `/convites` | Gera e controla convites de acesso |
+| Convites | `/convites` | Gera e controla convites de acesso · **Abertura do primeiro login** (liga/desliga, capital, falas, música, volume e se a música para ao nascer) |
 | Jogadores | `/jogadores` | Lista e ficha de cada jogador: nível, classe, moedas, reputação, ações de admin |
 | Servidor | `/servidor` | Liga/desliga, console e logs |
 | Progressão | `/progressao` | Curva de XP, zonas, **monstros com rank** (chances de Elite/Campeão), config geral |
@@ -28,6 +28,11 @@ O painel abre sozinho pelo atalho **FRX-WORLD**, em `http://localhost:3000`. Par
 Ainda não implementados ("Em breve"): Conteúdo, Mobs e bosses, Códex de Armas, Estados, Lei e crimes, Rituais, Eventos globais, Versões do pack.
 
 ## Detalhes úteis
+
+- **Missões por rank**: o editor de missão tem o campo **Rank da Guilda** (`rankMin`, 0 = F … 6 = S). O bloco **Missões urgentes** da tela de Missões guarda a seção `urgentes` da configuração: `ativo`, `intervaloMin`, `duracaoMin` e `multiplicador`.
+- **Música da abertura**: seção `abertura` da configuração, campos `musica` (id de som; `frxworld:abertura` é o arquivo `abertura.ogg` do mod; vazio = sem música), `volume` (0 a 2) e `pararAoNascer`. A lista de músicas da tela fica em `lib/musicas.ts`.
+- **Ficha sem convite**: `POST /api/servidor/acesso` aceita `registrar: true`. Com o convite desligado, o mod chama assim no login e a ficha do jogador é criada na hora.
+- **Console pelo agente**: `POST /api/servidor/comando` (`{comando}`) manda uma linha ao console do Minecraft. Só aceita chamadas do próprio PC; o que chega pelo túnel da Cloudflare é recusado.
 
 - **Avaliação do guardião das dungeons** (`dungeons/comum.tsx`): o jogador de nível N tem cerca de `20 + 2N` de vida e bate cerca de `7 + 0,8N`. A razão entre os golpes para matar o guardião e (golpes para morrer × 3) dá a faixa: < 0,6 **Fácil** · < 1,6 **Equilibrado** · < 3 **Difícil** · acima disso, **Brutal**.
 - **Reinos**: os dados vêm do disco do servidor (`posicoes.json` + `<id>/reino.json`), lidos por `lib/reinos-servidor.ts` com cache pelo horário de modificação.

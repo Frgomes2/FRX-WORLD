@@ -78,3 +78,8 @@ FRX-WORLD-kit-amigos.zip
 controle/desejado.txt
 controle/vigia.txt
 server/config/ftbquests/quests/chapters/bestiario.snbt
+
+# Musica propria da abertura (arquivo do Flavio, so no PC), cache do python e tarefas do Chunky
+core-mod/src/main/resources/assets/frxworld/sounds/*.ogg
+__pycache__/
+server/config/chunky/tasks/

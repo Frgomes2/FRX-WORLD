@@ -127,9 +127,10 @@ public class Grupos {
         if (time == null) {
             time = placar.addPlayerTeam(nomeTime);
             time.setColor(g.cor);
-            time.setAllowFriendlyFire(false);
             time.setSeeFriendlyInvisibles(true);
         }
+        // dano entre aliados ligado (decisão do Flavio, 13/11): quem está no mesmo grupo pode se ferir
+        if (!time.isAllowFriendlyFire()) time.setAllowFriendlyFire(true);
         for (String n : new ArrayList<>(time.getPlayers())) {
             boolean membro = false;
             for (UUID u : g.membros) if (nome(u).equals(n)) membro = true;

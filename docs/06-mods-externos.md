@@ -17,6 +17,19 @@ O pack é gerenciado pelo **packwiz** em `pack/`. Cada mod é um `mods/<slug>.pw
 | Desempenho | Embeddium, ModernFix, FerriteCore, Chunky (pré-geração), spark |
 | Bibliotecas | Architectury, Balm, Blueprint, Citadel, Cristel Lib, GeckoLib, Integrated API, Lionfish API, Moonlight, Obscure API, Puzzles Lib, Resourceful Config/Lib, Rhino, Structure Gel, YUNG's API, Zeta, Fragmentum, MezzConfig, Moogs Structure Lib |
 
+## Combate antigo e zoom (13/11/2026)
+
+| Mod | Fonte | Lado | Por quê |
+|---|---|---|---|
+| Golden Age Combat (v8.0.3) | Modrinth | cliente e servidor | Combate como na 1.7/1.8: sem recarga do ataque. Config em `server/config/goldenagecombat-server.toml` |
+| Sword Blocking Mechanics (v8.0.2) | Modrinth | cliente e servidor | Defender com a espada (botão direito). Por padrão só espadas vanilla; espadas de outros mods precisam de datapack. Config em `server/config/swordblockingmechanics-server.toml` |
+| Just Zoom (v3.1.0) | Modrinth | só cliente | Zoom por tecla, com a roda do mouse. Substitui o que se queria do OptiFine |
+| Konkrete | Modrinth | os dois | Biblioteca exigida pelo Just Zoom |
+
+- Todos entraram pelo `pack\pendentes.txt` e chegam aos jogadores pelo AutoModpack.
+- **OptiFine não entra no pack:** conflita com o Embeddium, quebra com mods grandes e a licença não permite redistribuir.
+- **Atenção ao balanceamento:** sem recarga do ataque, o dano por segundo sobe. A vida dos monstros e os efeitos por golpe ainda não foram recalibrados.
+
 ## Fase 2 (`pack\adicionar-mods-fase2.bat`)
 
 > **Status:** script pronto, **ainda não executado** (os mods ainda não estão em `pack/mods`). Rode o `.bat` no PC: o ambiente do Claude não alcança Modrinth/CurseForge.

@@ -52,11 +52,12 @@ echo ============================================================
 echo  Pronto! Agora:
 echo   1. Abra o launcher e escolha a versao/instalacao "forge" 1.20.1
 echo      (de pelo menos 6 GB de memoria nas configuracoes).
-echo   2. Multijogador ^> Adicionar servidor: impairment-marcus.tun.ply.gg
-echo   3. Entre no servidor. Na primeira vez ele pede para confirmar
-echo      o "fingerprint" (esta no LEIA-ME) e baixa todos os mods.
+echo   2. Multijogador ^> Adicionar servidor. Cole o endereco que esta no
+echo      arquivo endereco-servidor.txt (vou abrir ele para voce copiar).
+echo   3. Entre no servidor e aceite baixar os mods.
 echo   4. Quando terminar, reinicie o jogo e entre de novo.
 echo ============================================================
+start "" notepad "%~dp0endereco-servidor.txt"
 pause
 exit /b 0
 

@@ -54,6 +54,7 @@ public class FrxWorld {
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.reinos.Oficios());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.reinos.Populacao());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.reinos.Masmorras());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.reinos.EntradasMasmorra());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.moedas.Moedas());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.moedas.TrocasMoeda());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.moedas.Banco());

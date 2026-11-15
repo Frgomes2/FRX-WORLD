@@ -142,7 +142,7 @@ metafile = true
 
 [[files]]
 file = "mods/frxworld-0.41.0.jar"
-hash = "4763f1152c74a50d1789d9d52aa1c4fc186ba8151902ea9a85fc90825b27476f"
+hash = "95afdf6758d65065e786c050b5d081739e64be7058c1f83f1070946defd2163b"
 
 [[files]]
 file = "mods/ftb-library-forge.pw.toml"
@@ -162,6 +162,11 @@ metafile = true
 [[files]]
 file = "mods/geckolib.pw.toml"
 hash = "7ffae05c3b8101588b231db8116c34b36a77a0c6e6d7e6af867ae1c5b47e4d10"
+metafile = true
+
+[[files]]
+file = "mods/golden-age-combat.pw.toml"
+hash = "75b3afe75320581b4f7e0b919c07e16db15d37bd24d312bf25cf615f93ae0dd4"
 metafile = true
 
 [[files]]
@@ -207,6 +212,16 @@ metafile = true
 [[files]]
 file = "mods/journeymap.pw.toml"
 hash = "71146e24bb1192ae23ba5b27dd2905a43cce93161b0a58f762cd20b81fe0fb35"
+metafile = true
+
+[[files]]
+file = "mods/just-zoom.pw.toml"
+hash = "d3936a59df6e06c3a5857a7de51023b3a824ee9b9d37d00fca809e9f18ce57ec"
+metafile = true
+
+[[files]]
+file = "mods/konkrete.pw.toml"
+hash = "90a70141bcec839b6a1aa647c91f97bb7b33b6b9e6ce6b3b18a4113aa7dff636"
 metafile = true
 
 [[files]]
@@ -372,6 +387,11 @@ metafile = true
 [[files]]
 file = "mods/supplementaries.pw.toml"
 hash = "b3c68ce85c6cbdf37a00e39d18ea0f30ef7f69ee414151615adc2aa793661b81"
+metafile = true
+
+[[files]]
+file = "mods/sword-blocking-mechanics.pw.toml"
+hash = "3e3dd49761c7fdf67a2ebbb4b5d3da6ad763a62b8b20164c0863e9dce05cc828"
 metafile = true
 
 [[files]]

@@ -2,9 +2,10 @@
 
 import { useState, useTransition } from "react";
 import { REINOS } from "@/lib/reinos";
+import { MUSICAS_ABERTURA } from "@/lib/musicas";
 import { salvarAbertura } from "./actions";
 
-export type ConfigAbertura = { ativo: boolean; reino: string; falas: string[] };
+export type ConfigAbertura = { ativo: boolean; reino: string; falas: string[]; musica: string; volume: number; pararAoNascer: boolean };
 
 export function Abertura({ inicial }: { inicial: ConfigAbertura }) {
   const [c, setC] = useState(inicial);
@@ -53,6 +54,36 @@ export function Abertura({ inicial }: { inicial: ConfigAbertura }) {
           </select>
         </label>
       </div>
+
+      <div className="mb-4 flex flex-wrap items-center gap-6">
+        <label className="flex items-center gap-2 text-sm">
+          🎵 Música
+          <select value={MUSICAS_ABERTURA.some((m) => m.id === c.musica) ? c.musica : "outro"} onChange={(e) => setC({ ...c, musica: e.target.value === "outro" ? "minecraft:" : e.target.value })}
+            className="rounded-md border border-pedra-700 bg-pedra-950 px-2 py-1 outline-none focus:border-ouro">
+            {MUSICAS_ABERTURA.map((m) => <option key={m.id} value={m.id}>{m.nome}</option>)}
+            <option value="outro">Outro som (digitar o id)</option>
+          </select>
+        </label>
+        {!MUSICAS_ABERTURA.some((m) => m.id === c.musica) && (
+          <input value={c.musica} onChange={(e) => setC({ ...c, musica: e.target.value.trim().toLowerCase() })} placeholder="mod:som"
+            className="w-64 rounded-md border border-pedra-700 bg-pedra-950 px-2 py-1 text-sm outline-none focus:border-ouro" />
+        )}
+        <label className="flex items-center gap-2 text-sm">
+          Volume
+          <input type="range" min={0} max={2} step={0.1} value={c.volume} onChange={(e) => setC({ ...c, volume: +e.target.value })} />
+          <span className="w-10 text-pedra-500">{Math.round(c.volume * 100)}%</span>
+        </label>
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" checked={c.pararAoNascer} onChange={(e) => setC({ ...c, pararAoNascer: e.target.checked })} className="h-4 w-4 accent-yellow-600" />
+          Parar a música quando o jogador nasce
+        </label>
+      </div>
+      {c.musica === "frxworld:abertura" && (
+        <p className="mb-4 text-xs text-pedra-500">
+          Salve a sua música em OGG como <code className="text-ouro">core-mod\src\main\resources\assets\frxworld\sounds\abertura.ogg</code> e reinicie o servidor.
+          Os jogadores recebem o arquivo junto com o mod.
+        </p>
+      )}
 
       <label className="block text-xs text-pedra-500">
         Falas do Sistema — uma por linha, na ordem em que aparecem. <code>{"{jogador}"}</code> vira o nick.

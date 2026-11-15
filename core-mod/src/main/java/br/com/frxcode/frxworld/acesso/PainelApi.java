@@ -32,6 +32,16 @@ public final class PainelApi {
                 .thenApply(json -> json.has("permitido") && json.get("permitido").getAsBoolean());
     }
 
+    /** Servidor sem convite: garante a ficha do jogador no painel (cria se não existir) e marca o login. */
+    public static CompletableFuture<Boolean> registrar(UUID uuid, String nick) {
+        JsonObject corpo = new JsonObject();
+        corpo.addProperty("uuid", uuid.toString());
+        corpo.addProperty("nick", nick);
+        corpo.addProperty("registrar", true);
+        return post("/api/servidor/acesso", corpo)
+                .thenApply(json -> json.has("permitido") && json.get("permitido").getAsBoolean());
+    }
+
     /** Resultado do /convite: ok + mensagem para mostrar ao jogador. */
     public record ResultadoConvite(boolean ok, String motivo) {}
 

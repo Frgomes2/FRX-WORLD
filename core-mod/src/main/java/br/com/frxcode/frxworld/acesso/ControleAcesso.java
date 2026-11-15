@@ -60,6 +60,16 @@ public class ControleAcesso {
             Pendente p = new Pendente(jogador, Config.SEGUNDOS_PARA_CONVITE.get());
             pendentes.put(jogador.getUUID(), p);
             liberar(jogador, p);
+            // sem convite, a ficha do painel nasce aqui; depois dela, manda o progresso atual
+            UUID id = jogador.getUUID();
+            MinecraftServer sv = jogador.getServer();
+            PainelApi.registrar(id, jogador.getGameProfile().getName()).whenComplete((ok, erro) -> {
+                if (erro != null || sv == null) return;
+                sv.execute(() -> {
+                    ServerPlayer atual = sv.getPlayerList().getPlayer(id);
+                    if (atual != null) br.com.frxcode.frxworld.progressao.Progressao.enviarAoPainel(atual, false);
+                });
+            });
             return;
         }
 

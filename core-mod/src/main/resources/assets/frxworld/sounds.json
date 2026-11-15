@@ -1,0 +1,6 @@
+{
+  "abertura": {
+    "category": "master",
+    "sounds": [ { "name": "frxworld:abertura", "stream": true } ]
+  }
+}

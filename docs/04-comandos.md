@@ -8,7 +8,7 @@
 
 | Comando | O que faz | Sistema |
 |---|---|---|
-| `/convite <código>` | Usa o convite no primeiro login | Acesso |
+| `/convite <código>` | Usa o convite no primeiro login (só quando `exigirConvite = true`; hoje está desligado) | Acesso |
 | `/nivel` | Mostra nível e XP | Progressão |
 | `/conquistas` | Lista conquistas | Progressão |
 | `/raca` | Abre/mostra a sua raça | [Raças](sistemas/racas.md) |
@@ -28,6 +28,11 @@
 | `/chefe` | Informações do chefe mundial | Dungeons |
 | `/grupo convidar <j>` · `aceitar` · `recusar` · `sair` · `expulsar <j>` · `chat` | Grupos | Grupos |
 | `/g <mensagem>` | Chat do grupo | Grupos |
+| `/unica` | Mostra a Habilidade Única e o progresso | [Imersão](sistemas/imersao.md) |
+| `/suprema` · `/suprema prova` · `/suprema usar` | Habilidade Suprema: situação, prova e efeito ativo (também com Agachar + F) | Imersão |
+| `/nomeacao` | Nome recebido dos reis e bônus | Imersão |
+| `/evoluir [raça]` | Evolui a raça quando há caminho liberado | Imersão |
+| `/portal` | Situação do portal (gate) aberto | Imersão |
 
 **Teclas:** `B` = Despertar · `Z` = atalho de sombra 4 (os atalhos 1–3 começam sem tecla) · teclas de habilidade configuráveis em *Controles → FRX-WORLD*.
 
@@ -48,6 +53,11 @@
 | `/frx moedas <j> <cobre>` | Dá moedas (em cobre) |
 | `/frx reputacao ...` | Ajusta reputação |
 | `/frx recarregar` | Recarrega a config do painel |
+| `/frx abertura` · `/frx abertura reset` | Mostra a abertura isekai (prévia) / faz o jogador passar por ela de novo |
+| `/frx unica sortear` · `/frx unica <id>` | Troca a Habilidade Única |
+| `/frx suprema nivel5` · `dar` · `tirar` | Leva a Única ao nível 5 / dá a Suprema sem prova / desfaz |
+| `/frx nomeacao <reino>` · `/frx nomeacao limpar` | Dispara a cerimônia de nomeação / apaga as nomeações |
+| `/frx urgente` · `/frx urgente encerrar` | Sorteia uma missão urgente agora / encerra a atual |
 
 ### Itens e forja
 
@@ -71,5 +81,8 @@
 | `/frx dungeon ...` · `/frx masmorra ...` · `/frx cripta resetar` | Dungeons e masmorras |
 | `/frx chefe agora` · `tempo` · `cancelar` | Chefe mundial |
 | `/frx evento ...` | Evento de estrada |
+| `/frx masmorra entradas` · `/frx masmorra entradas refazer [id]` | Lista as entradas das masmorras / refaz todas ou só uma |
+| `/frx portal aqui [rank]` · `/frx portal fechar` | Abre / fecha um portal (gate) |
+| `/setworldspawn` (vanilla) | Marca o ponto inicial: a abertura isekai passa a nascer e renascer ali |
 
 > Para a sintaxe exata de cada subcomando, use o autocompletar (Tab) no jogo.

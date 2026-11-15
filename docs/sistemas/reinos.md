@@ -6,7 +6,7 @@
 
 | ID | Nome | Centro (x, z) | Rei |
 |---|---|---|---|
-| `tempest` | Federação de Jura Tempest (cidade inicial, 52×35 chunks) | 128, 8 | Lorde Rimuru Tempest |
+| `tempest` | Federação de Jura Tempest (cidade inicial; só o coliseu e os quarteirões colados nele, 29×15 chunks) | 296, 104 | Lorde Rimuru Tempest |
 | `dwargon` | Reino Armado de Dwargon (subterrâneo, 20×20 chunks) | 680, 2100 | Rei Gazel Dwargo |
 | `sarion` | Dinastia Feiticeira de Sarion | 2200, −1400 | Imperatriz Elmesia El-Ru Sarion |
 | `leste` | Império do Leste | −2600, −300 | Imperador Ludora |
@@ -23,6 +23,9 @@
 - **Baús** (`BausReino.java`): saque por nível do reino (Tempest 1 … Demônios 5), trocados por baús do Lootr.
 - **Decorações** (`Decoracoes.java`) · `/frx decor refazer`.
 - **Capitais são seguras:** sem zona de perigo e sem Elites/Campeões.
+- **Tempest (14/11/2026):** a caixa vai de x 64 a 527 e de z −16 a 223. A praça do reino é o centro do coliseu (`praca: [296, 105]`), e os NPCs usam o arranjo automático em anel lá dentro. As posições fixas antigas ficaram guardadas em `npcs_antes_20261114` no `posicoes.json`.
+- **Reduzir um reino num mundo já gerado:** rode `tools/reduzir_reino.py` (guarda o original em `reinos-originais/`), tire do mundo as regiões que o reino ocupava (`region`, `entities` e `poi`), apague as linhas do reino em `frx_waystones.txt`, `frx_oficios.txt`, `frx_npcs.txt`, `frx_populacao.txt`, `frx_masmorras.txt` e `frx_entradas.txt`, ligue o servidor e refaça a pré-geração da área com o Chunky.
+- **Ponto inicial:** por padrão o jogador novo nasce no centro da capital escolhida no painel. Se o admin mudar o spawn do mundo com `/setworldspawn`, a abertura isekai passa a nascer e renascer nesse ponto, e o Sistema informa a distância e a direção da capital.
 
 ## NPCs (`NpcsReino.java`)
 

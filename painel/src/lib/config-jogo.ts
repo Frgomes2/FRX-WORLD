@@ -22,6 +22,9 @@ export const FLORESTA_PADRAO = { ativo: true, reino: "tempest", inicio: 40, larg
 export const ABERTURA_PADRAO = {
   ativo: true,
   reino: "tempest",
+  musica: "frxworld:abertura" as string,
+  volume: 1,
+  pararAoNascer: true,
   falas: [
     "Você morreu.",
     "…mas a sua história não acabou aqui.",
@@ -147,6 +150,9 @@ export const configSchema = z.object({
       ativo: z.boolean(),
       reino: z.string().trim().min(2).max(40),      // capital onde o jogador nasce
       falas: z.array(z.string().trim().min(1).max(120)).min(1).max(12),
+      musica: z.string().trim().max(80).regex(/^([a-z0-9_.-]+:[a-z0-9_./-]+)?$/, "id de som inválido").default("frxworld:abertura"),
+      volume: z.number().min(0).max(2).default(1),
+      pararAoNascer: z.boolean().default(true),
     })
     .default(ABERTURA_PADRAO),
   comprador: z

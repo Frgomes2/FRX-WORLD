@@ -27,7 +27,10 @@ Sistemas que dão ao servidor a cara de RPG de anime. Todos são do core mod e g
 
 ## Abertura isekai
 
-No primeiro login, depois do convite: falas do Sistema, escolha de raça, escolha de classe, despertar da Habilidade Única e nascimento na capital configurada. Teste com `/frx abertura` e `/frx abertura reset`.
+No primeiro login: falas do Sistema, escolha de raça, escolha de classe, despertar da Habilidade Única e nascimento. Teste com `/frx abertura` e `/frx abertura reset`.
+
+- **Música:** a cena toca um som preso ao jogador (segue o teleporte) pelo volume geral, e cala a música de fundo do jogo. O painel escolhe a música, o volume e se ela para ao nascer. `frxworld:abertura` é o arquivo `core-mod/src/main/resources/assets/frxworld/sounds/abertura.ogg`, que fica só no PC (fora do git) e chega aos jogadores dentro do mod.
+- **Onde nasce:** no centro da capital do painel, ou no spawn do mundo se o admin o mudou com `/setworldspawn` (veja [reinos.md](reinos.md)).
 
 ## Guilda de Aventureiros
 
@@ -35,6 +38,7 @@ No primeiro login, depois do convite: falas do Sistema, escolha de raça, escolh
 - O rank (F, E, D, C, B, A, S) só sobe com a **prova de promoção**: derrotar o Examinador em 3 minutos, sem morrer. Falhou, espera 10 minutos.
 - A prova exige o nível mínimo do rank, definido no painel (Progressão).
 - O título em uso e o rank aparecem acima da cabeça do jogador.
+- **Grupos:** o dano entre aliados está ligado (decisão de 13/11/2026); membros do mesmo grupo podem se ferir.
 
 ### Missões de rank
 

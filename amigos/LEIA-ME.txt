@@ -6,10 +6,11 @@ Voce precisa de: Minecraft Java 1.20.1 (Launcher oficial, TLauncher ou Shiginima
 JEITO FACIL (recomendado) - os mods baixam sozinhos quando voce entra no servidor
 1. Instale o Java 17: https://adoptium.net/temurin/releases/?version=17  (Windows x64, JDK, .msi)
 2. Rode o INSTALAR.bat (uma vez so). Ele instala o Forge e coloca o AutoModpack na pasta mods.
-3. Abra o launcher com o Forge 1.20.1 (6 GB de memoria) e entre em: impairment-marcus.tun.ply.gg
-4. Na primeira vez o jogo pede para confirmar o fingerprint do servidor. Cole este:
-   50ebed6e2080396bf702d77fd8b25ecb7e52ce793adc6d49680ba60d51d23129
-   Depois ele baixa todos os mods. Reinicie o jogo quando ele pedir e entre de novo.
+3. Abra o launcher com o Forge 1.20.1 (6 GB de memoria).
+4. Multijogador > Adicionar servidor. No endereco, cole EXATAMENTE esta linha (ela esta tambem no arquivo endereco-servidor.txt):
+   impairment-marcus.tun.ply.gg#amp1=50ebed6e2080396bf702d77fd8b25ecb7e52ce793adc6d49680ba60d51d23129
+   Com esse endereco o jogo ja confia no servidor e nao pede codigo nenhum.
+   Entre, aceite baixar os mods, reinicie o jogo quando ele pedir e entre de novo.
 5. Pronto. Quando o servidor ganhar mods novos, o jogo baixa sozinho ao entrar.
 
 JEITO ANTIGO (se o facil der problema)
@@ -46,9 +47,8 @@ TODA VEZ QUE FOR JOGAR
   launcher-caminho.txt (uma linha) e o "Jogar FRX-WORLD" passa a abrir ele tambem.
 
 PRIMEIRO LOGIN
-- O servidor pede um convite: digite no chat  /convite CODIGO  (o dono te passa o codigo).
-  Voce tem 3 minutos depois de entrar.
-- O convite fica preso ao seu NICK: entre sempre com o mesmo nick e nao precisa digitar mais nada.
+- Nao precisa de convite nem de senha: e so entrar.
+- Entre SEMPRE com o mesmo nick. O seu personagem (nivel, itens, raca) fica preso ao nick.
 
 PROBLEMAS
 - "versao de rede incompativel" / "mismatched mods": rode o 2-atualizar-mods.bat de novo.

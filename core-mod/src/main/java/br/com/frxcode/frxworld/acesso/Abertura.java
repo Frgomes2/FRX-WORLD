@@ -121,7 +121,45 @@ public class Abertura {
         comecar(p);
     }
 
+    // ------------------------------------------------------------------ música
+
+    /** Som escolhido no painel ("" = sem música). "frxworld:abertura" é o arquivo abertura.ogg do próprio mod. */
+    private static net.minecraft.resources.ResourceLocation musica() {
+        String id = "frxworld:abertura";
+        try { JsonObject o = cfg(); if (o != null && o.has("musica")) id = o.get("musica").getAsString().trim(); } catch (Exception ignorado) { }
+        return id.isEmpty() ? null : net.minecraft.resources.ResourceLocation.tryParse(id);
+    }
+
+    private static float volume() {
+        try { JsonObject o = cfg(); if (o != null && o.has("volume")) return (float) Math.max(0, Math.min(2, o.get("volume").getAsDouble())); } catch (Exception ignorado) { }
+        return 1f;
+    }
+
+    private static void tocarMusica(ServerPlayer p) {
+        net.minecraft.resources.ResourceLocation id = musica();
+        if (id == null) return;
+        pararMusica(p);
+        // cala a música de fundo do jogo e toca a da abertura presa ao jogador (acompanha o teleporte)
+        p.connection.send(new net.minecraft.network.protocol.game.ClientboundStopSoundPacket(null, SoundSource.MUSIC));
+        p.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundEntityPacket(
+                net.minecraft.core.Holder.direct(net.minecraft.sounds.SoundEvent.createVariableRangeEvent(id)), SoundSource.MASTER, p, volume(), 1f, p.getRandom().nextLong()));
+        dados(p).putString("musica", id.toString());
+    }
+
+    private static void pararMusica(ServerPlayer p) {
+        String id = dados(p).getString("musica");
+        if (id.isEmpty()) return;
+        dados(p).remove("musica");
+        net.minecraft.resources.ResourceLocation rl = net.minecraft.resources.ResourceLocation.tryParse(id);
+        if (rl != null) p.connection.send(new net.minecraft.network.protocol.game.ClientboundStopSoundPacket(rl, SoundSource.MASTER));
+    }
+
+    private static boolean pararAoNascer() {
+        try { JsonObject o = cfg(); return o == null || !o.has("pararAoNascer") || o.get("pararAoNascer").getAsBoolean(); } catch (Exception e) { return true; }
+    }
+
     private static void comecar(ServerPlayer p) {
+        tocarMusica(p);
         p.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 120, 0, false, false));
         p.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 6000, 4, false, false));   // ninguém morre no meio da cena
         p.level().playSound(null, p.blockPosition(), SoundEvents.PORTAL_TRIGGER, SoundSource.PLAYERS, 0.6f, 0.6f);
@@ -191,7 +229,14 @@ public class Abertura {
         Reino r = null;
         for (Reino x : Reinos.todos()) if (x.id().equals(reinoInicial())) r = x;
         if (r == null && !Reinos.todos().isEmpty()) r = Reinos.todos().get(0);
-        if (r != null && p.getServer() != null) {
+        net.minecraft.core.BlockPos vila = pontoInicial(p);
+        if (vila != null) {
+            // o admin marcou um ponto inicial com /setworldspawn: nasce e renasce ali, e segue a pé até a capital
+            ServerLevel nivel = p.getServer().overworld();
+            nivel.getChunk(vila.getX() >> 4, vila.getZ() >> 4);
+            p.teleportTo(nivel, vila.getX() + 0.5, vila.getY(), vila.getZ() + 0.5, nivel.getSharedSpawnAngle(), 0);
+            p.setRespawnPosition(nivel.dimension(), vila, nivel.getSharedSpawnAngle(), true, false);
+        } else if (r != null && p.getServer() != null) {
             ServerLevel nivel = p.getServer().overworld();
             nivel.getChunk(r.centroX() >> 4, r.centroZ() >> 4);
             int y = nivel.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, r.centroX(), r.centroZ());
@@ -200,11 +245,45 @@ public class Abertura {
         }
         p.removeEffect(MobEffects.BLINDNESS);
         p.removeEffect(MobEffects.DAMAGE_RESISTANCE);
+        if (pararAoNascer()) pararMusica(p); else dados(p).remove("musica");
         p.level().playSound(null, p.blockPosition(), SoundEvents.BEACON_ACTIVATE, SoundSource.PLAYERS, 1.5f, 1.2f);
         String reino = r != null ? r.nome() : "este mundo";
+        if (vila != null) {
+            String rumo = r == null ? "" : direcao(vila.getX(), vila.getZ(), r.centroX(), r.centroZ());
+            int dist = r == null ? 0 : (int) Math.sqrt(Math.pow(r.centroX() - vila.getX(), 2) + Math.pow(r.centroZ() - vila.getZ(), 2));
+            Sistema.avisar(p, "Você despertou", "A capital " + reino + " fica a cerca de " + dist + " blocos, na direção " + rumo
+                    + ". Lá você encontra a Guilda, o taverneiro e as lojas.", Sistema.OURO);
+        } else
         Sistema.avisar(p, "Bem-vindo a " + reino, "Fale com o taverneiro para pegar missões e com a recepcionista da Guilda para se registrar.", Sistema.OURO);
         p.sendSystemMessage(Component.literal("Dicas: ").withStyle(ChatFormatting.GOLD)
                 .append(Component.literal("tecla K = habilidades · tecla E = status · /raca · /unica · /banco").withStyle(ChatFormatting.WHITE)));
+    }
+
+    /**
+     * Ponto inicial escolhido pelo admin: é o spawn do mundo, quando ele foi mudado com /setworldspawn
+     * (o mod grava em frx_spawn.txt o spawn que ele mesmo pôs na capital; se for diferente, alguém mudou).
+     */
+    private static net.minecraft.core.BlockPos pontoInicial(ServerPlayer p) {
+        try {
+            if (p.getServer() == null) return null;
+            ServerLevel nivel = p.getServer().overworld();
+            net.minecraft.core.BlockPos s = nivel.getSharedSpawnPos();
+            java.nio.file.Path marca = p.getServer().getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT).resolve("frx_spawn.txt");
+            if (!java.nio.file.Files.exists(marca)) return null;
+            String[] t = java.nio.file.Files.readString(marca).trim().split("\\s+");
+            if (t.length < 3) return null;
+            boolean igual = Integer.parseInt(t[0]) == s.getX() && Integer.parseInt(t[2]) == s.getZ();
+            return igual ? null : s;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private static String direcao(int x0, int z0, int x1, int z1) {
+        double ang = Math.toDegrees(Math.atan2(x1 - x0, -(z1 - z0)));   // 0 = norte, 90 = leste
+        if (ang < 0) ang += 360;
+        String[] nomes = {"norte", "nordeste", "leste", "sudeste", "sul", "sudoeste", "oeste", "noroeste"};
+        return nomes[(int) Math.round(ang / 45) % 8];
     }
 
     // ------------------------------------------------------------------ comando de teste

@@ -39,9 +39,21 @@ Para refazer o zip depois de mudar algo, compacte a pasta `amigos\` sem o `forge
 - Java 17 (Temurin);
 - uns 8 GB de RAM.
 
+## Endereço sem tela de fingerprint
+
+O AutoModpack pede, na primeira conexão, a confirmação do certificado do servidor. Para o amigo não ter que colar o código, passe o **endereço fixado**, que já leva o fingerprint:
+
+```
+impairment-marcus.tun.ply.gg#amp1=50ebed6e2080396bf702d77fd8b25ecb7e52ce793adc6d49680ba60d51d23129
+```
+
+Ele está em `amigos\endereco-servidor.txt`, e o `INSTALAR.bat` abre esse arquivo no final. Para conferir ou gerar de novo: `automodpack host fingerprint share impairment-marcus.tun.ply.gg` no console.
+
 ## Convites
 
-O servidor exige convite no primeiro login (`acesso.exigirConvite = true`):
+> **Desde 13/11/2026 o convite está desligado** (`exigirConvite = false` em `server/config/frxworld-common.toml`): quem tem o endereço entra direto, e a ficha no painel é criada no primeiro login. Como o servidor também está em modo offline, qualquer pessoa entra com qualquer nick. Não deixe OP em nick de jogador. Para voltar a exigir convite, mude a opção para `true` e reinicie.
+
+Com `acesso.exigirConvite = true`, o fluxo é este:
 
 1. No painel, abra **Convites** e gere um código.
 2. Mande o código para o amigo.

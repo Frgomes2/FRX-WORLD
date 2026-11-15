@@ -54,7 +54,7 @@ public class Masmorras {
     /** Lista lida do painel no último início (null = painel fora: usa o posicoes.json). */
     private static volatile JsonArray doPainel = null;
 
-    private static JsonArray config() {
+    static JsonArray config() {
         JsonArray p = doPainel;
         if (p != null) return p;
         return doArquivo();
@@ -71,7 +71,7 @@ public class Masmorras {
     }
 
     /** Registro por mundo: uma linha por masmorra colocada, "id;x;y;z;estrutura". */
-    private static Map<String, String> lidas(ServerLevel nivel) {
+    static Map<String, String> lidas(ServerLevel nivel) {
         Map<String, String> m = new LinkedHashMap<>();
         try {
             if (Files.exists(marca(nivel)))
@@ -225,6 +225,11 @@ public class Masmorras {
                 BlockPos c = bb.getCenter();
                 int y = m.has("entrada") ? m.getAsJsonArray("entrada").get(1).getAsInt()
                         : nivel.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, c.getX(), c.getZ());
+                // com entrada definida, o ponto mostrado em /masmorras e no painel é a entrada (não o centro da estrutura)
+                if (m.has("entrada")) {
+                    JsonArray e = m.getAsJsonArray("entrada");
+                    return "ok;" + e.get(0).getAsInt() + ";" + y + ";" + e.get(2).getAsInt() + ";" + rl;
+                }
                 return "ok;" + c.getX() + ";" + y + ";" + c.getZ() + ";" + rl;
             }
         }
