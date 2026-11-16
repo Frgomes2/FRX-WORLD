@@ -25,6 +25,7 @@ const schema = z.object({
   entradaY: opcional,
   entradaZ: opcional,
   ordem: z.coerce.number().int().min(0).max(9999),
+  nivel: z.preprocess((v) => (v === "" || v === null || v === undefined ? 0 : v), z.coerce.number().int().min(0).max(1000)),
 });
 
 export type EstadoMasmorra = { erro: string } | { ok: true } | null;
@@ -33,7 +34,7 @@ export async function salvarMasmorra(_e: EstadoMasmorra, f: FormData): Promise<E
   await exigirAdmin();
   const original = String(f.get("original") ?? "");
   const dados = schema.safeParse(Object.fromEntries(
-    ["id", "nome", "chefe", "estrutura", "x", "z", "entradaX", "entradaY", "entradaZ", "ordem"].map((k) => [k, f.get(k) ?? ""]),
+    ["id", "nome", "chefe", "estrutura", "x", "z", "entradaX", "entradaY", "entradaZ", "ordem", "nivel"].map((k) => [k, f.get(k) ?? ""]),
   ));
   if (!dados.success) {
     const p = dados.error.issues[0];

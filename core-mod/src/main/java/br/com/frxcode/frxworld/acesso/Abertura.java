@@ -230,6 +230,14 @@ public class Abertura {
         for (Reino x : Reinos.todos()) if (x.id().equals(reinoInicial())) r = x;
         if (r == null && !Reinos.todos().isEmpty()) r = Reinos.todos().get(0);
         net.minecraft.core.BlockPos vila = pontoInicial(p);
+        boolean dentroDeCapital = false;
+        if (vila != null) {
+            // o ponto marcado fica dentro de uma capital? Então é ela a cidade inicial, qualquer que seja a do painel
+            for (Reino x : Reinos.todos()) {
+                double d = Math.sqrt(Math.pow(x.centroX() - vila.getX(), 2) + Math.pow(x.centroZ() - vila.getZ(), 2));
+                if (d <= Math.max(x.larguraChunks(), x.profundidadeChunks()) * 8.0) { r = x; dentroDeCapital = true; break; }
+            }
+        }
         if (vila != null) {
             // o admin marcou um ponto inicial com /setworldspawn: nasce e renasce ali, e segue a pé até a capital
             ServerLevel nivel = p.getServer().overworld();
@@ -248,7 +256,7 @@ public class Abertura {
         if (pararAoNascer()) pararMusica(p); else dados(p).remove("musica");
         p.level().playSound(null, p.blockPosition(), SoundEvents.BEACON_ACTIVATE, SoundSource.PLAYERS, 1.5f, 1.2f);
         String reino = r != null ? r.nome() : "este mundo";
-        if (vila != null) {
+        if (vila != null && !dentroDeCapital) {
             String rumo = r == null ? "" : direcao(vila.getX(), vila.getZ(), r.centroX(), r.centroZ());
             int dist = r == null ? 0 : (int) Math.sqrt(Math.pow(r.centroX() - vila.getX(), 2) + Math.pow(r.centroZ() - vila.getZ(), 2));
             Sistema.avisar(p, "Você despertou", "A capital " + reino + " fica a cerca de " + dist + " blocos, na direção " + rumo

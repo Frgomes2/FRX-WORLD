@@ -6,6 +6,27 @@ Formato: versão, depois o que entrou. A versão do mod fica em `core-mod/gradle
 
 > **Situação dos testes (10/11/2026):** a última versão compilada e testada no PC é a **0.33.0** (`pack/mods/frxworld-0.33.0.jar`). As versões **0.34 a 0.40** ainda não rodaram no jogo. O roteiro de teste está no checklist "FRX-WORLD — Checklist de testes".
 
+## 0.41.0 (15/11, noite) — Aventura, Torre Infinita, runas, habilidades novas e cidades protegidas
+
+- **Mecânicas especiais de habilidade** (`habilidades/Especiais.java`): o campo *efeito* aceita `frx:puxar`, `frx:provocar`, `frx:salto`, `frx:fenda`, `frx:executar`, `frx:vampirismo`, `frx:refletir` e `frx:lancar`. Servem para qualquer classe; o painel sugere a lista no campo.
+- **Guerreiro** passa de 6 para 15 habilidades (migração `20261115180000_guerreiro_novas`): Arremesso de Machado, Gancho de Corrente, Provocar, Salto Esmagador, Postura de Revide, Fenda Sísmica, Executar, Sede de Sangue (tomo) e Ira do Titã (segunda ultimate, nível 25).
+- Em jogo desde o reinício de 15/11 13:22; balanceamento ainda por ajustar.
+- **Arqueiro** passa de 6 para 14 habilidades (migração `20261115190000_arqueiro_novas`), com oito mecânicas novas em `Especiais.java`: `frx:explosiva`, `frx:ricochete`, `frx:marca`, `frx:gancho`, `frx:leque`, `frx:voleio`, `frx:perfurar` e `frx:armadilha`. Ainda não testado em jogo.
+- **Mago** passa de 6 para 15 habilidades (migração `20261115210000_mago_novas`), com `frx:congelar`, `frx:misseis`, `frx:escudo_mana`, `frx:trocar`, `frx:sifao`, `frx:zona` e `frx:singularidade`; `frx:ricochete` agora usa o elemento (Corrente de Raios). Ainda não testado em jogo.
+- **Cosmetic Armor Reworked** no pack (esconder armadura e mostrar a skin).
+- **Benefícios do rank da Guilda** (`Guilda.bonusMissao/desconto/pagarSoldo`): por rank acima de F, +10% em missões, 2% de desconto e soldo diário de 60 cobre; aparecem no cartão e na promoção. Ainda não testado em jogo.
+- **Moradores das capitais** (`reinos/Populacao.java`): não morrem mais para monstro, dragão, parede ou invasão (só jogador fere); morador ou guarda que morre volta em 10 min perto de onde caiu (`frx_repor.txt`). O arquivo foi semeado com as mortes de 14 e 15/11 tiradas do log.
+- **Dragões** do Ice and Fire não quebram mais blocos (`Dragon Griefing = 2`).
+- **Portais:** ficam 20 min abertos (eram 12); recompensa de 300 × (rank+1)² cobre e 300 × nível de XP (eram 100 e 120); chance de tomo 30% + 10% por rank; coluna de luz visível a 500 blocos; ponto global no JourneyMap pela API de servidor (`Portais.pontoGlobal`). Ainda não testado em jogo.
+- **Aventura** (pacote `aventura/`, ver [sistemas/aventura.md](sistemas/aventura.md)): história principal em 14 capítulos com o Rei Demônio no fim, temporadas mensais com placar, mural de procurados, Torre Infinita de 100 andares, eventos do céu (Lua de Sangue e chuva de meteoros) e mapas do tesouro. Ainda não testado em jogo.
+- **Torre:** quadros de ranking ao lado da porta (mais longe e mais abates), andares temáticos com salas maiores (Deserto, Floresta, Geleira) e barra no topo da tela com o andar. Ainda não testado em jogo.
+- **História no livro de missões:** capítulo «História Principal» no FTB Quests (14 missões, conquistas `historia_1..14`). Torre: escolha de continuar ou sair a cada andar e Cozinheiro no andar seguro.
+- **Torre:** fichas, baú do andar seguro e Loja da Torre. **Ladrão** (`eventos/Ladrao.java`): evento raro (5 em 1000 por minuto) em que um ladrão leva uma moeda e foge por 15 s; quem pega recebe dez vezes. `/frx ladrao [jogador]`, `/frx ladrao chance <n>`; skin pelo painel (papel `ladrao`). Ainda não testado em jogo.
+- **Runas** (`aventura/Runas.java`): 11 runas de arma e armadura em três níveis, encaixadas na bigorna. Ainda não testado em jogo.
+- **Anéis:** 10 espaços de anel no Curios (`server/kubejs/data/frxworld/curios/slots/ring.json`).
+- **Skins de jogador** em servidor offline: mod SkinRestorer.
+- **Ronaldinho** (`eventos/Craque.java`): evento raro e aleatório. Uma vez por minuto cada jogador tem 4 em 1000 de chance (≈ 1 vez a cada 4 h de jogo): ele aparece, dribla em volta do jogador com a bola, dá a caneta (o jogador gira 180°), some numa nuvem e deixa a "Bola do Bruxo". Aviso no chat para todos. `/frx ronaldinho [jogador]` força; `/frx ronaldinho chance <0-1000>` ajusta (`frx_ronaldinho.txt`). Skin pelo painel (NPCs → Ronaldinho, papel `craque`). Ainda não testado em jogo.
+
 ## 0.41.0 (13/11) — Mundo que reage, nomeação, bestiário, missões de rank e Habilidade Suprema
 
 - **NPCs que reagem a quem você é** (`reinos/Reacoes.java`): a fala muda com o rank da Guilda, a raça à mostra, o título em uso e o nome recebido de um rei.
@@ -43,6 +64,22 @@ Formato: versão, depois o que entrou. A versão do mod fica em `core-mod/gradle
 
 - **`/publicar` (15/11):** padrão de publicação em `.claude/commands/publicar.md`: atualiza a documentação desde o último `/publicar`, faz o commit (primeira linha `publicar: …`) e envia direto para a `main`.
 - **Portal de Tempest (15/11):** a chegada passou para dentro da Fábrica Ancestral (223, −19, 118); antes caía numa caverna encostada nela. A escolha da sala agora exige piso, teto e paredes de construção.
+
+- **Cidade inicial em Lubelius (15/11):** o spawn do mundo foi para o centro de Lubelius (1788, 71, 1598). A abertura isekai nasce ali, o Prólogo passou a pedir a chegada a Lubelius e, como o nível das zonas é medido a partir do spawn, a região de nível 1 agora é a de Lubelius. Todos os jogadores foram zerados (dados antigos em `backups/jogadores-20261115`).
+- **Portão de capital** (`reinos/Portao.java`): `/frx portao aqui [largura]` abre um portão em arco no muro à frente do admin, com grade erguida, lanternas e quatro guardas; `/frx portao desfazer` devolve os blocos do último.
+- **Ciclo do dia** (`progressao/CicloDia.java`): dia de 20 minutos e noite de 10 (o normal é 10 e 10). `/frx ciclo <dia> <noite>` muda; registro em `<mundo>/frx_ciclo.txt`. O mod desliga o `doDaylightCycle` e anda o relógio ele mesmo.
+
+- **Arena Flamejante sob Lubelius (15/11):** masmorra `lubelius-abismo` (`cataclysm:burning_arena`, chefe Ignis), com **nível fixo 55**. Novidades que ela trouxe:
+  - **Nível fixo por masmorra** (`progressao/AreasNivel.java`, campo "Nível fixo" no painel, coluna `Masmorra.nivel`): dentro da caixa da estrutura os monstros nascem naquele nível, qualquer que seja a zona. Registro em `<mundo>/frx_areas.txt`.
+  - **Masmorra dentro de capital:** se a estrutura nasceria na altura da cidade, o mod a desce inteira até caber embaixo do chão (14 blocos de folga). O ajuste fica no fim da linha do `frx_masmorras.txt`.
+  - **Masmorra seca:** ao descer uma estrutura para baixo de uma capital, o mod tira a água de dentro das peças, troca por pedra a água em volta e fecha com pedra a casca de 1 bloco ao redor (aquíferos e cavernas que cruzavam a parede). A lava fica. `/frx masmorra secar <id>` refaz isso numa masmorra já colocada.
+  - **Portal escolhido pelo admin:** embaixo de uma capital o pórtico não é montado sozinho; use `/frx masmorra portal <id>` em pé no lugar. O comando também serve para mudar o portal de qualquer masmorra enterrada.
+
+- **Casas de verdade nas capitais** (`reinos/Casas.java`, 15/11): as casas coladas são maquetes maciças, com um vão fechado de 1 bloco no nível do chão. `/frx casas <reino>` transforma cada vão em cômodo: cava 2 blocos para cima, põe piso de tábua, abre uma porta para o lado mais livre, uma cama e, em 60% das casas, um baú de saque do reino. `/frx casas desfazer` devolve tudo (até o servidor reiniciar). Em Lubelius: 89 casas abertas; 44 ficaram fechadas por não terem um lado livre para a porta.
+
+- **Mestre de Obras** (papel `pedreiro`, 15/11): NPC que vende blocos essenciais em pilhas (toras, tábuas, pedra, vidro, tijolo, lã, tochas, baú, fornalha, cama…), com o desconto da reputação. Lista fixa em `Lojas.BLOCOS`. Em capitais já povoadas, coloque com `/frx npc aqui pedreiro`.
+- **Banco:** o saque só tira do cofre o que cabe na bolsa (antes, com o inventário cheio, as moedas caíam no chão e sumiam); depósitos e saques ficam no log do servidor.
+- **Dormir pula a noite** mesmo com o ciclo do dia alterado; **missão urgente** também vai para o chat; **portal (gate)** mostra distância e direção no chat e é marcado sozinho no mapa do JourneyMap (`cliente/MarcadorMapa.java`, por reflexão na API v2; some quando o portal fecha); **waystone global** liberada para qualquer jogador (`globalWaystoneSetupRequiresCreativeMode = false`).
 
 ## 0.41.0 — Balanceamento, túmulo e reinos menores
 

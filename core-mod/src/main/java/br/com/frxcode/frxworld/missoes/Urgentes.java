@@ -75,6 +75,11 @@ public class Urgentes {
             Sistema.avisar(p, "Missão urgente · Rank " + ConfigJogo.nomeRank(m.rankMin()),
                     m.titulo() + ": entregue em até " + restaMin() + " min e receba a recompensa " + vezes() + ". Aceite no quadro do taverneiro.", Sistema.VERMELHO);
             p.level().playSound(null, p.blockPosition(), SoundEvents.RAID_HORN.value(), SoundSource.PLAYERS, 1f, 1.2f);
+            // fica também no chat, para poder reler depois que a janela do Sistema some
+            p.sendSystemMessage(Component.literal("⚠ [Sistema] Missão urgente · Rank " + ConfigJogo.nomeRank(m.rankMin()) + ": ").withStyle(net.minecraft.ChatFormatting.RED, net.minecraft.ChatFormatting.BOLD)
+                    .append(Component.literal(m.titulo()).withStyle(net.minecraft.ChatFormatting.WHITE)));
+            if (!m.descricao().isEmpty()) p.sendSystemMessage(Component.literal("   " + m.descricao()).withStyle(net.minecraft.ChatFormatting.GRAY));
+            p.sendSystemMessage(Component.literal("   Prazo: " + restaMin() + " min · recompensa " + vezes() + " · aceite e entregue no quadro do taverneiro.").withStyle(net.minecraft.ChatFormatting.YELLOW));
         }
         return m.titulo();
     }
@@ -88,7 +93,10 @@ public class Urgentes {
             MissaoDef m = Missoes.porId(id);
             if (m == null || agora >= fim) {
                 if (m != null) for (ServerPlayer p : s.getPlayerList().getPlayers())
-                    if (Missoes.emAndamento(p, id)) Sistema.avisar(p, "Missão urgente encerrada", m.titulo() + ": o prazo acabou. A missão continua valendo, com a recompensa normal.", Sistema.VERMELHO);
+                    if (Missoes.emAndamento(p, id)) {
+                        Sistema.avisar(p, "Missão urgente encerrada", m.titulo() + ": o prazo acabou. A missão continua valendo, com a recompensa normal.", Sistema.VERMELHO);
+                        p.sendSystemMessage(Component.literal("⚠ [Sistema] Missão urgente encerrada: " + m.titulo() + ". O prazo acabou; ela continua valendo, com a recompensa normal.").withStyle(net.minecraft.ChatFormatting.GRAY));
+                    }
                 id = "";
                 proxima = agora + intervaloMs();
                 return;
@@ -96,7 +104,10 @@ public class Urgentes {
             if (!avisouFim && fim - agora <= 5 * 60_000L && fim - agora > 4 * 60_000L) {
                 avisouFim = true;
                 for (ServerPlayer p : s.getPlayerList().getPlayers())
-                    if (Missoes.emAndamento(p, id)) Sistema.avisar(p, "Missão urgente: 5 minutos", "Entregue " + m.titulo() + " ao taverneiro antes do fim do prazo.", Sistema.VERMELHO);
+                    if (Missoes.emAndamento(p, id)) {
+                        Sistema.avisar(p, "Missão urgente: 5 minutos", "Entregue " + m.titulo() + " ao taverneiro antes do fim do prazo.", Sistema.VERMELHO);
+                        p.sendSystemMessage(Component.literal("⚠ [Sistema] Faltam 5 minutos para a missão urgente: " + m.titulo() + ".").withStyle(net.minecraft.ChatFormatting.YELLOW));
+                    }
             }
             return;
         }

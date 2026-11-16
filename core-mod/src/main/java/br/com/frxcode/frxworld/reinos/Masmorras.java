@@ -204,6 +204,24 @@ public class Masmorras {
                     break;
                 }
                 if (!inicio.isValid()) { motivo = "não foi possível gerar " + rl; continue; }
+                // dentro de uma capital a masmorra tem que caber inteira embaixo do chão (senão destruiria a cidade):
+                // se a estrutura nasceria alta demais, o mod a desce antes de colocar
+                BoundingBox bruta = caixaDasPecas(inicio);
+                if (bruta == null) { motivo = rl + " veio sem peças"; continue; }
+                BlockPos cb = bruta.getCenter();
+                boolean naCapital = false;
+                for (Reino rr : Reinos.todos()) if (rr.distancia(cb.getX(), cb.getZ()) == 0) naCapital = true;
+                int descer = 0;
+                if (naCapital) {
+                    int solo = nivel.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, cb.getX(), cb.getZ());
+                    if (bruta.maxY() > solo - 12) descer = (solo - 14) - bruta.maxY();
+                    FrxWorld.LOG.info("Masmorra {}: {} iria de y {} a {} (chão em y {}); descendo {} blocos", m.get("id").getAsString(), rl, bruta.minY(), bruta.maxY(), solo, -descer);
+                    if (bruta.minY() + descer < nivel.getMinBuildHeight() + 4) {
+                        motivo = rl + " é alta demais para caber embaixo da capital (" + (bruta.maxY() - bruta.minY() + 1) + " blocos de altura)";
+                        break;
+                    }
+                }
+                if (descer != 0) { final int dy = descer; inicio.getPieces().forEach(pc -> pc.move(0, dy, 0)); }
                 BoundingBox bb = inicio.getBoundingBox();
                 ChunkPos c0 = new ChunkPos(SectionPos.blockToSectionCoord(bb.minX()), SectionPos.blockToSectionCoord(bb.minZ()));
                 ChunkPos c1 = new ChunkPos(SectionPos.blockToSectionCoord(bb.maxX()), SectionPos.blockToSectionCoord(bb.maxZ()));
@@ -216,6 +234,8 @@ public class Masmorras {
                     JsonArray e = m.getAsJsonArray("entrada");
                     poco(nivel, new BlockPos(e.get(0).getAsInt(), e.get(1).getAsInt(), e.get(2).getAsInt()), bb);
                 }
+                // enterrada de propósito (descida para caber sob a capital): seca a água dos aquíferos e fecha a casca
+                if (descer != 0) FrxWorld.LOG.info("Masmorra {}: {} blocos de água/caverna fechados", m.get("id").getAsString(), secar(nivel, inicio));
                 // tesouros: baús do Lootr (cada jogador abre o seu) espalhados pelas salas da estrutura
                 java.util.List<BoundingBox> salas = new java.util.ArrayList<>();
                 inicio.getPieces().forEach(pc -> salas.add(pc.getBoundingBox()));
@@ -226,14 +246,54 @@ public class Masmorras {
                 int y = m.has("entrada") ? m.getAsJsonArray("entrada").get(1).getAsInt()
                         : nivel.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, c.getX(), c.getZ());
                 // com entrada definida, o ponto mostrado em /masmorras e no painel é a entrada (não o centro da estrutura)
+                String sufixo = descer != 0 ? ";" + descer : "";   // quanto a estrutura foi descida (a entrada precisa do mesmo ajuste)
                 if (m.has("entrada")) {
                     JsonArray e = m.getAsJsonArray("entrada");
-                    return "ok;" + e.get(0).getAsInt() + ";" + y + ";" + e.get(2).getAsInt() + ";" + rl;
+                    return "ok;" + e.get(0).getAsInt() + ";" + y + ";" + e.get(2).getAsInt() + ";" + rl + sufixo;
                 }
-                return "ok;" + c.getX() + ";" + y + ";" + c.getZ() + ";" + rl;
+                return "ok;" + c.getX() + ";" + y + ";" + c.getZ() + ";" + rl + sufixo;
             }
         }
         return motivo;
+    }
+
+    /**
+     * Seca uma masmorra enterrada: tira a água de dentro das peças, troca por pedra a água que ficou em volta
+     * e fecha com pedra a casca de 1 bloco ao redor da caixa (cavernas e aquíferos que cruzavam a parede).
+     * A lava fica como está. Devolve quantos blocos mudou.
+     */
+    static int secar(ServerLevel nivel, StructureStart inicio) {
+        BoundingBox bb = inicio.getBoundingBox();
+        java.util.List<BoundingBox> pecas = new java.util.ArrayList<>();
+        inicio.getPieces().forEach(pc -> pecas.add(pc.getBoundingBox()));
+        for (int cx = (bb.minX() - 1) >> 4; cx <= (bb.maxX() + 1) >> 4; cx++) for (int cz = (bb.minZ() - 1) >> 4; cz <= (bb.maxZ() + 1) >> 4; cz++) nivel.getChunk(cx, cz);
+        BlockPos.MutableBlockPos m = new BlockPos.MutableBlockPos();
+        int mudou = 0;
+        int y0 = Math.max(nivel.getMinBuildHeight() + 1, bb.minY() - 1), y1 = bb.maxY() + 1;
+        for (int x = bb.minX() - 1; x <= bb.maxX() + 1; x++) for (int z = bb.minZ() - 1; z <= bb.maxZ() + 1; z++) for (int y = y0; y <= y1; y++) {
+            m.set(x, y, z);
+            BlockState b = nivel.getBlockState(m);
+            boolean agua = b.getFluidState().is(net.minecraft.tags.FluidTags.WATER);
+            boolean casca = x < bb.minX() || x > bb.maxX() || z < bb.minZ() || z > bb.maxZ() || y < bb.minY() || y > bb.maxY();
+            if (!agua && !(casca && b.isAir())) continue;
+            boolean naPeca = false;
+            if (!casca) for (BoundingBox c : pecas) if (c.isInside(m)) { naPeca = true; break; }
+            BlockState pedra = (y < 0 ? Blocks.DEEPSLATE : Blocks.STONE).defaultBlockState();
+            BlockState novo;
+            if (agua && b.hasProperty(net.minecraft.world.level.block.state.properties.BlockStateProperties.WATERLOGGED))
+                novo = b.setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.WATERLOGGED, false);
+            else novo = naPeca ? Blocks.AIR.defaultBlockState() : pedra;
+            nivel.setBlock(m, novo, 2 | 16);   // sem avisar os vizinhos: não dispara a água em volta
+            mudou++;
+        }
+        return mudou;
+    }
+
+    /** Caixa que envolve todas as peças, calculada na hora (o getBoundingBox da estrutura guarda o primeiro valor). */
+    static BoundingBox caixaDasPecas(StructureStart inicio) {
+        java.util.List<BoundingBox> l = new java.util.ArrayList<>();
+        inicio.getPieces().forEach(pc -> l.add(pc.getBoundingBox()));
+        return BoundingBox.encapsulatingBoxes(l).orElse(null);
     }
 
     static final ResourceLocation TABELA = new ResourceLocation(FrxWorld.MOD_ID, "chests/masmorra");
@@ -248,7 +308,7 @@ public class Masmorras {
                         || nivel.getBlockState(p.relative(d)).getBlock().getDescriptionId().contains("lootr"));
     }
 
-    private static void porBau(ServerLevel nivel, BlockPos p, ResourceLocation tabela, net.minecraft.util.RandomSource rnd) {
+    static void porBau(ServerLevel nivel, BlockPos p, ResourceLocation tabela, net.minecraft.util.RandomSource rnd) {
         BlockState bau = Blocks.CHEST.defaultBlockState().setValue(net.minecraft.world.level.block.ChestBlock.FACING,
                 Direction.Plane.HORIZONTAL.getRandomDirection(rnd));
         BlockState lootr = BausReino.trocar(bau);

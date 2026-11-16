@@ -95,8 +95,8 @@ a = c.q("classe", "Escolha seu caminho", ["Aperte K e escolha sua classe.", "", 
         [("adv", "classe")], 0, 0, recompensas=premio(100, 50), forma="gear", tam=1.5)
 b = c.q("raca", "Sangue e origem", ["Abra a aba Status (E) → ✦ Raça, ou use /raca.", "", "Principal 100%, secundária pela compatibilidade."],
         [("adv", "raca")], 2, 0, [a], premio(100, 50))
-t = c.q("tempest", "A Federação de Jura Tempest", ["Tempest é a capital onde tudo começa. Visite a praça e fale com os NPCs."],
-        [("adv", "capital_tempest")], 4, 0, [b], premio(150, 100))
+t = c.q("tempest", "O Império Sagrado de Lubelius", ["Lubelius é a capital onde tudo começa. Visite a praça, fale com os NPCs e registre-se na Guilda."],
+        [("adv", "capital_lubelius")], 4, 0, [b], premio(150, 100))
 tv = c.q("taverna", "Primeiro contrato", ["Na taverna, o Quadro de Missões tem contratos repetíveis: caça, coleta e mais.", "", "Conclua um."],
          [("adv", "taverna_1")], 6, -1, [t], premio(200, 150))
 n5 = c.q("nivel5", "Aventureiro", ["Chegue ao nível 5."], [("adv", "nivel_5")], 6, 1, [t], premio(0, 200))
@@ -113,6 +113,34 @@ for i, (rid, nome, icone) in enumerate(REINOS):
             [("adv", f"honrado_{rid}")], 2, y, [v], premio(500, 400))
     c.q(f"campanha_{rid}", f"A palavra do rei: {nome}", [f"Conclua a campanha do soberano de {nome}."], [("adv", f"campanha_{rid}")], 4, y, [h],
         [("item", "minecraft:diamond", 3)] + premio(1500, 1500))
+
+# ------------------------------------------------------------------ História principal (aventura/Historia.java)
+# Os capítulos são concluídos pelo mod (conquistas frxworld:frx/historia_N), que também paga a recompensa. Manter igual a Historia.CAPS.
+HISTORIA = [
+    ("O Despertar", "Você renasceu neste mundo sem nome nem passado. A Guilda de Aventureiros é onde toda lenda começa.", "Registre-se na Guilda (recepcionista, em qualquer capital).", 200, 150, "minecraft:writable_book"),
+    ("Primeiro Sangue", "Os arredores estão infestados. Prove que sabe lutar.", "Derrote 30 monstros.", 300, 300, "minecraft:iron_sword"),
+    ("A Federação", "Dizem que no oeste um slime fundou uma nação de monstros. Vá ver com os próprios olhos.", "Viaje até a Federação de Jura Tempest.", 500, 500, "minecraft:slime_ball"),
+    ("Prova de Valor", "Ninguém respeita um Rank F. Suba na Guilda.", "Alcance o Rank E na prova de promoção.", 600, 600, "minecraft:name_tag"),
+    ("Fendas no Céu", "Portais se abrem perto das cidades e despejam monstros. Alguém precisa fechá-los.", "Ajude a fechar 1 portal (/portal). Título: Selador de Fendas.", 1000, 1000, "minecraft:crying_obsidian"),
+    ("O Martelo e a Montanha", "Os anões de Dwargon forjam as melhores armas. Você vai precisar delas.", "Viaje até o Reino Armado de Dwargon.", 800, 800, "minecraft:anvil"),
+    ("Guardiões Antigos", "As masmorras escondem guardiões que não deveriam ter acordado.", "Derrote 2 chefes.", 1500, 1500, "minecraft:wither_skeleton_skull"),
+    ("A Floresta dos Elfos", "Os magos de Sarion estudam os portais. Talvez saibam de onde eles vêm.", "Viaje até a Dinastia Feiticeira de Sarion.", 1000, 1000, "minecraft:amethyst_shard"),
+    ("O Império do Leste", "O Imperador reúne exércitos. Descubra de que lado ele está.", "Viaje até o Império do Leste.", 1200, 1200, "minecraft:red_banner"),
+    ("Sangue de Veterano", "A estrada daqui em diante não perdoa os fracos.", "Chegue ao nível 30. Título: Veterano.", 2000, 2000, "minecraft:diamond_chestplate"),
+    ("A Torre", "Uma torre sem fim guarda os segredos do mundo antigo.", "Chegue ao andar 10 da Torre Infinita (/torre mostra onde fica a entrada).", 2500, 2500, "minecraft:deepslate_bricks"),
+    ("Entre a Elite", "Só os melhores recebem as missões que importam.", "Alcance o Rank C da Guilda.", 3000, 3000, "minecraft:golden_helmet"),
+    ("Terras Sombrias", "Os portais vêm do reino dos demônios. Atravesse a fronteira.", "Viaje até o reino dos Lordes Demônios.", 3500, 3500, "minecraft:soul_lantern"),
+    ("O Trono Escarlate", "O fim da jornada. Leve aliados.", "Dentro do reino dos demônios, use /historia desafio e derrote o Rei Demônio. Título: Matador do Rei Demônio.", 20000, 15000, "minecraft:nether_star"),
+]
+c = Cap("historia", "História Principal", "minecraft:enchanted_book", 1); caps.append(c)
+ant = None
+for i, (tit, texto, objetivo, cobre, xp, icone) in enumerate(HISTORIA):
+    fila, col = divmod(i, 7)
+    x = (col if fila % 2 == 0 else 6 - col) * 2
+    ultimo = i == len(HISTORIA) - 1
+    ant = c.q(f"cap{i + 1}", f"{i + 1}. {tit}", [texto, "", "Objetivo: " + objetivo, "",
+                                                 f"Recompensa (entregue na hora pelo Sistema): {cobre // 100} ouro e {xp} XP.", "Acompanhe também com /historia."],
+              [("adv", f"historia_{i + 1}")], x, fila * 2.5, [ant] if ant else [], forma="gear" if ultimo or i == 0 else "", tam=2.0 if ultimo else 1.5 if i == 0 else 1.0)
 
 # ------------------------------------------------------------------ dimensões
 def dimensao(arq, titulo, icone, ordem, nivel, dim, chefes, desc_dim):
@@ -198,6 +226,8 @@ with open(os.path.join(SAIDA, "data.snbt"), "w", encoding="utf-8") as f:
 \tversion: 13
 }
 """)
+for cap in caps:
+    if cap.arq != "historia" and cap.ordem >= 1: cap.ordem += 1   # a História entra logo depois do Prólogo
 with open(os.path.join(SAIDA, "chapter_groups.snbt"), "w", encoding="utf-8") as f:
     f.write("{\n\tchapter_groups: [ ]\n}\n")
 for c in caps:

@@ -266,9 +266,12 @@ public final class Missoes {
                 resto -= lote;
             }
         }
-        br.com.frxcode.frxworld.moedas.Moedas.dar(p, Math.round(m.recompensaMoedas() * vezes));
+        double guilda = br.com.frxcode.frxworld.progressao.Guilda.bonusMissao(p);
+        br.com.frxcode.frxworld.moedas.Moedas.dar(p, Math.round(m.recompensaMoedas() * vezes * (1 + guilda)));
         br.com.frxcode.frxworld.reinos.Reputacao.porMissao(p, m.recompensaXp());
-        Progressao.ganharXp(p, Math.round(m.recompensaXp() * vezes));
+        Progressao.ganharXp(p, Math.round(m.recompensaXp() * vezes * (1 + guilda)));
+        if (guilda > 0) p.sendSystemMessage(net.minecraft.network.chat.Component.literal("Bônus da Guilda (Rank " + br.com.frxcode.frxworld.progressao.Guilda.rank(p) + "): +"
+                + Math.round(guilda * 100) + "% de XP e moedas nesta missão.").withStyle(net.minecraft.ChatFormatting.GOLD));
     }
 
     // ------------------------------------------------------------------ progresso e HUD

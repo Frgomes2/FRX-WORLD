@@ -5,7 +5,7 @@
 	group: ""
 	icon: "minecraft:bell"
 	id: "582323BFD0DEFA70"
-	order_index: 1
+	order_index: 2
 	quest_links: [ ]
 	quests: [
 		{

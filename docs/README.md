@@ -33,6 +33,7 @@ Na ordem da cadeia de progressão:
 | Dungeons, masmorras e chefes | [sistemas/dungeons-chefes.md](sistemas/dungeons-chefes.md) |
 | Economia, moedas, lojas e banco | [sistemas/economia.md](sistemas/economia.md) |
 | Imersão: Sistema, Guilda, habilidade única/suprema, nomeação, NPCs reativos, portais e bestiário | [sistemas/imersao.md](sistemas/imersao.md) |
+| Aventura: história principal, temporadas, procurados, Torre Infinita, eventos do céu e mapas do tesouro | [sistemas/aventura.md](sistemas/aventura.md) |
 
 ## A cadeia de sistemas
 

@@ -33,9 +33,10 @@ Pacote base: `br.com.frxcode.frxworld`. A entrada é `FrxWorld.java`, que regist
 | `cliente` | Telas, HUDs, camadas de render, teclas | Tudo que só roda no cliente |
 | `dungeon` | Dungeons, DungeonDef, Construir, BlocoNucleo, BlocoPortao, Externos | Dungeons em camadas e estruturas externas |
 | `efeitos` | Efeitos, EfeitoFerido | Efeitos de poção próprios |
-| `eventos` | ChefeMundial, EventosEstrada | Chefe mundial e eventos de estrada |
+| `aventura` | Historia, Temporadas, Procurados, Torre, Ceu, Tesouros, Runas | História principal, placar mensal, procurados, Torre Infinita, eventos do céu, mapas do tesouro e runas |
+| `eventos` | ChefeMundial, EventosEstrada, Craque, Ladrao | Chefe mundial, eventos de estrada e as visitas raras (Ronaldinho e ladrão) |
 | `grupos` | Grupos | Grupos (party) e chat de grupo |
-| `habilidades` | Habilidades, HabilidadeDef, Talentos, Despertar, Sombras, ItemTomo | Classes, habilidades, talentos e poderes especiais |
+| `habilidades` | Habilidades, HabilidadeDef, Especiais, Talentos, Despertar, Sombras, ItemTomo | Classes, habilidades, talentos e poderes especiais |
 | `missoes` | Missoes, MissaoDef | Missões do quadro (vindas do painel) |
 | `moedas` | Moedas, Banco, ItemMoeda, TrocasMoeda | Moedas físicas, saldo e banco |
 | `npc` | SkinsNpc | Skins dos NPCs |

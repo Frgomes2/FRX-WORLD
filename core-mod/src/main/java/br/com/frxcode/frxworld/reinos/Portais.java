@@ -59,7 +59,7 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class Portais {
     public static final String TAG = "frx_portal";
-    private static final long ABERTO_MS = 12 * 60_000L, LUTA_MS = 8 * 60_000L, INTERVALO_MS = 40 * 60_000L;
+    private static final long ABERTO_MS = 20 * 60_000L, LUTA_MS = 8 * 60_000L, INTERVALO_MS = 40 * 60_000L;
     private static final int CHANCE = 50, ONDAS = 3;
 
     private enum Fase { NADA, ABERTO, LUTA }
@@ -81,6 +81,84 @@ public class Portais {
         s.getPlayerList().broadcastSystemMessage(Component.literal("◈ " + titulo + " ").withStyle(corChat, ChatFormatting.BOLD)
                 .append(Component.literal(texto).withStyle(ChatFormatting.WHITE)), false);
         for (ServerPlayer p : s.getPlayerList().getPlayers()) Sistema.avisar(p, titulo, texto, cor);
+    }
+
+    /**
+     * Linha de chat com o lugar do portal: distância e direção para cada jogador, e as coordenadas no formato
+     * que o JourneyMap reconhece ([name:"…", x:…, y:…, z:…]): clicar cria o ponto no mapa.
+     */
+    private static void mostrarNoMapa(ServerPlayer p) {
+        if (pos == null) return;
+        String onde = "";
+        if (p.level() == p.server.overworld()) {
+            double dx = pos.getX() - p.getX(), dz = pos.getZ() - p.getZ();
+            double ang = Math.toDegrees(Math.atan2(dx, -dz));
+            if (ang < 0) ang += 360;
+            String[] nomes = {"norte", "nordeste", "leste", "sudeste", "sul", "sudoeste", "oeste", "noroeste"};
+            onde = " — a " + (int) Math.sqrt(dx * dx + dz * dz) + " blocos, na direção " + nomes[(int) Math.round(ang / 45) % 8];
+        }
+        p.sendSystemMessage(Component.literal("   📍 ").withStyle(ChatFormatting.LIGHT_PURPLE)
+                .append(Component.literal("[name:\"Portal Rank " + nomeRank() + "\", x:" + pos.getX() + ", y:" + pos.getY() + ", z:" + pos.getZ() + "]").withStyle(ChatFormatting.AQUA))
+                .append(Component.literal(onde + ". Clique nas coordenadas para marcar no mapa.").withStyle(ChatFormatting.GRAY)));
+    }
+
+    /** Põe (ou tira) o ponto do portal no mapa do JourneyMap de um jogador, sem clique. */
+    private static void marcarNoMapa(ServerPlayer p, boolean remover) {
+        net.minecraft.nbt.CompoundTag d = new net.minecraft.nbt.CompoundTag();
+        if (remover || pos == null) d.putBoolean("remover", true);
+        else {
+            d.putString("nome", "Portal Rank " + nomeRank());
+            d.putInt("x", pos.getX()); d.putInt("y", pos.getY()); d.putInt("z", pos.getZ());
+        }
+        br.com.frxcode.frxworld.rede.Rede.CANAL.send(net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> p),
+                new br.com.frxcode.frxworld.rede.AbrirMenu("marcador", d));
+    }
+
+    /**
+     * Ponto global no JourneyMap do servidor (aparece no mapa e no minimapa de todos), pela API de servidor do mod.
+     * Sempre apaga antes os pontos "Portal Rank ..." que tenham sobrado.
+     */
+    private static void pontoGlobal(boolean remover) {
+        try {
+            Class<?> classe = Class.forName("journeymap.api.server.ServerAPI");
+            Object api = classe.getField("INSTANCE").get(null);
+            Object lista = classe.getMethod("getGlobalWaypoints").invoke(api);
+            if (lista instanceof java.util.Collection<?> pontos) {
+                for (Object w : new ArrayList<>(pontos)) {
+                    String nome = String.valueOf(w.getClass().getMethod("getName").invoke(w));
+                    if (!nome.startsWith("Portal Rank ")) continue;
+                    for (String getter : new String[]{"getGuid", "getId"}) {
+                        try { classe.getMethod("deleteGlobalWaypoint", String.class).invoke(api, String.valueOf(w.getClass().getMethod(getter).invoke(w))); } catch (Throwable ignorado) { }
+                    }
+                }
+            }
+            if (remover || pos == null || fase == Fase.NADA) return;
+            Object ponto = Class.forName("journeymap.api.v2.common.waypoint.WaypointFactory")
+                    .getMethod("createWaypoint", String.class, BlockPos.class, String.class, String.class, boolean.class)
+                    .invoke(null, FrxWorld.MOD_ID, pos, "Portal Rank " + nomeRank(), "minecraft:overworld", true);
+            for (java.lang.reflect.Method m : ponto.getClass().getMethods())
+                if (m.getName().equals("setColor") && m.getParameterCount() == 1) { try { m.invoke(ponto, 0xB040FF); } catch (Throwable ignorado) { } break; }
+            for (java.lang.reflect.Method m : classe.getMethods())
+                if (m.getName().equals("addGlobalWaypoint") && m.getParameterCount() == 1) { m.invoke(api, ponto); break; }
+        } catch (Throwable t) {
+            FrxWorld.LOG.warn("Portal: não marquei o ponto global no JourneyMap: {}", t.toString());
+        }
+    }
+
+    /** Coluna de luz acima do portal, visível de longe (partículas forçadas), para achar a olho. */
+    private static void pilarDeLuz(ServerLevel nivel) {
+        for (ServerPlayer p : nivel.players()) {
+            if (!p.blockPosition().closerThan(pos, 500)) continue;
+            for (int i = 0; i < 20; i++)
+                nivel.sendParticles(p, i % 2 == 0 ? ParticleTypes.END_ROD : ParticleTypes.DRAGON_BREATH, true,
+                        pos.getX() + 1, pos.getY() + 6 + i * 4, pos.getZ() + 0.5, 3, 0.15, 1.6, 0.15, 0.0);
+        }
+    }
+
+    /** Quem entra com um portal aberto também recebe o ponto. */
+    @SubscribeEvent
+    public void aoEntrar(net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent ev) {
+        if (ev.getEntity() instanceof ServerPlayer p && fase != Fase.NADA) marcarNoMapa(p, false);
     }
 
     // ------------------------------------------------------------------ construção
@@ -161,6 +239,8 @@ public class Portais {
         nivel.playSound(null, pos, SoundEvents.END_PORTAL_SPAWN, SoundSource.HOSTILE, 4f, 0.8f);
         todos(s, "Portal Rank " + nomeRank() + " aberto", "Perto de " + (r != null ? r.nome() : "você") + ", em " + pos.getX() + ", " + pos.getY() + ", " + pos.getZ()
                 + ". Monstros de nível " + nivelDoPortal() + ". Fechem em " + ABERTO_MS / 60_000 + " minutos ou ele se rompe! (/portal)", Sistema.ROXO, ChatFormatting.LIGHT_PURPLE);
+        for (ServerPlayer jogador : s.getPlayerList().getPlayers()) { mostrarNoMapa(jogador); marcarNoMapa(jogador, false); }
+        pontoGlobal(false);
         return true;
     }
 
@@ -168,7 +248,9 @@ public class Portais {
         for (ServerLevel l : s.getAllLevels()) for (UUID u : vivos) { Entity e = l.getEntity(u); if (e != null) e.discard(); }
         vivos.clear();
         desmontar(s);
+        for (ServerPlayer jogador : s.getPlayerList().getPlayers()) marcarNoMapa(jogador, true);
         fase = Fase.NADA;
+        pontoGlobal(true);
         proximaTentativa = System.currentTimeMillis() + INTERVALO_MS;
     }
 
@@ -188,13 +270,14 @@ public class Portais {
 
     private static void vitoria(MinecraftServer s) {
         List<ServerPlayer> quem = perto(s, 64);
-        long moedas = 100L * (rank + 1) * (rank + 1), xp = 120L * nivelDoPortal();
+        long moedas = 300L * (rank + 1) * (rank + 1), xp = 300L * nivelDoPortal();
         StringBuilder nomes = new StringBuilder();
         for (ServerPlayer p : quem) {
             Moedas.dar(p, moedas);
             Progressao.ganharXp(p, xp);
             br.com.frxcode.frxworld.progressao.Conquistas.somar(p, "portais", 1);
-            if (p.getRandom().nextInt(100) < 10 + rank * 5) {
+            br.com.frxcode.frxworld.aventura.Tesouros.talvezDar(p, 20);
+            if (p.getRandom().nextInt(100) < 30 + rank * 10) {
                 ItemStack tomo = new ItemStack(br.com.frxcode.frxworld.blocos.Blocos.TOMO_ARCANO.get());
                 if (!p.getInventory().add(tomo)) p.drop(tomo, false);
             }
@@ -300,6 +383,7 @@ public class Portais {
         }
         ServerLevel nivel = s.overworld();
         nivel.sendParticles(ParticleTypes.PORTAL, pos.getX() + 1, pos.getY() + 2, pos.getZ() + 0.5, 40, 0.8, 1.2, 0.3, 0.6);
+        pilarDeLuz(nivel);
         long resta = Math.max(0, (limite - agora) / 1000);
         String relogio = resta / 60 + ":" + String.format("%02d", resta % 60);
         if (fase == Fase.ABERTO) {
@@ -331,6 +415,7 @@ public class Portais {
             if (fase == Fase.NADA) p.sendSystemMessage(Component.literal("Nenhum portal aberto agora. Eles surgem perto das capitais de tempos em tempos.").withStyle(ChatFormatting.GRAY));
             else p.sendSystemMessage(Component.literal("◈ Portal Rank " + nomeRank() + " em " + pos.getX() + ", " + pos.getY() + ", " + pos.getZ()
                     + (fase == Fase.LUTA ? " — incursão na onda " + onda + "/" + ONDAS : " — aguardando aventureiros")).withStyle(ChatFormatting.LIGHT_PURPLE));
+            if (fase != Fase.NADA) mostrarNoMapa(p);
             return 1;
         }));
         List<String> ranks = List.of("F", "E", "D", "C", "B", "A", "S");

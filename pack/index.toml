@@ -66,6 +66,11 @@ hash = "c7ac7f84731a0ca1fefb3491c3f65c2767afd4be207e094fcb65c4cea99c9549"
 metafile = true
 
 [[files]]
+file = "mods/cosmetic-armor-reworked.pw.toml"
+hash = "cfa8aa9c0437721dab2057c932c9cf8ec3d3a11f672040601305238d13df85e8"
+metafile = true
+
+[[files]]
 file = "mods/create.pw.toml"
 hash = "fb5c251cf4997fa65ca043bab7c9ecbd02e108031584a3e26276b77d212de23c"
 metafile = true
@@ -88,6 +93,11 @@ metafile = true
 [[files]]
 file = "mods/deeperdarker.pw.toml"
 hash = "eb60f70cc84efa111a51c35311a44ae352b3b9c98ec7ba4e64595ae627e33006"
+metafile = true
+
+[[files]]
+file = "mods/domestication-innovation.pw.toml"
+hash = "bfd2911d1fc7136f92be93d4e3081b85f30109373ac640fbac2e3b3896d709f2"
 metafile = true
 
 [[files]]
@@ -142,7 +152,7 @@ metafile = true
 
 [[files]]
 file = "mods/frxworld-0.41.0.jar"
-hash = "95afdf6758d65065e786c050b5d081739e64be7058c1f83f1070946defd2163b"
+hash = "0bfb85266cada0b4c2f87511cf8b33a8ca19e9df6394d35e5c37307d74d0a3e4"
 
 [[files]]
 file = "mods/ftb-library-forge.pw.toml"
@@ -347,6 +357,11 @@ metafile = true
 [[files]]
 file = "mods/rings-of-ascension.pw.toml"
 hash = "137957bde0c3e10e5ec3354212a0d661e5c77424cb2710ff17aabbbb38a43fd0"
+metafile = true
+
+[[files]]
+file = "mods/skinrestorer.pw.toml"
+hash = "394fd2d96eed940e9cca0c2c8bb2fdf39c39d2544c7eed04b9028b5854f8ebab"
 metafile = true
 
 [[files]]

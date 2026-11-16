@@ -97,7 +97,7 @@ public class TelaGuilda extends Screen {
 
         // promoção
         y = y0 + 126;
-        cartao(g, x0 + 10, y, LARG - 20, 52);
+        cartao(g, x0 + 10, y, LARG - 20, 56);
         String estado = d.getString("estado");
         int tx = x0 + 18;
         switch (estado) {
@@ -109,6 +109,7 @@ public class TelaGuilda extends Screen {
             case "max" -> {
                 g.drawString(font, "Rank S — o topo da Guilda", tx, y + 7, MOLDURA, false);
                 g.drawString(font, "Não há prova acima desta. Seu nome já é lenda.", tx, y + 20, TINTA, false);
+                g.drawString(font, "Você tem: " + d.getString("beneficios"), tx, y + 32, VERDE, false);
             }
             default -> {
                 g.drawString(font, "Próximo: Rank " + d.getString("proximo"), tx, y + 7, MOLDURA, false);
@@ -120,6 +121,7 @@ public class TelaGuilda extends Screen {
                     default -> "Prova: derrotar o Examinador da Guilda em 3 min, sem morrer.";
                 };
                 g.drawString(font, linha, tx, y + 32, estado.equals("espera") ? VERMELHO : CINZA, false);
+                if (!d.getString("beneficiosProx").isEmpty()) g.drawString(font, "No Rank " + d.getString("proximo") + ": " + d.getString("beneficiosProx"), tx, y + 43, VERDE, false);
                 g.drawString(font, "Prêmio:", x0 + LARG - 100, y + 7, CINZA, false);
                 moedas(g, font, x0 + LARG - 100 + font.width("Prêmio: "), y + 7, d.getLong("premio"), TINTA);
             }

@@ -55,3 +55,17 @@ O pack é gerenciado pelo **packwiz** em `pack/`. Cada mod é um `mods/<slug>.pw
 - Conferir os IDs dos chefes usados nas tasks do FTB Quests, por exemplo `undergarden:forgotten_guardian`, `blue_skies:arachnarch` e `deeperdarker:stalker` (`/summon` + Tab).
 - Testar se `Apoth.ativo()` detecta o mod (a ficha deve mostrar crítico e esquiva vindos do Apothic).
 - Pré-gerar as dimensões novas com o Chunky.
+
+## Skins, aparência e pets (15/11/2026)
+
+| Mod | Fonte | Lado | Por quê |
+|---|---|---|---|
+| SkinRestorer (2.11.1) | Modrinth | servidor | Devolve a skin dos jogadores no servidor offline: busca na Mojang pelo nick ao entrar. `/skin set mojang <nick>` ou `/skin set web <link>` para quem usa nick inventado. Config em `server/config/skinrestorer/` |
+| Cosmetic Armor Reworked (1.20.1-v1a) | CurseForge | os dois | Botão no inventário para esconder cada peça de armadura e mostrar a skin |
+| Domestication Innovation (1.7.1) | Modrinth | os dois | Mais pets (raposa, coelho, sapo, axolote), cama de pet, coleira encantável e comandos de seguir/ficar. Usa o Citadel |
+
+Ajustes em mods que já estavam no pack:
+
+- **Curios:** 10 espaços de anel (`server/kubejs/data/frxworld/curios/slots/ring.json`).
+- **Ice and Fire:** dragões não quebram blocos (`"Dragon Griefing" = 2` em `server/config/iceandfire-common.toml`).
+- **Waystones:** qualquer jogador cria waystone global (`globalWaystoneSetupRequiresCreativeMode = false`), e a config é distribuída pelo AutoModpack.

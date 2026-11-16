@@ -1,0 +1,240 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "historia"
+	group: ""
+	icon: "minecraft:enchanted_book"
+	id: "3D94057D19A469A3"
+	order_index: 1
+	quest_links: [ ]
+	quests: [
+		{
+			description: ["Você renasceu neste mundo sem nome nem passado. A Guilda de Aventureiros é onde toda lenda começa." "" "Objetivo: Registre-se na Guilda (recepcionista, em qualquer capital)." "" "Recompensa (entregue na hora pelo Sistema): 2 ouro e 150 XP." "Acompanhe também com /historia."]
+			id: "560E013C9CA5FFE0"
+			shape: "gear"
+			size: 1.5d
+			tasks: [
+				{
+					advancement: "frxworld:frx/historia_1"
+					criterion: ""
+					id: "6DD633B8E2561225"
+					type: "advancement"
+				}
+			]
+			title: "1. O Despertar"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["560E013C9CA5FFE0"]
+			description: ["Os arredores estão infestados. Prove que sabe lutar." "" "Objetivo: Derrote 30 monstros." "" "Recompensa (entregue na hora pelo Sistema): 3 ouro e 300 XP." "Acompanhe também com /historia."]
+			id: "1CBB32037D4F30BE"
+			tasks: [
+				{
+					advancement: "frxworld:frx/historia_2"
+					criterion: ""
+					id: "118BAB855E2ACFCD"
+					type: "advancement"
+				}
+			]
+			title: "2. Primeiro Sangue"
+			x: 2.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["1CBB32037D4F30BE"]
+			description: ["Dizem que no oeste um slime fundou uma nação de monstros. Vá ver com os próprios olhos." "" "Objetivo: Viaje até a Federação de Jura Tempest." "" "Recompensa (entregue na hora pelo Sistema): 5 ouro e 500 XP." "Acompanhe também com /historia."]
+			id: "110C359F83750DDC"
+			tasks: [
+				{
+					advancement: "frxworld:frx/historia_3"
+					criterion: ""
+					id: "3BF82AED6687203D"
+					type: "advancement"
+				}
+			]
+			title: "3. A Federação"
+			x: 4.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["110C359F83750DDC"]
+			description: ["Ninguém respeita um Rank F. Suba na Guilda." "" "Objetivo: Alcance o Rank E na prova de promoção." "" "Recompensa (entregue na hora pelo Sistema): 6 ouro e 600 XP." "Acompanhe também com /historia."]
+			id: "552CBB976000E1B0"
+			tasks: [
+				{
+					advancement: "frxworld:frx/historia_4"
+					criterion: ""
+					id: "77FEC8636BB5B1D2"
+					type: "advancement"
+				}
+			]
+			title: "4. Prova de Valor"
+			x: 6.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["552CBB976000E1B0"]
+			description: ["Portais se abrem perto das cidades e despejam monstros. Alguém precisa fechá-los." "" "Objetivo: Ajude a fechar 1 portal (/portal). Título: Selador de Fendas." "" "Recompensa (entregue na hora pelo Sistema): 10 ouro e 1000 XP." "Acompanhe também com /historia."]
+			id: "1EE183F6F718F734"
+			tasks: [
+				{
+					advancement: "frxworld:frx/historia_5"
+					criterion: ""
+					id: "524AE95539791F16"
+					type: "advancement"
+				}
+			]
+			title: "5. Fendas no Céu"
+			x: 8.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["1EE183F6F718F734"]
+			description: ["Os anões de Dwargon forjam as melhores armas. Você vai precisar delas." "" "Objetivo: Viaje até o Reino Armado de Dwargon." "" "Recompensa (entregue na hora pelo Sistema): 8 ouro e 800 XP." "Acompanhe também com /historia."]
+			id: "304793E1C09B4BBB"
+			tasks: [
+				{
+					advancement: "frxworld:frx/historia_6"
+					criterion: ""
+					id: "23083C4349AC5A7B"
+					type: "advancement"
+				}
+			]
+			title: "6. O Martelo e a Montanha"
+			x: 10.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["304793E1C09B4BBB"]
+			description: ["As masmorras escondem guardiões que não deveriam ter acordado." "" "Objetivo: Derrote 2 chefes." "" "Recompensa (entregue na hora pelo Sistema): 15 ouro e 1500 XP." "Acompanhe também com /historia."]
+			id: "19F29441E7FDAC6D"
+			tasks: [
+				{
+					advancement: "frxworld:frx/historia_7"
+					criterion: ""
+					id: "7A45C19784C12EDB"
+					type: "advancement"
+				}
+			]
+			title: "7. Guardiões Antigos"
+			x: 12.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["19F29441E7FDAC6D"]
+			description: ["Os magos de Sarion estudam os portais. Talvez saibam de onde eles vêm." "" "Objetivo: Viaje até a Dinastia Feiticeira de Sarion." "" "Recompensa (entregue na hora pelo Sistema): 10 ouro e 1000 XP." "Acompanhe também com /historia."]
+			id: "3CE24DDC24B67A44"
+			tasks: [
+				{
+					advancement: "frxworld:frx/historia_8"
+					criterion: ""
+					id: "6E8F038984649E73"
+					type: "advancement"
+				}
+			]
+			title: "8. A Floresta dos Elfos"
+			x: 12.0d
+			y: 2.5d
+		}
+		{
+			dependencies: ["3CE24DDC24B67A44"]
+			description: ["O Imperador reúne exércitos. Descubra de que lado ele está." "" "Objetivo: Viaje até o Império do Leste." "" "Recompensa (entregue na hora pelo Sistema): 12 ouro e 1200 XP." "Acompanhe também com /historia."]
+			id: "265146E4EF081A33"
+			tasks: [
+				{
+					advancement: "frxworld:frx/historia_9"
+					criterion: ""
+					id: "1E5406CC525F63E8"
+					type: "advancement"
+				}
+			]
+			title: "9. O Império do Leste"
+			x: 10.0d
+			y: 2.5d
+		}
+		{
+			dependencies: ["265146E4EF081A33"]
+			description: ["A estrada daqui em diante não perdoa os fracos." "" "Objetivo: Chegue ao nível 30. Título: Veterano." "" "Recompensa (entregue na hora pelo Sistema): 20 ouro e 2000 XP." "Acompanhe também com /historia."]
+			id: "7960FBF2E73E411D"
+			tasks: [
+				{
+					advancement: "frxworld:frx/historia_10"
+					criterion: ""
+					id: "78626E35B059E721"
+					type: "advancement"
+				}
+			]
+			title: "10. Sangue de Veterano"
+			x: 8.0d
+			y: 2.5d
+		}
+		{
+			dependencies: ["7960FBF2E73E411D"]
+			description: ["Uma torre sem fim guarda os segredos do mundo antigo." "" "Objetivo: Chegue ao andar 10 da Torre Infinita (/torre mostra onde fica a entrada)." "" "Recompensa (entregue na hora pelo Sistema): 25 ouro e 2500 XP." "Acompanhe também com /historia."]
+			id: "49F98EC183D0CEB0"
+			tasks: [
+				{
+					advancement: "frxworld:frx/historia_11"
+					criterion: ""
+					id: "7F095A82EF1E0633"
+					type: "advancement"
+				}
+			]
+			title: "11. A Torre"
+			x: 6.0d
+			y: 2.5d
+		}
+		{
+			dependencies: ["49F98EC183D0CEB0"]
+			description: ["Só os melhores recebem as missões que importam." "" "Objetivo: Alcance o Rank C da Guilda." "" "Recompensa (entregue na hora pelo Sistema): 30 ouro e 3000 XP." "Acompanhe também com /historia."]
+			id: "2F535D62FB5255FB"
+			tasks: [
+				{
+					advancement: "frxworld:frx/historia_12"
+					criterion: ""
+					id: "4D183EC7573F7D7A"
+					type: "advancement"
+				}
+			]
+			title: "12. Entre a Elite"
+			x: 4.0d
+			y: 2.5d
+		}
+		{
+			dependencies: ["2F535D62FB5255FB"]
+			description: ["Os portais vêm do reino dos demônios. Atravesse a fronteira." "" "Objetivo: Viaje até o reino dos Lordes Demônios." "" "Recompensa (entregue na hora pelo Sistema): 35 ouro e 3500 XP." "Acompanhe também com /historia."]
+			id: "1D982EA12A6B8FE2"
+			tasks: [
+				{
+					advancement: "frxworld:frx/historia_13"
+					criterion: ""
+					id: "70BACF6EC7B0AB74"
+					type: "advancement"
+				}
+			]
+			title: "13. Terras Sombrias"
+			x: 2.0d
+			y: 2.5d
+		}
+		{
+			dependencies: ["1D982EA12A6B8FE2"]
+			description: ["O fim da jornada. Leve aliados." "" "Objetivo: Dentro do reino dos demônios, use /historia desafio e derrote o Rei Demônio. Título: Matador do Rei Demônio." "" "Recompensa (entregue na hora pelo Sistema): 200 ouro e 15000 XP." "Acompanhe também com /historia."]
+			id: "2364E37192DD4FAC"
+			shape: "gear"
+			size: 2.0d
+			tasks: [
+				{
+					advancement: "frxworld:frx/historia_14"
+					criterion: ""
+					id: "7D8DE8CC51C9FCC8"
+					type: "advancement"
+				}
+			]
+			title: "14. O Trono Escarlate"
+			x: 0.0d
+			y: 2.5d
+		}
+	]
+	title: "História Principal"
+}

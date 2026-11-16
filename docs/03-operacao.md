@@ -122,3 +122,21 @@ Antes de abrir o servidor para os amigos num mundo novo, gere o mapa antes com o
 4. Depois, as dimensões: o mesmo com `chunky world minecraft:the_nether` (raio 1000), `twilightforest:twilight_forest` (1000) etc.
 
 Para um mundo de teste, basta `chunky radius 500`, que cobre Tempest e a floresta em volta.
+
+## Arquivos que o mod grava na pasta do mundo (15/11/2026)
+
+Ficam em `server/FRX-WORLD/` e valem só para aquele mundo (mundo novo começa sem eles):
+
+| Arquivo | O que guarda |
+|---|---|
+| `frx_torre.txt` · `frx_torre_placar.json` | Posição e porta da Torre Infinita · rankings (recorde e abates) |
+| `frx_temporada.json` | Placar do mês, prêmios pendentes e títulos de temporada |
+| `frx_repor.txt` | Moradores e guardas das capitais à espera de voltar |
+| `frx_ciclo.txt` | Duração do dia e da noite |
+| `frx_ronaldinho.txt` · `frx_ladrao.txt` | Chance das visitas raras (por mil, por minuto) |
+
+## Conferir a compilação antes de reiniciar
+
+Um erro de compilação no mod não impede o servidor de subir: ele sobe com o jar anterior e nada de novo entra. Depois de cada reinício, confira que `logs/compilacao.log` termina em `BUILD SUCCESSFUL`.
+
+O painel é o processo que mantém o servidor do Minecraft: se o painel cair, o servidor cai junto. Se o site e o jogo sumirem ao mesmo tempo, peça `diagnostico` ao agente e veja se a porta 3000 está em `LISTENING`; se não estiver, `reiniciar` traz os dois de volta.

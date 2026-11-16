@@ -88,6 +88,8 @@ public class SkinsNpc {
             String reino = e.getPersistentData().getString("frx_reino");
             return papel.isEmpty() ? null : new String[]{papel, reino};
         }
+        if (tags.contains("frx_craque")) return new String[]{"craque", ""};
+        if (tags.contains("frx_ladrao")) return new String[]{"ladrao", ""};
         if (tags.contains("frx_cidadao")) {
             String reino = "";
             for (String t : tags) if (t.startsWith("frx_cidadao_")) reino = t.substring("frx_cidadao_".length());

@@ -88,6 +88,10 @@ public class Zonas {
     public static int nivel(Level nivel, BlockPos pos) {
         int blocos = ConfigJogo.zonaBlocosPorNivel();
         int[] f = faixa(nivel);
+        if (nivel.dimension() == Level.OVERWORLD) {
+            int fixo = AreasNivel.em(pos);   // masmorra com nível próprio
+            if (fixo > 0) return fixo;
+        }
         double dx, dz;
         if (nivel.dimension() == Level.OVERWORLD) {
             BlockPos spawn = nivel.getServer() != null ? nivel.getServer().overworld().getSharedSpawnPos() : BlockPos.ZERO;

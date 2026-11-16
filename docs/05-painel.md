@@ -16,12 +16,12 @@ O painel abre sozinho pelo atalho **FRX-WORLD**, em `http://localhost:3000`. Par
 | Missões | `/missoes` | Quadro de missões em cards por faixa de nível; editor com seletor de criatura, itens, moedas, XP sugerido e prévia em pergaminho |
 | Economia | `/economia` | Lojas de cada reino (com aviso de arbitragem e ordenação) e ranking dos jogadores mais ricos |
 | Reinos | `/reinos` | Mapa com foco no reino, painel do rei, coordenadas, edição de reputação e matriz de reputação (heatmap) |
-| NPCs e skins | `/npcs` | Skins dos NPCs por reino e raça |
+| NPCs e skins | `/npcs` | Skins dos NPCs por reino e raça; cards próprios para o Mestre de Obras e para as visitas raras (Ronaldinho e Ladrão) |
 | Dungeons | `/dungeons` | Anéis de distância (com aviso de buracos e sobreposição), cards das camadas; editor com abas por camada, criaturas, loot com chance e medidor de dificuldade |
-| Masmorras | `/masmorras` | Masmorras dos reinos |
+| Masmorras | `/masmorras` | Masmorras dos reinos, com **nível fixo** opcional (campo `nivel`; 0 = pela distância) |
 | Chefes de mods | `/externos` | Chefes e estruturas de outros mods |
 | Eventos de estrada | `/eventos` | Eventos aleatórios nas estradas |
-| Habilidades | `/habilidades` | Habilidades das classes |
+| Habilidades | `/habilidades` | Habilidades das classes. O campo **Efeito** aceita um efeito de poção ou uma mecânica do mod (`frx:puxar`, `frx:zona`...), com a lista sugerida no próprio campo |
 | Forja | `/forja` | Raridades, refino e custos |
 | Administradores | `/admins` | Admins do painel: adicionar, remover, trocar a própria senha |
 

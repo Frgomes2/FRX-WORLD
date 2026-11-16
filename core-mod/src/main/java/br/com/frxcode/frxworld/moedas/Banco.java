@@ -71,8 +71,10 @@ public class Banco {
         long naBolsa = Moedas.contar(p);
         if (valor <= 0 || valor > naBolsa) valor = naBolsa;
         if (valor <= 0) { avisar(p, "Você não tem moedas na bolsa.", ChatFormatting.GRAY); return; }
-        Moedas.cobrar(p, valor);
-        definir(p, saldo(p) + valor);
+        long antes = saldo(p);
+        if (!Moedas.cobrar(p, valor)) { avisar(p, "Não consegui tirar as moedas da bolsa.", ChatFormatting.RED); return; }
+        definir(p, antes + valor);
+        br.com.frxcode.frxworld.FrxWorld.LOG.info("Banco: {} depositou {}; saldo {} -> {}", p.getGameProfile().getName(), valor, antes, saldo(p));
         avisar(p, "Depositado " + Moedas.texto(valor) + ". Saldo: " + Moedas.texto(saldo(p)) + ".", ChatFormatting.GREEN);
         br.com.frxcode.frxworld.progressao.Progressao.enviarAoPainel(p, false);
     }
@@ -80,9 +82,13 @@ public class Banco {
     public static void sacar(ServerPlayer p, long valor) {
         long s = saldo(p);
         if (valor <= 0 || valor > s) { avisar(p, "Saldo insuficiente (" + Moedas.texto(s) + ").", ChatFormatting.RED); return; }
-        definir(p, s - valor);
-        Moedas.dar(p, valor);
-        avisar(p, "Sacado " + Moedas.texto(valor) + ". Saldo: " + Moedas.texto(saldo(p)) + ".", ChatFormatting.GREEN);
+        // só sai do cofre o que couber na bolsa: com o inventário cheio, as moedas caíam no chão e sumiam
+        long sobra = Moedas.darSemDerrubar(p, valor);
+        long sacado = valor - sobra;
+        definir(p, s - sacado);
+        br.com.frxcode.frxworld.FrxWorld.LOG.info("Banco: {} sacou {} (pediu {}, não coube {}); saldo {} -> {}", p.getGameProfile().getName(), sacado, valor, sobra, s, saldo(p));
+        if (sacado <= 0) { avisar(p, "Sua bolsa está cheia. Libere espaço no inventário para sacar.", ChatFormatting.RED); return; }
+        avisar(p, "Sacado " + Moedas.texto(sacado) + (sobra > 0 ? " (o resto não coube e continua no cofre)" : "") + ". Saldo: " + Moedas.texto(saldo(p)) + ".", ChatFormatting.GREEN);
         br.com.frxcode.frxworld.progressao.Progressao.enviarAoPainel(p, false);
     }
 

@@ -111,7 +111,9 @@ public class Guilda {
         if (!Progressao.temDados(p)) return;
         DadosJogador dj = Progressao.dados(p);
         atualizarCartoes(p);
+        pagarSoldo(p);
         CompoundTag d = new CompoundTag();
+        d.putString("beneficios", registrado(p) ? beneficios(indice(p)) : "");
         d.putInt("npc", npc == null ? -1 : npc.getId());
         d.putString("nome", npc != null && npc.getCustomName() != null ? npc.getCustomName().getString() : "Guilda de Aventureiros");
         d.putString("jogador", p.getGameProfile().getName());
@@ -140,6 +142,7 @@ public class Guilda {
             d.putString("proximo", ConfigJogo.nomeRank(alvo));
             d.putInt("proximoNivel", ConfigJogo.nivelMinDoRank(alvo));
             d.putLong("premio", premio(alvo));
+            d.putString("beneficiosProx", beneficios(alvo));
             long espera = dados(p).getLong("espera") - System.currentTimeMillis();
             if (PROVAS.containsKey(p.getUUID())) estado = "andamento";
             else if (dj.nivel() < ConfigJogo.nivelMinDoRank(alvo)) estado = "nivel";
@@ -153,6 +156,40 @@ public class Guilda {
     }
 
     private static long premio(int alvo) { return alvo * 200L; }   // em cobre: 2 ouro por degrau
+
+    // ------------------------------------------------------------------ benefícios do rank
+
+    /** Bônus de XP e moedas nas missões: +10% por rank acima de F (S = +60%). */
+    public static double bonusMissao(Player p) { return indice(p) * 0.10; }
+
+    /** Desconto da Guilda nas lojas e na forja: 2% por rank acima de F (S = 12%). Soma com a reputação. */
+    public static double desconto(Player p) { return indice(p) * 0.02; }
+
+    /** Soldo diário, em cobre: 60 por rank acima de F. */
+    public static long soldo(int rank) { return rank * 60L; }
+
+    private static String beneficios(int rank) {
+        if (rank <= 0) return "Rank F ainda não tem benefícios. Suba para o E!";
+        return "+" + rank * 10 + "% em missões · " + rank * 2 + "% de desconto · soldo de " + Moedas.texto(soldo(rank)) + "/dia";
+    }
+
+    /** Paga o soldo do dia (uma vez por dia real), ao entrar no jogo ou abrir o cartão. */
+    public static void pagarSoldo(ServerPlayer p) {
+        if (!registrado(p)) return;
+        int rank = indice(p);
+        long hoje = java.time.LocalDate.now().toEpochDay();
+        if (rank <= 0 || dados(p).getLong("soldoDia") == hoje) return;
+        dados(p).putLong("soldoDia", hoje);
+        Moedas.dar(p, soldo(rank));
+        p.sendSystemMessage(Component.literal("⚔ Soldo da Guilda (Rank " + rank(p) + "): " + Moedas.texto(soldo(rank)) + ".").withStyle(ChatFormatting.GOLD));
+    }
+
+    @SubscribeEvent
+    public void aoEntrar(net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent ev) {
+        if (ev.getEntity() instanceof ServerPlayer p) {
+            try { pagarSoldo(p); } catch (Exception ignorado) { }
+        }
+    }
 
     public static void acao(ServerPlayer p, AcaoMenu a) {
         Entity npc = p.level().getEntity(a.npc());
@@ -257,6 +294,9 @@ public class Guilda {
         Moedas.dar(p, premio(pr.alvo()));
         p.level().playSound(null, p.blockPosition(), SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.PLAYERS, 1f, 1f);
         Sistema.avisar(p, "Promoção! Você agora é Rank " + r, "A Guilda reconhece a sua força. Prêmio: " + Moedas.texto(premio(pr.alvo())) + ".", Sistema.OURO);
+        p.sendSystemMessage(Component.literal("Benefícios do Rank " + r + ": " + beneficios(pr.alvo()) + ".").withStyle(ChatFormatting.GREEN));
+        dados(p).putLong("soldoDia", 0);
+        pagarSoldo(p);
         p.server.getPlayerList().broadcastSystemMessage(Component.literal("⚔ " + p.getGameProfile().getName() + " foi promovido ao Rank " + r + " da Guilda de Aventureiros!")
                 .withStyle(ChatFormatting.GOLD), false);
         atualizarCartoes(p);

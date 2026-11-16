@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { salvarHabilidade, type Estado } from "./actions";
-import { CLASSES, ELEMENTOS, TIPOS } from "@/lib/habilidades";
+import { CLASSES, EFEITOS_ESPECIAIS, ELEMENTOS, TIPOS } from "@/lib/habilidades";
 
 const campo = "w-full rounded border border-pedra-700 bg-pedra-950 px-2 py-1 text-sm";
 const rotulo = "mb-1 block text-xs text-pedra-500";
@@ -34,7 +34,7 @@ export function FormHabilidade({ h }: { h: HabForm }) {
 
       <div className="md:col-span-5"><span className={rotulo}>Descrição</span><input name="descricao" defaultValue={h.descricao} className={campo} /></div>
       <div className="md:col-span-2"><span className={rotulo}>Ícone (item)</span><input name="icone" defaultValue={h.icone} className={`${campo} font-mono text-xs`} /></div>
-      <div className="md:col-span-3"><span className={rotulo}>Efeito / mob invocado</span><input name="efeito" defaultValue={h.efeito} placeholder="minecraft:speed" className={`${campo} font-mono text-xs`} /></div>
+      <div className="md:col-span-3"><span className={rotulo}>Efeito / mob invocado</span><input name="efeito" defaultValue={h.efeito} placeholder="minecraft:speed ou frx:puxar" list="efeitos-especiais" className={`${campo} font-mono text-xs`} /><datalist id="efeitos-especiais">{Object.entries(EFEITOS_ESPECIAIS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</datalist></div>
       <div className="md:col-span-2"><span className={rotulo}>Aprende por</span>
         <select name="aprendizado" defaultValue={h.aprendizado} className={campo}><option value="NIVEL">Nível</option><option value="ITEM">Tomo Arcano</option></select></div>
 

@@ -206,6 +206,89 @@ public class Populacao {
         nivel.addFreshEntity(m);
     }
 
+    // ------------------------------------------------------------------ proteção e reposição
+
+    private record Repor(int x, int y, int z, boolean guarda, long quando) { }
+    private static final List<Repor> repor = new ArrayList<>();
+    private static Object servidorRepor;
+    private static final long ESPERA_REPOR_MS = 10 * 60_000L;
+
+    private static Path arquivoRepor(net.minecraft.server.MinecraftServer s) {
+        return s.getWorldPath(LevelResource.ROOT).resolve("frx_repor.txt");
+    }
+
+    private static void lerRepor(net.minecraft.server.MinecraftServer s) {
+        if (servidorRepor == s) return;
+        servidorRepor = s;
+        repor.clear();
+        try {
+            Path p = arquivoRepor(s);
+            if (Files.exists(p)) for (String l : Files.readAllLines(p)) {
+                String[] c = l.trim().split(";");
+                if (c.length >= 5) repor.add(new Repor(Integer.parseInt(c[0]), Integer.parseInt(c[1]), Integer.parseInt(c[2]), c[3].equals("guarda"), Long.parseLong(c[4])));
+            }
+        } catch (Exception e) {
+            FrxWorld.LOG.warn("frx_repor.txt ilegível: {}", e.toString());
+        }
+    }
+
+    private static void gravarRepor(net.minecraft.server.MinecraftServer s) {
+        try {
+            StringBuilder sb = new StringBuilder();
+            for (Repor r : repor) sb.append(r.x()).append(';').append(r.y()).append(';').append(r.z()).append(';').append(r.guarda() ? "guarda" : "morador").append(';').append(r.quando()).append('\n');
+            Files.writeString(arquivoRepor(s), sb.toString(), StandardCharsets.UTF_8);
+        } catch (Exception ignorado) {}
+    }
+
+    /** Morador das ruas não morre para monstro, dragão, parede nem invasão: só jogador (e o vazio) fere. */
+    @SubscribeEvent
+    public void moradorProtegido(net.minecraftforge.event.entity.living.LivingAttackEvent evento) {
+        if (!(evento.getEntity() instanceof Villager v) || v.level().isClientSide() || !v.getTags().contains(TAG)) return;
+        var fonte = evento.getSource();
+        if (fonte.getEntity() instanceof net.minecraft.world.entity.player.Player) return;
+        if (fonte.is(net.minecraft.tags.DamageTypeTags.BYPASSES_INVULNERABILITY)) return;
+        evento.setCanceled(true);
+    }
+
+    /** Morador ou guarda que morre volta depois de 10 minutos, perto de onde caiu. */
+    @SubscribeEvent
+    public void aoMorrer(net.minecraftforge.event.entity.living.LivingDeathEvent evento) {
+        Entity e = evento.getEntity();
+        if (e.level().isClientSide() || !e.getTags().contains(TAG) || !(e.level() instanceof ServerLevel nivel)) return;
+        boolean morador = e instanceof Villager;
+        if (!morador && !(e instanceof Mob && e.getCustomName() != null && e.getCustomName().getString().startsWith("Guarda de "))) return;
+        lerRepor(nivel.getServer());
+        repor.add(new Repor(e.getBlockX(), e.getBlockY(), e.getBlockZ(), !morador, System.currentTimeMillis() + ESPERA_REPOR_MS));
+        gravarRepor(nivel.getServer());
+    }
+
+    @SubscribeEvent
+    public void reporMoradores(net.minecraftforge.event.TickEvent.ServerTickEvent evento) {
+        if (evento.phase != net.minecraftforge.event.TickEvent.Phase.END || evento.getServer().getTickCount() % 100 != 50) return;
+        net.minecraft.server.MinecraftServer s = evento.getServer();
+        lerRepor(s);
+        if (repor.isEmpty()) return;
+        ServerLevel nivel = s.overworld();
+        long agora = System.currentTimeMillis();
+        int feitosAgora = 0;
+        boolean mudou = false;
+        for (int i = 0; i < repor.size() && feitosAgora < 4; i++) {
+            Repor p = repor.get(i);
+            if (p.quando() > agora) continue;
+            Reino reino = null;
+            for (Reino r : Reinos.todos()) if (r.distancia(p.x(), p.z()) == 0) { reino = r; break; }
+            if (reino == null) { repor.remove(i--); mudou = true; continue; }   // morreu fora de capital: não é da cidade
+            if (!nivel.isPositionEntityTicking(new BlockPos(p.x(), p.y(), p.z()))) continue;
+            BlockPos b = lugar(nivel, reino, p.x() >> 4, p.z() >> 4, nivel.random);
+            if (b == null) { repor.set(i, new Repor(p.x(), p.y(), p.z(), p.guarda(), agora + 5 * 60_000L)); mudou = true; continue; }
+            if (p.guarda()) guarda(nivel, reino, b); else morador(nivel, reino, b, nivel.random);
+            repor.remove(i--);
+            mudou = true;
+            feitosAgora++;
+        }
+        if (mudou) gravarRepor(s);
+    }
+
     // ------------------------------------------------------------------ capitais seguras
 
     @SubscribeEvent

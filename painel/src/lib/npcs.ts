@@ -13,9 +13,12 @@ export const PAPEIS = [
   { id: "cartografo", nome: "Cartógrafo", icone: "🗺️" },
   { id: "taverneiro", nome: "Taverneiro", icone: "🍺" },
   { id: "cozinheiro", nome: "Cozinheiro", icone: "🍖" },
+  { id: "pedreiro", nome: "Mestre de Obras (blocos)", icone: "🧱" },
   { id: "recepcionista", nome: "Recepcionista da Guilda", icone: "📋" },
   { id: "guarda", nome: "Guarda", icone: "⚔️" },
   { id: "morador", nome: "Moradores", icone: "🏘️" },
+  { id: "craque", nome: "Ronaldinho (evento raro)", icone: "⚽" },
+  { id: "ladrao", nome: "Ladrão (evento raro)", icone: "🪙" },
 ] as const;
 
 export type Papel = (typeof PAPEIS)[number]["id"];

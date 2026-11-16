@@ -51,7 +51,11 @@ public class Reputacao {
     public static Nivel nivel(ServerPlayer p, String reino) { return NIVEIS.get(indice(pontos(p, reino))); }
 
     /** Desconto nas lojas e na forja daquele reino (0..0,20). */
-    public static double desconto(ServerPlayer p, String reino) { return reino == null || reino.isEmpty() ? 0 : nivel(p, reino).desconto(); }
+    /** Desconto da reputação no reino somado ao do rank da Guilda (teto de 50%). */
+    public static double desconto(ServerPlayer p, String reino) {
+        double rep = reino == null || reino.isEmpty() ? 0 : nivel(p, reino).desconto();
+        return Math.min(0.5, rep + br.com.frxcode.frxworld.progressao.Guilda.desconto(p));
+    }
 
     public static Reino reino(String id) {
         for (Reino r : Reinos.todos()) if (r.id().equals(id)) return r;
@@ -121,6 +125,9 @@ public class Reputacao {
         for (String t : br.com.frxcode.frxworld.progressao.Conquistas.titulos(p)) if (!l.contains(t)) l.add(t);
         for (String t : Campanhas.titulos(p)) if (!l.contains(t)) l.add(t);
         if (!Nomeacao.titulo(p).isEmpty()) l.add(Nomeacao.titulo(p));
+        for (String t : br.com.frxcode.frxworld.aventura.Historia.titulos(p)) if (!l.contains(t)) l.add(t);
+        for (String t : br.com.frxcode.frxworld.aventura.Torre.titulos(p)) if (!l.contains(t)) l.add(t);
+        for (String t : br.com.frxcode.frxworld.aventura.Temporadas.titulos(p)) if (!l.contains(t)) l.add(t);
         return l;
     }
 

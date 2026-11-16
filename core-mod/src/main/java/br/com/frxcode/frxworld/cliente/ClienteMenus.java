@@ -16,6 +16,7 @@ public final class ClienteMenus {
 
     public static void abrir(AbrirMenu msg) {
         Minecraft mc = Minecraft.getInstance();
+        if (msg.tipo().equals("marcador")) { MarcadorMapa.tratar(msg.dados()); return; }   // ponto no mapa: não abre tela
         if (msg.tipo().equals("banco")) {
             if (mc.screen instanceof TelaBanco t) t.atualizar(msg.dados()); else mc.setScreen(new TelaBanco(msg.dados()));
         } else if (msg.tipo().equals("abertura")) {

@@ -116,6 +116,11 @@ public final class Reacoes {
                 else if (rank >= 5) l.add("Uma lâmina minha na mão de um Rank " + r + " é a melhor propaganda que existe.");
                 else if (rank == 0 && registrado) l.add("Rank F? Comece com ferro. O resto você compra quando sobreviver.");
             }
+            case "pedreiro" -> {
+                if (raca.equals("anao")) l.add("Um anão comprando pedra? Isso sim é elogio ao meu estoque.");
+                else if (raca.equals("gigante")) l.add("Para a sua casa vou precisar encomendar o dobro de madeira, gigante.");
+                else if (rank >= 5) l.add("Rank " + r + " construindo por aqui? A cidade agradece. Leve o que precisar.");
+            }
             case "mercador", "comprador", "cozinheiro" -> {
                 if (raca.equals("halfling")) l.add("Um halfling! Com vocês eu nunca levo a melhor na pechincha.");
                 else if (raca.equals("vampiro") && papel.equals("cozinheiro")) l.add("Hã... Não sirvo o que você costuma beber. Mas a carne é malpassada.");

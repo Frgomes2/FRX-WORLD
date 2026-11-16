@@ -17,6 +17,7 @@ export async function GET(req: Request) {
     x: m.x,
     z: m.z,
     ...(m.entradaX !== null && m.entradaY !== null && m.entradaZ !== null ? { entrada: [m.entradaX, m.entradaY, m.entradaZ] } : {}),
+    ...(m.nivel > 0 ? { nivel: m.nivel } : {}),
     ...(m.refazer ? { refazer: true } : {}),
   })));
 }

@@ -5,7 +5,7 @@
 	group: ""
 	icon: "minecraft:end_stone"
 	id: "4C1CE85CC403B736"
-	order_index: 7
+	order_index: 8
 	quest_links: [ ]
 	quests: [
 		{

@@ -5,7 +5,7 @@ import { salvarMasmorra, type EstadoMasmorra } from "./actions";
 
 type Masmorra = {
   id: string; nome: string; chefe: string; estrutura: string; x: number; z: number;
-  entradaX: number | null; entradaY: number | null; entradaZ: number | null; ordem: number;
+  entradaX: number | null; entradaY: number | null; entradaZ: number | null; ordem: number; nivel?: number;
 };
 
 const campo = "w-full rounded-md border border-pedra-700 bg-pedra-950 px-2 py-1 outline-none focus:border-ouro";
@@ -35,6 +35,7 @@ export function FormMasmorra({ valores }: { valores?: Masmorra }) {
         <label className="flex flex-col gap-1 text-xs text-pedra-500">Y<input name="entradaY" defaultValue={v?.entradaY ?? ""} className={num} /></label>
         <label className="flex flex-col gap-1 text-xs text-pedra-500">Z<input name="entradaZ" defaultValue={v?.entradaZ ?? ""} className={num} /></label>
         <label className="flex flex-col gap-1 text-xs text-pedra-500">Ordem<input name="ordem" defaultValue={v?.ordem ?? 0} className={num} /></label>
+        <label className="flex flex-col gap-1 text-xs text-pedra-500" title="Nível fixo dos monstros dentro da masmorra. 0 = segue o nível da zona.">Nível fixo<input name="nivel" defaultValue={v?.nivel ?? 0} className={num} /></label>
         <button disabled={enviando} className="rounded-md border border-ouro px-3 py-1 text-ouro hover:bg-ouro hover:text-pedra-950">
           {v ? "Salvar" : "Adicionar"}
         </button>

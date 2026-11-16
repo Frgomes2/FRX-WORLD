@@ -63,6 +63,8 @@ public class EntradasMasmorra {
     private static final List<String> pendentes = new ArrayList<>();
     /** Onde cada portal estava antes de um "refazer", para montar de novo no mesmo lugar. */
     private static final Map<String, BlockPos> ANTIGAS = new HashMap<>();
+    /** Lugar do portal escolhido pelo admin (/frx masmorra portal <id>): posição dos pés. */
+    private static final Map<String, BlockPos> MANUAIS = new HashMap<>();
     private static int espera = 0;
 
     public EntradasMasmorra() {}
@@ -110,7 +112,7 @@ public class EntradasMasmorra {
     // ------------------------------------------------------------------ onde fica a estrutura
 
     /** Refaz o cálculo da estrutura (sem colocar blocos) para saber a caixa dela. A geração é a mesma do dia em que foi colocada. */
-    private static StructureStart estrutura(ServerLevel nivel, JsonObject m, String estruturaColocada) {
+    private static StructureStart estrutura(ServerLevel nivel, JsonObject m, String estruturaColocada, int descer) {
         ResourceLocation rl = ResourceLocation.tryParse(estruturaColocada);
         Structure estrutura = rl == null ? null : nivel.registryAccess().registryOrThrow(Registries.STRUCTURE).get(rl);
         if (estrutura == null) return null;
@@ -121,7 +123,10 @@ public class EntradasMasmorra {
             try {
                 StructureStart inicio = estrutura.generate(nivel.registryAccess(), gerador, gerador.getBiomeSource(), nivel.getChunkSource().randomState(),
                         nivel.getStructureManager(), nivel.getSeed(), new ChunkPos(new BlockPos(x, 0, z)), 0, nivel, b -> true);
-                if (inicio.isValid()) return inicio;
+                if (inicio.isValid()) {
+                    if (descer != 0) inicio.getPieces().forEach(pc -> pc.move(0, descer, 0));   // mesmo ajuste feito ao colocar
+                    return inicio;
+                }
             } catch (Exception ignorado) { return null; }
         }
         return null;
@@ -314,7 +319,9 @@ public class EntradasMasmorra {
         JsonObject m = def(id);
         String[] p = linha.split(";");
         if (m == null || p.length < 5) return "sem configuração";
-        StructureStart inicio = estrutura(nivel, m, p[4]);
+        int descer = 0;
+        if (p.length >= 6) try { descer = Integer.parseInt(p[5].trim()); } catch (NumberFormatException ignorado) { }
+        StructureStart inicio = estrutura(nivel, m, p[4], descer);
         if (inicio == null) return "não consegui recalcular a estrutura " + p[4];
         BoundingBox bb = inicio.getBoundingBox();
         BlockPos centro = bb.getCenter();
@@ -325,6 +332,15 @@ public class EntradasMasmorra {
         int chao = m.has("entrada") ? m.getAsJsonArray("entrada").get(1).getAsInt() - 1
                 : ANTIGAS.containsKey(id) ? ANTIGAS.get(id).getY() - 1 : chaoNatural(nivel, sx, sz);
         boolean enterrada = bb.maxY() < chao - 3;
+        // nível próprio da masmorra (painel): vale em toda a caixa dela, com folga
+        int nivelFixo = m.has("nivel") && !m.get("nivel").isJsonNull() ? m.get("nivel").getAsInt() : 0;
+        br.com.frxcode.frxworld.progressao.AreasNivel.definir(nivel.getServer(), id, bb.inflatedBy(3), nivelFixo);
+        // embaixo de uma capital e sem entrada marcada: o pórtico cairia no meio da praça. Espera o admin escolher o lugar.
+        boolean naCapital = false;
+        for (Reino rr : Reinos.todos()) if (rr.distancia(centro.getX(), centro.getZ()) == 0) naCapital = true;
+        if (enterrada && naCapital && !m.has("entrada") && !MANUAIS.containsKey(id))
+            return "embaixo de uma capital: escolha o lugar do portal com /frx masmorra portal " + id + " (em pé no ponto)";
+        if (MANUAIS.containsKey(id)) { BlockPos mp = MANUAIS.get(id); sx = mp.getX(); sz = mp.getZ(); chao = mp.getY() - 1; }
         if (!enterrada) {
             // de superfície: só o marco, ao lado da construção (do lado de fora da caixa)
             int mx = bb.minX() - 5, mz = centro.getZ();
@@ -412,7 +428,45 @@ public class EntradasMasmorra {
     @SubscribeEvent
     public void comandos(RegisterCommandsEvent ev) {
         ev.getDispatcher().register(Commands.literal("frx").requires(c -> c.hasPermission(2))
-                .then(Commands.literal("masmorra").then(Commands.literal("entradas")
+                .then(Commands.literal("masmorra").then(Commands.literal("secar").then(Commands.argument("id", com.mojang.brigadier.arguments.StringArgumentType.word())
+                        .suggests((c, b) -> net.minecraft.commands.SharedSuggestionProvider.suggest(Masmorras.lidas(c.getSource().getServer().overworld()).keySet(), b))
+                        .executes(ctx -> {
+                            String id = com.mojang.brigadier.arguments.StringArgumentType.getString(ctx, "id");
+                            ServerLevel nv = ctx.getSource().getServer().overworld();
+                            String linha = Masmorras.lidas(nv).get(id);
+                            JsonObject m = def(id);
+                            if (linha == null || m == null) { ctx.getSource().sendFailure(Component.literal("Masmorra desconhecida ou ainda não colocada.")); return 0; }
+                            String[] p = linha.split(";");
+                            int descer = 0;
+                            if (p.length >= 6) try { descer = Integer.parseInt(p[5].trim()); } catch (NumberFormatException ignorado) { }
+                            StructureStart inicio = p.length >= 5 ? estrutura(nv, m, p[4], descer) : null;
+                            if (inicio == null) { ctx.getSource().sendFailure(Component.literal("Não consegui recalcular a estrutura.")); return 0; }
+                            int n = Masmorras.secar(nv, inicio);
+                            ctx.getSource().sendSuccess(() -> Component.literal("Masmorra " + id + " seca: " + n + " blocos de água e caverna fechados.").withStyle(ChatFormatting.GOLD), true);
+                            return n;
+                        }))))
+                .then(Commands.literal("masmorra").then(Commands.literal("portal").then(Commands.argument("id", com.mojang.brigadier.arguments.StringArgumentType.word())
+                        .suggests((c, b) -> net.minecraft.commands.SharedSuggestionProvider.suggest(Masmorras.lidas(c.getSource().getServer().overworld()).keySet(), b))
+                        .executes(ctx -> {
+                            String id = com.mojang.brigadier.arguments.StringArgumentType.getString(ctx, "id");
+                            ServerPlayer adm = ctx.getSource().getPlayerOrException();
+                            ServerLevel nv = ctx.getSource().getServer().overworld();
+                            String linha = Masmorras.lidas(nv).get(id);
+                            if (linha == null) { ctx.getSource().sendFailure(Component.literal("Essa masmorra ainda não foi colocada no mundo.")); return 0; }
+                            Entrada velha = ENTRADAS.get(id);
+                            if (velha != null && velha.dentro() != null) {
+                                nv.getChunk(velha.dentro().getX() >> 4, velha.dentro().getZ() >> 4);
+                                if (nv.getBlockState(velha.dentro().below()).is(Blocks.CRYING_OBSIDIAN)) por(nv, velha.dentro().below(), Blocks.POLISHED_BLACKSTONE_BRICKS.defaultBlockState());
+                                for (ArmorStand a : nv.getEntitiesOfClass(ArmorStand.class, new AABB(velha.dentro()).inflate(4), x -> x.getTags().contains(TAG))) a.discard();
+                            }
+                            MANUAIS.put(id, adm.blockPosition());
+                            ANTIGAS.remove(id);
+                            ENTRADAS.remove(id);
+                            String r = montar(nv, id, linha);
+                            gravar(nv);
+                            ctx.getSource().sendSuccess(() -> Component.literal("Portal de " + nome(id) + ": " + r).withStyle(ChatFormatting.GOLD), true);
+                            return 1;
+                        }))).then(Commands.literal("entradas")
                         .executes(ctx -> {
                             StringBuilder sb = new StringBuilder("Entradas das masmorras:");
                             for (Entrada e : ENTRADAS.values())

@@ -136,7 +136,7 @@ public class Bestiario {
     private static String capitulo(List<Ficha> fichas) {
         StringBuilder sb = new StringBuilder();
         sb.append("{\n\tdefault_hide_dependency_lines: true\n\tdefault_quest_shape: \"hexagon\"\n\tfilename: \"bestiario\"\n\tgroup: \"\"\n")
-                .append("\ticon: \"minecraft:zombie_head\"\n\tid: \"").append(hex("frxworld:bestiario")).append("\"\n\torder_index: 12\n\tquest_links: [ ]\n\tquests: [\n");
+                .append("\ticon: \"minecraft:zombie_head\"\n\tid: \"").append(hex("frxworld:bestiario")).append("\"\n\torder_index: 13\n\tquest_links: [ ]\n\tquests: [\n");
         String modAtual = null;
         int col = 0;
         double y = 0;

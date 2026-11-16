@@ -83,7 +83,7 @@
 		}
 		{
 			dependencies: ["29EC39EF4584F689"]
-			description: ["Tempest é a capital onde tudo começa. Visite a praça e fale com os NPCs."]
+			description: ["Lubelius é a capital onde tudo começa. Visite a praça, fale com os NPCs e registre-se na Guilda."]
 			id: "27C287CC723D59B6"
 			rewards: [
 				{
@@ -104,12 +104,12 @@
 				}
 			]
 			tasks: [{
-				advancement: "frxworld:frx/capital_tempest"
+				advancement: "frxworld:frx/capital_lubelius"
 				criterion: ""
 				id: "250277047E6D3561"
 				type: "advancement"
 			}]
-			title: "A Federação de Jura Tempest"
+			title: "O Império Sagrado de Lubelius"
 			x: 4.0d
 			y: 0.0d
 		}

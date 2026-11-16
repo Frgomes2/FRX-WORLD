@@ -54,6 +54,8 @@
 ### População e raças dos NPCs
 
 - `Populacao.java` povoa os reinos com moradores. Não entram dragões do Ice and Fire. `/frx populacao refazer`.
+- **Proteção:** morador das ruas só leva dano de jogador (e do vazio); monstro, dragão, parede e invasão não matam. Guardas continuam podendo morrer.
+- **Reposição:** morador ou guarda que morre volta em 10 minutos, perto de onde caiu, quando houver jogador na região. A fila fica em `frx_repor.txt`, na pasta do mundo (`x;y;z;morador|guarda;quando`).
 - `reinos/Racas.java` define os `VillagerType` por raça:
   - originais: humano, anão, elfo, hobgoblin, oriental, sagrado, demônio;
   - novos: beastkin, halfling, oni, vampiro, dragonoide, espírito, gigante.

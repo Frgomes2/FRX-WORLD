@@ -35,6 +35,7 @@ public final class Progressao {
             double vida = mob.getMaxHealth();
             xp = mob instanceof Enemy ? vida : vida * 0.25; // monstro vale mais que animal
         }
+        if (mob instanceof Enemy && mob.level().dimension() == net.minecraft.world.level.Level.OVERWORLD) xp *= br.com.frxcode.frxworld.aventura.Ceu.multXp();
         return Math.max(1, Math.round(xp * ConfigJogo.xpMultiplicador()));
     }
 

@@ -38,6 +38,7 @@ No primeiro login: falas do Sistema, escolha de raça, escolha de classe, desper
 - O rank (F, E, D, C, B, A, S) só sobe com a **prova de promoção**: derrotar o Examinador em 3 minutos, sem morrer. Falhou, espera 10 minutos.
 - A prova exige o nível mínimo do rank, definido no painel (Progressão).
 - O título em uso e o rank aparecem acima da cabeça do jogador.
+- **Benefícios do rank** (por degrau acima de F): +10% de XP e moedas nas missões, 2% de desconto nas lojas e na forja (soma com a reputação, teto de 50%) e soldo diário de 60 cobre, pago uma vez por dia real ao entrar ou abrir o cartão. Rank S: +60%, 12% e 3 ouro e 6 prata por dia. O cartão mostra o que o próximo rank dá.
 - **Grupos:** o dano entre aliados está ligado (decisão de 13/11/2026); membros do mesmo grupo podem se ferir.
 
 ### Missões de rank

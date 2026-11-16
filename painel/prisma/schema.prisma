@@ -198,6 +198,7 @@ model Masmorra {
   nome              String
   chefe             String    @default("")
   estrutura         String    // ids separados por | (vale a primeira que gerar)
+  nivel             Int       @default(0) // nível fixo dos monstros lá dentro (0 = segue a zona)
   x                 Int
   z                 Int
   entradaX          Int?

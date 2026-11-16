@@ -86,3 +86,35 @@
 | `/setworldspawn` (vanilla) | Marca o ponto inicial: a abertura isekai passa a nascer e renascer ali |
 
 > Para a sintaxe exata de cada subcomando, use o autocompletar (Tab) no jogo.
+
+## Aventura (15/11)
+
+| Comando | O que faz |
+|---|---|
+| `/historia` · `/historia desafio` | Capítulo atual da história · desafia o Rei Demônio (último capítulo, no reino dos demônios) |
+| `/temporada` | Placar da temporada do mês |
+| `/procurados` | Contrato de procurado em aberto |
+| `/torre` · `/torre sair` · `/torre continuar` | Recorde e entrada da Torre Infinita · desiste da subida · começa o próximo andar já |
+| `/torre placar` · `/torre loja` · `/torre comprar <item>` | Rankings da Torre · Loja da Torre (fichas) · compra |
+| `/runas` | Lista e explica as runas |
+| `/frx torre aqui` · `desfazer` · `andar <n>` | Ergue a torre onde o admin está · remove · define o andar seguro do admin |
+| `/frx historia <jogador> <capítulo>` | Põe o jogador num capítulo |
+| `/frx temporada fechar` | Encerra a temporada agora |
+| `/frx procurado` · `encerrar` | Cria um procurado ao lado · remove |
+| `/frx ceu lua` · `meteoros` · `parar` | Força os eventos do céu |
+| `/frx tesouro` | Dá um Mapa do Tesouro |
+| `/frx runa <tipo> [nível]` | Dá uma runa |
+| `/frx ladrao [jogador]` · `chance <0-1000>` | Solta o ladrão · ajusta a chance |
+| `/frx ronaldinho [jogador]` · `chance <0-1000>` | Chama o Ronaldinho · ajusta a chance |
+
+## Mundo e cidades (15/11)
+
+| Comando | O que faz |
+|---|---|
+| `/frx portao aqui [largura 3-9]` · `/frx portao desfazer` | Abre um portão em arco, com guardas, no muro à frente do admin · desfaz |
+| `/frx ciclo <dia> <noite>` | Duração do dia e da noite em minutos (padrão 20 e 10) |
+| `/frx casas <reino>` · `/frx casas desfazer` | Abre as casas maciças do reino: interior, porta, cama e baú · desfaz (até reiniciar) |
+| `/frx masmorra portal <id>` · `/frx masmorra secar <id>` | Põe o pórtico com portal na entrada da masmorra · tira a água de dentro |
+| `/frx masmorra entradas [refazer [id]]` | Lista ou refaz as entradas das masmorras |
+| `/frx npc aqui pedreiro` | Coloca o Mestre de Obras (loja de blocos) |
+| `/frx populacao refazer` | Remove os moradores carregados e povoa de novo |

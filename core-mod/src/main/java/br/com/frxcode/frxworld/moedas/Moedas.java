@@ -68,6 +68,31 @@ public class Moedas {
         }
     }
 
+    /**
+     * Dá o valor em moedas só até onde couber no inventário: nada é jogado no chão.
+     * Devolve quanto (em cobre) NÃO coube.
+     */
+    public static long darSemDerrubar(ServerPlayer p, long valor) {
+        if (valor <= 0) return 0;
+        long[] qtd = {valor / 100, (valor % 100) / 10, valor % 10};
+        Item[] itens = {OURO.get(), PRATA.get(), COBRE.get()};
+        long[] vale = {100, 10, 1};
+        long sobra = 0;
+        for (int i = 0; i < 3; i++) {
+            while (qtd[i] > 0) {
+                int lote = (int) Math.min(qtd[i], 64);
+                ItemStack s = new ItemStack(itens[i], lote);
+                p.getInventory().add(s);
+                int ficou = s.getCount();           // o que não entrou continua na pilha
+                qtd[i] -= lote - ficou;
+                if (ficou > 0) break;               // inventário cheio para esta moeda
+            }
+            sobra += qtd[i] * vale[i];
+        }
+        p.getInventory().setChanged();
+        return sobra;
+    }
+
     /** Tira o valor da bolsa (dando troco). Retorna false se não tiver o suficiente. */
     public static boolean cobrar(ServerPlayer p, long valor) {
         long total = contar(p);

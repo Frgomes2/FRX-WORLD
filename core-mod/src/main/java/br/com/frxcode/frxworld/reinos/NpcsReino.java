@@ -77,6 +77,7 @@ public class NpcsReino {
             new Papel("banqueiro", "nitwit", 0, 10, new String[]{"Moedas no banco não se perdem na morte.", "Guardo seu ouro com a minha vida."}),
             new Papel("cambista", "nitwit", -10, 0, new String[]{"Troco ouro, prata e cobre sem cobrar taxa!", "1 ouro vale 10 pratas; 1 prata vale 10 cobres."}),
             new Papel("recepcionista", "librarian", 10, -5, new String[]{"Bem-vindo à Guilda de Aventureiros!", "Suba de rank e o reino inteiro vai saber o seu nome."}),
+            new Papel("pedreiro", "mason", 10, 5, new String[]{"Madeira, pedra, vidro: tudo para a sua obra!", "Quem constrói bem começa pelo material certo.", "Blocos em pilha, preço de atacado."}),
             new Papel("cozinheiro", "butcher", 0, -10, new String[]{"Comida quente para a viagem!", "Barriga cheia, espada firme.", "O cardápio muda todo dia, volte sempre."}),
             new Papel("taverneiro", "nitwit", -7, -5, new String[]{"Procurando trabalho? Veja o quadro de missões!", "Hoje a cerveja está por conta da casa... brincadeira."})
     );
@@ -120,6 +121,7 @@ public class NpcsReino {
         return switch (papel) {
             case "rei" -> "Soberano de " + r.nome();
             case "guarda" -> "Guarda de " + r.nome();
+            case "pedreiro" -> "Mestre de Obras";
             default -> Character.toUpperCase(papel.charAt(0)) + papel.substring(1);
         };
     }
@@ -325,7 +327,7 @@ public class NpcsReino {
         return n;
     }
 
-    private static void marcarNpc(Entity e, Reino r, String papel) {
+    static void marcarNpc(Entity e, Reino r, String papel) {
         e.addTag(TAG);
         e.addTag(TAG + "_" + r.id());
         e.getPersistentData().putString("frx_papel", papel);
@@ -381,7 +383,7 @@ public class NpcsReino {
         return v;
     }
 
-    private static Entity criarGuarda(ServerLevel nivel, Reino r, BlockPos b) {
+    static Entity criarGuarda(ServerLevel nivel, Reino r, BlockPos b) {
         EntityType<?> tipo = ForgeRegistries.ENTITY_TYPES.getValue(ResourceLocation.tryParse(GUARDA_MOD));
         Entity e = (tipo != null ? tipo : EntityType.IRON_GOLEM).create(nivel);
         if (!(e instanceof Mob m)) return null;
@@ -432,7 +434,7 @@ public class NpcsReino {
         }
         String papel = e.getPersistentData().getString("frx_papel");
         // ferreiro/armeiro: clique abre o menu (forja + loja); agachado abre a troca clássica do aldeão
-        if ((papel.equals("ferreiro") || papel.equals("armeiro") || papel.equals("cozinheiro")) && !evento.getEntity().isShiftKeyDown()) {
+        if ((papel.equals("ferreiro") || papel.equals("armeiro") || papel.equals("cozinheiro") || papel.equals("pedreiro")) && !evento.getEntity().isShiftKeyDown()) {
             if (evento.getEntity() instanceof ServerPlayer jogador) MenusNpc.abrirForja(jogador, e, "", true);
             evento.setCanceled(true);
             evento.setCancellationResult(InteractionResult.SUCCESS);
@@ -494,6 +496,9 @@ public class NpcsReino {
                 v.getOffers().clear();
                 v.getOffers().addAll(Lojas.forja(papel.equals("armeiro"), br.com.frxcode.frxworld.progressao.Progressao.dados(jogador).nivel(), desc,
                         jogador.server, e.getPersistentData().getString("frx_reino") + papel));
+            } else if (papel.equals("pedreiro")) {
+                v.getOffers().clear();
+                v.getOffers().addAll(Lojas.blocos(desc));
             } else if (papel.equals("cozinheiro")) {
                 v.getOffers().clear();
                 v.getOffers().addAll(Lojas.comida(br.com.frxcode.frxworld.progressao.Progressao.dados(jogador).nivel(), desc,
@@ -527,7 +532,7 @@ public class NpcsReino {
 
     // ------------------------------------------------------------------ comandos
 
-    private static Reino reinoDe(ServerPlayer p) {
+    static Reino reinoDe(ServerPlayer p) {
         for (Reino r : Reinos.todos()) if (r.distancia(p.getBlockX(), p.getBlockZ()) == 0) return r;
         return null;
     }

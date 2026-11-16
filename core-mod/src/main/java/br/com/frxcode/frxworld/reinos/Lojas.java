@@ -144,6 +144,30 @@ public final class Lojas {
         } finally { fatorVenda = 1; }
     }
 
+    /** Loja do pedreiro: blocos essenciais de construção, sempre os mesmos, em pilhas. Preço em cobre. */
+    private static final Object[][] BLOCOS = {
+            {"minecraft:oak_log", 16, 20}, {"minecraft:spruce_log", 16, 20}, {"minecraft:birch_log", 16, 20}, {"minecraft:dark_oak_log", 16, 22},
+            {"minecraft:oak_planks", 32, 12}, {"minecraft:spruce_planks", 32, 12}, {"minecraft:birch_planks", 32, 12},
+            {"minecraft:cobblestone", 32, 10}, {"minecraft:stone", 32, 16}, {"minecraft:stone_bricks", 32, 24}, {"minecraft:cobbled_deepslate", 32, 16},
+            {"minecraft:dirt", 32, 6}, {"minecraft:sand", 32, 14}, {"minecraft:gravel", 32, 10}, {"minecraft:clay", 16, 20},
+            {"minecraft:glass", 16, 20}, {"minecraft:bricks", 16, 30}, {"minecraft:terracotta", 16, 20}, {"minecraft:white_concrete", 16, 30},
+            {"minecraft:quartz_block", 16, 40}, {"minecraft:white_wool", 8, 16},
+            {"minecraft:torch", 16, 10}, {"minecraft:ladder", 16, 10}, {"minecraft:oak_door", 2, 6}, {"minecraft:oak_fence", 16, 12},
+            {"minecraft:chest", 2, 10}, {"minecraft:crafting_table", 1, 4}, {"minecraft:furnace", 1, 8}, {"minecraft:white_bed", 1, 12}};
+
+    public static List<MerchantOffer> blocos(double desconto) {
+        fatorVenda = 1 - desconto;
+        try {
+            List<MerchantOffer> l = new ArrayList<>();
+            for (Object[] b : BLOCOS) {
+                net.minecraft.world.item.Item item = net.minecraftforge.registries.ForgeRegistries.ITEMS.getValue(net.minecraft.resources.ResourceLocation.tryParse((String) b[0]));
+                if (item == null || item == net.minecraft.world.item.Items.AIR) continue;
+                l.add(venda(new ItemStack(item, (Integer) b[1]), (Integer) b[2]));
+            }
+            return l;
+        } finally { fatorVenda = 1; }
+    }
+
     /** Aviso do que chega no próximo patamar ("" no último). */
     public static String proximoTier(int nivel) {
         int t = tier(nivel);

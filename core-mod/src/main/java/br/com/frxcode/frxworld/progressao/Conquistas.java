@@ -81,6 +81,7 @@ public class Conquistas {
         DadosJogador d = Progressao.dados(p);
         d.contadores().merge(chave, quanto, Integer::sum);
         checar(p, chave);
+        br.com.frxcode.frxworld.aventura.Temporadas.doContador(p, chave, quanto);
     }
 
     /** Guarda o maior valor já visto (nível, forja, banco). */

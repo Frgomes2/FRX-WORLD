@@ -326,6 +326,7 @@ public class Habilidades {
         d.definirRecurso(d.recurso() - custo);
         Despertar.gastouRecurso(p, custo);
         int totalMs = (int) Math.max(250, h.recarga() * 1000 * (1 - 0.03 * (reg.nivel - 1)) * Math.max(0.4, 1 - Talentos.bonus(p, Talentos.Atributo.RECARGA)));
+        if (Especiais.consumirReembolso(p)) totalMs = Math.min(totalMs, 1000);
         rc.put(cod, agora + totalMs);
         enviar(p, new SyncRecarga(cod, totalMs, totalMs));
         enviarRecurso(p, true);
@@ -342,6 +343,10 @@ public class Habilidades {
 
     private static boolean executar(ServerPlayer p, HabilidadeDef h, int nivelHab) {
         double mult = (1 + 0.03 * (Progressao.dados(p).nivel() - 1)) * (1 + 0.08 * (nivelHab - 1)) * Talentos.fator(p, Talentos.Atributo.DANO_HAB);
+        if (h.efeito().startsWith("frx:")) {
+            Boolean especial = Especiais.executar(p, h, mult);
+            if (especial != null) return especial;
+        }
         return switch (h.tipo()) {
             case "SKILLSHOT" -> skillshot(p, h, mult);
             case "ALVO" -> alvo(p, h, mult);
@@ -538,14 +543,14 @@ public class Habilidades {
     // ------------------------------------------------------------------ utilidades
 
     /** Quem a habilidade pode ferir: tudo vivo menos jogadores, aldeões, invocações, bichos domados e golens de jogador. */
-    private static boolean inimigo(ServerPlayer p, LivingEntity e) {
+    static boolean inimigo(ServerPlayer p, LivingEntity e) {
         if (e instanceof Player || e instanceof AbstractVillager || e instanceof ArmorStand) return false;
         if (e.getTags().contains(TAG_INVOCADO)) return false;
         if (e instanceof TamableAnimal t && t.isTame()) return false;
         return !(e instanceof IronGolem g && g.isPlayerCreated());
     }
 
-    private static LivingEntity mirar(ServerPlayer p, double alcance, double folga, boolean aliados) {
+    static LivingEntity mirar(ServerPlayer p, double alcance, double folga, boolean aliados) {
         Vec3 olho = p.getEyePosition();
         Vec3 fim = pontoBloco(p, alcance);
         LivingEntity melhor = null;
@@ -562,14 +567,14 @@ public class Habilidades {
         return melhor;
     }
 
-    private static Vec3 pontoBloco(ServerPlayer p, double alcance) {
+    static Vec3 pontoBloco(ServerPlayer p, double alcance) {
         Vec3 olho = p.getEyePosition();
         Vec3 fim = olho.add(p.getLookAngle().scale(alcance));
         BlockHitResult r = p.level().clip(new ClipContext(olho, fim, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, p));
         return r.getType() == HitResult.Type.MISS ? fim : r.getLocation();
     }
 
-    private static void ferir(ServerPlayer p, LivingEntity alvo, double dano, HabilidadeDef h) {
+    static void ferir(ServerPlayer p, LivingEntity alvo, double dano, HabilidadeDef h) {
         float v = (float) dano;
         if ("SAGRADO".equals(h.elemento()) && alvo.getMobType() == MobType.UNDEAD) v *= 2;
         DamageSource fonte = "FISICO".equals(h.elemento()) ? p.damageSources().playerAttack(p) : p.damageSources().indirectMagic(p, p);
@@ -610,7 +615,7 @@ public class Habilidades {
             nivel.sendParticles(ParticleTypes.HEART, alvo.getX(), alvo.getY() + 1.2, alvo.getZ(), 6, 0.4, 0.4, 0.4, 0.02);
     }
 
-    private static ParticleOptions particula(String elemento) {
+    static ParticleOptions particula(String elemento) {
         return switch (elemento) {
             case "FOGO" -> ParticleTypes.FLAME;
             case "GELO" -> ParticleTypes.SNOWFLAKE;
@@ -623,7 +628,7 @@ public class Habilidades {
         };
     }
 
-    private static void som(ServerPlayer p, String elemento) {
+    static void som(ServerPlayer p, String elemento) {
         SoundEvent s = switch (elemento) {
             case "FOGO" -> SoundEvents.BLAZE_SHOOT;
             case "GELO" -> SoundEvents.GLASS_BREAK;
@@ -636,7 +641,7 @@ public class Habilidades {
         p.level().playSound(null, p.blockPosition(), s, SoundSource.PLAYERS, 0.8f, 1.1f);
     }
 
-    private static void linha(ServerLevel nivel, Vec3 de, Vec3 ate, ParticleOptions part) {
+    static void linha(ServerLevel nivel, Vec3 de, Vec3 ate, ParticleOptions part) {
         Vec3 d = ate.subtract(de);
         int passos = (int) Math.min(120, d.length() * 2);
         for (int i = 0; i <= passos; i++) {
@@ -645,7 +650,7 @@ public class Habilidades {
         }
     }
 
-    private static void marcarCombate(ServerPlayer p) {
+    static void marcarCombate(ServerPlayer p) {
         ultimoCombate.put(p.getUUID(), System.currentTimeMillis());
     }
 
@@ -725,7 +730,7 @@ public class Habilidades {
         }
     }
 
-    private static void ganharFuria(ServerPlayer p, double quanto) {
+    static void ganharFuria(ServerPlayer p, double quanto) {
         if (!Progressao.temDados(p)) return;
         DadosJogador d = Progressao.dados(p);
         if (!"FURIA".equals(recursoDa(d.classe()))) return;
