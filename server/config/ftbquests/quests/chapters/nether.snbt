@@ -9,26 +9,16 @@
 	quest_links: [ ]
 	quests: [
 		{
-			description: [
-				"Chegue ao nível 15."
-				""
-				"Abaixo disso a região é extremamente perigosa."
-			]
+			description: ["Chegue ao nível 15." "" "Abaixo disso a região é extremamente perigosa."]
 			id: "5C07A1F3E7AA4F24"
-			rewards: [{
-				command: "/frx moedas {p} 300"
-				elevate_perms: true
-				id: "3DC65712FE7D2252"
-				silent: true
-				title: "3 ouro"
-				type: "command"
-			}]
-			tasks: [{
-				advancement: "frxworld:frx/nivel_15"
-				criterion: ""
-				id: "1B77C8858710D621"
-				type: "advancement"
-			}]
+			tasks: [
+				{
+					advancement: "frxworld:frx/nivel_15"
+					criterion: ""
+					id: "1B77C8858710D621"
+					type: "advancement"
+				}
+			]
 			title: "Pronto para Nether"
 			x: 0.0d
 			y: 0.0d
@@ -46,22 +36,16 @@
 					title: "750 XP"
 					type: "command"
 				}
-				{
-					command: "/frx moedas {p} 750"
-					elevate_perms: true
-					id: "24CEF186EA549259"
-					silent: true
-					title: "7 ouro"
-					type: "command"
-				}
 			]
 			shape: "gear"
 			size: 1.5d
-			tasks: [{
-				dimension: "minecraft:the_nether"
-				id: "33736DADE0881539"
-				type: "dimension"
-			}]
+			tasks: [
+				{
+					dimension: "minecraft:the_nether"
+					id: "33736DADE0881539"
+					type: "dimension"
+				}
+			]
 			title: "Entrar: Nether"
 			x: 2.0d
 			y: 0.0d
@@ -79,21 +63,15 @@
 					title: "1200 XP"
 					type: "command"
 				}
+			]
+			tasks: [
 				{
-					command: "/frx moedas {p} 600"
-					elevate_perms: true
-					id: "571CEF0B8391B04A"
-					silent: true
-					title: "6 ouro"
-					type: "command"
+					entity: "minecraft:blaze"
+					id: "39ED3DD032F4B9D2"
+					type: "kill"
+					value: 10L
 				}
 			]
-			tasks: [{
-				entity: "minecraft:blaze"
-				id: "39ED3DD032F4B9D2"
-				type: "kill"
-				value: 10L
-			}]
 			title: "Blazes"
 			x: 4.0d
 			y: 0.0d
@@ -111,21 +89,15 @@
 					title: "1800 XP"
 					type: "command"
 				}
+			]
+			tasks: [
 				{
-					command: "/frx moedas {p} 1200"
-					elevate_perms: true
-					id: "2D70586D631E8460"
-					silent: true
-					title: "12 ouro"
-					type: "command"
+					entity: "minecraft:wither_skeleton"
+					id: "26AEFD2205A6BA56"
+					type: "kill"
+					value: 5L
 				}
 			]
-			tasks: [{
-				entity: "minecraft:wither_skeleton"
-				id: "26AEFD2205A6BA56"
-				type: "kill"
-				value: 5L
-			}]
 			title: "Esqueletos Wither"
 			x: 6.0d
 			y: 0.0d
@@ -136,6 +108,7 @@
 			id: "36DFF6060B5CDF0F"
 			rewards: [
 				{
+					count: 1
 					id: "4D2565E009E952D5"
 					item: "minecraft:nether_star"
 					type: "item"
@@ -148,23 +121,17 @@
 					title: "2400 XP"
 					type: "command"
 				}
-				{
-					command: "/frx moedas {p} 1800"
-					elevate_perms: true
-					id: "738EFDFE5A292FBE"
-					silent: true
-					title: "18 ouro"
-					type: "command"
-				}
 			]
 			shape: "hexagon"
 			size: 1.25d
-			tasks: [{
-				entity: "minecraft:wither"
-				id: "50CCE4BB12AAE137"
-				type: "kill"
-				value: 1L
-			}]
+			tasks: [
+				{
+					entity: "minecraft:wither"
+					id: "50CCE4BB12AAE137"
+					type: "kill"
+					value: 1L
+				}
+			]
 			title: "o Wither"
 			x: 8.0d
 			y: 0.0d

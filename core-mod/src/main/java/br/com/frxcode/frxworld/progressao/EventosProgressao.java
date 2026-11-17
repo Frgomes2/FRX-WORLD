@@ -110,7 +110,8 @@ public class EventosProgressao {
         if (evento.getEntity() instanceof Player) return;
         if (evento.getSource().getEntity() instanceof ServerPlayer matador) {
             // XP e missões de caça repartidas com o grupo (se houver)
-            br.com.frxcode.frxworld.grupos.Grupos.distribuirXp(matador, Math.max(1, Math.round(Progressao.xpDoMob(evento.getEntity()) * Zonas.fatorXp(evento.getEntity(), matador))), evento.getEntity());
+            long xpAbate = br.com.frxcode.frxworld.aventura.Torre.semXpDeAbate(evento.getEntity()) ? 0 : Math.max(1, Math.round(Progressao.xpDoMob(evento.getEntity()) * Zonas.fatorXp(evento.getEntity(), matador)));
+            br.com.frxcode.frxworld.grupos.Grupos.distribuirXp(matador, xpAbate, evento.getEntity());
         }
     }
 

@@ -275,13 +275,11 @@ public class Ranks {
             int est = Math.max(1, e.getPersistentData().getInt(K_EST));
             if (rnd.nextDouble() < 0.3 + est * 0.1)   // repete um dos drops normais
                 for (ItemEntity it : new ArrayList<>(ev.getDrops())) { extra.add(it.getItem().copy()); break; }
-            Moedas.dar(p, Math.round(n * (2 + est) * (0.8 + rnd.nextDouble() * 0.4)));
             if (est >= 4 && rnd.nextDouble() < 0.25) extra.add(new ItemStack(Items.EMERALD, 1 + rnd.nextInt(2)));
         } else {
             extra.add(new ItemStack(Items.DIAMOND, 1 + rnd.nextInt(2)));
             extra.add(new ItemStack(Items.EMERALD, 2 + rnd.nextInt(4)));
             extra.add(new ItemStack(rnd.nextDouble() < 0.1 ? Items.ENCHANTED_GOLDEN_APPLE : Items.GOLDEN_APPLE));
-            Moedas.dar(p, Math.round(n * 15 * (0.8 + rnd.nextDouble() * 0.4)));
         }
         for (ItemStack s : extra) ev.getDrops().add(new ItemEntity(e.level(), e.getX(), e.getY() + 0.5, e.getZ(), s));
     }

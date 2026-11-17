@@ -70,6 +70,14 @@ public class Guilda {
 
     public static String rank(Player p) { return ConfigJogo.nomeRank(indice(p)); }
 
+    /** Admin: define o rank direto (rebaixar ou promover sem prova). Mantém o registro na Guilda. */
+    public static void definirRank(ServerPlayer p, int indice) {
+        dados(p).putBoolean("registrado", true);
+        dados(p).putInt("rank", Math.max(0, Math.min(ConfigJogo.totalRanks() - 1, indice)));
+        Progressao.atualizarNome(p);
+        Progressao.enviarAoPainel(p, false);
+    }
+
     // ------------------------------------------------------------------ cartão
 
     private static boolean temCartao(ServerPlayer p) {
@@ -170,7 +178,7 @@ public class Guilda {
 
     private static String beneficios(int rank) {
         if (rank <= 0) return "Rank F ainda não tem benefícios. Suba para o E!";
-        return "+" + rank * 10 + "% em missões · " + rank * 2 + "% de desconto · soldo de " + Moedas.texto(soldo(rank)) + "/dia";
+        return "+" + rank * 10 + "% em missões · " + rank * 2 + "% de desconto nas lojas e na forja";
     }
 
     /** Paga o soldo do dia (uma vez por dia real), ao entrar no jogo ou abrir o cartão. */
@@ -180,7 +188,7 @@ public class Guilda {
         long hoje = java.time.LocalDate.now().toEpochDay();
         if (rank <= 0 || dados(p).getLong("soldoDia") == hoje) return;
         dados(p).putLong("soldoDia", hoje);
-        Moedas.dar(p, soldo(rank));
+        if (true) return;   // soldo desligado em 16/11: moedas só por missão e venda
         p.sendSystemMessage(Component.literal("⚔ Soldo da Guilda (Rank " + rank(p) + "): " + Moedas.texto(soldo(rank)) + ".").withStyle(ChatFormatting.GOLD));
     }
 

@@ -5,22 +5,23 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 const itens = [
-  { href: "/", rotulo: "Visão geral" },
-  { href: "/convites", rotulo: "Convites" },
-  { href: "/jogadores", rotulo: "Jogadores" },
-  { href: "/servidor", rotulo: "Servidor" },
-  { href: "/progressao", rotulo: "Progressão" },
-  { href: "/missoes", rotulo: "Missões" },
-  { href: "/economia", rotulo: "Economia" },
-  { href: "/reinos", rotulo: "Reinos" },
-  { href: "/npcs", rotulo: "NPCs e skins" },
-  { href: "/dungeons", rotulo: "Dungeons" },
-  { href: "/masmorras", rotulo: "Masmorras" },
-  { href: "/externos", rotulo: "Chefes de mods" },
-  { href: "/eventos", rotulo: "Eventos de estrada" },
-  { href: "/habilidades", rotulo: "Habilidades" },
-  { href: "/forja", rotulo: "Forja" },
-  { href: "/admins", rotulo: "Administradores" },
+  { href: "/admin", rotulo: "Visão geral" },
+  { href: "/admin/convites", rotulo: "Convites" },
+  { href: "/admin/jogadores", rotulo: "Jogadores" },
+  { href: "/admin/servidor", rotulo: "Servidor" },
+  { href: "/admin/progressao", rotulo: "Progressão" },
+  { href: "/admin/missoes", rotulo: "Missões" },
+  { href: "/admin/economia", rotulo: "Economia" },
+  { href: "/admin/dinheiro", rotulo: "Dinheiro dos jogadores" },
+  { href: "/admin/reinos", rotulo: "Reinos" },
+  { href: "/admin/npcs", rotulo: "NPCs e skins" },
+  { href: "/admin/dungeons", rotulo: "Dungeons" },
+  { href: "/admin/masmorras", rotulo: "Masmorras" },
+  { href: "/admin/externos", rotulo: "Chefes de mods" },
+  { href: "/admin/eventos", rotulo: "Eventos de estrada" },
+  { href: "/admin/habilidades", rotulo: "Habilidades" },
+  { href: "/admin/forja", rotulo: "Forja" },
+  { href: "/admin/admins", rotulo: "Administradores" },
 ];
 
 // Módulos do documento de design que entram nas próximas fases
@@ -32,10 +33,11 @@ export function Menu({ aoNavegar }: { aoNavegar?: () => void }) {
     <nav className="flex flex-col gap-1 text-sm">
       {itens.map((i) => (
         <Link key={i.href} href={i.href} onClick={aoNavegar}
-          className={`rounded-md px-3 py-2 ${atual === i.href || (i.href !== "/" && atual.startsWith(i.href + "/")) ? "bg-pedra-700 text-ouro" : "hover:bg-pedra-800"}`}>
+          className={`rounded-md px-3 py-2 ${atual === i.href || (i.href !== "/admin" && atual.startsWith(i.href + "/")) ? "bg-pedra-700 text-ouro" : "hover:bg-pedra-800"}`}>
           {i.rotulo}
         </Link>
       ))}
+      <a href="/" target="_blank" rel="noreferrer" className="mt-4 rounded-md px-3 py-2 text-pedra-500 hover:bg-pedra-800 hover:text-ouro">↗ Site público</a>
       <p className="mt-6 px-3 text-xs uppercase tracking-wider text-pedra-500">Em breve</p>
       {futuros.map((f) => (
         <span key={f} className="cursor-not-allowed px-3 py-1.5 text-pedra-500/70">{f}</span>
@@ -48,7 +50,7 @@ export function Menu({ aoNavegar }: { aoNavegar?: () => void }) {
 export function MenuCelular() {
   const [aberto, setAberto] = useState(false);
   const atual = usePathname();
-  const titulo = itens.find((i) => atual === i.href || (i.href !== "/" && atual.startsWith(i.href + "/")))?.rotulo ?? "";
+  const titulo = itens.find((i) => atual === i.href || (i.href !== "/admin" && atual.startsWith(i.href + "/")))?.rotulo ?? "";
   return (
     <div className="flex min-w-0 items-center gap-3 md:hidden">
       <button type="button" aria-label="Abrir menu" onClick={() => setAberto(true)}

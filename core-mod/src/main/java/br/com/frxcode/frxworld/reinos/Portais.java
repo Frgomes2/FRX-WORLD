@@ -54,8 +54,8 @@ import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Portais de masmorra: de tempos em tempos um portal com rank (F a S) abre perto de uma capital.
- * Chegar perto começa a incursão: 3 ondas de monstros do nível daquele rank, a última com o Guardião.
- * Fechou a tempo, todos por perto ganham XP e moedas. Se ninguém fechar, o portal se rompe e uma horda ataca a capital.
+ * Quem tem o rank do portal (ou maior) atravessa e cai na dungeon temporária do portal, a mesma para todos e com lotação por rank (aventura/Fenda): câmaras e um chefão.
+ * Derrotou o chefão, o portal fecha e o grupo ganha XP e chance de runa, tomo e mapa. Se ninguém fechar, o portal se rompe e uma horda ataca a capital.
  */
 public class Portais {
     public static final String TAG = "frx_portal";
@@ -69,6 +69,7 @@ public class Portais {
     private static int rank, onda;
     private static long limite, proximaTentativa = System.currentTimeMillis() + 15 * 60_000L;
     private static final Set<UUID> vivos = new HashSet<>();
+    private static final Map<UUID, Integer> entrando = new java.util.HashMap<>();
     private static final Map<BlockPos, BlockState> salvos = new LinkedHashMap<>();
 
     public Portais() {}
@@ -238,7 +239,7 @@ public class Portais {
         construir(nivel);
         nivel.playSound(null, pos, SoundEvents.END_PORTAL_SPAWN, SoundSource.HOSTILE, 4f, 0.8f);
         todos(s, "Portal Rank " + nomeRank() + " aberto", "Perto de " + (r != null ? r.nome() : "você") + ", em " + pos.getX() + ", " + pos.getY() + ", " + pos.getZ()
-                + ". Monstros de nível " + nivelDoPortal() + ". Fechem em " + ABERTO_MS / 60_000 + " minutos ou ele se rompe! (/portal)", Sistema.ROXO, ChatFormatting.LIGHT_PURPLE);
+                + ". Leva a uma dungeon de nível " + nivelDoPortal() + " com um chefão no fim. Só Rank " + nomeRank() + " ou superior da Guilda entra, no máximo " + br.com.frxcode.frxworld.aventura.Fenda.lotacao(rank) + " aventureiros por vez. Fechem em " + ABERTO_MS / 60_000 + " minutos ou ele se rompe! (/portal)", Sistema.ROXO, ChatFormatting.LIGHT_PURPLE);
         for (ServerPlayer jogador : s.getPlayerList().getPlayers()) { mostrarNoMapa(jogador); marcarNoMapa(jogador, false); }
         pontoGlobal(false);
         return true;
@@ -268,25 +269,26 @@ public class Portais {
         if (r != null) Invasoes.comecar(s, r, new BlockPos(r.centroX(), r.chao() + 1, r.centroZ()));
     }
 
-    private static void vitoria(MinecraftServer s) {
-        List<ServerPlayer> quem = perto(s, 64);
-        long moedas = 300L * (rank + 1) * (rank + 1), xp = 300L * nivelDoPortal();
+    /** Um grupo derrotou o chefão da dungeon aberta por um portal: paga a recompensa e fecha o portal, se ainda for o mesmo. */
+    public static void aoVencerDungeon(MinecraftServer s, List<ServerPlayer> quem, int rankDungeon, int nivel, BlockPos portal) {
+        long xp = 300L * Math.max(1, nivel);
         StringBuilder nomes = new StringBuilder();
         for (ServerPlayer p : quem) {
-            Moedas.dar(p, moedas);
             Progressao.ganharXp(p, xp);
             br.com.frxcode.frxworld.progressao.Conquistas.somar(p, "portais", 1);
+            br.com.frxcode.frxworld.progressao.Conquistas.somar(p, "chefes", 1);
             br.com.frxcode.frxworld.aventura.Tesouros.talvezDar(p, 20);
-            if (p.getRandom().nextInt(100) < 30 + rank * 10) {
+            br.com.frxcode.frxworld.aventura.Runas.talvezDar(p, 40, rankDungeon >= 4 ? 3 : rankDungeon >= 2 ? 2 : 1);
+            if (p.getRandom().nextInt(100) < 30 + rankDungeon * 10) {
                 ItemStack tomo = new ItemStack(br.com.frxcode.frxworld.blocos.Blocos.TOMO_ARCANO.get());
                 if (!p.getInventory().add(tomo)) p.drop(tomo, false);
             }
             p.level().playSound(null, p.blockPosition(), SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.PLAYERS, 1f, 1f);
             nomes.append(nomes.length() > 0 ? ", " : "").append(p.getGameProfile().getName());
         }
-        String r = nomeRank();
-        fechar(s);
-        todos(s, "Portal Rank " + r + " fechado", (nomes.length() > 0 ? nomes + " venceu a incursão. " : "") + "Recompensa: " + Moedas.texto(moedas) + " e " + xp + " XP para cada um.",
+        String r = ConfigJogo.nomeRank(rankDungeon);
+        if (fase != Fase.NADA && pos != null && pos.equals(portal)) fechar(s);
+        todos(s, "Portal Rank " + r + " fechado", (nomes.length() > 0 ? nomes + " derrotou o chefão da dungeon. " : "") + "Recompensa: " + xp + " XP para cada um, com chance de runa, tomo e mapa do tesouro.",
                 Sistema.OURO, ChatFormatting.GOLD);
     }
 
@@ -368,16 +370,16 @@ public class Portais {
             List<ServerPlayer> online = s.overworld().players();
             if (online.isEmpty() || ThreadLocalRandom.current().nextInt(100) >= CHANCE) return;
             // capital mais próxima de algum jogador (até 800 blocos) e rank pelo jogador mais forte por ali
-            Reino melhor = null; int menor = 800, nivelMax = 1;
+            Reino melhor = null; int menor = 800, nivelMax = 0;
             for (ServerPlayer p : online) {
                 for (Reino r : Reinos.todos()) {
                     int d = r.distancia(p.getBlockX(), p.getBlockZ());
                     if (d < menor) { menor = d; melhor = r; }
                 }
-                if (Progressao.temDados(p)) nivelMax = Math.max(nivelMax, Progressao.dados(p).nivel());
+                nivelMax = Math.max(nivelMax, br.com.frxcode.frxworld.progressao.Guilda.indice(p));   // maior rank da Guilda online
             }
             if (melhor == null) return;
-            int r = ConfigJogo.indiceDoNivel(nivelMax) - ThreadLocalRandom.current().nextInt(2);
+            int r = nivelMax - ThreadLocalRandom.current().nextInt(2);
             abrir(s, melhor, null, Math.max(0, r));
             return;
         }
@@ -387,20 +389,34 @@ public class Portais {
         long resta = Math.max(0, (limite - agora) / 1000);
         String relogio = resta / 60 + ":" + String.format("%02d", resta % 60);
         if (fase == Fase.ABERTO) {
-            if (agora > limite) { romper(s); return; }
+            if (agora > limite) {
+                if (br.com.frxcode.frxworld.aventura.Fenda.emAndamento(pos)) limite = agora + 60_000;   // há grupo lá dentro: segura o portal
+                else { romper(s); return; }
+            }
             for (ServerPlayer p : perto(s, 40))
-                p.displayClientMessage(Component.literal("Portal Rank " + nomeRank() + " · rompe em " + relogio + " · chegue perto para começar").withStyle(ChatFormatting.LIGHT_PURPLE), true);
-            if (!perto(s, 6).isEmpty()) {
-                fase = Fase.LUTA;
-                limite = agora + LUTA_MS;
-                proximaOnda(s);
+                p.displayClientMessage(Component.literal("Portal Rank " + nomeRank() + " · rompe em " + relogio + " · encoste no portal para entrar (Rank " + nomeRank() + " ou superior)").withStyle(ChatFormatting.LIGHT_PURPLE), true);
+            // atravessar: ficar 2 s encostado no portal. Só entra quem tem o rank do portal ou maior.
+            entrando.keySet().removeIf(u -> { ServerPlayer q = s.getPlayerList().getPlayer(u); return q == null || !q.blockPosition().closerThan(pos.offset(1, 1, 0), 3); });
+            for (ServerPlayer p : perto(s, 4)) {
+                if (!p.blockPosition().closerThan(pos.offset(1, 1, 0), 3)) continue;
+                int t = entrando.merge(p.getUUID(), 1, Integer::sum);
+                if (t < 2) continue;
+                entrando.remove(p.getUUID());
+                if (br.com.frxcode.frxworld.progressao.Guilda.indice(p) < rank && !p.isCreative()) {
+                    p.displayClientMessage(Component.literal("O portal te repele: só Rank " + nomeRank() + " ou superior da Guilda entra (você é Rank "
+                            + br.com.frxcode.frxworld.progressao.Guilda.rank(p) + ").").withStyle(ChatFormatting.RED), true);
+                    p.knockback(1.0, pos.getX() + 1 - p.getX(), pos.getZ() - p.getZ());
+                    p.hurtMarked = true;
+                    continue;
+                }
+                br.com.frxcode.frxworld.aventura.Fenda.entrar(p, rank, nivelDoPortal(), pos);
             }
             return;
         }
         // LUTA
         vivos.removeIf(u -> { Entity e = nivel.getEntity(u); return e == null || !e.isAlive(); });
         if (vivos.isEmpty()) {
-            if (onda >= ONDAS) vitoria(s); else proximaOnda(s);
+            fechar(s);   // a fase de ondas no mundo aberto foi trocada pela dungeon (aventura/Fenda)
             return;
         }
         if (agora > limite) { romper(s); return; }

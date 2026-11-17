@@ -8,7 +8,7 @@ export async function entrar(_estado: string | null, form: FormData) {
     await signIn("credentials", {
       email: form.get("email"),
       senha: form.get("senha"),
-      redirectTo: "/",
+      redirectTo: "/admin",
     });
     return null;
   } catch (erro) {

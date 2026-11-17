@@ -327,7 +327,6 @@ public class Campanhas {
     private static void avancar(ServerPlayer p, Campanha c, DadosJogador d, int i) {
         Etapa e = c.etapas().get(i);
         falaRei(p, c, e.agradecimento());
-        Moedas.dar(p, 100L * (i + 1));
         Progressao.ganharXp(p, 250L * (i + 1));
         Reputacao.ganhar(p, c.reino(), 100, true);
         int prox = i + 1;
@@ -348,7 +347,6 @@ public class Campanhas {
         Armas.definirNivel(premio, 5);
         premio.setHoverName(Component.literal(c.nomePremio()).withStyle(ChatFormatting.GOLD));
         if (!p.getInventory().add(premio)) p.drop(premio, false);
-        Moedas.dar(p, 2000);
         Reputacao.ganhar(p, c.reino(), 1000, true);
         Conquistas.somar(p, "campanhas", 1);
         p.connection.send(new ClientboundSetTitlesAnimationPacket(10, 80, 30));

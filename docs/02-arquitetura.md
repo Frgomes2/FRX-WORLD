@@ -33,14 +33,14 @@ Pacote base: `br.com.frxcode.frxworld`. A entrada é `FrxWorld.java`, que regist
 | `cliente` | Telas, HUDs, camadas de render, teclas | Tudo que só roda no cliente |
 | `dungeon` | Dungeons, DungeonDef, Construir, BlocoNucleo, BlocoPortao, Externos | Dungeons em camadas e estruturas externas |
 | `efeitos` | Efeitos, EfeitoFerido | Efeitos de poção próprios |
-| `aventura` | Historia, Temporadas, Procurados, Torre, Ceu, Tesouros, Runas | História principal, placar mensal, procurados, Torre Infinita, eventos do céu, mapas do tesouro e runas |
+| `aventura` | Historia, Temporadas, Procurados, Torre, Ceu, Tesouros, Runas, Chefes, Fenda, Inferno | História principal, placar mensal, procurados, Torre Infinita, eventos do céu, mapas do tesouro, runas, chefões com mecânicas, dungeon de portal e emboscadas do Nether |
 | `eventos` | ChefeMundial, EventosEstrada, Craque, Ladrao | Chefe mundial, eventos de estrada e as visitas raras (Ronaldinho e ladrão) |
 | `grupos` | Grupos | Grupos (party) e chat de grupo |
 | `habilidades` | Habilidades, HabilidadeDef, Especiais, Talentos, Despertar, Sombras, ItemTomo | Classes, habilidades, talentos e poderes especiais |
 | `missoes` | Missoes, MissaoDef | Missões do quadro (vindas do painel) |
 | `moedas` | Moedas, Banco, ItemMoeda, TrocasMoeda | Moedas físicas, saldo e banco |
 | `npc` | SkinsNpc | Skins dos NPCs |
-| `progressao` | Progressao, DadosJogador, ConfigJogo, Zonas, Ranks, Marcos, Conquistas | Nível, XP, zonas, ranks de monstros, marcos |
+| `progressao` | Progressao, DadosJogador, ConfigJogo, Zonas, Ranks, Marcos, Conquistas, Guilda, ClassesEquip, AjustesAdmin | Nível, XP, zonas (faixa, dureza e rank mínimo por dimensão), ranks de monstros, marcos, Guilda, classes de equipamento por rank e ajustes de admin com jogador offline |
 | `racas` | DefRacas, RacasJogador | Sistema de raças do jogador |
 | `rede` | Rede + pacotes Sync*/Acao* | Pacotes cliente↔servidor |
 | `reinos` | Reinos, Reino, NpcsReino, Populacao, Racas, Reputacao, Campanhas, Lojas, Masmorras, Invasoes, WaystonesReino, Decoracoes... | Os 8 reinos e tudo que vive neles |
@@ -61,6 +61,8 @@ Pacote base: `br.com.frxcode.frxworld`. A entrada é `FrxWorld.java`, que regist
 
 ## Painel
 
+O mesmo aplicativo serve duas coisas: o **site público** na raiz (`src/app/page.tsx`, `src/components/publico/`, `src/lib/publico.ts`, `livros.ts`, `notas.ts`, rotas `/api/publico/*`) e o **painel admin** em `/admin` (`src/app/admin/`, com login). Detalhes em [05-painel](05-painel.md).
+
 - **Stack:** Next.js 16 (App Router, server actions), Prisma 7, PostgreSQL 16 (Docker), autenticação com admin único.
 - **Variáveis do `.env`:** `DATABASE_URL`, `AUTH_SECRET`, `AUTH_TRUST_HOST`, `ADMIN_EMAIL`, `ADMIN_SENHA`, `ADMIN_NOME`, `SERVIDOR_TOKEN` e `SERVIDOR_DIR` (a pasta do servidor, lida pelo painel).
 - **Modelos Prisma:** Admin, Convite, Jogador, Configuracao, Missao, Dungeon, ChefeExterno, EstruturaExterna, EventoEstrada, Habilidade, ItemLoja, Masmorra, NpcSkin.
@@ -71,6 +73,7 @@ Pacote base: `br.com.frxcode.frxworld`. A entrada é `FrxWorld.java`, que regist
 Mod (PainelApi)  ── POST/GET  /api/servidor/*  (header x-servidor-token) ──▶  Painel
 Painel (servidorMc.comando) ── comandos de console ──▶ Servidor Minecraft
 Painel ── lê arquivos em SERVIDOR_DIR (reinos, logs, config) ──▶ disco
+Visitante ── GET / e /api/publico/* (sem login) ──▶ Painel (site público)
 ```
 
 - `painel.url` e `painel.token` ficam no config do mod. O token tem de ser igual a `SERVIDOR_TOKEN`.

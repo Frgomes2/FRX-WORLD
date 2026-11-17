@@ -40,8 +40,6 @@ public class RaridadeLoot extends LootModifier {
     }
 
     private static void extra(ObjectArrayList<ItemStack> loot, net.minecraft.util.RandomSource r) {
-        if (r.nextFloat() < 0.40f) loot.add(new ItemStack(br.com.frxcode.frxworld.moedas.Moedas.PRATA.get(), 3 + r.nextInt(10)));
-        if (r.nextFloat() < 0.15f) loot.add(new ItemStack(br.com.frxcode.frxworld.moedas.Moedas.OURO.get(), 1 + r.nextInt(3)));
         if (r.nextFloat() < 0.12f) loot.add(new ItemStack(net.minecraft.world.item.Items.DIAMOND, 1 + r.nextInt(3)));
         if (r.nextFloat() < 0.10f) loot.add(new ItemStack(br.com.frxcode.frxworld.blocos.Blocos.TOMO_ARCANO.get()));
         if (r.nextFloat() < 0.06f) loot.add(new ItemStack(net.minecraft.world.item.Items.NETHERITE_SCRAP));

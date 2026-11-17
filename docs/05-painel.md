@@ -4,26 +4,42 @@
 
 O painel abre sozinho pelo atalho **FRX-WORLD**, em `http://localhost:3000`. Para outros admins, fica em `https://craft.frgomes.com.br` (veja [08-jogar-com-amigos.md](08-jogar-com-amigos.md#painel-para-os-outros-admins-cloudflare-tunnel)). O primeiro admin vem do `.env`; os outros são cadastrados em **Administradores**.
 
+## Site público e endereço do admin
+
+Desde 16/11/2026 o endereço se divide em dois:
+
+- **`/` é o site público** (sem login), feito para os jogadores: status ligado/desligado, quem está jogando, acontecimentos, rankings (mais fortes, começando agora, mais ricos, conquistas, mortes), ranks da Guilda, classes, placar da Torre e da temporada, mapa explorado, sistemas do servidor, lista de mods com link e como entrar. Atualiza sozinho a cada 15 s.
+- **`/admin` é o painel** (tudo o que antes ficava na raiz: `/admin/servidor`, `/admin/missoes`...). O login continua em `/login` e leva para `/admin`.
+
+Arquivos: `src/app/page.tsx`, `src/components/publico/` (`site.tsx`, `mapa.tsx`, `jogadores.tsx`), `src/lib/publico.ts`, `src/lib/notas.ts` (notas de atualização, em linguagem de jogador) e `src/app/api/publico/` (`dados`, `mapa-tile`, `jogador`, `skin`), as únicas rotas de API sem login.
+
+A seção **Biblioteca** traz livros folheáveis sobre as regras do servidor (`src/lib/livros.ts` + `components/publico/biblioteca.tsx`): ranks, missões e habilidades saem do banco, o resto é texto que deve acompanhar as mudanças de regra.
+
+Clicar num jogador abre a ficha pública: skin, nível, raça, Guilda, Torre, temporada, habilidade única e habilidades aprendidas (vêm do campo `detalhe` do jogador). Não mostra inventário, baú de ender nem posição.
+
+**O que o site público nunca mostra** (regra em `lib/publico.ts`): e-mail, UUID, IP, endereço do servidor, conversa do chat e a posição dos jogadores. O mapa mostra só a superfície, o ponto de partida e a Torre; para marcar também os reinos, ponha `PUBLICO_MAPA_REINOS=1` no `painel/.env`. O endereço do servidor fica de fora de propósito: o servidor roda com `online-mode=false`.
+
 ## Menus
 
 | Menu | Rota | O que faz |
 |---|---|---|
-| Visão geral | `/visao` | Status do servidor, jogadores online, mapa do mundo com os reinos |
-| Convites | `/convites` | Gera e controla convites de acesso · **Abertura do primeiro login** (liga/desliga, capital, falas, música, volume e se a música para ao nascer) |
-| Jogadores | `/jogadores` | Lista e ficha de cada jogador: nível, classe, moedas, reputação, ações de admin |
-| Servidor | `/servidor` | Liga/desliga, console e logs |
-| Progressão | `/progressao` | Curva de XP, zonas, **monstros com rank** (chances de Elite/Campeão), config geral |
-| Missões | `/missoes` | Quadro de missões em cards por faixa de nível; editor com seletor de criatura, itens, moedas, XP sugerido e prévia em pergaminho |
-| Economia | `/economia` | Lojas de cada reino (com aviso de arbitragem e ordenação) e ranking dos jogadores mais ricos |
-| Reinos | `/reinos` | Mapa com foco no reino, painel do rei, coordenadas, edição de reputação e matriz de reputação (heatmap) |
-| NPCs e skins | `/npcs` | Skins dos NPCs por reino e raça; cards próprios para o Mestre de Obras e para as visitas raras (Ronaldinho e Ladrão) |
-| Dungeons | `/dungeons` | Anéis de distância (com aviso de buracos e sobreposição), cards das camadas; editor com abas por camada, criaturas, loot com chance e medidor de dificuldade |
-| Masmorras | `/masmorras` | Masmorras dos reinos, com **nível fixo** opcional (campo `nivel`; 0 = pela distância) |
-| Chefes de mods | `/externos` | Chefes e estruturas de outros mods |
-| Eventos de estrada | `/eventos` | Eventos aleatórios nas estradas |
-| Habilidades | `/habilidades` | Habilidades das classes. O campo **Efeito** aceita um efeito de poção ou uma mecânica do mod (`frx:puxar`, `frx:zona`...), com a lista sugerida no próprio campo |
-| Forja | `/forja` | Raridades, refino e custos |
-| Administradores | `/admins` | Admins do painel: adicionar, remover, trocar a própria senha |
+| Visão geral | `/admin` | Status do servidor, jogadores online, mapa do mundo com os reinos |
+| Convites | `/admin/convites` | Gera e controla convites de acesso · **Abertura do primeiro login** (liga/desliga, capital, falas, música, volume e se a música para ao nascer) |
+| Jogadores | `/admin/jogadores` | Lista e ficha de cada jogador: nível, classe, moedas, reputação, ações de admin |
+| Servidor | `/admin/servidor` | Liga/desliga, console e logs |
+| Progressão | `/admin/progressao` | Curva de XP, zonas, **monstros com rank** (chances de Elite/Campeão), config geral |
+| Missões | `/admin/missoes` | Quadro de missões em cards por faixa de nível; editor com seletor de criatura, itens, moedas, XP sugerido e prévia em pergaminho |
+| Economia | `/admin/economia` | Lojas de cada reino (com aviso de arbitragem e ordenação) e ranking dos jogadores mais ricos |
+| Dinheiro dos jogadores | `/admin/dinheiro` | Bolsa, banco e total de cada jogador; edita o saldo do banco (mesmo offline) e tira da bolsa ou zera (só online) |
+| Reinos | `/admin/reinos` | Mapa com foco no reino, painel do rei, coordenadas, edição de reputação e matriz de reputação (heatmap) |
+| NPCs e skins | `/admin/npcs` | Skins dos NPCs por reino e raça; cards próprios para o Mestre de Obras e para as visitas raras (Ronaldinho e Ladrão) |
+| Dungeons | `/admin/dungeons` | Anéis de distância (com aviso de buracos e sobreposição), cards das camadas; editor com abas por camada, criaturas, loot com chance e medidor de dificuldade |
+| Masmorras | `/admin/masmorras` | Masmorras dos reinos, com **nível fixo** opcional (campo `nivel`; 0 = pela distância) |
+| Chefes de mods | `/admin/externos` | Chefes e estruturas de outros mods |
+| Eventos de estrada | `/admin/eventos` | Eventos aleatórios nas estradas |
+| Habilidades | `/admin/habilidades` | Habilidades das classes. O campo **Efeito** aceita um efeito de poção ou uma mecânica do mod (`frx:puxar`, `frx:zona`...), com a lista sugerida no próprio campo |
+| Forja | `/admin/forja` | Raridades, refino e custos |
+| Administradores | `/admin/admins` | Admins do painel: adicionar, remover, trocar a própria senha |
 
 Ainda não implementados ("Em breve"): Conteúdo, Mobs e bosses, Códex de Armas, Estados, Lei e crimes, Rituais, Eventos globais, Versões do pack.
 

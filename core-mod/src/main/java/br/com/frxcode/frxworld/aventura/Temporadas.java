@@ -42,7 +42,7 @@ public class Temporadas {
     /** Contadores das conquistas que também contam para a temporada. */
     private static final Map<String, String> DE_CONTADOR = Map.of("matar_total", "abates", "chefes", "chefes", "portais", "portais",
             "invasoes", "invasoes", "procurados", "procurados", "tesouros", "tesouros");
-    private static final long[] PREMIOS = {5000, 2500, 1000};
+    private static final long[] PREMIOS = {3, 2, 1};   // runas de nível II para 1º, 2º e 3º
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     private static JsonObject dados;
@@ -153,8 +153,8 @@ public class Temporadas {
         long moedas = j.has("moedas") ? j.get("moedas").getAsLong() : 0;
         premios.remove(id);
         sujo = true;
-        if (moedas > 0) Moedas.dar(p, moedas);
-        Sistema.avisar(p, "Prêmio de temporada", (j.has("texto") ? j.get("texto").getAsString() : "Pódio") + ": " + Moedas.texto(moedas) + " e um título novo (/titulo).", Sistema.OURO);
+        for (long i = 0; i < moedas; i++) { net.minecraft.world.item.ItemStack r = Runas.criarAleatoriaNivel(2); if (!p.getInventory().add(r)) p.drop(r, false); }
+        Sistema.avisar(p, "Prêmio de temporada", (j.has("texto") ? j.get("texto").getAsString() : "Pódio") + ": " + moedas + (moedas == 1 ? " runa" : " runas") + " de nível II e um título novo (/titulo).", Sistema.OURO);
     }
 
     // ------------------------------------------------------------------ eventos e comandos
@@ -180,7 +180,7 @@ public class Temporadas {
     private static void mostrar(ServerPlayer p) {
         List<Linha> l = placar();
         p.sendSystemMessage(Component.literal("🏆 Temporada " + (dados != null ? dados.get("mes").getAsString() : "") + " — termina na virada do mês. Prêmios: "
-                + Moedas.texto(PREMIOS[0]) + " / " + Moedas.texto(PREMIOS[1]) + " / " + Moedas.texto(PREMIOS[2]) + " e título.").withStyle(ChatFormatting.GOLD));
+                + "3 / 2 / 1 runas de nível II e título.").withStyle(ChatFormatting.GOLD));
         if (l.isEmpty()) { p.sendSystemMessage(Component.literal("   Ninguém pontuou ainda. Mate chefes, feche portais, suba a Torre!").withStyle(ChatFormatting.GRAY)); return; }
         String eu = p.getUUID().toString();
         for (int i = 0; i < l.size(); i++) {

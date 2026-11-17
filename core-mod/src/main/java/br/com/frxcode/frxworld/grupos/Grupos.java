@@ -275,7 +275,7 @@ public class Grupos {
             Missoes.aoMatar(matador, morto);
             return;
         }
-        long cada = Math.max(1, Math.round(xp * (1 + 0.1 * (l.size() - 1)) / l.size()));
+        long cada = xp <= 0 ? 0 : Math.max(1, Math.round(xp * (1 + 0.1 * (l.size() - 1)) / l.size()));
         for (ServerPlayer m : l) {
             Progressao.ganharXp(m, cada);
             Missoes.aoMatar(m, morto);

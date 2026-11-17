@@ -334,10 +334,12 @@ public class EntradasMasmorra {
         boolean enterrada = bb.maxY() < chao - 3;
         // nível próprio da masmorra (painel): vale em toda a caixa dela, com folga
         int nivelFixo = m.has("nivel") && !m.get("nivel").isJsonNull() ? m.get("nivel").getAsInt() : 0;
-        br.com.frxcode.frxworld.progressao.AreasNivel.definir(nivel.getServer(), id, bb.inflatedBy(3), nivelFixo);
         // embaixo de uma capital e sem entrada marcada: o pórtico cairia no meio da praça. Espera o admin escolher o lugar.
         boolean naCapital = false;
         for (Reino rr : Reinos.todos()) if (rr.distancia(centro.getX(), centro.getZ()) == 0) naCapital = true;
+        // masmorra embaixo de reino é fim de jogo: nunca abaixo do nível 50, mesmo sem nível no painel
+        if (naCapital && enterrada) nivelFixo = Math.max(nivelFixo, br.com.frxcode.frxworld.progressao.Zonas.NIVEL_CHEFE_MASMORRA);
+        br.com.frxcode.frxworld.progressao.AreasNivel.definir(nivel.getServer(), id, bb.inflatedBy(3), nivelFixo);
         if (enterrada && naCapital && !m.has("entrada") && !MANUAIS.containsKey(id))
             return "embaixo de uma capital: escolha o lugar do portal com /frx masmorra portal " + id + " (em pé no ponto)";
         if (MANUAIS.containsKey(id)) { BlockPos mp = MANUAIS.get(id); sx = mp.getX(); sz = mp.getZ(); chao = mp.getY() - 1; }

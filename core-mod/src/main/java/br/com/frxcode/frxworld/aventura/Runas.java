@@ -70,7 +70,7 @@ public class Runas {
         t("gelo", "de Gelo", true, ChatFormatting.AQUA, "10% por nível de congelar o alvo por 3 s");
         t("fogo", "de Fogo", true, ChatFormatting.GOLD, "+1 de dano por nível e incendeia o alvo");
         t("trovao", "do Trovão", true, ChatFormatting.YELLOW, "8% por nível de cair um raio (+dano)");
-        t("fortuna", "da Fortuna", true, ChatFormatting.GREEN, "12% por nível de moedas extras ao matar");
+        t("fortuna", "da Fortuna", true, ChatFormatting.GREEN, "12% por nível de XP em dobro ao matar");
         t("execucao", "da Execução", true, ChatFormatting.RED, "+12% de dano por nível em alvos abaixo de 30% de vida");
         t("pedra", "de Pedra", false, ChatFormatting.GRAY, "-2% de dano recebido por nível");
         t("espinhos", "de Espinhos", false, ChatFormatting.DARK_GREEN, "Devolve 6% do dano recebido por nível");
@@ -99,6 +99,12 @@ public class Runas {
             lore.add(StringTag.valueOf(Component.Serializer.toJson(Component.literal(l).withStyle(st -> st.withColor(ChatFormatting.GRAY).withItalic(false)))));
         s.getOrCreateTagElement("display").put("Lore", lore);
         return s;
+    }
+
+    /** Runa de tipo sorteado, no nível pedido. */
+    public static ItemStack criarAleatoriaNivel(int nivel) {
+        String[] ids = TIPOS.keySet().toArray(new String[0]);
+        return criar(ids[ThreadLocalRandom.current().nextInt(ids.length)], nivel);
     }
 
     public static ItemStack aleatoria(int nivelMax) {
@@ -267,9 +273,11 @@ public class Runas {
         if (morto.getTags().contains(br.com.frxcode.frxworld.dungeon.Dungeons.TAG_BOSS) || morto.getTags().contains("frx_chefe_mundial")) talvezDar(p, 60, 2);
         int fortuna = nivel(p.getMainHandItem(), "fortuna");
         if (fortuna > 0 && morto instanceof Enemy && ThreadLocalRandom.current().nextInt(100) < 12 * fortuna) {
-            long moedas = Math.max(5, Zonas.nivelDo(morto) * 2L);
-            Moedas.dar(p, moedas);
-            p.displayClientMessage(Component.literal("◆ Fortuna: +" + Moedas.texto(moedas)).withStyle(ChatFormatting.GREEN), true);
+            long extra = br.com.frxcode.frxworld.aventura.Torre.semXpDeAbate(morto) ? 0 : br.com.frxcode.frxworld.progressao.Progressao.xpDoMob(morto);
+            if (extra > 0) {
+                br.com.frxcode.frxworld.progressao.Progressao.ganharXp(p, extra);
+                p.displayClientMessage(Component.literal("◆ Fortuna: +" + extra + " XP").withStyle(ChatFormatting.GREEN), true);
+            }
         }
     }
 

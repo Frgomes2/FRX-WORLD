@@ -110,7 +110,7 @@ public class Procurados {
         limite = System.currentTimeMillis() + DURACAO_MS;
         for (ServerPlayer p : s.getPlayerList().getPlayers()) {
             Sistema.avisar(p, "PROCURADO: " + nome, "Visto em " + b.getX() + ", " + b.getY() + ", " + b.getZ() + " (nível " + nivel + "). Recompensa: "
-                    + Moedas.texto(moedas()) + " e " + xp() + " XP. A Guilda dá " + DURACAO_MS / 60_000 + " minutos. (/procurados)", Sistema.VERMELHO);
+                    + xp() + " XP, com chance de runa e mapa do tesouro. A Guilda dá " + DURACAO_MS / 60_000 + " minutos. (/procurados)", Sistema.VERMELHO);
             anunciar(p);
         }
         return true;
@@ -119,7 +119,7 @@ public class Procurados {
     private static void anunciar(ServerPlayer p) {
         if (alvo == null) { p.sendSystemMessage(Component.literal("O mural da Guilda está vazio no momento.").withStyle(ChatFormatting.GRAY)); return; }
         long resta = Math.max(0, (limite - System.currentTimeMillis()) / 60_000);
-        p.sendSystemMessage(Component.literal("☠ PROCURADO: " + nome + " (nível " + nivel + ") — recompensa " + Moedas.texto(moedas()) + " e " + xp() + " XP. Restam " + resta + " min.")
+        p.sendSystemMessage(Component.literal("☠ PROCURADO: " + nome + " (nível " + nivel + ") — recompensa " + xp() + " XP, runa e mapa. Restam " + resta + " min.")
                 .withStyle(ChatFormatting.RED));
         p.sendSystemMessage(Component.literal("   📍 ").withStyle(ChatFormatting.RED)
                 .append(Component.literal("[name:\"Procurado: " + nome + "\", x:" + pos.getX() + ", y:" + pos.getY() + ", z:" + pos.getZ() + "]").withStyle(ChatFormatting.AQUA))
@@ -171,7 +171,6 @@ public class Procurados {
         for (ServerPlayer p : mundo.players()) {
             boolean matou = ev.getSource().getEntity() == p;
             if (!matou && !(p.isAlive() && p.blockPosition().closerThan(e.blockPosition(), 40))) continue;
-            Moedas.dar(p, moedas());
             Progressao.ganharXp(p, xp());
             Conquistas.somar(p, "procurados", 1);
             Tesouros.talvezDar(p, 25);
@@ -180,7 +179,7 @@ public class Procurados {
             nomes.append(nomes.length() > 0 ? ", " : "").append(p.getGameProfile().getName());
         }
         s.getPlayerList().broadcastSystemMessage(Component.literal("☠ " + nome + " foi abatido" + (nomes.length() > 0 ? " por " + nomes : "") + "! Contrato pago: "
-                + Moedas.texto(moedas()) + " e " + xp() + " XP.").withStyle(ChatFormatting.GOLD), false);
+                + xp() + " XP.").withStyle(ChatFormatting.GOLD), false);
         encerrar(s, false);
     }
 

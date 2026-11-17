@@ -23,6 +23,7 @@
 - A colagem é assíncrona: espera os chunks e só cola quando não há jogador online.
 - **Tesouros:** 5 baús do Lootr espalhados pelas salas ao colar a masmorra (`frxworld:chests/masmorra`). Cada jogador abre o seu.
 - **Chefe derrotado:** um baú de prêmio aparece onde ele caiu (`frxworld:chests/masmorra_chefe`).
+- **Chefes de fim de jogo:** chefe dentro de masmorra com nível próprio (campo Nível na tela Masmorras; `AreasNivel`) recebe o bônus de nível inteiro, mais +300% de vida e +100% de dano. Jogador abaixo do nível 50 causa no máximo 20% do dano e recebe pelo menos o triplo. Masmorra enterrada embaixo de capital nunca fica abaixo do nível 50.
 - `/masmorras` · admin `/frx masmorra` (lista) e `/frx masmorra baus` (põe 5 baús nas salas em volta de você).
 
 ### Entradas (`reinos/EntradasMasmorra.java`)

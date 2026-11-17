@@ -119,8 +119,24 @@ public final class MenusNpc {
 
     private static long valorMoeda(ItemStack s) { return s.getItem() instanceof ItemMoeda m ? (long) m.valor() * s.getCount() : -1; }
 
-    /** Loja do ferreiro/armeiro: itens do patamar do nível do jogador, já com o desconto da reputação. */
+    /**
+     * O que o NPC mostra para este jogador: só o que o rank dele na Guilda já deixa usar (classes de equipamento).
+     * Arma ou armadura de classe acima do rank nem aparece. A compra usa a mesma lista, então os índices batem.
+     */
     private static java.util.List<MerchantOffer> ofertasDe(ServerPlayer p, Entity npc) {
+        java.util.List<MerchantOffer> l = new java.util.ArrayList<>(ofertasBrutas(p, npc));
+        if (p.isCreative()) return l;
+        int rank = br.com.frxcode.frxworld.progressao.Guilda.indice(p);
+        l.removeIf(o -> br.com.frxcode.frxworld.progressao.ClassesEquip.classe(o.getResult()) > rank);
+        String papel = npc.getPersistentData().getString("frx_papel");
+        // Rank F não usa ferro: o ferreiro e o armeiro oferecem o básico de pedra e couro para a loja não ficar vazia
+        if (rank == 0 && (papel.equals("ferreiro") || papel.equals("armeiro")))
+            l.addAll(0, Lojas.basicos(papel.equals("armeiro"), Reputacao.desconto(p, npc.getPersistentData().getString("frx_reino"))));
+        return l;
+    }
+
+    /** Loja do ferreiro/armeiro: itens do patamar do nível do jogador, já com o desconto da reputação. */
+    private static java.util.List<MerchantOffer> ofertasBrutas(ServerPlayer p, Entity npc) {
         String papel = npc.getPersistentData().getString("frx_papel"), reino = npc.getPersistentData().getString("frx_reino");
         int nivel = br.com.frxcode.frxworld.progressao.Progressao.dados(p).nivel();
         double desc = Reputacao.desconto(p, reino);

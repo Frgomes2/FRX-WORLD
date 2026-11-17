@@ -34,6 +34,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ uuid: s
       case "moedas": cmd = `frx moedas ${n} ${precisaInt()}`; break;
       case "tirarmoedas": cmd = `frx admin ${n} tirarmoedas ${precisaInt()}`; break;
       case "banco": cmd = `frx admin ${n} banco ${precisaInt()}`; break;
+      // funciona com o jogador offline: o mod guarda o valor e aplica no próximo login
+      case "bancoDefinir": if (!/^\d{1,9}$/.test(v)) throw new Error("Número inválido."); cmd = `frx bancooffline ${j.uuid} ${v}`; break;
       case "classe": cmd = `frx classe ${n} ${precisaId(v.toLowerCase())}`; break;
       case "talentosResetar": cmd = `frx talentos resetar ${n}`; break;
       case "talento": cmd = `frx admin ${n} talento ${precisaId(a)} ${precisaInt()}`; break;
@@ -51,6 +53,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ uuid: s
     }
     if (!["survival", "creative", "adventure", "spectator"].includes(v) && acao === "modo") throw new Error("Modo inválido.");
     servidorMc.comando(cmd);
+    if (acao === "bancoDefinir") await prisma.jogador.update({ where: { uuid }, data: { banco: Number(v) } });
     if (acao === "dar" || acao === "modo") setTimeout(() => { try { servidorMc.comando(`frx admin ${n} ficha`); } catch { /* */ } }, 800);
   } catch (e) {
     const msg = e instanceof Error ? e.message : "Erro";

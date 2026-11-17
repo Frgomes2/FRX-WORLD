@@ -49,8 +49,8 @@ public class Zonas {
      * Pode ser trocado no painel (zonas → dimensoes: {"id": [min, max]}).
      */
     private static final Map<String, int[]> FAIXAS_PADRAO = Map.of(
-            "twilightforest:twilight_forest", new int[]{10, 25},
-            "minecraft:the_nether", new int[]{15, 35},
+            "twilightforest:twilight_forest", new int[]{14, 30},
+            "minecraft:the_nether", new int[]{22, 40},
             "undergarden:undergarden", new int[]{20, 35},
             "blue_skies:everbright", new int[]{25, 40},
             "aether:the_aether", new int[]{30, 45},
@@ -123,13 +123,43 @@ public class Zonas {
         aplicarNivel(m, nivel(ev.getLevel(), m.blockPosition()));
     }
 
+    /** Dureza extra da dimensão: vida e dano a mais para todo monstro de lá (fração: 0.8 = +80%). */
+    private static final Map<String, double[]> DUREZA_PADRAO = Map.of("twilightforest:twilight_forest", new double[]{0.8, 0.5},
+            "minecraft:the_nether", new double[]{1.5, 1.0});   // Nether: +150% de vida e +100% de dano
+
+    /** [vida, dano] extras da dimensão. O painel pode trocar em zonas.dureza = { "dimensao": [vida, dano] }. */
+    public static double[] dureza(Level nivel) {
+        String id = nivel.dimension().location().toString();
+        try {
+            com.google.gson.JsonObject z = ConfigJogo.secaoCrua("zonas");
+            if (z != null && z.has("dureza") && z.getAsJsonObject("dureza").has(id)) {
+                com.google.gson.JsonArray a = z.getAsJsonObject("dureza").getAsJsonArray(id);
+                return new double[]{a.get(0).getAsDouble(), a.get(1).getAsDouble()};
+            }
+        } catch (Exception ignorado) { }
+        double[] d = DUREZA_PADRAO.get(id);
+        return d != null ? d : new double[]{0, 0};
+    }
+
+    /** Chefes das masmorras dos reinos: conteúdo de fim de jogo. +300% de vida e +100% de dano além do nível; abaixo do nível 50 o jogador mal arranha. */
+    private static final String CHEFE_MASMORRA = "frx_chefe_masmorra";
+    private static final double CHEFE_MASMORRA_VIDA = 3.0, CHEFE_MASMORRA_DANO = 1.0;
+    public static final int NIVEL_CHEFE_MASMORRA = 50;
+
     /** Grava o nível no mob e aplica os bônus de vida, dano e armadura dele. */
     public static void aplicarNivel(Mob m, int n) {
         m.getPersistentData().putInt(CHAVE, n);
         if (n <= 1) return;
-        double f = chefe(m) ? 0.5 : 1.0;   // chefes já são fortes: metade do bônus
-        modificar(m, Attributes.MAX_HEALTH, VIDA, (n - 1) * ConfigJogo.zonaVidaPct() / 100.0 * f, AttributeModifier.Operation.MULTIPLY_TOTAL);
-        modificar(m, Attributes.ATTACK_DAMAGE, DANO, (n - 1) * ConfigJogo.zonaDanoPct() / 100.0 * f, AttributeModifier.Operation.MULTIPLY_TOTAL);
+        // chefe dentro de masmorra com nível próprio (as que ficam embaixo dos reinos): bônus inteiro e ainda mais vida e dano
+        boolean chefeDeMasmorra = chefe(m) && m.level().dimension() == Level.OVERWORLD && AreasNivel.em(m.blockPosition()) > 0;
+        double f = chefeDeMasmorra ? 1.0 : chefe(m) ? 0.5 : 1.0;   // os outros chefes já são fortes: metade do bônus
+        double[] dureza = dureza(m.level());
+        if (chefeDeMasmorra) {
+            m.getPersistentData().putBoolean(CHEFE_MASMORRA, true);
+            dureza = new double[]{dureza[0] + CHEFE_MASMORRA_VIDA, dureza[1] + CHEFE_MASMORRA_DANO};
+        }
+        modificar(m, Attributes.MAX_HEALTH, VIDA, (n - 1) * ConfigJogo.zonaVidaPct() / 100.0 * f + dureza[0] * f, AttributeModifier.Operation.MULTIPLY_TOTAL);
+        modificar(m, Attributes.ATTACK_DAMAGE, DANO, (n - 1) * ConfigJogo.zonaDanoPct() / 100.0 * f + dureza[1] * f, AttributeModifier.Operation.MULTIPLY_TOTAL);
         modificar(m, Attributes.ARMOR, ARMADURA, Math.min(20, (n - 1) * ConfigJogo.zonaArmaduraPorNivel() * f), AttributeModifier.Operation.ADDITION);
         m.setHealth(m.getMaxHealth());
     }
@@ -170,10 +200,54 @@ public class Zonas {
         if (vitima.level().isClientSide()) return;
         if (vitima instanceof ServerPlayer p && ev.getSource().getEntity() instanceof Mob m && m.getPersistentData().contains(CHAVE) && Progressao.temDados(p)) {
             int n = Math.max(1, nivelDo(m));
-            ev.setAmount(ev.getAmount() * fatorContraJogador(n, Progressao.dados(p).nivel(), faixa(p.level())[0]));
+            float fator = fatorContraJogador(n, Progressao.dados(p).nivel(), faixa(p.level())[0]);
+            if (m.getPersistentData().getBoolean(CHEFE_MASMORRA) && Progressao.dados(p).nivel() < NIVEL_CHEFE_MASMORRA) fator = Math.max(fator, 3f);
+            ev.setAmount(ev.getAmount() * fator);
         } else if (ev.getSource().getEntity() instanceof ServerPlayer p && vitima instanceof Mob m && m.getPersistentData().contains(CHAVE) && Progressao.temDados(p)) {
-            ev.setAmount(ev.getAmount() * fatorDoJogador(Math.max(1, nivelDo(m)), Progressao.dados(p).nivel()));
+            float fator = fatorDoJogador(Math.max(1, nivelDo(m)), Progressao.dados(p).nivel());
+            if (m.getPersistentData().getBoolean(CHEFE_MASMORRA) && Progressao.dados(p).nivel() < NIVEL_CHEFE_MASMORRA) {
+                fator = Math.min(fator, 0.2f);
+                if (p.getRandom().nextInt(5) == 0) p.displayClientMessage(net.minecraft.network.chat.Component.literal("Este chefe é para aventureiros de nível " + NIVEL_CHEFE_MASMORRA
+                        + " ou mais: seus golpes mal arranham.").withStyle(net.minecraft.ChatFormatting.RED), true);
+            }
+            ev.setAmount(ev.getAmount() * fator);
         }
+    }
+
+    /** Rank mínimo da Guilda para entrar na dimensão (índice: 0 = F ... 6 = S). Nether (monstros 22–40) pede Rank D; End (30–50) pede Rank C. */
+    private static final Map<String, Integer> RANK_DIM_PADRAO = Map.of("minecraft:the_nether", 2, "minecraft:the_end", 3);
+    private static final Map<UUID, Long> AVISO_DIM = new HashMap<>();
+
+    /** O painel pode trocar em zonas.rankMinimo = { "dimensao": "D" } ("livre" ou "F" libera). */
+    public static int rankMinimoDaDimensao(String id) {
+        try {
+            com.google.gson.JsonObject z = ConfigJogo.secaoCrua("zonas");
+            if (z != null && z.has("rankMinimo") && z.getAsJsonObject("rankMinimo").has(id)) {
+                String letra = z.getAsJsonObject("rankMinimo").get(id).getAsString().trim().toUpperCase(java.util.Locale.ROOT);
+                for (int i = 0; i < ConfigJogo.totalRanks(); i++) if (ConfigJogo.nomeRank(i).equals(letra)) return i;
+                return 0;
+            }
+        } catch (Exception ignorado) { }
+        return RANK_DIM_PADRAO.getOrDefault(id, 0);
+    }
+
+    /** Sem o rank da Guilda, o portal não leva: vale para portal, waystone e qualquer outro teleporte entre dimensões. */
+    @SubscribeEvent
+    public void barrarDimensao(net.minecraftforge.event.entity.EntityTravelToDimensionEvent ev) {
+        if (!(ev.getEntity() instanceof ServerPlayer p) || p.isCreative() || p.isSpectator()) return;
+        String id = ev.getDimension().location().toString();
+        int precisa = rankMinimoDaDimensao(id);
+        if (precisa <= 0 || Guilda.indice(p) >= precisa) return;
+        ev.setCanceled(true);
+        p.setPortalCooldown();
+        long agora = System.currentTimeMillis();
+        if (agora - AVISO_DIM.getOrDefault(p.getUUID(), 0L) < 3000) return;
+        AVISO_DIM.put(p.getUUID(), agora);
+        String nome = NOMES_DIM.getOrDefault(id, id);
+        p.displayClientMessage(net.minecraft.network.chat.Component.literal(nome + ": só aventureiros de Rank " + ConfigJogo.nomeRank(precisa)
+                + " ou superior da Guilda atravessam (você é Rank " + Guilda.rank(p) + ").").withStyle(net.minecraft.ChatFormatting.RED), true);
+        p.sendSystemMessage(net.minecraft.network.chat.Component.literal("⛔ " + nome + " exige Rank " + ConfigJogo.nomeRank(precisa)
+                + " da Guilda de Aventureiros. Suba de rank na recepcionista da Guilda para liberar a passagem.").withStyle(net.minecraft.ChatFormatting.RED));
     }
 
     /** Ao entrar numa dimensão: mostra a faixa e o quanto ela é perigosa para você. */
@@ -248,6 +322,7 @@ public class Zonas {
     /** Monstros derrubam moedas conforme o nível da zona. */
     @SubscribeEvent
     public void moedas(LivingDropsEvent ev) {
+        if (true) return;   // desligado em 16/11: moedas só por missão da Guilda e venda de itens
         LivingEntity e = ev.getEntity();
         if (!(e instanceof Enemy) || !(ev.getSource().getEntity() instanceof ServerPlayer) || !(e.level() instanceof ServerLevel)) return;
         int n = Math.max(1, nivelDo(e));

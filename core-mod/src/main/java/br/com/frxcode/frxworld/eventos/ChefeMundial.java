@@ -324,8 +324,6 @@ public class ChefeMundial {
             double parte = en.getValue() / total;
             if (parte < 0.01) continue;
             lugar++;
-            long moedas = Math.max(pote / 20, Math.round(pote * parte));
-            Moedas.dar(p, moedas);
             Progressao.ganharXp(p, Math.max(100, Math.round(xp * Math.max(0.2, parte))));
             br.com.frxcode.frxworld.progressao.Conquistas.somar(p, "chefes", 1);
             br.com.frxcode.frxworld.racas.Evolucao.checar(p);
@@ -337,8 +335,8 @@ public class ChefeMundial {
                 if (!p.getInventory().add(arma)) p.drop(arma, false);
                 premio = " + " + arma.getHoverName().getString() + (lugar == 1 ? " Lendária" : " Épica");
             }
-            if (lugar <= 5) todos(s, Component.literal("  " + lugar + "º " + p.getGameProfile().getName() + " — " + Math.round(parte * 100) + "% do dano · "
-                    + Moedas.texto(moedas) + premio).withStyle(lugar == 1 ? ChatFormatting.YELLOW : ChatFormatting.WHITE));
+            if (lugar <= 5) todos(s, Component.literal("  " + lugar + "º " + p.getGameProfile().getName() + " — " + Math.round(parte * 100) + "% do dano"
+                    + premio).withStyle(lugar == 1 ? ChatFormatting.YELLOW : ChatFormatting.WHITE));
             p.level().playSound(null, p.blockPosition(), SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.PLAYERS, 1f, 1f);
         }
         encerrar(s);

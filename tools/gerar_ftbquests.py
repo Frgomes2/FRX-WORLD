@@ -83,7 +83,7 @@ class Cap:
 def premio(xp, cobre):
     r = []
     if xp: r.append(("cmd", f"/frx xp {{p}} {xp}", f"{xp} XP"))
-    if cobre: r.append(("cmd", f"/frx moedas {{p}} {cobre}", f"{cobre // 100} ouro" if cobre >= 100 else f"{cobre} cobre"))
+    # moedas saíram das recompensas em 16/11: só missões da Guilda e venda de itens pagam (o parâmetro cobre fica sem uso)
     return r
 
 
@@ -139,7 +139,7 @@ for i, (tit, texto, objetivo, cobre, xp, icone) in enumerate(HISTORIA):
     x = (col if fila % 2 == 0 else 6 - col) * 2
     ultimo = i == len(HISTORIA) - 1
     ant = c.q(f"cap{i + 1}", f"{i + 1}. {tit}", [texto, "", "Objetivo: " + objetivo, "",
-                                                 f"Recompensa (entregue na hora pelo Sistema): {cobre // 100} ouro e {xp} XP.", "Acompanhe também com /historia."],
+                                                 f"Recompensa (entregue na hora pelo Sistema): {xp} XP.", "Acompanhe também com /historia."],
               [("adv", f"historia_{i + 1}")], x, fila * 2.5, [ant] if ant else [], forma="gear" if ultimo or i == 0 else "", tam=2.0 if ultimo else 1.5 if i == 0 else 1.0)
 
 # ------------------------------------------------------------------ dimensões

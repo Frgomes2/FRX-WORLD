@@ -24,8 +24,8 @@ if exist "server\FRX-WORLD\level.dat" (
 )
 docker compose exec -T banco pg_dump -U frx frxworld > "backups\painel-%QUANDO%.sql" 2>nul
 if errorlevel 1 ( echo       [aviso] Nao consegui salvar o banco do painel. & del "backups\painel-%QUANDO%.sql" 2>nul ) else ( echo       painel: backups\painel-%QUANDO%.sql )
-rem guarda so os 7 mais recentes de cada
-powershell -NoProfile -Command "foreach ($p in 'mundo-*.zip','painel-*.sql') { Get-ChildItem 'backups' -Filter $p | Sort-Object LastWriteTime -Descending | Select-Object -Skip 7 | Remove-Item -Force }"
+rem guarda em camadas: 7 mais recentes + ultimo de cada dia (7 dias) + ultimo de cada semana (5 semanas)
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0controle\limpar-backups.ps1"
 
 echo [3/4] Fechando painel, pack e tunel...
 taskkill /fi "WINDOWTITLE eq FRX-WORLD Painel*" /t /f >nul 2>&1

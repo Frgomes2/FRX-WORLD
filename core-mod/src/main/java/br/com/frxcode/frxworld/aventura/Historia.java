@@ -144,7 +144,7 @@ public class Historia {
         p.sendSystemMessage(Component.literal("📖 Capítulo " + (n + 1) + " — " + c.titulo()).withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD));
         p.sendSystemMessage(Component.literal("   " + c.texto()).withStyle(ChatFormatting.GRAY));
         p.sendSystemMessage(Component.literal("   Objetivo: " + objetivo(p, c)).withStyle(ChatFormatting.WHITE));
-        p.sendSystemMessage(Component.literal("   Recompensa: " + Moedas.texto(c.moedas()) + " e " + c.xp() + " XP"
+        p.sendSystemMessage(Component.literal("   Recompensa: " + c.xp() + " XP"
                 + (c.premioTitulo().isEmpty() ? "" : " + título «" + c.premioTitulo() + "»") + "   (/historia)").withStyle(ChatFormatting.GOLD));
     }
 
@@ -161,11 +161,10 @@ public class Historia {
         Cap c = CAPS.get(n);
         dados(p).putInt("cap", n + 1);
         br.com.frxcode.frxworld.progressao.Marcos.marcar(p, "historia_" + (n + 1));
-        Moedas.dar(p, c.moedas());
         Progressao.ganharXp(p, c.xp());
         Temporadas.pontuar(p, "historia", 1);
         p.level().playSound(null, p.blockPosition(), SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.PLAYERS, 1f, 1f);
-        Sistema.avisar(p, "Capítulo " + (n + 1) + " concluído: " + c.titulo(), "Recompensa: " + Moedas.texto(c.moedas()) + " e " + c.xp() + " XP"
+        Sistema.avisar(p, "Capítulo " + (n + 1) + " concluído: " + c.titulo(), "Recompensa: " + c.xp() + " XP"
                 + (c.premioTitulo().isEmpty() ? "." : ". Novo título: «" + c.premioTitulo() + "» (/titulo)."), Sistema.OURO);
         if (!c.premioTitulo().isEmpty() || n + 1 == CAPS.size())
             p.server.getPlayerList().broadcastSystemMessage(Component.literal("📖 " + p.getGameProfile().getName() + " concluiu o capítulo " + (n + 1) + " da história: " + c.titulo() + "!")

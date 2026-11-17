@@ -19,7 +19,7 @@ echo   Para aplicar atualizacoes e preciso desligar com seguranca (salva o mundo
 if defined AUTO goto :reiniciarAuto
 choice /c SN /n /m "  Reiniciar tudo agora? [S/N] "
 if errorlevel 2 (
-  start "" http://localhost:3000/servidor
+  start "" http://localhost:3000/admin/servidor
   exit /b 0
 )
 :reiniciarAuto
@@ -124,6 +124,8 @@ if /i "%BUILD%"=="SIM" (
   )
 )
 popd
+rem guarda o log do painel anterior: se o painel cair sozinho, a causa fica em painel-anterior.log
+if exist "%~dp0logs\painel.log" copy /y "%~dp0logs\painel.log" "%~dp0logs\painel-anterior.log" >nul
 start "FRX-WORLD Painel" /min cmd /k "cd /d "%~dp0painel" && npm run start > "%~dp0logs\painel.log" 2>&1"
 
 set /a TENTATIVAS=0
@@ -162,7 +164,7 @@ echo       ok (acompanhe pelo console na aba Servidor)
 
 rem ---------- 4. Abre o navegador
 echo [4/4] Abrindo o painel...
-if not defined AUTO start "" http://localhost:3000/servidor
+if not defined AUTO start "" http://localhost:3000/admin/servidor
 echo.
 echo   Tudo no ar. O servidor esta ligando: quando o console mostrar "Done", abra o jogo.
 echo   As janelas "FRX-WORLD Pack" e "FRX-WORLD Painel" ficam minimizadas: nao feche.

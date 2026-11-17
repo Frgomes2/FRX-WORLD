@@ -93,6 +93,8 @@ Código: `habilidades/Sombras.java` · Pacotes `SyncSombras` e `AcaoSombra` · T
   - lista com ovo, nome, nível e estado (fora, guardada ou se recompondo);
   - modelo 3D roxo;
   - ações Invocar/Recolher, Invocar todas/Recolher todas e Libertar (com confirmação).
+- **Nível da sombra:** de 0 a 10, com 3 × n² abates para o nível n (3, 12, 27... 300). Contam os abates da própria sombra e os do dono enquanto ela está em campo a até 24 blocos. A força parte de 40% do monstro original e sobe 3% por nível. A tela mostra o progresso em barra.
+- **Invocações por habilidade** (tipo `INVOCAR`): a criatura nasce com força = talento de Invocação × (1 + 10% por nível da habilidade) × (1 + 4% por nível do jogador); o nome mostra o nível da habilidade.
 - **Atalhos:** 3 atalhos para sombras específicas (sem tecla no início) e a tecla **Z** para todas. Ficam salvos em NBT (`frx_sombras_atalhos`) e só funcionam no Invocador.
 - **Comportamento:**
   - As sombras seguem o dono e atacam o que ele ataca.

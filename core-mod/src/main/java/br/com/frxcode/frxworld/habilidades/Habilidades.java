@@ -353,7 +353,7 @@ public class Habilidades {
             case "AREA" -> area(p, h, mult);
             case "MOBILIDADE" -> mobilidade(p, h, mult);
             case "BUFF" -> buff(p, h);
-            case "INVOCAR" -> invocar(p, h);
+            case "INVOCAR" -> invocar(p, h, nivelHab);
             default -> false;
         };
     }
@@ -499,12 +499,15 @@ public class Habilidades {
         return true;
     }
 
-    private static boolean invocar(ServerPlayer p, HabilidadeDef h) {
+    /** A criatura cresce com o talento de Invocação, com o nível da habilidade (+10% por nível) e com o nível do jogador (+4% por nível). */
+    private static boolean invocar(ServerPlayer p, HabilidadeDef h, int nivelHab) {
         EntityType<?> tipo = ForgeRegistries.ENTITY_TYPES.getValue(ResourceLocation.tryParse(h.efeito()));
         if (tipo == null) { avisar(p, "Criatura desconhecida: " + h.efeito(), ChatFormatting.RED); return false; }
         ServerLevel nivel = p.serverLevel();
-        double forca = Talentos.fator(p, Talentos.Atributo.INVOCACAO);
-        long expira = nivel.getGameTime() + (long) Math.max(100, h.duracao() * 20 * forca);
+        double talento = Talentos.fator(p, Talentos.Atributo.INVOCACAO);
+        int nh = Math.max(1, nivelHab), nj = Progressao.temDados(p) ? Math.max(1, Progressao.dados(p).nivel()) : 1;
+        double forca = talento * (1 + 0.10 * (nh - 1)) * (1 + 0.04 * (nj - 1));
+        long expira = nivel.getGameTime() + (long) Math.max(100, h.duracao() * 20 * talento * (1 + 0.05 * (nh - 1)));
         int qtd = Math.max(1, h.potencia());
         int criados = 0;
         for (int i = 0; i < qtd; i++) {
@@ -529,7 +532,7 @@ public class Habilidades {
             e.addTag(TAG_INVOCADO);
             e.getPersistentData().putLong("frx_expira", expira);
             e.getPersistentData().putUUID("frx_dono", p.getUUID());
-            e.setCustomName(Component.literal("Invocação de " + p.getGameProfile().getName()).withStyle(ChatFormatting.LIGHT_PURPLE));
+            e.setCustomName(Component.literal("Invocação de " + p.getGameProfile().getName() + " · Nv " + nh).withStyle(ChatFormatting.LIGHT_PURPLE));
             nivel.addFreshEntity(e);
             invocados.computeIfAbsent(p.getUUID(), k -> ConcurrentHashMap.newKeySet()).add(e.getUUID());
             nivel.sendParticles(ParticleTypes.WITCH, pos.x, pos.y + 0.5, pos.z, 20, 0.4, 0.6, 0.4, 0.05);

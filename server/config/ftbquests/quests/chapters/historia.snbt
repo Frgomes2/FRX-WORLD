@@ -9,7 +9,7 @@
 	quest_links: [ ]
 	quests: [
 		{
-			description: ["Você renasceu neste mundo sem nome nem passado. A Guilda de Aventureiros é onde toda lenda começa." "" "Objetivo: Registre-se na Guilda (recepcionista, em qualquer capital)." "" "Recompensa (entregue na hora pelo Sistema): 2 ouro e 150 XP." "Acompanhe também com /historia."]
+			description: ["Você renasceu neste mundo sem nome nem passado. A Guilda de Aventureiros é onde toda lenda começa." "" "Objetivo: Registre-se na Guilda (recepcionista, em qualquer capital)." "" "Recompensa (entregue na hora pelo Sistema): 150 XP." "Acompanhe também com /historia."]
 			id: "560E013C9CA5FFE0"
 			shape: "gear"
 			size: 1.5d
@@ -27,7 +27,7 @@
 		}
 		{
 			dependencies: ["560E013C9CA5FFE0"]
-			description: ["Os arredores estão infestados. Prove que sabe lutar." "" "Objetivo: Derrote 30 monstros." "" "Recompensa (entregue na hora pelo Sistema): 3 ouro e 300 XP." "Acompanhe também com /historia."]
+			description: ["Os arredores estão infestados. Prove que sabe lutar." "" "Objetivo: Derrote 30 monstros." "" "Recompensa (entregue na hora pelo Sistema): 300 XP." "Acompanhe também com /historia."]
 			id: "1CBB32037D4F30BE"
 			tasks: [
 				{
@@ -43,7 +43,7 @@
 		}
 		{
 			dependencies: ["1CBB32037D4F30BE"]
-			description: ["Dizem que no oeste um slime fundou uma nação de monstros. Vá ver com os próprios olhos." "" "Objetivo: Viaje até a Federação de Jura Tempest." "" "Recompensa (entregue na hora pelo Sistema): 5 ouro e 500 XP." "Acompanhe também com /historia."]
+			description: ["Dizem que no oeste um slime fundou uma nação de monstros. Vá ver com os próprios olhos." "" "Objetivo: Viaje até a Federação de Jura Tempest." "" "Recompensa (entregue na hora pelo Sistema): 500 XP." "Acompanhe também com /historia."]
 			id: "110C359F83750DDC"
 			tasks: [
 				{
@@ -59,7 +59,7 @@
 		}
 		{
 			dependencies: ["110C359F83750DDC"]
-			description: ["Ninguém respeita um Rank F. Suba na Guilda." "" "Objetivo: Alcance o Rank E na prova de promoção." "" "Recompensa (entregue na hora pelo Sistema): 6 ouro e 600 XP." "Acompanhe também com /historia."]
+			description: ["Ninguém respeita um Rank F. Suba na Guilda." "" "Objetivo: Alcance o Rank E na prova de promoção." "" "Recompensa (entregue na hora pelo Sistema): 600 XP." "Acompanhe também com /historia."]
 			id: "552CBB976000E1B0"
 			tasks: [
 				{
@@ -75,7 +75,7 @@
 		}
 		{
 			dependencies: ["552CBB976000E1B0"]
-			description: ["Portais se abrem perto das cidades e despejam monstros. Alguém precisa fechá-los." "" "Objetivo: Ajude a fechar 1 portal (/portal). Título: Selador de Fendas." "" "Recompensa (entregue na hora pelo Sistema): 10 ouro e 1000 XP." "Acompanhe também com /historia."]
+			description: ["Portais se abrem perto das cidades e despejam monstros. Alguém precisa fechá-los." "" "Objetivo: Ajude a fechar 1 portal (/portal). Título: Selador de Fendas." "" "Recompensa (entregue na hora pelo Sistema): 1000 XP." "Acompanhe também com /historia."]
 			id: "1EE183F6F718F734"
 			tasks: [
 				{
@@ -91,7 +91,7 @@
 		}
 		{
 			dependencies: ["1EE183F6F718F734"]
-			description: ["Os anões de Dwargon forjam as melhores armas. Você vai precisar delas." "" "Objetivo: Viaje até o Reino Armado de Dwargon." "" "Recompensa (entregue na hora pelo Sistema): 8 ouro e 800 XP." "Acompanhe também com /historia."]
+			description: ["Os anões de Dwargon forjam as melhores armas. Você vai precisar delas." "" "Objetivo: Viaje até o Reino Armado de Dwargon." "" "Recompensa (entregue na hora pelo Sistema): 800 XP." "Acompanhe também com /historia."]
 			id: "304793E1C09B4BBB"
 			tasks: [
 				{
@@ -107,7 +107,7 @@
 		}
 		{
 			dependencies: ["304793E1C09B4BBB"]
-			description: ["As masmorras escondem guardiões que não deveriam ter acordado." "" "Objetivo: Derrote 2 chefes." "" "Recompensa (entregue na hora pelo Sistema): 15 ouro e 1500 XP." "Acompanhe também com /historia."]
+			description: ["As masmorras escondem guardiões que não deveriam ter acordado." "" "Objetivo: Derrote 2 chefes." "" "Recompensa (entregue na hora pelo Sistema): 1500 XP." "Acompanhe também com /historia."]
 			id: "19F29441E7FDAC6D"
 			tasks: [
 				{
@@ -123,7 +123,7 @@
 		}
 		{
 			dependencies: ["19F29441E7FDAC6D"]
-			description: ["Os magos de Sarion estudam os portais. Talvez saibam de onde eles vêm." "" "Objetivo: Viaje até a Dinastia Feiticeira de Sarion." "" "Recompensa (entregue na hora pelo Sistema): 10 ouro e 1000 XP." "Acompanhe também com /historia."]
+			description: ["Os magos de Sarion estudam os portais. Talvez saibam de onde eles vêm." "" "Objetivo: Viaje até a Dinastia Feiticeira de Sarion." "" "Recompensa (entregue na hora pelo Sistema): 1000 XP." "Acompanhe também com /historia."]
 			id: "3CE24DDC24B67A44"
 			tasks: [
 				{
@@ -139,7 +139,7 @@
 		}
 		{
 			dependencies: ["3CE24DDC24B67A44"]
-			description: ["O Imperador reúne exércitos. Descubra de que lado ele está." "" "Objetivo: Viaje até o Império do Leste." "" "Recompensa (entregue na hora pelo Sistema): 12 ouro e 1200 XP." "Acompanhe também com /historia."]
+			description: ["O Imperador reúne exércitos. Descubra de que lado ele está." "" "Objetivo: Viaje até o Império do Leste." "" "Recompensa (entregue na hora pelo Sistema): 1200 XP." "Acompanhe também com /historia."]
 			id: "265146E4EF081A33"
 			tasks: [
 				{
@@ -155,7 +155,7 @@
 		}
 		{
 			dependencies: ["265146E4EF081A33"]
-			description: ["A estrada daqui em diante não perdoa os fracos." "" "Objetivo: Chegue ao nível 30. Título: Veterano." "" "Recompensa (entregue na hora pelo Sistema): 20 ouro e 2000 XP." "Acompanhe também com /historia."]
+			description: ["A estrada daqui em diante não perdoa os fracos." "" "Objetivo: Chegue ao nível 30. Título: Veterano." "" "Recompensa (entregue na hora pelo Sistema): 2000 XP." "Acompanhe também com /historia."]
 			id: "7960FBF2E73E411D"
 			tasks: [
 				{
@@ -171,7 +171,7 @@
 		}
 		{
 			dependencies: ["7960FBF2E73E411D"]
-			description: ["Uma torre sem fim guarda os segredos do mundo antigo." "" "Objetivo: Chegue ao andar 10 da Torre Infinita (/torre mostra onde fica a entrada)." "" "Recompensa (entregue na hora pelo Sistema): 25 ouro e 2500 XP." "Acompanhe também com /historia."]
+			description: ["Uma torre sem fim guarda os segredos do mundo antigo." "" "Objetivo: Chegue ao andar 10 da Torre Infinita (/torre mostra onde fica a entrada)." "" "Recompensa (entregue na hora pelo Sistema): 2500 XP." "Acompanhe também com /historia."]
 			id: "49F98EC183D0CEB0"
 			tasks: [
 				{
@@ -187,7 +187,7 @@
 		}
 		{
 			dependencies: ["49F98EC183D0CEB0"]
-			description: ["Só os melhores recebem as missões que importam." "" "Objetivo: Alcance o Rank C da Guilda." "" "Recompensa (entregue na hora pelo Sistema): 30 ouro e 3000 XP." "Acompanhe também com /historia."]
+			description: ["Só os melhores recebem as missões que importam." "" "Objetivo: Alcance o Rank C da Guilda." "" "Recompensa (entregue na hora pelo Sistema): 3000 XP." "Acompanhe também com /historia."]
 			id: "2F535D62FB5255FB"
 			tasks: [
 				{
@@ -203,7 +203,7 @@
 		}
 		{
 			dependencies: ["2F535D62FB5255FB"]
-			description: ["Os portais vêm do reino dos demônios. Atravesse a fronteira." "" "Objetivo: Viaje até o reino dos Lordes Demônios." "" "Recompensa (entregue na hora pelo Sistema): 35 ouro e 3500 XP." "Acompanhe também com /historia."]
+			description: ["Os portais vêm do reino dos demônios. Atravesse a fronteira." "" "Objetivo: Viaje até o reino dos Lordes Demônios." "" "Recompensa (entregue na hora pelo Sistema): 3500 XP." "Acompanhe também com /historia."]
 			id: "1D982EA12A6B8FE2"
 			tasks: [
 				{
@@ -219,7 +219,7 @@
 		}
 		{
 			dependencies: ["1D982EA12A6B8FE2"]
-			description: ["O fim da jornada. Leve aliados." "" "Objetivo: Dentro do reino dos demônios, use /historia desafio e derrote o Rei Demônio. Título: Matador do Rei Demônio." "" "Recompensa (entregue na hora pelo Sistema): 200 ouro e 15000 XP." "Acompanhe também com /historia."]
+			description: ["O fim da jornada. Leve aliados." "" "Objetivo: Dentro do reino dos demônios, use /historia desafio e derrote o Rei Demônio. Título: Matador do Rei Demônio." "" "Recompensa (entregue na hora pelo Sistema): 15000 XP." "Acompanhe também com /historia."]
 			id: "2364E37192DD4FAC"
 			shape: "gear"
 			size: 2.0d

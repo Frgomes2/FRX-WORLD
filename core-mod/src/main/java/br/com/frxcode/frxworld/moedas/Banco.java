@@ -133,4 +133,56 @@ public class Banco {
                                         .executes(ctx -> comDepositar(ctx.getSource().getPlayerOrException(), IntegerArgumentType.getInteger(ctx, "quantidade")
                                                 * unidade(com.mojang.brigadier.arguments.StringArgumentType.getString(ctx, "moeda"))))))));
     }
+
+    // ------------------------------------------------------------------ saldo definido pelo painel com o jogador offline
+
+    private static java.nio.file.Path pendentes(net.minecraft.server.MinecraftServer s) {
+        return s.getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT).resolve("frx_banco_pendente.txt");
+    }
+
+    private static java.util.Map<String, Long> lerPendentes(net.minecraft.server.MinecraftServer s) {
+        java.util.Map<String, Long> m = new java.util.LinkedHashMap<>();
+        try {
+            if (java.nio.file.Files.exists(pendentes(s)))
+                for (String l : java.nio.file.Files.readAllLines(pendentes(s))) {
+                    String[] c = l.trim().split("=");
+                    if (c.length == 2) m.put(c[0], Long.parseLong(c[1]));
+                }
+        } catch (Exception ignorado) { }
+        return m;
+    }
+
+    private static void gravarPendentes(net.minecraft.server.MinecraftServer s, java.util.Map<String, Long> m) {
+        StringBuilder sb = new StringBuilder();
+        m.forEach((k, v) -> sb.append(k).append('=').append(v).append('\n'));
+        try { java.nio.file.Files.writeString(pendentes(s), sb.toString()); } catch (Exception ignorado) { }
+    }
+
+    /** O saldo do banco fica no arquivo do jogador: offline, o valor novo espera aqui e entra no próximo login. */
+    @SubscribeEvent
+    public void aoEntrar(net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent ev) {
+        if (!(ev.getEntity() instanceof ServerPlayer p)) return;
+        java.util.Map<String, Long> m = lerPendentes(p.server);
+        Long v = m.remove(p.getUUID().toString());
+        if (v == null) return;
+        gravarPendentes(p.server, m);
+        definirSaldo(p, v);
+        avisar(p, "A administração ajustou seu saldo no banco: " + Moedas.texto(saldo(p)) + ".", ChatFormatting.YELLOW);
+    }
+
+    @SubscribeEvent
+    public void comandosAdmin(RegisterCommandsEvent evento) {
+        evento.getDispatcher().register(Commands.literal("frx").requires(c -> c.hasPermission(2))
+                .then(Commands.literal("bancooffline").then(Commands.argument("uuid", net.minecraft.commands.arguments.UuidArgument.uuid())
+                        .then(Commands.argument("cobre", IntegerArgumentType.integer(0)).executes(ctx -> {
+                            java.util.UUID u = net.minecraft.commands.arguments.UuidArgument.getUuid(ctx, "uuid");
+                            int v = IntegerArgumentType.getInteger(ctx, "cobre");
+                            net.minecraft.server.MinecraftServer s = ctx.getSource().getServer();
+                            ServerPlayer on = s.getPlayerList().getPlayer(u);
+                            if (on != null) { definirSaldo(on, v); }
+                            else { java.util.Map<String, Long> m = lerPendentes(s); m.put(u.toString(), (long) v); gravarPendentes(s, m); }
+                            ctx.getSource().sendSuccess(() -> Component.literal("[painel] banco de " + u + " = " + Moedas.texto(v) + (on != null ? "" : " (entra no próximo login)")), true);
+                            return 1;
+                        })))));
+    }
 }

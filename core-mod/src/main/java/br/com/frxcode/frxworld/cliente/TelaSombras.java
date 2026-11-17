@@ -263,6 +263,10 @@ public class TelaSombras extends Screen {
             if (font.width(nome) > 98) nome = font.plainSubstrByWidth(nome, 94) + "…";
             g.drawString(font, nome, x + 22, y + 2, s.estado() == 1 ? ROXO : s.estado() == 2 ? CINZA : TEXTO, false);
             g.drawString(font, "Nv " + s.nivel(), x + 22, y + 11, OURO, false);
+            int nvL = s.nivel(), baseL = 3 * nvL * nvL, proxL = 3 * (nvL + 1) * (nvL + 1);
+            float fracL = nvL >= 10 ? 1f : Math.max(0f, Math.min(1f, (s.abates() - baseL) / (float) Math.max(1, proxL - baseL)));
+            g.fill(x + 50, y + 14, x + 100, y + 16, 0xFF0F0D0B);
+            g.fill(x + 50, y + 14, x + 50 + (int) (50 * fracL), y + 16, ROXO);
             String estado = s.estado() == 1 ? "● fora" : s.estado() == 2 ? s.descansa() + "s" : "guardada";
             g.drawString(font, estado, x + 166 - font.width(estado), y + 11, s.estado() == 1 ? VERDE : CINZA, false);
             int at = ClienteSombras.atalhoDe(s.id());
@@ -308,8 +312,14 @@ public class TelaSombras extends Screen {
             g.drawString(font, nome, tx, ty, ROXO, false);
             ty += 11;
             if (s.chefe()) { g.drawString(font, "☠ Chefe", tx, ty, VERMELHO, false); ty += 10; }
-            g.drawString(font, "Nível " + s.nivel() + "/10 · " + s.abates() + " abates", tx, ty, OURO, false);
-            ty += 10;
+            // experiência da sombra: o nível n pede 3 × n² abates (os seus abates com ela em campo também contam)
+            int nvS = s.nivel(), baseXp = 3 * nvS * nvS, proxXp = 3 * (nvS + 1) * (nvS + 1);
+            int feitoXp = Math.max(0, s.abates() - baseXp), faltaXp = Math.max(1, proxXp - baseXp);
+            float fracXp = nvS >= 10 ? 1f : Math.min(1f, feitoXp / (float) faltaXp);
+            g.drawString(font, nvS >= 10 ? "Nível 10/10 · máximo" : "Nível " + nvS + "/10 · " + feitoXp + "/" + faltaXp + " abates", tx, ty, OURO, false);
+            g.fill(tx, ty + 9, tx + 116, ty + 12, 0xFF0F0D0B);
+            g.fill(tx, ty + 9, tx + (int) (116 * fracXp), ty + 12, ROXO);
+            ty += 14;
             g.drawString(font, "Força " + s.forca() + "% do original", tx, ty, TEXTO, false);
             ty += 10;
             g.drawString(font, "Invocar: " + s.custo() + " " + ClienteHabilidades.nomeRecurso().toLowerCase(), tx, ty, CINZA, false);

@@ -62,6 +62,13 @@ O pack é gerenciado pelo **packwiz** em `pack/`. Cada mod é um `mods/<slug>.pw
 |---|---|---|---|
 | SkinRestorer (2.11.1) | Modrinth | servidor | Devolve a skin dos jogadores no servidor offline: busca na Mojang pelo nick ao entrar. `/skin set mojang <nick>` ou `/skin set web <link>` para quem usa nick inventado. Config em `server/config/skinrestorer/` |
 | Cosmetic Armor Reworked (1.20.1-v1a) | CurseForge | os dois | Botão no inventário para esconder cada peça de armadura e mostrar a skin |
+| Naturalist (2.0.9) | Modrinth | os dois | Animais comuns pelo mundo (veados, ursos, cobras, vaga-lumes) |
+| Mythic Mounts (7.4.2) | Modrinth | os dois | Montarias lendárias. Pede Geckolib e Patchouli |
+| Artifacts (9.5.19) | Modrinth | os dois | Artefatos raros em baús, usados nos espaços do Curios. Pede Cloth Config; sem ele o servidor não sobe |
+| Macaw's Bridges, Roofs, Doors, Furniture, Windows, Fences and Walls | Modrinth | os dois | Blocos de construção e decoração |
+| Bygone Nether (1.3.2) | Modrinth | os dois | Estruturas e monstros próprios de cada bioma do Nether. Só aparecem em chunks novos |
+| Piglin Proliferation (1.2.8) | Modrinth | os dois | Tipos novos de piglin (Alquimista, Viajante) e piglins zumbis com armas de longe |
+| Patchouli, Cloth Config API | Modrinth | os dois | Bibliotecas exigidas por Mythic Mounts e Artifacts |
 | Domestication Innovation (1.7.1) | Modrinth | os dois | Mais pets (raposa, coelho, sapo, axolote), cama de pet, coleira encantável e comandos de seguir/ficar. Usa o Citadel |
 
 Ajustes em mods que já estavam no pack:

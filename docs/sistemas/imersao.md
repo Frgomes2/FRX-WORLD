@@ -38,7 +38,14 @@ No primeiro login: falas do Sistema, escolha de raça, escolha de classe, desper
 - O rank (F, E, D, C, B, A, S) só sobe com a **prova de promoção**: derrotar o Examinador em 3 minutos, sem morrer. Falhou, espera 10 minutos.
 - A prova exige o nível mínimo do rank, definido no painel (Progressão).
 - O título em uso e o rank aparecem acima da cabeça do jogador.
-- **Benefícios do rank** (por degrau acima de F): +10% de XP e moedas nas missões, 2% de desconto nas lojas e na forja (soma com a reputação, teto de 50%) e soldo diário de 60 cobre, pago uma vez por dia real ao entrar ou abrir o cartão. Rank S: +60%, 12% e 3 ouro e 6 prata por dia. O cartão mostra o que o próximo rank dá.
+- **Classes de equipamento** (`progressao/ClassesEquip.java`): cada arma e armadura tem uma classe de F a S, inclusive as dos outros mods, e só quem tem aquele rank da Guilda usa. O item pode ficar na mochila ou em baús à vontade.
+  - Armadura: defesa (ajustada pela peça) + resistência. Couro = F; cota de malha, ferro e ouro = E; diamante = D; netherita = C; acima disso, B, A e S.
+  - Arma (espadas, machados e armas de outros mods): bônus de dano do material. Madeira, ouro e pedra = F; ferro = E; diamante = D; netherita = C; acima, B, A e S. Tridente = D. Ferramentas são livres.
+  - Arcos, bestas e outras armas de longe: tabela `DISTANCIA` em `ClassesEquip`. Arco e estilingue = F; besta e zarabatana = E; arco de ender (Twilight) = D; arcos de gelo, buscador e fênix = C; arco triplo, de osso de dragão e arco curto ancestral = B; dreadbow, arco amaldiçoado e raygun = A. Arma de longe de mod fora da tabela vai pela raridade (comum D, incomum C, raro B, épico A). Acima do rank não puxa nem dispara.
+  - Armadura acima do rank sai do corpo e vai para a mochila ou, se estiver cheia, para o baú de ender; nunca cai no chão (sem espaço em nenhum dos dois, fica no corpo até abrir vaga). Arma acima do rank não acerta ninguém. A classe aparece na descrição do item.
+  - Na primeira entrada depois da regra, toda a armadura do jogador é guardada na mochila.
+  - Exceções em `server/config/frx_classes.txt` ou por `/frx classe definir <F..S|livre|automatica>` com o item na mão; `/frx classe` mostra a classe calculada.
+- **Benefícios do rank** (por degrau acima de F): +10% de XP e moedas nas missões e 2% de desconto nas lojas e na forja (soma com a reputação, teto de 50%). O cartão mostra o que o próximo rank dá. O soldo diário foi desligado em 16/11.
 - **Grupos:** o dano entre aliados está ligado (decisão de 13/11/2026); membros do mesmo grupo podem se ferir.
 
 ### Missões de rank
@@ -96,7 +103,7 @@ Quando o jogador cumpre a condição (nível, honra com um reino, campanha ou ch
 
 ## Portais (gates)
 
-Perto de uma capital, a cada 40 minutos há 50% de chance de abrir um portal: três ondas e um Guardião. Se ninguém fechar, o portal rompe e vira invasão. Comandos: `/portal`; admin: `/frx portal aqui [rank]` e `/frx portal fechar`.
+Perto de uma capital, a cada 40 minutos há 50% de chance de abrir um portal, que leva a uma dungeon temporária com chefão (ver [aventura.md](aventura.md#dungeon-de-portal-fendajava)). Se ninguém fechar, o portal rompe e vira invasão. Comandos: `/portal`; admin: `/frx portal aqui [rank]` e `/frx portal fechar`.
 
 ## Bestiário
 

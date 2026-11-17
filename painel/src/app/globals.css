@@ -18,3 +18,59 @@ body {
   color: var(--color-pergaminho);
   font-family: ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
 }
+
+/* Site público: brasas subindo atrás do título */
+.frx-heroi::before {
+  content: "";
+  position: absolute;
+  inset: -50% 0 0 0;
+  background-image:
+    radial-gradient(2px 2px at 12% 80%, #d4a93a 50%, transparent 51%),
+    radial-gradient(2px 2px at 31% 60%, #f0a04b 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 48% 90%, #d4a93a 50%, transparent 51%),
+    radial-gradient(2px 2px at 67% 70%, #f5d04a 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 83% 85%, #f0a04b 50%, transparent 51%),
+    radial-gradient(2px 2px at 92% 55%, #d4a93a 50%, transparent 51%),
+    radial-gradient(ellipse at 50% 100%, rgba(212, 169, 58, 0.18), transparent 60%);
+  opacity: 0.7;
+  animation: frx-brasas 14s linear infinite;
+  pointer-events: none;
+}
+@keyframes frx-brasas {
+  from { transform: translateY(0); opacity: 0.75; }
+  to { transform: translateY(-30%); opacity: 0.15; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .frx-heroi::before { animation: none; }
+}
+
+/* Site público: dragão cruzando o fundo, indo e voltando */
+.frx-dragao-ceu { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+.frx-dragao-voo { position: absolute; top: 14vh; left: 0; animation: frx-dragao-voo 46s linear infinite; will-change: transform; }
+.frx-dragao { display: block; opacity: 0.22; filter: drop-shadow(0 0 18px rgba(212, 169, 58, 0.45)); animation: frx-dragao-sobe 5s ease-in-out infinite; }
+.frx-asa { transform-box: fill-box; transform-origin: 100% 100%; animation: frx-dragao-asa 1.1s ease-in-out infinite; }
+.frx-asa-tras { animation-delay: -0.15s; }
+@keyframes frx-dragao-voo {
+  0%   { transform: translateX(-420px) translateY(0) scaleX(1); }
+  47%  { transform: translateX(calc(100vw + 20px)) translateY(22vh) scaleX(1); }
+  50%  { transform: translateX(calc(100vw + 20px)) translateY(38vh) scaleX(-1); }
+  97%  { transform: translateX(-420px) translateY(8vh) scaleX(-1); }
+  100% { transform: translateX(-420px) translateY(0) scaleX(1); }
+}
+@keyframes frx-dragao-sobe { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-18px); } }
+@keyframes frx-dragao-asa { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(0.25) skewX(-8deg); } }
+@media (max-width: 640px) { .frx-dragao { width: 240px; height: 132px; } }
+@media (prefers-reduced-motion: reduce) { .frx-dragao-ceu { display: none; } }
+
+/* Site público: biblioteca (estante, páginas de pergaminho e virada de página) */
+.frx-estante { background: linear-gradient(180deg, #221d17 0%, #17140f 78%, #3a2a18 78%, #2a1d10 100%); }
+.frx-capa { border: 1px solid rgba(243, 227, 179, 0.25); box-shadow: inset -3px 0 0 rgba(255, 255, 255, 0.08), 0 8px 14px rgba(0, 0, 0, 0.5); }
+.frx-folha { background: #e9dcb8; background-image: radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.35), transparent 60%); }
+.frx-folha-esq { box-shadow: inset -14px 0 18px -12px rgba(60, 35, 10, 0.55); }
+.frx-folha-dir { box-shadow: inset 14px 0 18px -12px rgba(60, 35, 10, 0.55); }
+.frx-livro-aberto { perspective: 1800px; }
+.frx-virar-frente { animation: frx-virar-frente 0.45s ease-out; transform-origin: left center; }
+.frx-virar-tras { animation: frx-virar-tras 0.45s ease-out; transform-origin: right center; }
+@keyframes frx-virar-frente { from { transform: rotateY(-22deg); opacity: 0.35; } to { transform: rotateY(0); opacity: 1; } }
+@keyframes frx-virar-tras { from { transform: rotateY(22deg); opacity: 0.35; } to { transform: rotateY(0); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .frx-virar-frente, .frx-virar-tras { animation: none; } }

@@ -26,7 +26,7 @@ No dia a dia só se usam os **dois atalhos da área de trabalho**. Eles são cri
 ### O que o `desligar-frx.bat` faz
 
 1. Para o servidor Minecraft salvando o mundo. Usa o `SERVIDOR_TOKEN` do `painel\.env`.
-2. **Backup:** compacta o mundo em `backups\mundo-AAAAMMDD-HHMM.zip` e salva o banco do painel em `backups\painel-AAAAMMDD-HHMM.sql`. Guarda só os 7 mais recentes de cada.
+2. **Backup:** compacta o mundo em `backups\mundo-AAAAMMDD-HHMM.zip` e salva o banco do painel em `backups\painel-AAAAMMDD-HHMM.sql`. A limpeza (`controle\limpar-backups.ps1`) guarda em camadas: os 7 mais recentes, o último de cada dia dos últimos 7 dias e o último de cada semana das últimas 5 semanas. O backup só acontece ao desligar ou reiniciar; não há backup periódico com o servidor ligado nem cópia fora do PC.
 3. Fecha o painel, o pack e o túnel do playit.
 4. Para o banco.
 
@@ -51,6 +51,7 @@ O Claude também pode ligar, desligar e reiniciar o servidor sem ninguém clicar
   - `desligar` desarma a vigia. Parar o servidor pelo console do painel **não** desarma: a vigia religa. Use o atalho Desligar ou o pedido `desligar`.
   - Para pausar sem mexer no servidor, crie `controle\vigia.txt` com a palavra `desligada`.
   - Quando o PC acaba de ligar, a vigia não sobe o servidor sozinha: ela espera um `ligar`.
+- **Queda sem aviso:** quando o painel (node) morre, o servidor do jogo morre junto e o site sai do ar; a vigia religa em cerca de 1 minuto. O `iniciar-frx.bat` copia o log anterior para `logs\painel-anterior.log` antes de religar: é lá que fica a causa.
 - **Console:** o pedido `comando <texto>` manda uma linha para o console do Minecraft (várias linhas, vários comandos). Passa pela rota `/api/servidor/comando` do painel, que só aceita chamadas do próprio PC.
 - **Atualização:** se o `agente-frx.ps1` mudar, o agente se reinicia sozinho com a versão nova.
 - **Para remover:** apague "FRX-WORLD agente" em `shell:startup`.

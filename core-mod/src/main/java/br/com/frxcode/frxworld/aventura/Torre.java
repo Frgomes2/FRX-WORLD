@@ -79,8 +79,9 @@ public class Torre {
     private static final int AX0 = 24000, AZ0 = 24000, AY = 200, PASSO = 64, VAGAS = 8, RMAX = 15, HMAX = 13;   // salas dos andares
     private static final long TEMPO_ANDAR_MS = 6 * 60_000L, TEMPO_CHEFE_MS = 10 * 60_000L, PAUSA_MS = 15_000L;
     private static final String TAG_NPC = "frx_torre_npc";
+    private static final long ESPERA_MORTE_MS = 10 * 60_000L;
 
-    private static final String[][] MONSTROS = {
+    static final String[][] MONSTROS = {
             {"minecraft:zombie", "minecraft:skeleton", "minecraft:spider"},                              // Masmorra
             {"minecraft:husk", "minecraft:skeleton", "minecraft:cave_spider"},                          // Deserto
             {"minecraft:spider", "minecraft:witch", "minecraft:zombie", "minecraft:vindicator"},        // Floresta
@@ -92,8 +93,8 @@ public class Torre {
     private static final String[] NOMES_CHEFE = {"Besta do Primeiro Selo", "Cavaleiro Sombrio", "Mestre das Ilusões", "Javali do Abismo", "O Carrasco",
             "Devastador Ancião", "Senhor dos Ossos", "Arquimago Cego", "Fúria do Abismo", "Senhor da Torre"};
     /** Tema de cada bloco de 10 andares: tamanho da sala, materiais e decoração. */
-    private record Tema(String nome, int raio, int alto, Block piso, Block piso2, Block parede, Block parede2, Block luz) { }
-    private static final Tema[] TEMAS = {
+    record Tema(String nome, int raio, int alto, Block piso, Block piso2, Block parede, Block parede2, Block luz) { }
+    static final Tema[] TEMAS = {
             new Tema("Masmorra", 10, 7, Blocks.STONE_BRICKS, Blocks.MOSSY_STONE_BRICKS, Blocks.STONE_BRICKS, Blocks.CRACKED_STONE_BRICKS, Blocks.SEA_LANTERN),
             new Tema("Deserto", 14, 10, Blocks.SAND, Blocks.SAND, Blocks.SANDSTONE, Blocks.CUT_SANDSTONE, Blocks.GLOWSTONE),
             new Tema("Floresta", 14, 11, Blocks.GRASS_BLOCK, Blocks.MOSS_BLOCK, Blocks.MOSSY_COBBLESTONE, Blocks.MOSS_BLOCK, Blocks.SHROOMLIGHT),
@@ -122,6 +123,9 @@ public class Torre {
 
     private static final Map<Integer, Corrida> corridas = new HashMap<>();
     private static final Map<UUID, Integer> noSaguao = new HashMap<>();
+    /** Contagem para subir (em passos de 0,5 s): começa quando alguém pisa no portal do saguão. */
+    private static int contagem;
+    private static final int CONTAGEM_PASSOS = 10;
     private static final Map<BlockPos, BlockState> desfazer = new LinkedHashMap<>();
     private static BlockPos base;          // centro do saguão (chão)
     private static Direction porta = Direction.SOUTH;
@@ -137,6 +141,33 @@ public class Torre {
     }
 
     public static int recorde(Player p) { return dados(p).getInt("recorde"); }
+
+    /** Admin: zera o progresso do jogador na Torre (recorde, andar seguro, espera) e tira o nome dele do placar. As fichas ficam. */
+    public static void resetar(ServerPlayer p) {
+        Corrida c = corridaDe(p);
+        if (c != null) { c.membros.remove(p.getUUID()); sair(p); if (c.membros.isEmpty()) encerrar(p.server, c, false); }
+        dados(p).remove("recorde"); dados(p).remove("seguro"); dados(p).remove("bloqueio");
+        if (placar.has(p.getUUID().toString())) { placar.remove(p.getUUID().toString()); placarSujo = true; quadrosVelhos = true; }
+    }
+
+    /** XP de um andar vencido: quase nada nos primeiros, crescendo com a dificuldade (2 × andar^1,6; chefe vale o triplo). */
+    /** Quantos sobem juntos, no máximo. Cada um a mais deixa a Torre mais dura (ver comecarAndar) e a XP do andar é dividida. */
+    static final int MAX_GRUPO = 5;
+
+    /** XP de cada um quando n sobem juntos: o prêmio do andar cresce 50% por companheiro e é dividido igualmente (2 = 75% cada, 5 = 60% cada). */
+    static long xpPorMembro(int andar, int n) {
+        int g = Math.max(1, n);
+        return Math.max(1, Math.round(xpDoAndar(andar) * (1 + 0.5 * (g - 1)) / g));
+    }
+
+    static long xpDoAndar(int andar) {
+        return Math.max(1, Math.round(2 * Math.pow(andar, 1.6) * (andar % 10 == 0 ? 3 : 1)));
+    }
+
+    /** Monstros da Torre não dão XP ao morrer: a XP vem só ao vencer o andar inteiro. */
+    public static boolean semXpDeAbate(Entity e) {
+        return e.level() instanceof ServerLevel sl && sl == sl.getServer().overworld() && naSala(e.getBlockX(), e.getBlockZ());
+    }
     /** Último andar seguro alcançado (0, 10, 20...). */
     public static int seguro(Player p) { return dados(p).getInt("seguro"); }
 
@@ -209,19 +240,72 @@ public class Torre {
         return base != null && p.level() == p.server.overworld() && p.blockPosition().closerThan(base, 7);
     }
 
-    private static void mostrarLoja(ServerPlayer p) {
-        p.sendSystemMessage(Component.literal("🗼 Loja da Torre — você tem " + fichas(p) + " fichas. Fichas só caem dentro da Torre.").withStyle(ChatFormatting.LIGHT_PURPLE));
-        boolean aqui = podeComprar(p);
-        for (Oferta o : LOJA) {
-            if (o.id().equals("titulo") && dados(p).getBoolean("mercenario")) continue;
-            boolean da = fichas(p) >= o.preco();
-            net.minecraft.network.chat.MutableComponent linha = Component.literal("   ");
-            if (aqui) linha.append(Component.literal("[Comprar]").withStyle(st -> st.withColor(da ? ChatFormatting.GREEN : ChatFormatting.DARK_GRAY).withBold(true)
-                    .withClickEvent(new net.minecraft.network.chat.ClickEvent(net.minecraft.network.chat.ClickEvent.Action.RUN_COMMAND, "/torre comprar " + o.id()))));
-            linha.append(Component.literal(" " + o.nome() + " — " + o.preco() + " fichas").withStyle(da ? ChatFormatting.WHITE : ChatFormatting.GRAY));
-            p.sendSystemMessage(linha);
+    /** Ícone da oferta na janela da loja. Mapa e runa são sorteados na compra, então o ícone é um item de enfeite. */
+    private static ItemStack icone(Oferta o, ServerPlayer p) {
+        ItemStack s = switch (o.id()) {
+            case "mapa" -> new ItemStack(net.minecraft.world.item.Items.FILLED_MAP);
+            case "runa" -> new ItemStack(net.minecraft.world.item.Items.AMETHYST_SHARD);
+            case "titulo" -> new ItemStack(net.minecraft.world.item.Items.NAME_TAG);
+            default -> o.item().apply(p).copy();
+        };
+        boolean da = fichas(p) >= o.preco();
+        s.setHoverName(Component.literal(o.nome()).withStyle(st -> st.withItalic(false).withColor(da ? ChatFormatting.GOLD : ChatFormatting.GRAY)));
+        net.minecraft.nbt.ListTag linhas = new net.minecraft.nbt.ListTag();
+        java.util.function.BiConsumer<String, ChatFormatting> linha = (t, cor) ->
+                linhas.add(net.minecraft.nbt.StringTag.valueOf(Component.Serializer.toJson(Component.literal(t).withStyle(st -> st.withItalic(false).withColor(cor)))));
+        linha.accept("Preço: " + o.preco() + " fichas", ChatFormatting.LIGHT_PURPLE);
+        linha.accept(da ? "Clique para comprar" : "Faltam " + (o.preco() - fichas(p)) + " fichas", da ? ChatFormatting.GREEN : ChatFormatting.RED);
+        s.getOrCreateTagElement("display").put("Lore", linhas);
+        return s;
+    }
+
+    /** Janela da loja (um baú comum para o jogo do jogador): clicar num item compra; nada sai nem entra de verdade. */
+    private static final class MenuLoja extends net.minecraft.world.inventory.ChestMenu {
+        final net.minecraft.world.SimpleContainer caixa;
+        final ServerPlayer dono;
+        final List<Oferta> naTela = new ArrayList<>();
+
+        MenuLoja(int id, net.minecraft.world.entity.player.Inventory inv, net.minecraft.world.SimpleContainer caixa, ServerPlayer dono) {
+            super(net.minecraft.world.inventory.MenuType.GENERIC_9x3, id, inv, caixa, 3);
+            this.caixa = caixa; this.dono = dono;
+            preencher();
         }
-        if (!aqui) p.sendSystemMessage(Component.literal("   Para comprar, fale com o Mercador num andar seguro ou use /torre loja no saguão da torre.").withStyle(ChatFormatting.GRAY));
+
+        void preencher() {
+            caixa.clearContent();
+            naTela.clear();
+            for (Oferta o : LOJA) {
+                if (o.id().equals("titulo") && dados(dono).getBoolean("mercenario")) continue;
+                if (naTela.size() >= 18) break;
+                caixa.setItem(naTela.size(), icone(o, dono));
+                naTela.add(o);
+            }
+            ItemStack saldo = new ItemStack(net.minecraft.world.item.Items.NETHER_STAR);
+            saldo.setHoverName(Component.literal("Suas fichas: " + fichas(dono)).withStyle(st -> st.withItalic(false).withColor(ChatFormatting.LIGHT_PURPLE)));
+            net.minecraft.nbt.ListTag l = new net.minecraft.nbt.ListTag();
+            l.add(net.minecraft.nbt.StringTag.valueOf(Component.Serializer.toJson(Component.literal("Fichas só caem dentro da Torre.").withStyle(st -> st.withItalic(false).withColor(ChatFormatting.GRAY)))));
+            saldo.getOrCreateTagElement("display").put("Lore", l);
+            caixa.setItem(22, saldo);
+        }
+
+        @Override
+        public void clicked(int slot, int botao, net.minecraft.world.inventory.ClickType tipo, Player jogador) {
+            if (slot >= 0 && slot < naTela.size() && (tipo == net.minecraft.world.inventory.ClickType.PICKUP || tipo == net.minecraft.world.inventory.ClickType.QUICK_MOVE)) {
+                comprar(dono, naTela.get(slot).id());
+                preencher();
+            }
+            setCarried(ItemStack.EMPTY);
+            sendAllDataToRemote();   // o jogo do jogador tentou mover o item: devolve tudo ao lugar
+        }
+
+        @Override public ItemStack quickMoveStack(Player jogador, int slot) { return ItemStack.EMPTY; }
+        @Override public boolean stillValid(Player jogador) { return true; }
+    }
+
+    private static void mostrarLoja(ServerPlayer p) {
+        p.openMenu(new net.minecraft.world.SimpleMenuProvider((id, inv, jogador) -> new MenuLoja(id, inv, new net.minecraft.world.SimpleContainer(27), p),
+                Component.literal("Loja da Torre")));
+        if (!podeComprar(p)) p.displayClientMessage(Component.literal("Para comprar, fale com o Mercador num andar seguro ou abra a loja no saguão da torre.").withStyle(ChatFormatting.GRAY), true);
     }
 
     private static int comprar(ServerPlayer p, String id) {
@@ -294,9 +378,7 @@ public class Torre {
         d.getCompound("baus").putBoolean(String.valueOf(andar), true);
         ThreadLocalRandom rnd = ThreadLocalRandom.current();
         int fichasGanhas = 5 + andar / 5;
-        long moedas = 100L + andar * 30L;
         darFichas(p, fichasGanhas);
-        Moedas.dar(p, moedas);
         List<ItemStack> itens = new ArrayList<>();
         itens.add(new ItemStack(net.minecraft.world.item.Items.GOLDEN_CARROT, 8));
         itens.add(new ItemStack(net.minecraft.world.item.Items.DIAMOND, 1 + andar / 20 + rnd.nextInt(2)));
@@ -306,7 +388,7 @@ public class Torre {
         for (ItemStack s : itens) if (!p.getInventory().add(s)) p.drop(s, false);
         p.level().playSound(null, ev.getPos(), SoundEvents.ENDER_CHEST_OPEN, SoundSource.BLOCKS, 1f, 1f);
         p.serverLevel().sendParticles(ParticleTypes.TOTEM_OF_UNDYING, ev.getPos().getX() + 0.5, ev.getPos().getY() + 1, ev.getPos().getZ() + 0.5, 30, 0.3, 0.5, 0.3, 0.3);
-        p.sendSystemMessage(Component.literal("🗼 Baú do andar " + andar + ": " + Moedas.texto(moedas) + ", " + fichasGanhas + " fichas e " + itens.size() + " itens.").withStyle(ChatFormatting.GOLD));
+        p.sendSystemMessage(Component.literal("🗼 Baú do andar " + andar + ": " + fichasGanhas + " fichas e " + itens.size() + " itens.").withStyle(ChatFormatting.GOLD));
     }
 
     // ------------------------------------------------------------------ placar (quadros do lado de fora)
@@ -431,7 +513,7 @@ public class Torre {
     }
 
     private static boolean protegido(Level nivel, BlockPos b) {
-        return nivel instanceof ServerLevel sl && sl == sl.getServer().overworld() && (naSala(b.getX(), b.getZ()) || naTorre(b));
+        return nivel instanceof ServerLevel sl && sl == sl.getServer().overworld() && (naSala(b.getX(), b.getZ()) || naTorre(b) || Fenda.naZona(b.getX(), b.getZ()));
     }
 
     private static boolean admin(Entity e) { return e instanceof ServerPlayer p && p.isCreative() && p.hasPermissions(2); }
@@ -562,8 +644,11 @@ public class Torre {
     // ------------------------------------------------------------------ salas
 
     private static void montarSala(ServerLevel n, Corrida c) {
-        BlockPos o = c.centro();
-        Tema t = tema(c.andar);
+        montarSalaEm(n, c.centro(), tema(c.andar), c.vaga * 31L + indiceTema(c.andar));
+    }
+
+    /** Monta (ou refaz) uma sala fechada do tema em volta de o. Também serve às dungeons de portal. */
+    static void montarSalaEm(ServerLevel n, BlockPos o, Tema t, long semente) {
         int r = t.raio() + 1, h = t.alto() + 1;
         BlockState ar = Blocks.AIR.defaultBlockState();
         for (int x = -RMAX - 1; x <= RMAX + 1; x++) for (int z = -RMAX - 1; z <= RMAX + 1; z++) for (int y = -1; y <= HMAX; y++) {
@@ -579,7 +664,7 @@ public class Torre {
             BlockPos b = o.offset(x, y, z);
             if (n.getBlockState(b) != s) n.setBlock(b, s, 2);
         }
-        decorar(n, o, t, new java.util.Random(c.vaga * 31L + indiceTema(c.andar)));
+        decorar(n, o, t, new java.util.Random(semente));
     }
 
     private static void coluna(ServerLevel n, BlockPos pe, Block bloco, int altura) {
@@ -686,12 +771,12 @@ public class Torre {
         for (ServerPlayer p : membros(s, c)) p.sendSystemMessage(Component.literal("🗼 " + texto).withStyle(cor));
     }
 
-    private static void iniciar(ServerPlayer lider) {
+    /** Sobe quem estava no saguão quando a contagem terminou (já filtrado e limitado a MAX_GRUPO). Não precisa de grupo nem de comando. */
+    private static void iniciar(List<ServerPlayer> grupo) {
+        if (grupo.isEmpty()) return;
+        ServerPlayer lider = grupo.get(0);
         MinecraftServer s = lider.server;
         ServerLevel n = s.overworld();
-        List<ServerPlayer> grupo = new ArrayList<>();
-        for (ServerPlayer m : Grupos.perto(lider)) if (corridaDe(m) == null && m.isAlive() && m.distanceTo(lider) <= 10) grupo.add(m);
-        if (!grupo.contains(lider)) grupo.add(lider);
         int vaga = -1;
         for (int i = 0; i < VAGAS; i++) if (!corridas.containsKey(i)) { vaga = i; break; }
         if (vaga < 0) { lider.displayClientMessage(Component.literal("A Torre está cheia agora. Tente em instantes.").withStyle(ChatFormatting.RED), true); return; }
@@ -707,10 +792,24 @@ public class Torre {
             c.membros.add(m.getUUID());
             m.teleportTo(n, o.getX() + 0.5, AY + 1, o.getZ() + 0.5, m.getYRot(), 0);
             m.fallDistance = 0;
-            Sistema.avisar(m, "Torre Infinita", "Você entra no andar " + c.andar + ". A cada 10 andares há um chefe e, depois dele, um andar seguro que salva o progresso. /torre sair para desistir.", Sistema.ROXO);
+            Sistema.avisar(m, "Torre Infinita", "Você entra no andar " + c.andar + ". A cada 10 andares há um chefe e, depois dele, um andar seguro que salva o progresso. Morrer aqui é de verdade: lápide na porta, perda de XP e 10 min de espera.", Sistema.ROXO);
         }
         c.fase = Fase.PAUSA;
         c.ate = System.currentTimeMillis() + 5000;
+    }
+
+    /** Chefes épicos dos mods, por andar (20, 40, 60, 80): do mais simples ao mais cruel. Só entram os que existem no servidor. */
+    private static final String[][] EPICOS = {
+            {"mutantmonsters:mutant_zombie", "mutantmonsters:mutant_skeleton", "twilightforest:naga"},
+            {"mowziesmobs:ferrous_wroughtnaut", "mowziesmobs:frostmaw", "twilightforest:lich", "illagerinvasion:invoker"},
+            {"cataclysm:ignis", "cataclysm:ender_guardian", "twilightforest:snow_queen", "mutantmonsters:mutant_enderman"},
+            {"cataclysm:the_harbinger", "cataclysm:maledictus", "cataclysm:ancient_remnant"}};
+
+    private static String sortearEpico(int andar, ThreadLocalRandom rnd) {
+        String[] lista = EPICOS[Math.max(0, Math.min(EPICOS.length - 1, andar / 20 - 1))];
+        List<String> existem = new ArrayList<>();
+        for (String id : lista) { ResourceLocation rl = ResourceLocation.tryParse(id); if (rl != null && ForgeRegistries.ENTITY_TYPES.containsKey(rl)) existem.add(id); }
+        return existem.isEmpty() ? null : existem.get(rnd.nextInt(existem.size()));
     }
 
     private static void comecarAndar(MinecraftServer s, Corrida c) {
@@ -720,12 +819,20 @@ public class Torre {
         BlockPos o = c.centro();
         boolean chefe = c.andar % 10 == 0;
         int tema = (c.andar - 1) / 10 % MONSTROS.length;
-        int nivel = Math.max(1, Math.min(ConfigJogo.zonaNivelMax(), 2 + c.andar));
-        double extra = c.andar > 55 ? (c.andar - 55) * 0.04 : 0;     // acima do nível máximo, a vida continua subindo
-        int qtd = chefe ? 2 + gente.size() : Math.min(14, 3 + c.andar / 8 + gente.size());
+        int a_mais = Math.max(0, gente.size() - 1);       // companheiros além do primeiro: cada um deixa o andar mais duro
+        int nivel = Math.max(1, Math.min(ConfigJogo.zonaNivelMax(), 3 + (int) Math.round(c.andar * 1.4) + a_mais));
+        double extra = c.andar * 0.05;                    // vida a mais, além do nível: +5% por andar
+        double danoExtra = c.andar * 0.02 + a_mais * 0.10; // dano a mais: +2% por andar e +10% por companheiro
+        int qtd = chefe ? 3 + 2 * gente.size() : Math.min(18 + 3 * a_mais, 4 + c.andar / 6 + 3 * gente.size());
         for (int i = 0; i < qtd + (chefe ? 1 : 0); i++) {
             boolean oChefe = chefe && i == 0;
-            String id = oChefe ? CHEFES[(c.andar / 10 - 1) % CHEFES.length] : MONSTROS[tema][rnd.nextInt(MONSTROS[tema].length)];
+            String idEpico = oChefe && c.andar % 20 == 0 && c.andar < ANDARES ? sortearEpico(c.andar, rnd) : null;
+            if (oChefe && c.andar < ANDARES && idEpico == null) {
+                Mob ch = Chefes.criar(n, new net.minecraft.world.phys.Vec3(o.getX() + 0.5, AY + 1, o.getZ() + 0.5 - 6), Math.min(6, c.andar / 15), nivel,
+                        extra + c.andar / 30.0 + a_mais * 0.9);
+                if (ch != null) { ch.addTag(TAG); if (!gente.isEmpty()) ch.setTarget(gente.get(rnd.nextInt(gente.size()))); continue; }
+            }
+            String id = idEpico != null ? idEpico : oChefe ? CHEFES[(c.andar / 10 - 1) % CHEFES.length] : MONSTROS[tema][rnd.nextInt(MONSTROS[tema].length)];
             EntityType<?> tipo = ForgeRegistries.ENTITY_TYPES.getValue(ResourceLocation.tryParse(id));
             Entity e = tipo == null ? null : tipo.create(n);
             if (!(e instanceof Mob m)) continue;
@@ -741,14 +848,20 @@ public class Torre {
             m.moveTo(x, AY + 1, z, rnd.nextFloat() * 360f, 0);
             m.finalizeSpawn(n, n.getCurrentDifficultyAt(m.blockPosition()), MobSpawnType.EVENT, null, null);
             Zonas.aplicarNivel(m, nivel);
-            double vezes = extra + (oChefe ? 2.0 + c.andar / 25.0 + (gente.size() - 1) * 0.6 : (gente.size() - 1) * 0.25);
+            double vezes = idEpico != null ? c.andar / 40.0 + a_mais * 0.6 : extra + (oChefe ? 2.0 + c.andar / 25.0 + a_mais * 0.9 : a_mais * 0.4);
             var vida = m.getAttribute(Attributes.MAX_HEALTH);
             if (vida != null && vezes > 0) vida.addPermanentModifier(new AttributeModifier(UUID.fromString("7a1e4c55-0b6d-4c11-8f3a-5d2e9b7c1a01"), "FRX torre", vezes, AttributeModifier.Operation.MULTIPLY_TOTAL));
+            var ataque = m.getAttribute(Attributes.ATTACK_DAMAGE);
+            if (ataque != null && danoExtra > 0) ataque.addPermanentModifier(new AttributeModifier(UUID.fromString("7a1e4c55-0b6d-4c11-8f3a-5d2e9b7c1a02"), "FRX torre dano", danoExtra, AttributeModifier.Operation.MULTIPLY_TOTAL));
+            if (c.andar >= 30) m.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, Integer.MAX_VALUE, c.andar >= 70 ? 1 : 0, false, false));
             m.setHealth(m.getMaxHealth());
             m.setPersistenceRequired();
             m.addTag(TAG);
             if (oChefe) {
-                m.setCustomName(Component.literal("☠ " + NOMES_CHEFE[(c.andar / 10 - 1) % NOMES_CHEFE.length]).withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.BOLD));
+                String nomeChefe = idEpico != null ? m.getType().getDescription().getString() : NOMES_CHEFE[(c.andar / 10 - 1) % NOMES_CHEFE.length];
+                m.setCustomName(Component.literal("☠ " + nomeChefe).withStyle(idEpico != null ? ChatFormatting.GOLD : ChatFormatting.DARK_PURPLE, ChatFormatting.BOLD));
+                if (idEpico != null) for (ServerPlayer pj : gente)
+                    Sistema.avisar(pj, "Chefe épico · andar " + c.andar, nomeChefe + " guarda este andar. Juntem forças!", Sistema.VERMELHO);
                 m.setCustomNameVisible(true);
                 m.addEffect(new MobEffectInstance(MobEffects.GLOWING, Integer.MAX_VALUE, 0, false, false));
             }
@@ -766,11 +879,11 @@ public class Torre {
     private static void andarLimpo(MinecraftServer s, Corrida c) {
         ServerLevel n = s.overworld();
         boolean chefe = c.andar % 10 == 0;
+        int juntos = membros(s, c).size();
         for (ServerPlayer p : membros(s, c)) {
             boolean novo = c.andar > recorde(p);
-            long moedas = (10 + c.andar * 4L) * (chefe ? 5 : 1), xp = c.andar * 20L * (chefe ? 5 : 1);
-            if (!novo) { moedas /= 4; xp /= 4; }
-            Moedas.dar(p, moedas);
+            long xp = xpPorMembro(c.andar, juntos);
+            if (!novo) xp /= 4;
             Progressao.ganharXp(p, xp);
             int ganhas = (chefe ? 10 : 1) + (novo ? 2 : 0);
             darFichas(p, ganhas);
@@ -790,7 +903,7 @@ public class Torre {
                     if (!p.getInventory().add(tomo)) p.drop(tomo, false);
                 }
             }
-            p.displayClientMessage(Component.literal("Andar " + c.andar + " vencido! +" + Moedas.texto(moedas) + " e " + xp + " XP" + " e " + ganhas + (ganhas == 1 ? " ficha" : " fichas") + (novo ? "  (novo recorde)" : "")).withStyle(ChatFormatting.GREEN), true);
+            p.displayClientMessage(Component.literal("Andar " + c.andar + " vencido! +" + xp + " XP" + " e " + ganhas + (ganhas == 1 ? " ficha" : " fichas") + (novo ? "  (novo recorde)" : "")).withStyle(ChatFormatting.GREEN), true);
         }
         n.playSound(null, c.centro().above(), SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 1f, 1.2f);
         if (c.andar >= ANDARES) {
@@ -888,9 +1001,36 @@ public class Torre {
                 boolean em = p.isAlive() && !p.isSpectator() && Math.abs(p.getX() - (base.getX() + 0.5)) <= 1.5 && Math.abs(p.getZ() - (base.getZ() + 0.5)) <= 1.5
                         && p.getY() >= base.getY() - 0.5 && p.getY() <= base.getY() + 2 && corridaDe(p) == null;
                 if (!em) { noSaguao.remove(p.getUUID()); continue; }
-                int t = noSaguao.merge(p.getUUID(), 1, Integer::sum);
+                noSaguao.put(p.getUUID(), 1);
                 n.sendParticles(ParticleTypes.PORTAL, p.getX(), p.getY() + 1, p.getZ(), 20, 0.4, 0.8, 0.4, 0.5);
-                if (t >= 3) { noSaguao.remove(p.getUUID()); iniciar(p); }
+            }
+            // alguém no portal: contagem de 5 s e sobe todo mundo que está no saguão (até MAX_GRUPO, os mais perto do portal)
+            if (noSaguao.isEmpty()) contagem = 0;
+            else {
+                contagem++;
+                List<ServerPlayer> saguao = new ArrayList<>();
+                for (ServerPlayer p : n.players())
+                    if (p.isAlive() && !p.isSpectator() && corridaDe(p) == null && Math.abs(p.getX() - (base.getX() + 0.5)) <= 5.6 && Math.abs(p.getZ() - (base.getZ() + 0.5)) <= 5.6
+                            && p.getY() >= base.getY() - 1 && p.getY() <= base.getY() + 6) saguao.add(p);
+                saguao.sort(java.util.Comparator.comparingDouble(p -> p.distanceToSqr(base.getX() + 0.5, base.getY(), base.getZ() + 0.5)));
+                int falta = (CONTAGEM_PASSOS - contagem + 1) / 2;
+                if (contagem < CONTAGEM_PASSOS) {
+                    if (contagem % 2 == 1) for (ServerPlayer p : saguao) {
+                        p.displayClientMessage(Component.literal("🗼 Subindo em " + Math.max(1, falta) + "... todos no saguão vão juntos (" + Math.min(MAX_GRUPO, saguao.size()) + " de até " + MAX_GRUPO + ")").withStyle(ChatFormatting.GOLD), true);
+                        p.playNotifySound(SoundEvents.NOTE_BLOCK_HAT.value(), SoundSource.PLAYERS, 0.7f, 1.2f);
+                    }
+                } else {
+                    contagem = 0;
+                    noSaguao.clear();
+                    List<ServerPlayer> vao = new ArrayList<>();
+                    for (ServerPlayer p : saguao) {
+                        long espera = dados(p).getLong("bloqueio") - agora;
+                        if (espera > 0) { p.displayClientMessage(Component.literal("Você morreu na Torre há pouco. Volte em " + (espera / 60_000 + 1) + " min.").withStyle(ChatFormatting.RED), true); continue; }
+                        if (vao.size() >= MAX_GRUPO) { p.sendSystemMessage(Component.literal("🗼 A Torre aceita no máximo " + MAX_GRUPO + " aventureiros por vez. Você ficou de fora desta subida.").withStyle(ChatFormatting.RED)); continue; }
+                        vao.add(p);
+                    }
+                    iniciar(vao);
+                }
             }
             if (s.getTickCount() % 40 == 4) n.sendParticles(ParticleTypes.REVERSE_PORTAL, base.getX() + 0.5, base.getY() + 1.2, base.getZ() + 0.5, 30, 0.8, 1, 0.8, 0.02);
         }
@@ -960,19 +1100,27 @@ public class Torre {
 
     // ------------------------------------------------------------------ eventos de jogador
 
-    /** Na Torre ninguém morre de verdade: quem cai é expulso com vida, sem perder itens. */
+    /**
+     * Morrer na Torre é morte de verdade: o jogador é levado para a porta antes de cair (a lápide com os itens fica lá fora),
+     * perde XP conforme o nível e fica um tempo sem poder entrar. O progresso volta ao último andar seguro.
+     */
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void aoMorrer(LivingDeathEvent ev) {
         if (!(ev.getEntity() instanceof ServerPlayer p)) return;
         Corrida c = corridaDe(p);
         if (c == null) return;
-        ev.setCanceled(true);
-        p.setHealth(p.getMaxHealth() * 0.5f);
-        p.removeAllEffects();
-        p.clearFire();
         c.membros.remove(p.getUUID());
+        if (c.barra != null) c.barra.removePlayer(p);
         sair(p);
-        Sistema.avisar(p, "Você caiu no andar " + c.andar, "A Torre poupa a sua vida, mas expulsa você. Ao voltar, recomeça do andar " + (seguro(p) + 1) + ".", Sistema.VERMELHO);
+        dados(p).putLong("bloqueio", System.currentTimeMillis() + ESPERA_MORTE_MS);
+        long perdida = 0;
+        if (Progressao.temDados(p)) {
+            var d = Progressao.dados(p);
+            perdida = Math.min(d.xp(), Math.round(Progressao.xpParaProximo(d.nivel()) * Math.min(0.25, 0.02 + d.nivel() * 0.003)));
+            if (perdida > 0) d.definir(d.nivel(), d.xp() - perdida);
+        }
+        Sistema.avisar(p, "Você morreu no andar " + c.andar, "Seus itens ficaram numa lápide na porta da Torre. Você perdeu " + perdida + " XP e só pode entrar de novo em "
+                + ESPERA_MORTE_MS / 60_000 + " minutos, a partir do andar " + (seguro(p) + 1) + ".", Sistema.VERMELHO);
         if (c.membros.isEmpty()) encerrar(p.server, c, false);
     }
 

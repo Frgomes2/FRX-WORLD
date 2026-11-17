@@ -27,7 +27,7 @@ O documento de design original está em `docs/FRX-WORLD_Documento_de_Design.pdf`
 
 Rode **uma vez** `atalhos\criar-atalhos.bat`. Ele cria na Área de Trabalho:
 
-- **FRX-WORLD**: abre o Docker, sobe o banco, publica o pack, liga o painel e abre http://localhost:3000/servidor.
+- **FRX-WORLD**: abre o Docker, sobe o banco, publica o pack, liga o painel e abre http://localhost:3000/admin/servidor.
   Daí é só clicar em **Iniciar** na aba Servidor.
 - **Desligar FRX-WORLD**: para o servidor salvando o mundo, fecha painel e pack e para o banco.
 

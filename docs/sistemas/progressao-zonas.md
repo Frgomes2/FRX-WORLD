@@ -18,12 +18,12 @@ O nível de cada monstro é decidido pela **faixa da dimensão** onde ele nasce.
 | Dimensão | Faixa |
 |---|---|
 | Superfície | 1 até `zonas.nivelMax` (60), +1 nível a cada `zonas.blocosPorNivel` (250) blocos do spawn |
-| Floresta do Crepúsculo | 10–25 |
-| Nether | 15–35 |
+| Floresta do Crepúsculo | 14–30, com dureza extra: +80% de vida e +50% de dano (`Zonas.dureza`) |
+| Nether | 22–40, com dureza extra: +150% de vida e +100% de dano; exige Rank D da Guilda |
 | Undergarden | 20–35 |
 | Everbright | 25–40 |
 | Aether | 30–45 |
-| O Fim | 30–50 |
+| O Fim | 30–50; exige Rank C da Guilda |
 | Everdawn | 35–50 |
 | O Outro Lado | 45–60 |
 | Dimensão de outro mod fora da tabela | 20–40 |
@@ -84,3 +84,17 @@ Código: `progressao/Marcos.java` · 48 advancements ocultos em `data/frxworld/a
 São o elo com o **FTB Quests**: as quests usam tasks do tipo `advancement` apontando para esses marcos. Veja [quests.md](quests.md).
 
 Há também as **Conquistas** visíveis (`/conquistas`, aba Conquistas da janela de Status).
+
+## Rank da Guilda para entrar nas dimensões
+
+- **Nether: Rank D. End: Rank C.** Sem o rank, o portal (ou waystone, ou qualquer teleporte) não leva e o jogador recebe o aviso.
+- Por que esses ranks: o Rank D exige nível 20 e os monstros do Nether vão de 22 a 40 (o Nether é feito para ser cruel: entra-se abaixo do piso de propósito); o Rank C exige nível 35 e os do End vão de 30 a 50. O jogador chega um pouco acima do piso da dimensão, sem ficar esperando até o teto.
+- Troca pelo painel: `zonas.rankMinimo = { "minecraft:the_nether": "D", "minecraft:the_end": "C" }`; `"F"` ou `"livre"` libera. Aceita qualquer dimensão (Aether, Twilight...).
+- Criativo e espectador passam. Quem já está dentro da dimensão não é expulso.
+
+## Nether: a dimensão mais dura
+
+- Faixa de nível 22–40 e dureza +150% de vida e +100% de dano em todo monstro (trocável no painel em `zonas.faixas` e `zonas.dureza`).
+- **Emboscadas** (`aventura/Inferno.java`): 3 min depois de entrar e depois a cada 6 a 11 min, por jogador. 75% horda (4 a 7 entre esqueletos wither, blazes, brutos piglin, hoglins e cubos de magma), 25% um chefão de `aventura/Chefes` do rank do jogador (mínimo D), nível da zona + 3. Criativo e espectador ficam de fora.
+- Conteúdo de mods no Nether: Incendium, Moog's Nether Structures, YUNG's Better Nether Fortresses, Nether Depths Upgrade, Cataclysm (Ignis e Monstruosidade de Netherita), Bygone Nether e Piglin Proliferation.
+

@@ -31,6 +31,11 @@ hash = "5e9edd1fd2395f14a0c8a4acbdbdd61e1047be1f0033deb3140d2ce0d093e9d8"
 metafile = true
 
 [[files]]
+file = "mods/artifacts.pw.toml"
+hash = "2de33e7d757cfa1108b05247cb59f6db2f08000af824da328322d78cdb7c4c4d"
+metafile = true
+
+[[files]]
 file = "mods/automodpack.pw.toml"
 hash = "53b7beb4046bd6d00cee083ce3d7be9be5dfa392515c68596f932eaba7f184fe"
 metafile = true
@@ -56,6 +61,11 @@ hash = "f908d8ee3c83f1c9ec7a5f7170b750fa2834203beaf5226bf4116458e14b9f44"
 metafile = true
 
 [[files]]
+file = "mods/bygone-nether.pw.toml"
+hash = "d706f608a7387e3f3d47d71995f543cd32a52894cdbd5f65d0a0295050ca61a5"
+metafile = true
+
+[[files]]
 file = "mods/chunky.pw.toml"
 hash = "0e17f9758f6f67ef87aa6f8d5afc47901521a05904cd8470ef65063b48e69d73"
 metafile = true
@@ -63,6 +73,11 @@ metafile = true
 [[files]]
 file = "mods/citadel.pw.toml"
 hash = "c7ac7f84731a0ca1fefb3491c3f65c2767afd4be207e094fcb65c4cea99c9549"
+metafile = true
+
+[[files]]
+file = "mods/cloth-config.pw.toml"
+hash = "e3dd03e7fec88831974857e2cdded54dd5c5bdcaa3f6d6248c2800e82db4dd41"
 metafile = true
 
 [[files]]
@@ -152,7 +167,7 @@ metafile = true
 
 [[files]]
 file = "mods/frxworld-0.41.0.jar"
-hash = "0bfb85266cada0b4c2f87511cf8b33a8ca19e9df6394d35e5c37307d74d0a3e4"
+hash = "292129992b674b63b4f122dd170c3eb9ff57ea874e1098bf56fdae4f5992c1a4"
 
 [[files]]
 file = "mods/ftb-library-forge.pw.toml"
@@ -255,6 +270,36 @@ hash = "66bcfe786e6bbdee6f7ea0805ec3d2561b41285a5c77f1e465e80f4c2fd9200c"
 metafile = true
 
 [[files]]
+file = "mods/macaws-bridges.pw.toml"
+hash = "0261f8fb3b0880b572044ff084edceecd2c91f39ee71c477198313ac2a253f4d"
+metafile = true
+
+[[files]]
+file = "mods/macaws-doors.pw.toml"
+hash = "4284966610d17ac7b865da1fad6738b9e24704e817a6cc6650d423db285e6e5a"
+metafile = true
+
+[[files]]
+file = "mods/macaws-fences-and-walls.pw.toml"
+hash = "f009a177c97f9d189e9131704095060364b8201c83bd9118d89a11d25a6d2655"
+metafile = true
+
+[[files]]
+file = "mods/macaws-furniture.pw.toml"
+hash = "976e9c737f3dd39812d87bc8dd8082197a77aeb5e08f5082d22643ac36f46a4f"
+metafile = true
+
+[[files]]
+file = "mods/macaws-roofs.pw.toml"
+hash = "1191b45155fb0f23f5a3fe4b9170b73f52a1c9599de504fe922e4ea7e7e3c95f"
+metafile = true
+
+[[files]]
+file = "mods/macaws-windows.pw.toml"
+hash = "eb6a1c1455632c6ea1ab12259d7082a19400be018eae95e44150a9f8fed330eb"
+metafile = true
+
+[[files]]
 file = "mods/mes-moogs-end-structures.pw.toml"
 hash = "108750d474c87286996e8dbbce3a18ad277e7258c0d49094250fc33da34fb68b"
 metafile = true
@@ -300,6 +345,16 @@ hash = "2b8f42e2738eee168da78318c19249f78a546dd3f0a08084afcb7ddacc0144b4"
 metafile = true
 
 [[files]]
+file = "mods/mythic-mounts.pw.toml"
+hash = "f920114b959a9c9dc61803e8e6d9ee97f949e2eceb682ccb1f377738e2c08967"
+metafile = true
+
+[[files]]
+file = "mods/naturalist.pw.toml"
+hash = "22ab00cc4b2d3866ed0f8e1414676e67d3b57f041c96743dc370494090576a44"
+metafile = true
+
+[[files]]
 file = "mods/nether-depths-upgrade.pw.toml"
 hash = "a94d2977cef31fe7eaa03e835d93a0e32786018bd0d4581bf44eb5b440ee8ada"
 metafile = true
@@ -312,6 +367,16 @@ metafile = true
 [[files]]
 file = "mods/obscure-api.pw.toml"
 hash = "70d4e3ec754f6fffc5bd03814ed7e7a137b83311a43c817eef2fb2ac9c417d27"
+metafile = true
+
+[[files]]
+file = "mods/patchouli.pw.toml"
+hash = "2242b76f7c4ee6d7f396a2d1380bee615d78408d00bff5cca38e4df777b18dc5"
+metafile = true
+
+[[files]]
+file = "mods/piglin-proliferation.pw.toml"
+hash = "57f32183698c58fb9ad06b68d0486c305dc71fa3b2782678bb05d9f4892b4516"
 metafile = true
 
 [[files]]

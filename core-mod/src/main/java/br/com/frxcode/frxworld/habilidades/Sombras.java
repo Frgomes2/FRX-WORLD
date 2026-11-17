@@ -166,7 +166,25 @@ public class Sombras {
 
         ServerPlayer p = null;
         Entity matador = e.getSource().getEntity();
-        if (matador instanceof ServerPlayer sp) p = sp;
+        if (matador instanceof ServerPlayer sp) {
+            p = sp;
+            // o dono matou: as sombras dele que estão em campo e por perto também aprendem (antes só contava o golpe final da própria sombra)
+            boolean mudou = false;
+            ListTag ex = exercito(sp);
+            for (int i = 0; i < ex.size(); i++) {
+                CompoundTag s = ex.getCompound(i);
+                if (!s.hasUUID("ent") || !(nivel.getEntity(s.getUUID("ent")) instanceof Mob sombra) || !sombra.isAlive() || sombra.distanceToSqr(morto) > 24 * 24) continue;
+                int antes = nivelSombra(s.getInt("abates"));
+                s.putInt("abates", s.getInt("abates") + 1);
+                int depois = nivelSombra(s.getInt("abates"));
+                mudou = true;
+                if (depois > antes) {
+                    sp.sendSystemMessage(Component.literal("⚫ " + s.getString("nome") + " subiu para o nível " + depois + "!").withStyle(ChatFormatting.LIGHT_PURPLE));
+                    aplicarForca(sombra, s.getFloat("vida"), depois);
+                }
+            }
+            if (mudou) sincronizar(sp);
+        }
         else if (matador != null && matador.getTags().contains(TAG) && matador.getPersistentData().hasUUID("frx_dono")) {
             p = nivel.getServer().getPlayerList().getPlayer(matador.getPersistentData().getUUID("frx_dono"));
             CompoundTag s = p == null ? null : porId(p, matador.getPersistentData().getString("frx_sombra_id"));

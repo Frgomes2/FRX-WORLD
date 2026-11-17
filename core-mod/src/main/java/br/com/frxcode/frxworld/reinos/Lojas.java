@@ -206,6 +206,21 @@ public final class Lojas {
         } finally { fatorVenda = 1; }
     }
 
+    /** Equipamento de classe F (pedra e couro) para quem ainda é Rank F da Guilda e não pode usar ferro. */
+    public static List<MerchantOffer> basicos(boolean armeiro, double desconto) {
+        fatorVenda = 1 - desconto;
+        try {
+            List<MerchantOffer> l = new ArrayList<>();
+            if (armeiro) {
+                l.add(venda(new ItemStack(Items.LEATHER_HELMET), 30)); l.add(venda(new ItemStack(Items.LEATHER_CHESTPLATE), 50));
+                l.add(venda(new ItemStack(Items.LEATHER_LEGGINGS), 40)); l.add(venda(new ItemStack(Items.LEATHER_BOOTS), 25));
+            } else {
+                l.add(venda(new ItemStack(Items.STONE_SWORD), 20)); l.add(venda(new ItemStack(Items.STONE_AXE), 25));
+            }
+            return l;
+        } finally { fatorVenda = 1; }
+    }
+
     /** Tabela do comprador pagando a mais pela reputação. */
     public static List<MerchantOffer> comprador(double bonus) {
         fatorCompra = 1 + bonus;

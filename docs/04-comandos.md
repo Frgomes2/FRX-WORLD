@@ -49,6 +49,8 @@
 | `/frx despertar` | Enche a barra de Despertar (teste) |
 | `/frx raca <j> definir <principal> [secundaria]` · `liberar <raca>` · `limpar` | Raças |
 | `/frx admin <j> ficha` · `curar` · `banco` · `tirarmoedas <v>` · `reputacao ...` · `talento ...` | Ficha e ajustes do jogador |
+| `/frx bancooffline <uuid> <cobre>` | Define o saldo do banco; com o jogador offline, o valor entra no próximo login (usado pelo painel) |
+| `/frx ajustar <nick> nivel <n>` · `rank <F..S>` · `torre` | Define nível, rank da Guilda ou zera a Torre do jogador; offline, entra no próximo login |
 | `/frx admin <j> habilidade aprender\|esquecer\|nivel\|todas` | Habilidades do jogador |
 | `/frx moedas <j> <cobre>` | Dá moedas (em cobre) |
 | `/frx reputacao ...` | Ajusta reputação |
@@ -97,6 +99,8 @@
 | `/torre` · `/torre sair` · `/torre continuar` | Recorde e entrada da Torre Infinita · desiste da subida · começa o próximo andar já |
 | `/torre placar` · `/torre loja` · `/torre comprar <item>` | Rankings da Torre · Loja da Torre (fichas) · compra |
 | `/runas` | Lista e explica as runas |
+| `/portal sair` | Desiste da dungeon de portal |
+| `/frx classe` · `/frx classe definir <F..S\|livre\|automatica>` | Mostra a classe do item na mão · fixa uma exceção |
 | `/frx torre aqui` · `desfazer` · `andar <n>` | Ergue a torre onde o admin está · remove · define o andar seguro do admin |
 | `/frx historia <jogador> <capítulo>` | Põe o jogador num capítulo |
 | `/frx temporada fechar` | Encerra a temporada agora |

@@ -75,7 +75,7 @@ Se não der para expor o pack, mande junto com o kit a pasta `cliente\jogo\mods`
 
 ## Painel para os outros admins (Cloudflare Tunnel)
 
-O painel continua rodando no seu PC e fica acessível em **https://craft.frgomes.com.br** através de um Cloudflare Tunnel. É grátis, tem HTTPS e não precisa abrir porta no roteador.
+O painel continua rodando no seu PC e fica acessível pelo endereço **https://craft.frgomes.com.br**: a raiz é o **site público** dos jogadores (status, rankings, mapa, biblioteca, mods e novidades, sem login) e o painel dos admins fica em **https://craft.frgomes.com.br/admin**. Tudo passa através de um Cloudflare Tunnel. É grátis, tem HTTPS e não precisa abrir porta no roteador.
 
 ```
 Admin (navegador) ──HTTPS──▶ Cloudflare ──túnel──▶ cloudflared (seu PC) ──▶ localhost:3000 (painel)
@@ -91,7 +91,7 @@ Admin (navegador) ──HTTPS──▶ Cloudflare ──túnel──▶ cloudfla
 4. Ainda no túnel, em **Public Hostname**:
    - subdomínio `craft`, domínio `frgomes.com.br`;
    - serviço **HTTP** → `localhost:3000`.
-5. Ligue pelo atalho **FRX-WORLD** e abra `https://craft.frgomes.com.br`.
+5. Ligue pelo atalho **FRX-WORLD** e abra `https://craft.frgomes.com.br/admin`.
 
 Com o PC desligado ou o painel parado, o endereço mostra um erro da Cloudflare (502). É o esperado.
 

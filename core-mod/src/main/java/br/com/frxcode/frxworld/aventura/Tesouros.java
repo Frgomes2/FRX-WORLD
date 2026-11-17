@@ -103,7 +103,7 @@ public class Tesouros {
         if (nivel.getBlockEntity(b) instanceof ChestBlockEntity bau) {
             int nv = Progressao.temDados(p) ? Progressao.dados(p).nivel() : 1;
             List<ItemStack> itens = new ArrayList<>();
-            itens.add(Moedas.ouro(3 + nv / 4 + rnd.nextInt(4)));
+            itens.add(new ItemStack(Items.EMERALD_BLOCK, 1 + nv / 20 + rnd.nextInt(2)));
             itens.add(new ItemStack(Items.DIAMOND, 2 + rnd.nextInt(4)));
             itens.add(new ItemStack(Items.EMERALD, 4 + rnd.nextInt(8)));
             itens.add(new ItemStack(Items.GOLD_INGOT, 4 + rnd.nextInt(8)));

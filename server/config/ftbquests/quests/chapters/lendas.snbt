@@ -20,21 +20,15 @@
 					title: "500 XP"
 					type: "command"
 				}
+			]
+			tasks: [
 				{
-					command: "/frx moedas {p} 300"
-					elevate_perms: true
-					id: "21FF892B140E769E"
-					silent: true
-					title: "3 ouro"
-					type: "command"
+					advancement: "frxworld:frx/elite"
+					criterion: ""
+					id: "4CE9496E1035E9CD"
+					type: "advancement"
 				}
 			]
-			tasks: [{
-				advancement: "frxworld:frx/elite"
-				criterion: ""
-				id: "4CE9496E1035E9CD"
-				type: "advancement"
-			}]
 			title: "Caçador de Elites"
 			x: 0.0d
 			y: 0.0d
@@ -58,21 +52,15 @@
 					title: "2000 XP"
 					type: "command"
 				}
+			]
+			tasks: [
 				{
-					command: "/frx moedas {p} 1500"
-					elevate_perms: true
-					id: "58F2A1F8D825469D"
-					silent: true
-					title: "15 ouro"
-					type: "command"
+					advancement: "frxworld:frx/campeao"
+					criterion: ""
+					id: "2C00DA3D42BB68B0"
+					type: "advancement"
 				}
 			]
-			tasks: [{
-				advancement: "frxworld:frx/campeao"
-				criterion: ""
-				id: "2C00DA3D42BB68B0"
-				type: "advancement"
-			}]
 			title: "Matador de Campeões"
 			x: 2.0d
 			y: 0.0d
@@ -89,21 +77,15 @@
 					title: "1500 XP"
 					type: "command"
 				}
+			]
+			tasks: [
 				{
-					command: "/frx moedas {p} 1000"
-					elevate_perms: true
-					id: "3D2DA07B8A0A0746"
-					silent: true
-					title: "10 ouro"
-					type: "command"
+					advancement: "frxworld:frx/dungeon"
+					criterion: ""
+					id: "60B41560B588C1CB"
+					type: "advancement"
 				}
 			]
-			tasks: [{
-				advancement: "frxworld:frx/dungeon"
-				criterion: ""
-				id: "60B41560B588C1CB"
-				type: "advancement"
-			}]
 			title: "Profundezas da Cripta"
 			x: 0.0d
 			y: 2.0d
@@ -121,21 +103,15 @@
 					title: "3000 XP"
 					type: "command"
 				}
+			]
+			tasks: [
 				{
-					command: "/frx moedas {p} 2500"
-					elevate_perms: true
-					id: "731D56CF4E6729C2"
-					silent: true
-					title: "25 ouro"
-					type: "command"
+					advancement: "frxworld:frx/chefe_mundial"
+					criterion: ""
+					id: "246244608F4F956C"
+					type: "advancement"
 				}
 			]
-			tasks: [{
-				advancement: "frxworld:frx/chefe_mundial"
-				criterion: ""
-				id: "246244608F4F956C"
-				type: "advancement"
-			}]
 			title: "Contra o Titã"
 			x: 2.0d
 			y: 2.0d
@@ -153,21 +129,15 @@
 					title: "1000 XP"
 					type: "command"
 				}
+			]
+			tasks: [
 				{
-					command: "/frx moedas {p} 500"
-					elevate_perms: true
-					id: "2803FD82B40D69E2"
-					silent: true
-					title: "5 ouro"
-					type: "command"
+					advancement: "frxworld:frx/raca_especial"
+					criterion: ""
+					id: "3F0966F51326494B"
+					type: "advancement"
 				}
 			]
-			tasks: [{
-				advancement: "frxworld:frx/raca_especial"
-				criterion: ""
-				id: "3F0966F51326494B"
-				type: "advancement"
-			}]
 			title: "Sangue raro"
 			x: 4.0d
 			y: 1.0d
@@ -176,20 +146,14 @@
 			dependencies: ["29F1B8576D0AF604"]
 			description: ["Chegue ao nível 50."]
 			id: "55497FA05A635EE3"
-			rewards: [{
-				command: "/frx moedas {p} 5000"
-				elevate_perms: true
-				id: "6BDCEA5355920E84"
-				silent: true
-				title: "50 ouro"
-				type: "command"
-			}]
-			tasks: [{
-				advancement: "frxworld:frx/nivel_50"
-				criterion: ""
-				id: "571BD25395F1D3B3"
-				type: "advancement"
-			}]
+			tasks: [
+				{
+					advancement: "frxworld:frx/nivel_50"
+					criterion: ""
+					id: "571BD25395F1D3B3"
+					type: "advancement"
+				}
+			]
 			title: "Veterano"
 			x: 4.0d
 			y: 3.0d
@@ -200,6 +164,7 @@
 			id: "7B8749C2BEADC296"
 			rewards: [
 				{
+					count: 1
 					id: "294500C2C4B529AF"
 					item: "minecraft:enchanted_golden_apple"
 					type: "item"
@@ -212,57 +177,43 @@
 					title: "5000 XP"
 					type: "command"
 				}
-				{
-					command: "/frx moedas {p} 5000"
-					elevate_perms: true
-					id: "462D6AFC6B9122AD"
-					silent: true
-					title: "50 ouro"
-					type: "command"
-				}
 			]
 			shape: "gear"
 			size: 1.5d
-			tasks: [{
-				advancement: "frxworld:frx/raca_lendaria"
-				criterion: ""
-				id: "5BB83561E91F29A7"
-				type: "advancement"
-			}]
+			tasks: [
+				{
+					advancement: "frxworld:frx/raca_lendaria"
+					criterion: ""
+					id: "5BB83561E91F29A7"
+					type: "advancement"
+				}
+			]
 			title: "Despertar lendário"
 			x: 6.0d
 			y: 1.0d
 		}
 		{
-			dependencies: [
-				"55497FA05A635EE3"
-				"7B8749C2BEADC296"
-			]
+			dependencies: ["55497FA05A635EE3" "7B8749C2BEADC296"]
 			description: ["Chegue ao nível 100."]
 			id: "6147324C09A3EF84"
 			rewards: [
 				{
+					count: 1
 					id: "220B9EB76BD9F8F7"
 					item: "minecraft:nether_star"
 					type: "item"
 				}
-				{
-					command: "/frx moedas {p} 20000"
-					elevate_perms: true
-					id: "14B44A857C2C3947"
-					silent: true
-					title: "200 ouro"
-					type: "command"
-				}
 			]
 			shape: "gear"
 			size: 2.0d
-			tasks: [{
-				advancement: "frxworld:frx/nivel_100"
-				criterion: ""
-				id: "4E32222B9B780ADA"
-				type: "advancement"
-			}]
+			tasks: [
+				{
+					advancement: "frxworld:frx/nivel_100"
+					criterion: ""
+					id: "4E32222B9B780ADA"
+					type: "advancement"
+				}
+			]
 			title: "Imortal"
 			x: 6.0d
 			y: 3.0d

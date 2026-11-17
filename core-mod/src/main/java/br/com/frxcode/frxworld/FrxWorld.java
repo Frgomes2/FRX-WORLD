@@ -59,6 +59,11 @@ public class FrxWorld {
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.aventura.Torre());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.aventura.Ceu());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.aventura.Runas());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.aventura.Chefes());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.aventura.Fenda());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.aventura.Inferno());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.progressao.AjustesAdmin());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.progressao.ClassesEquip());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.reinos.Reinos());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.reinos.NpcsReino());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.reinos.Oficios());

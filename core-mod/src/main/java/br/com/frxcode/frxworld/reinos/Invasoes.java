@@ -275,11 +275,10 @@ public class Invasoes {
                 int n = abates.getOrDefault(u, 0);
                 long moedas = Math.round(num("moedasPorJogador", 150) + n * num("moedasPorAbate", 5));
                 int rep = (int) Math.round(num("repVitoria", 100) + n * num("repPorAbate", 5));
-                Moedas.dar(p, moedas);
                 Reputacao.ganhar(p, reino.id(), rep, true);
                 Campanhas.aoDefender(p, reino.id());
                 br.com.frxcode.frxworld.progressao.Conquistas.somar(p, "invasoes", 1);
-                s.getPlayerList().broadcastSystemMessage(Component.literal("  " + p.getGameProfile().getName() + " — " + n + " abates · " + Moedas.texto(moedas)
+                s.getPlayerList().broadcastSystemMessage(Component.literal("  " + p.getGameProfile().getName() + " — " + n + " abates"
                         + " · +" + rep + " reputação").withStyle(ChatFormatting.WHITE), false);
                 p.level().playSound(null, p.blockPosition(), SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.PLAYERS, 1f, 1f);
             }
