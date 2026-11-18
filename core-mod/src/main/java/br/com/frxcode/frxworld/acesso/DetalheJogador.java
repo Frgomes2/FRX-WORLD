@@ -81,6 +81,7 @@ public class DetalheJogador {
     public static JsonObject montar(ServerPlayer p) {
         JsonObject o = JsonParser.parseString(JanelaStatus.montar(p)).getAsJsonObject();
         o.addProperty("uuid", p.getUUID().toString());
+        o.addProperty("vaga", Personagens.vagaDe(p));   // de qual personagem da conta é esta ficha
         o.addProperty("online", !p.hasDisconnected());
         o.addProperty("x", p.getBlockX()); o.addProperty("y", p.getBlockY()); o.addProperty("z", p.getBlockZ());
         o.addProperty("dim", p.level().dimension().location().toString());
@@ -169,6 +170,8 @@ public class DetalheJogador {
             d.reputacao().forEach(rep::addProperty);
             o.add("reputacaoPontos", rep);
             o.add("sombras", br.com.frxcode.frxworld.habilidades.Sombras.json(p));
+            o.add("colecao", br.com.frxcode.frxworld.progressao.Colecao.json(p));
+            o.add("contratos", br.com.frxcode.frxworld.missoes.Contratos.json(p));
         }
         return o;
     }
@@ -234,6 +237,15 @@ public class DetalheJogador {
                             ServerPlayer p = EntityArgument.getPlayer(ctx, "jogador");
                             Banco.definirSaldo(p, IntegerArgumentType.getInteger(ctx, "cobre"));
                             ok(ctx.getSource(), p, "banco de " + p.getGameProfile().getName() + " = " + Moedas.texto(Banco.saldo(p)));
+                            return 1;
+                        })))
+                        // bolsa exata: troca todas as moedas do inventário pelo valor pedido (o painel edita ouro, prata e cobre)
+                        .then(Commands.literal("bolsa").then(Commands.argument("cobre", IntegerArgumentType.integer(0)).executes(ctx -> {
+                            ServerPlayer p = EntityArgument.getPlayer(ctx, "jogador");
+                            long v = IntegerArgumentType.getInteger(ctx, "cobre");
+                            Moedas.cobrar(p, Moedas.contar(p));
+                            Moedas.dar(p, v);
+                            ok(ctx.getSource(), p, "bolsa de " + p.getGameProfile().getName() + " = " + Moedas.texto(Moedas.contar(p)));
                             return 1;
                         })))
                         .then(Commands.literal("tirarmoedas").then(Commands.argument("cobre", IntegerArgumentType.integer(1)).executes(ctx -> {

@@ -100,6 +100,7 @@ public class ClassesEquip {
     /** Rank mínimo (0 = F ... 6 = S) para usar o item, ou -1 se ele não é arma nem armadura. */
     public static int classe(ItemStack s) {
         if (s.isEmpty()) return -1;
+        if (s.hasTag() && s.getTag().contains(br.com.frxcode.frxworld.armas.Codex.RANK)) return s.getTag().getInt(br.com.frxcode.frxworld.armas.Codex.RANK);   // arma do Códex: rank definido no painel
         ResourceLocation id = ForgeRegistries.ITEMS.getKey(s.getItem());
         if (id != null && excecoes.containsKey(id.toString())) return excecoes.get(id.toString());
         if (s.getItem() instanceof ArmorItem a) {

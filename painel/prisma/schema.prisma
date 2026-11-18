@@ -51,6 +51,26 @@ model Jogador {
   convites    Convite[]
 }
 
+/// Personagens de cada conta (até 3). O Jogador acima guarda os dados do personagem em uso; aqui fica o retrato de todos.
+model Personagem {
+  id           String   @id @default(cuid())
+  uuid         String   // conta (Jogador.uuid)
+  vaga         Int      // 1 a 3
+  idJogo       String   @default("") // identidade do personagem nos arquivos do mundo (clãs, placar da Torre, temporada)
+  nome         String   @default("")
+  classe       String   @default("") // nome da classe, como aparece no jogo
+  raca         String   @default("")
+  nivel        Int      @default(1)
+  rank         String   @default("")
+  emUso        Boolean  @default(false)
+  base         Json?    // retrato dos campos do Jogador (nível, xp, rank, classe, bolsa, título...) na última vez em que esteve em uso
+  detalhe      Json?    // ficha completa (inventário, habilidades...) na última vez em que esteve em uso
+  detalheEm    DateTime?
+  atualizadoEm DateTime @updatedAt
+
+  @@unique([uuid, vaga])
+}
+
 /// Configurações do jogo editadas no painel (o servidor lê por /api/servidor/config)
 model Configuracao {
   chave        String   @id
@@ -158,7 +178,7 @@ model Habilidade {
   codigo       String   @unique // ex.: bola_de_fogo
   nome         String
   descricao    String   @default("")
-  classe       String // GUERREIRO | ARQUEIRO | MAGO | CLERIGO | LADINO | ASSASSINO | INVOCADOR
+  classe       String // GUERREIRO | ARQUEIRO | MAGO | CLERIGO | LADINO | ASSASSINO | INVOCADOR | PALADINO
   tipo         String // SKILLSHOT | ALVO | AREA | MOBILIDADE | BUFF | INVOCAR
   elemento     String   @default("FISICO")
   icone        String   @default("minecraft:book")
@@ -220,5 +240,88 @@ model NpcSkin {
   chave        String   @id
   slim         Boolean  @default(false)
   png          Bytes
+  atualizadoEm DateTime @updatedAt
+}
+
+// Códex de Armas: armas únicas criadas no painel (só saem do ferreiro ou de missão)
+model ArmaCodex {
+  id            String   @id @default(cuid())
+  codigo        String   @unique // slug, ex.: lamina_do_crepusculo; na missão vira "codex:lamina_do_crepusculo"
+  nome          String
+  descricao     String   @default("")
+  itemBase      String   // item que dá o comportamento (espada, machado, arco...), ex.: minecraft:netherite_sword
+  rank          Int      @default(0) // rank da Guilda para usar: 0 = F ... 6 = S
+  raridade      Int      @default(0) // 0 Comum ... 4 Lendário
+  dano          Float    @default(0) // dano (ou armadura) extra fixo
+  limite        Int      @default(0) // total que pode existir no mundo (0 = sem limite)
+  ferreiro      Boolean  @default(true) // à venda no ferreiro/armeiro
+  preco         Int      @default(0) // em cobre
+  nivelMin      Int      @default(1) // nível do jogador para aparecer na loja
+  evolui        Boolean  @default(false) // vinculada ao dono e cresce com o nível dele
+  danoPorNivel  Float    @default(0)
+  umaPorJogador Boolean  @default(true)
+  encantos      String   @default("") // "minecraft:sharpness*3, minecraft:unbreaking*2"
+  textura       String   @default("") // PNG em base64 (16x16 ou 32x32); vazio = aparência do item base
+  modelo        Int      @unique @default(autoincrement()) // número do CustomModelData no pacote de recursos
+  emitidas      Int      @default(0) // quantas já existem (enviado pelo servidor)
+  donos         Json     @default("{}") // uuid → nick (enviado pelo servidor)
+  ativa         Boolean  @default(true)
+  criadoEm      DateTime @default(now())
+  atualizadoEm  DateTime @updatedAt
+}
+
+/// Códex de Criaturas: chefes e monstros próprios do servidor (aba Códex de Criaturas).
+model CriaturaCodex {
+  id           String   @id @default(cuid())
+  codigo       String   @unique // slug curto (até 30), ex.: rei_goblin
+  nome         String
+  descricao    String   @default("")
+  tipo         String   @default("chefe") // "chefe" (barra de vida e golpes) ou "monstro" (aparece no meio dos comuns)
+  entidade     String   // criatura base: dá o corpo, o jeito de andar e de bater, ex.: minecraft:zombie
+  rankMin      Int      @default(0) // 0 = F ... 6 = S: ranks dos lugares em que aparece
+  rankMax      Int      @default(6)
+  vida         Float    @default(1) // multiplicador por cima da vida que o lugar já dá
+  dano         Float    @default(1)
+  velocidade   Float    @default(1)
+  golpes       String   @default("") // chefes: "ONDA,SALTO,FURIA"
+  lacaio       String   @default("") // criatura que o chefe chama no golpe INVOCAR
+  locais       String   @default("portal,torre,nether")
+  peso         Int      @default(10) // chefe: peso no sorteio; monstro: chance (%) de entrar no lugar de um comum
+  xp           Int      @default(0) // XP a mais para quem estiver na luta
+  moedas       Int      @default(0) // cobre a mais para quem estiver na luta
+  dropItem     String   @default("") // id do item ou "codex:<código da arma>"
+  dropChance   Float    @default(0) // %
+  dropQtd      Int      @default(1)
+  escala       Float    @default(1) // tamanho do desenho (só com skin própria)
+  brilho       Boolean  @default(false) // contorno brilhante
+  skin         String   @default("") // PNG 64×64 em base64, formato de skin de jogador; vazio = aparência da criatura base
+  slim         Boolean  @default(false)
+  derrotas     Int      @default(0) // quantas vezes foi derrotado (enviado pelo servidor)
+  ativa        Boolean  @default(true)
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+}
+
+/// Disco de música vendido pelo Mercador de Discos. O áudio (.ogg) fica em painel/dados/discos/<codigo>.ogg, fora do banco e do git.
+model Disco {
+  id           String   @id @default(cuid())
+  codigo       String   @unique // slug curto, vira o nome do som: frxworld:disco.<codigo>
+  nome         String
+  artista      String   @default("")
+  estilo       String   @default("") // estilo de música (Rock, Sertanejo, Trilha sonora...): vira filtro na loja
+  descricao    String   @default("")
+  preco        Int      @default(100) // em cobre
+  rankMin      Int      @default(0) // rank da Guilda para comprar: 0 = F ... 6 = S
+  limite       Int      @default(0) // quantas unidades podem existir no mundo (0 = sem limite)
+  emitidas     Int      @default(0) // quantas já foram vendidas (o servidor informa)
+  arte         Int      @default(1) // aparência pronta (1 a 16), usada quando não há desenho próprio
+  textura      String   @default("") // desenho próprio: PNG 16x16 ou 32x32 em base64 ("" = usa a aparência pronta)
+  modelo       Int      @unique @default(autoincrement()) // CustomModelData do desenho próprio: 1000 + modelo
+  duracao      Int      @default(0) // segundos, lidos do arquivo
+  canais       Int      @default(0) // 1 = mono (diminui com a distância), 2 = estéreo
+  tamanho      Int      @default(0) // bytes do arquivo
+  ativo        Boolean  @default(true)
+  ordem        Int      @default(0)
+  criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
 }

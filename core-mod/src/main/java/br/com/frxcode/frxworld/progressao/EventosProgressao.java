@@ -39,6 +39,9 @@ public class EventosProgressao {
         ConfigJogo.recarregar();
         Missoes.recarregar();
         br.com.frxcode.frxworld.reinos.Lojas.recarregar();
+        br.com.frxcode.frxworld.armas.Codex.recarregar();
+        br.com.frxcode.frxworld.aventura.Criaturas.recarregar();
+        br.com.frxcode.frxworld.musica.Discos.recarregar();
         br.com.frxcode.frxworld.dungeon.Dungeons.recarregar();
         br.com.frxcode.frxworld.dungeon.Externos.recarregar();
         br.com.frxcode.frxworld.eventos.EventosEstrada.recarregar();
@@ -59,6 +62,9 @@ public class EventosProgressao {
             ConfigJogo.recarregar();
             Missoes.recarregar();
         br.com.frxcode.frxworld.reinos.Lojas.recarregar();
+        br.com.frxcode.frxworld.armas.Codex.recarregar();
+        br.com.frxcode.frxworld.aventura.Criaturas.recarregar();
+        br.com.frxcode.frxworld.musica.Discos.recarregar();
             br.com.frxcode.frxworld.dungeon.Dungeons.recarregar();
             br.com.frxcode.frxworld.dungeon.Externos.recarregar();
             br.com.frxcode.frxworld.eventos.EventosEstrada.recarregar();
@@ -121,7 +127,7 @@ public class EventosProgressao {
         if (evento.getEntity() instanceof ServerPlayer p) {
             p.getCapability(ProvedorDados.DADOS).ifPresent(d -> evento.setDisplayname(
                     Component.literal("[" + Guilda.rank(p) + " · Nv " + d.nivel() + "] ").withStyle(ChatFormatting.GOLD)
-                            .append(evento.getDisplayname())
+                            .append(Component.literal(br.com.frxcode.frxworld.acesso.Personagens.nome(p)))
                             .append(d.titulo().isEmpty() ? Component.empty() : Component.literal(" «" + d.titulo() + "»").withStyle(ChatFormatting.LIGHT_PURPLE))));
         }
     }
@@ -132,7 +138,7 @@ public class EventosProgressao {
         if (evento.getEntity() instanceof ServerPlayer p) {
             p.getCapability(ProvedorDados.DADOS).ifPresent(d -> evento.setDisplayName(
                     Component.literal("[" + Guilda.rank(p) + " · Nv " + d.nivel() + "] ").withStyle(ChatFormatting.GOLD)
-                            .append(Component.literal(p.getGameProfile().getName()))
+                            .append(Component.literal(br.com.frxcode.frxworld.acesso.Personagens.nome(p)))
                             .append(d.titulo().isEmpty() ? Component.empty() : Component.literal(" «" + d.titulo() + "»").withStyle(ChatFormatting.LIGHT_PURPLE))));
         }
     }
@@ -158,6 +164,9 @@ public class EventosProgressao {
                     ConfigJogo.recarregar();
                     Missoes.recarregar();
         br.com.frxcode.frxworld.reinos.Lojas.recarregar();
+        br.com.frxcode.frxworld.armas.Codex.recarregar();
+        br.com.frxcode.frxworld.aventura.Criaturas.recarregar();
+        br.com.frxcode.frxworld.musica.Discos.recarregar();
                     br.com.frxcode.frxworld.dungeon.Dungeons.recarregar();
                     br.com.frxcode.frxworld.dungeon.Externos.recarregar();
                     br.com.frxcode.frxworld.eventos.EventosEstrada.recarregar();

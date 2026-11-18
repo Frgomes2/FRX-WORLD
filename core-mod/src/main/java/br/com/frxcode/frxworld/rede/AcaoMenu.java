@@ -29,6 +29,13 @@ public record AcaoMenu(String tipo, int npc, int acao, long valor) {
             else br.com.frxcode.frxworld.acesso.Abertura.nascer(p);
         }
         else if (tipo.equals("guilda")) br.com.frxcode.frxworld.progressao.Guilda.acao(p, this);
+        else if (tipo.equals("mercado")) br.com.frxcode.frxworld.moedas.Mercado.acao(p, this);
+        else if (tipo.equals("personagens")) br.com.frxcode.frxworld.acesso.Personagens.acao(p, this);
+        else if (tipo.equals("escravos")) br.com.frxcode.frxworld.reinos.Escravos.acao(p, this);
+        else if (tipo.equals("discos")) br.com.frxcode.frxworld.musica.Discos.acao(p, this);
+        else if (tipo.equals("clas")) br.com.frxcode.frxworld.clas.Clas.acao(p, this);
+        else if (tipo.equals("terrenos")) br.com.frxcode.frxworld.protecao.Terrenos.acaoTela(p, this);
+        else if (tipo.equals("terreno")) br.com.frxcode.frxworld.protecao.Terrenos.acao(p, this);
         else br.com.frxcode.frxworld.reinos.MenusNpc.acao(p, this);
     }
 }

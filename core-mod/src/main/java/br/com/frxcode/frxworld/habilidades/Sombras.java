@@ -236,9 +236,72 @@ public class Sombras {
             e.setCanceled(true);
     }
 
+    // ------------------------------------------------------------------ alvo marcado pelo Invocador
+
+    private static final String FOCO = "frx_foco";
+    /** Invocador → criatura que ele mandou as sombras e invocações focarem. */
+    private static final Map<UUID, UUID> FOCOS = new HashMap<>();
+
+    private static List<Mob> tropa(ServerPlayer p) {
+        List<Mob> l = new ArrayList<>();
+        for (UUID id : Habilidades.invocadosDe(p.getUUID())) if (p.serverLevel().getEntity(id) instanceof Mob m && m.isAlive()) l.add(m);
+        return l;
+    }
+
+    private static void soltarFoco(ServerPlayer p, boolean avisar) {
+        boolean tinha = FOCOS.remove(p.getUUID()) != null;
+        for (Mob m : tropa(p)) { m.getPersistentData().remove(FOCO); if (tinha) m.setTarget(null); }
+        if (avisar) avisar(p, tinha ? "Alvo solto: as sombras voltam a atacar o que estiver por perto." : "Nenhuma criatura na mira para marcar.", ChatFormatting.GRAY);
+    }
+
+    /** Tecla de marcar alvo: a criatura na mira vira o foco de todas as sombras e invocações; sem nada na mira, solta o foco. */
+    static void marcarAlvo(ServerPlayer p) {
+        LivingEntity alvo = Habilidades.mirar(p, 40, 0.6, false);
+        if (alvo == null || alvo.getTags().contains("frx_npc") || alvo.getTags().contains("frx_cidadao")) { soltarFoco(p, true); return; }
+        if (alvo.getUUID().equals(FOCOS.get(p.getUUID()))) { soltarFoco(p, true); return; }   // marcar o mesmo de novo desmarca
+        FOCOS.put(p.getUUID(), alvo.getUUID());
+        List<Mob> tropa = tropa(p);
+        for (Mob m : tropa) { m.getPersistentData().putUUID(FOCO, alvo.getUUID()); m.setTarget(alvo); }
+        alvo.addEffect(new MobEffectInstance(MobEffects.GLOWING, 60, 0, false, false));
+        p.serverLevel().sendParticles(ParticleTypes.SOUL_FIRE_FLAME, alvo.getX(), alvo.getY() + alvo.getBbHeight() + 0.4, alvo.getZ(), 12, 0.2, 0.2, 0.2, 0.01);
+        p.playNotifySound(SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.PLAYERS, 0.7f, 0.6f);
+        avisar(p, "⚫ Alvo marcado: " + alvo.getDisplayName().getString() + (tropa.isEmpty() ? " (nenhuma sombra invocada agora)" : " — " + tropa.size() + (tropa.size() == 1 ? " sombra foca nele" : " sombras focam nele")), ChatFormatting.LIGHT_PURPLE);
+    }
+
+    /** Enquanto houver alvo marcado e vivo, a sombra não troca de alvo. */
+    @SubscribeEvent(priority = EventPriority.HIGH)
+    public void manterFoco(LivingChangeTargetEvent e) {
+        LivingEntity eu = e.getEntity();
+        if (eu.level().isClientSide() || !eu.getPersistentData().hasUUID(FOCO) || !(eu.level() instanceof net.minecraft.server.level.ServerLevel nv)) return;
+        Entity foco = nv.getEntity(eu.getPersistentData().getUUID(FOCO));
+        if (!(foco instanceof LivingEntity vivo) || !vivo.isAlive()) { eu.getPersistentData().remove(FOCO); return; }
+        if (e.getNewTarget() != vivo) e.setCanceled(true);
+    }
+
+    private static void tickFocos(net.minecraft.server.MinecraftServer s) {
+        for (var it = FOCOS.entrySet().iterator(); it.hasNext(); ) {
+            var en = it.next();
+            ServerPlayer p = s.getPlayerList().getPlayer(en.getKey());
+            Entity foco = p == null ? null : p.serverLevel().getEntity(en.getValue());
+            if (p == null || !(foco instanceof LivingEntity vivo) || !vivo.isAlive() || vivo.distanceTo(p) > 64) {
+                it.remove();
+                if (p != null) {
+                    for (Mob m : tropa(p)) m.getPersistentData().remove(FOCO);
+                    avisar(p, "⚫ O alvo marcado caiu ou ficou longe: as sombras voltam a atacar o que estiver por perto.", ChatFormatting.GRAY);
+                }
+                continue;
+            }
+            for (Mob m : tropa(p)) {   // cobre as sombras invocadas depois da marcação e as que perderam o alvo
+                if (!m.getPersistentData().hasUUID(FOCO)) m.getPersistentData().putUUID(FOCO, vivo.getUUID());
+                if (m.getTarget() != vivo) m.setTarget(vivo);
+            }
+        }
+    }
+
     @SubscribeEvent
     public void aCadaTick(TickEvent.ServerTickEvent e) {
         if (e.phase != TickEvent.Phase.END || ++ticks % 10 != 0) return;
+        if (!FOCOS.isEmpty()) tickFocos(e.getServer());
         // almas brilhando no chão
         for (List<Alma> lista : ALMAS.values()) {
             lista.removeIf(a -> a.nivel().getGameTime() > a.expira() || a.tentativas()[0] >= TENTATIVAS);
@@ -513,6 +576,7 @@ public class Sombras {
     public static void acao(ServerPlayer p, int acao, int numero, String id) {
         if (acao != br.com.frxcode.frxworld.rede.AcaoSombra.PEDIR && !ehInvocador(p)) { avisar(p, "Só o Invocador comanda as sombras.", ChatFormatting.RED); return; }
         switch (acao) {
+            case br.com.frxcode.frxworld.rede.AcaoSombra.MARCAR_ALVO -> marcarAlvo(p);
             case br.com.frxcode.frxworld.rede.AcaoSombra.INVOCAR -> invocar(p, id);
             case br.com.frxcode.frxworld.rede.AcaoSombra.GUARDAR -> guardarAvisando(p, id);
             case br.com.frxcode.frxworld.rede.AcaoSombra.INVOCAR_TODAS -> invocarTodas(p);

@@ -161,6 +161,8 @@ for /f "usebackq tokens=1,* delims==" %%A in ("painel\.env") do (
 echo [3b] Ligando o servidor Minecraft...
 curl -s -o nul -X POST -H "x-servidor-token: %TOKEN%" http://localhost:3000/api/servidor/ligar
 echo       ok (acompanhe pelo console na aba Servidor)
+rem sentinela: registra e religa na hora se o painel ou o servidor morrerem sozinhos (nunca mata nada)
+if exist "%~dp0controle\sentinela.ps1" start "FRX-WORLD Sentinela" /min powershell -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "%~dp0controle\sentinela.ps1"
 
 rem ---------- 4. Abre o navegador
 echo [4/4] Abrindo o painel...

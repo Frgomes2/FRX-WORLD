@@ -35,7 +35,9 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Mecânicas especiais de habilidade, escolhidas pelo campo "efeito" com o prefixo frx:
  * (puxar, provocar, salto, fenda, executar, vampirismo, refletir, lancar, explosiva, ricochete, marca, gancho,
- * leque, voleio, perfurar, armadilha, congelar, misseis, escudo_mana, trocar, sifao, zona, singularidade).
+ * leque, voleio, perfurar, armadilha, congelar, misseis, escudo_mana, trocar, sifao, zona, singularidade,
+ * atras, fumaca, laminas, emboscada, sangria, danca) e, em Sagrado.java, voto, sacrificio, intervencao e juizo.
+ * As do Bardo ficam em Cancoes.java e as do Monge em Marcial.java.
  * Os números (dano, alcance, raio, duração, potência) continuam vindo do painel.
  */
 public class Especiais {
@@ -56,6 +58,12 @@ public class Especiais {
     private static final List<Missil> misseis = new java.util.concurrent.CopyOnWriteArrayList<>();
     private static final List<Zona> zonas = new java.util.concurrent.CopyOnWriteArrayList<>();
     private static final Map<UUID, Aura> barreiras = new ConcurrentHashMap<>();
+    private record Sangria(UUID dono, UUID alvo, ServerLevel nivel, HabilidadeDef h, double mult, int fimTick) { }
+    private record Danca(UUID dono, ServerLevel nivel, List<UUID> alvos, Vec3 origem, HabilidadeDef h, double mult, int[] estado) { }
+    private static final Map<UUID, Aura> venenos = new ConcurrentHashMap<>();
+    private static final Map<UUID, Aura> emboscadas = new ConcurrentHashMap<>();
+    private static final List<Sangria> sangrias = new java.util.concurrent.CopyOnWriteArrayList<>();
+    private static final List<Danca> dancas = new java.util.concurrent.CopyOnWriteArrayList<>();
     /** Jogadores que não tomam dano de queda até este tick (gancho, voleio). */
     private static final Map<UUID, Integer> semQueda = new ConcurrentHashMap<>();
 
@@ -85,6 +93,32 @@ public class Especiais {
             case "frx:sifao" -> sifao(p, h, mult);
             case "frx:zona" -> zona(p, h, mult, false);
             case "frx:singularidade" -> zona(p, h, mult, true);
+            case "frx:atras" -> atras(p, h, mult);
+            case "frx:fumaca" -> fumaca(p, h, mult);
+            case "frx:laminas" -> laminas(p, h);
+            case "frx:emboscada" -> emboscada(p, h);
+            case "frx:sangria" -> sangria(p, h, mult);
+            case "frx:danca" -> danca(p, h, mult);
+            case "frx:voto" -> Sagrado.voto(p, h);
+            case "frx:sacrificio" -> Sagrado.sacrificio(p, h, mult);
+            case "frx:intervencao" -> Sagrado.intervencao(p, h, mult);
+            case "frx:juizo" -> Sagrado.juizo(p, h, mult);
+            case "frx:cancao_marcha" -> Cancoes.cancao(p, h, mult, "marcha");
+            case "frx:cancao_cura" -> Cancoes.cancao(p, h, mult, "cura");
+            case "frx:cancao_guerra" -> Cancoes.cancao(p, h, mult, "guerra");
+            case "frx:sinfonia" -> Cancoes.cancao(p, h, mult, "sinfonia");
+            case "frx:ninar" -> Cancoes.ninar(p, h);
+            case "frx:zombaria" -> Cancoes.zombaria(p, h, mult);
+            case "frx:eco" -> Cancoes.eco(p, h);
+            case "frx:heroi" -> Cancoes.heroi(p, h);
+            case "frx:palma" -> Marcial.palma(p, h, mult);
+            case "frx:rajada" -> Marcial.rajada(p, h, mult);
+            case "frx:meditar" -> Marcial.meditar(p, h);
+            case "frx:pontos" -> Marcial.pontos(p, h, mult);
+            case "frx:vazio" -> Marcial.vazio(p, h);
+            case "frx:cem" -> Marcial.cem(p, h, mult);
+            case "frx:forma" -> Formas.transformar(p, h);
+            case "frx:floresta" -> Formas.floresta(p, h, mult);
             default -> null;
         };
     }
@@ -245,7 +279,7 @@ public class Especiais {
             Habilidades.ganharFuria(p, h.custo() * 0.5);
             nivel.sendParticles(ParticleTypes.SOUL, alvo.getX(), alvo.getY() + 1, alvo.getZ(), 20, 0.3, 0.5, 0.3, 0.05);
             nivel.playSound(null, p.blockPosition(), SoundEvents.WITHER_BREAK_BLOCK, SoundSource.PLAYERS, 0.5f, 1.4f);
-            aviso(p, "Executado! Recarga zerada e metade da fúria de volta.", ChatFormatting.DARK_RED);
+            aviso(p, "GUERREIRO".equals(h.classe()) ? "Executado! Recarga zerada e metade da fúria de volta." : "Executado! Recarga zerada.", ChatFormatting.DARK_RED);
         } else if (falta >= 0.6) {
             aviso(p, "Golpe de misericórdia!", ChatFormatting.RED);
         }
@@ -718,6 +752,180 @@ public class Especiais {
             evento.setAmount((float) (evento.getAmount() * (1 + m.fracao())));
     }
 
+    // ------------------------------------------------------------------ assassino
+
+    /** Bônus do Assassino para as mecânicas especiais: +50% pelas costas e +50% em alvo abaixo de 35% da vida. */
+    private static double bonusAssassino(ServerPlayer p, LivingEntity alvo, HabilidadeDef h) {
+        if (!"ASSASSINO".equals(h.classe())) return 1;
+        Vec3 paraJogador = p.position().subtract(alvo.position()).normalize();
+        double f = 1;
+        if (alvo.getLookAngle().dot(paraJogador) < -0.3) f *= 1.5;
+        if (alvo.getHealth() <= alvo.getMaxHealth() * 0.35f) f *= 1.5;
+        return f;
+    }
+
+    /** Lugar um passo atrás do alvo (ou o próprio lugar dele, se atrás houver parede). */
+    private static Vec3 atrasDe(ServerPlayer p, LivingEntity alvo) {
+        Vec3 frente = Vec3.directionFromRotation(0, alvo.getYRot());
+        Vec3 destino = alvo.position().subtract(frente.scale(1.3));
+        return p.level().noCollision(p, p.getBoundingBox().move(destino.subtract(p.position()))) ? destino : alvo.position();
+    }
+
+    /** Passo Fantasma: aparece atrás do alvo da mira, já virado para as costas dele, e golpeia. */
+    private static boolean atras(ServerPlayer p, HabilidadeDef h, double mult) {
+        LivingEntity alvo = Habilidades.mirar(p, Math.max(3, h.alcance()), 0.9, false);
+        if (alvo == null) { aviso(p, "Nenhum alvo na mira.", ChatFormatting.GRAY); return false; }
+        ServerLevel nivel = p.serverLevel();
+        Vec3 de = p.position(), para = atrasDe(p, alvo);
+        nivel.sendParticles(ParticleTypes.LARGE_SMOKE, de.x, de.y + 1, de.z, 20, 0.3, 0.6, 0.3, 0.02);
+        p.connection.teleport(para.x, para.y, para.z, alvo.getYRot(), 10);
+        p.fallDistance = 0;
+        semQueda.put(p.getUUID(), nivel.getServer().getTickCount() + 30);
+        nivel.sendParticles(ParticleTypes.LARGE_SMOKE, para.x, para.y + 1, para.z, 20, 0.3, 0.6, 0.3, 0.02);
+        nivel.playSound(null, BlockPos.containing(para), SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 0.8f, 1.6f);
+        nivel.playSound(null, alvo.blockPosition(), SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.PLAYERS, 1f, 1.2f);
+        Habilidades.ferir(p, alvo, h.dano() * mult * bonusAssassino(p, alvo, h), h);
+        aviso(p, "Pelas costas!", ChatFormatting.DARK_RED);
+        return true;
+    }
+
+    /** Bomba de Fumaça: quem está no raio fica cego, lento e esquece o alvo; você some na fumaça. */
+    private static boolean fumaca(ServerPlayer p, HabilidadeDef h, double mult) {
+        ServerLevel nivel = p.serverLevel();
+        double raio = Math.max(2, h.raio());
+        int ticks = ticksDe(h, 60);
+        nivel.sendParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE, p.getX(), p.getY() + 0.6, p.getZ(), (int) (60 * raio), raio * 0.5, 0.6, raio * 0.5, 0.01);
+        nivel.playSound(null, p.blockPosition(), SoundEvents.FIRE_EXTINGUISH, SoundSource.PLAYERS, 1.2f, 0.6f);
+        for (LivingEntity e : nivel.getEntitiesOfClass(LivingEntity.class, p.getBoundingBox().inflate(raio), x -> x != p && x.isAlive() && Habilidades.inimigo(p, x))) {
+            e.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, ticks, 0));
+            e.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, ticks, 1));
+            if (e instanceof Mob m) m.setTarget(null);
+            if (h.dano() > 0) Habilidades.ferir(p, e, h.dano() * mult, h);
+        }
+        p.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, ticks, 0, false, false));
+        p.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, ticks, 1, false, false));
+        aviso(p, "Você some na fumaça.", ChatFormatting.GRAY);
+        return true;
+    }
+
+    /** Lâminas Envenenadas: pela duração, todo golpe seu envenena (mortos-vivos definham). */
+    private static boolean laminas(ServerPlayer p, HabilidadeDef h) {
+        venenos.put(p.getUUID(), new Aura(System.currentTimeMillis() + ticksDe(h, 100) * 50L, Math.max(1, h.potencia())));
+        p.serverLevel().sendParticles(ParticleTypes.ITEM_SLIME, p.getX(), p.getY() + 1, p.getZ(), 25, 0.4, 0.6, 0.4, 0.05);
+        p.level().playSound(null, p.blockPosition(), SoundEvents.BREWING_STAND_BREW, SoundSource.PLAYERS, 1f, 1.4f);
+        aviso(p, "Lâminas envenenadas por " + ticksDe(h, 100) / 20 + " s.", ChatFormatting.DARK_GREEN);
+        return true;
+    }
+
+    /** Emboscada: invisível e veloz; o próximo golpe sai mais forte e atordoa. */
+    private static boolean emboscada(ServerPlayer p, HabilidadeDef h) {
+        int ticks = ticksDe(h, 100);
+        emboscadas.put(p.getUUID(), new Aura(System.currentTimeMillis() + ticks * 50L, 0.5 * Math.max(1, h.potencia())));
+        p.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, ticks, 0, false, false));
+        p.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, ticks, 1, false, false));
+        ServerLevel nivel = p.serverLevel();
+        for (Mob m : nivel.getEntitiesOfClass(Mob.class, p.getBoundingBox().inflate(16), x -> x.getTarget() == p)) m.setTarget(null);
+        nivel.sendParticles(ParticleTypes.SMOKE, p.getX(), p.getY() + 1, p.getZ(), 30, 0.3, 0.6, 0.3, 0.02);
+        nivel.playSound(null, p.blockPosition(), SoundEvents.ILLUSIONER_MIRROR_MOVE, SoundSource.PLAYERS, 1f, 0.8f);
+        aviso(p, "Nas sombras. O próximo golpe sai +" + Math.round(50 * Math.max(1, h.potencia())) + "% mais forte.", ChatFormatting.DARK_PURPLE);
+        return true;
+    }
+
+    /** Sangria Profunda: corte que sangra, causando o dano a cada segundo pela duração. */
+    private static boolean sangria(ServerPlayer p, HabilidadeDef h, double mult) {
+        LivingEntity alvo = Habilidades.mirar(p, Math.max(2, h.alcance()), 0.9, false);
+        if (alvo == null) { aviso(p, "Nenhum alvo na mira.", ChatFormatting.GRAY); return false; }
+        ServerLevel nivel = p.serverLevel();
+        nivel.playSound(null, alvo.blockPosition(), SoundEvents.PLAYER_ATTACK_CRIT, SoundSource.PLAYERS, 1f, 0.7f);
+        Habilidades.ferir(p, alvo, h.dano() * mult * bonusAssassino(p, alvo, h), h);
+        sangrias.removeIf(x -> x.alvo().equals(alvo.getUUID()) && x.dono().equals(p.getUUID()));
+        sangrias.add(new Sangria(p.getUUID(), alvo.getUUID(), nivel, h, mult, nivel.getServer().getTickCount() + ticksDe(h, 60)));
+        aviso(p, "O alvo sangra por " + ticksDe(h, 60) / 20 + " s.", ChatFormatting.DARK_RED);
+        return true;
+    }
+
+    private static void tickSangrias(MinecraftServer server) {
+        for (Sangria s : sangrias) {
+            ServerPlayer p = server.getPlayerList().getPlayer(s.dono());
+            if (server.getTickCount() > s.fimTick() || p == null || p.serverLevel() != s.nivel()
+                    || !(s.nivel().getEntity(s.alvo()) instanceof LivingEntity e) || !e.isAlive()) { sangrias.remove(s); continue; }
+            s.nivel().sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.REDSTONE_BLOCK.defaultBlockState()), e.getX(), e.getY() + e.getBbHeight() * 0.6, e.getZ(), 8, 0.2, 0.3, 0.2, 0.05);
+            Habilidades.ferir(p, e, s.h().dano() * s.mult() * 0.5, s.h());
+        }
+    }
+
+    /** Dança da Morte: salta de inimigo em inimigo no raio, um golpe pelas costas em cada, e volta ao ponto de partida. */
+    private static boolean danca(ServerPlayer p, HabilidadeDef h, double mult) {
+        ServerLevel nivel = p.serverLevel();
+        double raio = Math.max(4, h.raio());
+        List<LivingEntity> perto = nivel.getEntitiesOfClass(LivingEntity.class, p.getBoundingBox().inflate(raio), x -> x != p && x.isAlive() && Habilidades.inimigo(p, x));
+        if (perto.isEmpty()) { aviso(p, "Nenhum inimigo por perto.", ChatFormatting.GRAY); return false; }
+        perto.sort(java.util.Comparator.comparingDouble(e -> e.distanceToSqr(p)));
+        int max = h.potencia() > 0 ? h.potencia() : 6;
+        List<UUID> alvos = new java.util.ArrayList<>();
+        for (LivingEntity e : perto) { if (alvos.size() >= max) break; alvos.add(e.getUUID()); }
+        while (alvos.size() < max && alvos.size() < 3) alvos.add(alvos.get(0));   // poucos inimigos: golpeia de novo o mais próximo
+        dancas.removeIf(d -> d.dono().equals(p.getUUID()));
+        dancas.add(new Danca(p.getUUID(), nivel, alvos, p.position(), h, mult, new int[]{0, nivel.getServer().getTickCount()}));
+        p.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, alvos.size() * 4 + 15, 4, false, false));
+        nivel.playSound(null, p.blockPosition(), SoundEvents.WITHER_SHOOT, SoundSource.PLAYERS, 0.7f, 1.5f);
+        aviso(p, "Dança da Morte!", ChatFormatting.DARK_RED);
+        return true;
+    }
+
+    private static void tickDancas(MinecraftServer server) {
+        for (Danca d : dancas) {
+            if (server.getTickCount() < d.estado()[1]) continue;
+            ServerPlayer p = server.getPlayerList().getPlayer(d.dono());
+            if (p == null || !p.isAlive() || p.serverLevel() != d.nivel()) { dancas.remove(d); continue; }
+            if (d.estado()[0] >= d.alvos().size()) {
+                dancas.remove(d);
+                p.connection.teleport(d.origem().x, d.origem().y, d.origem().z, p.getYRot(), p.getXRot());
+                p.fallDistance = 0;
+                semQueda.put(p.getUUID(), server.getTickCount() + 30);
+                d.nivel().sendParticles(ParticleTypes.LARGE_SMOKE, d.origem().x, d.origem().y + 1, d.origem().z, 20, 0.3, 0.6, 0.3, 0.02);
+                continue;
+            }
+            UUID id = d.alvos().get(d.estado()[0]++);
+            d.estado()[1] = server.getTickCount() + 4;
+            if (!(d.nivel().getEntity(id) instanceof LivingEntity e) || !e.isAlive()) { d.estado()[1] = server.getTickCount(); continue; }
+            Vec3 para = atrasDe(p, e);
+            p.connection.teleport(para.x, para.y, para.z, e.getYRot(), 10);
+            p.fallDistance = 0;
+            d.nivel().sendParticles(ParticleTypes.SWEEP_ATTACK, e.getX(), e.getY() + e.getBbHeight() * 0.6, e.getZ(), 3, 0.3, 0.2, 0.3, 0);
+            d.nivel().sendParticles(ParticleTypes.SMOKE, para.x, para.y + 1, para.z, 10, 0.2, 0.5, 0.2, 0.01);
+            d.nivel().playSound(null, e.blockPosition(), SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.PLAYERS, 1f, 1.4f);
+            Habilidades.ferir(p, e, d.h().dano() * d.mult() * bonusAssassino(p, e, d.h()), d.h());
+        }
+    }
+
+    /** Lâminas Envenenadas e Emboscada: agem no golpe que o jogador dá. */
+    @SubscribeEvent
+    public void aoGolpearDasSombras(net.minecraftforge.event.entity.living.LivingHurtEvent evento) {
+        if ((venenos.isEmpty() && emboscadas.isEmpty()) || !(evento.getSource().getEntity() instanceof ServerPlayer p) || evento.getAmount() <= 0) return;
+        LivingEntity alvo = evento.getEntity();
+        if (alvo == p || alvo instanceof net.minecraft.world.entity.player.Player) return;
+        long agora = System.currentTimeMillis();
+        Aura e = emboscadas.remove(p.getUUID());
+        if (e != null && e.fimMs() >= agora) {
+            evento.setAmount((float) (evento.getAmount() * (1 + e.fracao())));
+            p.removeEffect(MobEffects.INVISIBILITY);
+            alvo.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 40, 5));
+            p.serverLevel().sendParticles(ParticleTypes.CRIT, alvo.getX(), alvo.getY() + alvo.getBbHeight() * 0.6, alvo.getZ(), 25, 0.3, 0.4, 0.3, 0.3);
+            p.level().playSound(null, alvo.blockPosition(), SoundEvents.PLAYER_ATTACK_CRIT, SoundSource.PLAYERS, 1.2f, 0.6f);
+            aviso(p, "Emboscada!", ChatFormatting.DARK_RED);
+        }
+        Aura v = venenos.get(p.getUUID());
+        if (v != null) {
+            if (v.fimMs() < agora) venenos.remove(p.getUUID());
+            else {
+                int nivelEf = (int) Math.max(0, v.fracao() - 1);
+                boolean mortoVivo = alvo.getMobType() == net.minecraft.world.entity.MobType.UNDEAD;
+                alvo.addEffect(new MobEffectInstance(mortoVivo ? MobEffects.WITHER : MobEffects.POISON, 100, nivelEf));
+            }
+        }
+    }
+
     // ------------------------------------------------------------------ eventos
 
     @SubscribeEvent
@@ -738,6 +946,12 @@ public class Especiais {
                 if (p == null || !p.isAlive()) continue;
                 try { dispararMissil(p, m); } catch (Exception ignorado) { }
             }
+        }
+        if (!sangrias.isEmpty() && server.getTickCount() % 20 == 0) {
+            try { tickSangrias(server); } catch (Exception ignorado) { sangrias.clear(); }
+        }
+        if (!dancas.isEmpty()) {
+            try { tickDancas(server); } catch (Exception ignorado) { dancas.clear(); }
         }
         if (!semQueda.isEmpty()) {
             for (Iterator<Map.Entry<UUID, Integer>> it = semQueda.entrySet().iterator(); it.hasNext(); ) {

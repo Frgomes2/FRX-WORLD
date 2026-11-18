@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { DadosPublicos, LinhaRank, MapaPublico as MapaDados, ModPublico } from "@/lib/publico";
+import type { CriaturaPublica, DadosPublicos, LinhaRank, MapaPublico as MapaDados, ModPublico } from "@/lib/publico";
+import { Bestiario } from "./bestiario";
 import { MapaPublico } from "./mapa";
 import { Dragao } from "./dragao";
 import { Biblioteca } from "./biblioteca";
@@ -11,7 +12,7 @@ import { Galeria, ICONE_CLASSE, Nick, Perfil, Podio, Skin } from "./jogadores";
 
 const RANKS = ["F", "E", "D", "C", "B", "A", "S"];
 const SISTEMAS: [string, string, string][] = [
-  ["⚔️", "7 classes", "Guerreiro, Arqueiro, Mago, Clérigo, Ladino, Assassino e Invocador, cada uma com dezenas de habilidades próprias."],
+  ["⚔️", "11 classes", "Guerreiro, Arqueiro, Mago, Clérigo, Ladino, Assassino, Invocador, Paladino, Bardo, Monge e Druida, cada uma com habilidades próprias e um Despertar."],
   ["🛡️", "Guilda de Aventureiros", "Suba do rank F ao S cumprindo missões. O rank libera equipamentos melhores, descontos e portais mais perigosos."],
   ["🗼", "Torre Infinita", "100 andares temáticos com chefes. A cada 10 andares, um andar seguro com baú, cozinheiro e mercador."],
   ["📜", "História principal", "14 capítulos que levam do primeiro passo ao confronto com o Rei Demônio."],
@@ -85,7 +86,55 @@ function Barras({ dados, ordem }: { dados: Record<string, number>; ordem?: strin
   );
 }
 
-export function SitePublico({ inicial, mods, mapa, notas, livros }: { inicial: DadosPublicos | null; mods: ModPublico[]; mapa: MapaDados; notas: NotaAtualizacao[]; livros: Livro[] }) {
+function Clas({ clas, abrir }: { clas: DadosPublicos["clas"]; abrir: (n: string) => void }) {
+  const [ordem, setOrdem] = useState<"poder" | "riqueza">("poder");
+  if (!clas.length) return <p className="rounded-xl border border-pedra-700 bg-pedra-900 p-5 text-sm text-pedra-500">Nenhum clã formado ainda. O primeiro a criar um leva o topo do ranking.</p>;
+  const lista = [...clas].sort((a, b) => b[ordem] - a[ordem] || b.poder - a.poder);
+  const maior = Math.max(1, ...lista.map((c) => c[ordem]));
+  return (
+    <>
+      <div className="mb-4 flex flex-wrap gap-2">
+        {([["poder", "⚔ Mais fortes"], ["riqueza", "💰 Mais ricos"]] as const).map(([k, r]) => (
+          <button key={k} type="button" onClick={() => setOrdem(k)}
+            className={`rounded-md border px-3 py-1.5 text-sm ${ordem === k ? "border-ouro bg-pedra-700 text-ouro" : "border-pedra-700 hover:border-ouro-escuro"}`}>{r}</button>
+        ))}
+      </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        {lista.map((c, i) => (
+          <div key={c.nome + c.lider} className="rounded-xl border bg-pedra-900 p-4" style={{ borderColor: `${c.cor}88` }}>
+            <div className="flex items-start gap-3">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full font-titulo text-xl" style={{ background: `${c.cor}22`, color: c.cor }}>{i + 1}º</span>
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-titulo text-2xl" style={{ color: c.cor }}>⚑ {c.nome}</p>
+                <p className="text-xs text-pedra-500">Líder: {c.lider} · {c.membros.length} {c.membros.length === 1 ? "membro" : "membros"} · nível médio {c.nivelMedio}</p>
+                {c.descricao && <p className="mt-1 text-xs text-pergaminho/70">{c.descricao}</p>}
+              </div>
+            </div>
+            <div className="mt-3 grid grid-cols-3 gap-2 text-center text-xs">
+              <div className="rounded-lg border border-pedra-700 bg-pedra-800/60 py-1.5"><p className="font-titulo text-lg text-ouro">{c.poder}</p><p className="text-pedra-500">poder (soma dos níveis)</p></div>
+              <div className="rounded-lg border border-pedra-700 bg-pedra-800/60 py-1.5"><p className="font-titulo text-lg text-ouro">{moedas(c.riqueza)}</p><p className="text-pedra-500">riqueza{c.cofre > 0 ? ` (cofre: ${moedas(c.cofre)})` : ""}</p></div>
+              <div className="rounded-lg border border-pedra-700 bg-pedra-800/60 py-1.5"><p className="font-titulo text-lg text-ouro">{c.conquistas}</p><p className="text-pedra-500">conquistas</p></div>
+            </div>
+            <div className="mt-2 h-1.5 overflow-hidden rounded bg-pedra-800"><div className="h-full" style={{ width: `${(c[ordem] / maior) * 100}%`, background: c.cor }} /></div>
+            <ul className="mt-3 flex flex-wrap gap-1.5">
+              {c.membros.map((m) => (
+                <li key={m.nick}>
+                  <button type="button" onClick={() => abrir(m.nick)} className="flex items-center gap-1.5 rounded-full border border-pedra-700 bg-pedra-800/60 py-0.5 pl-0.5 pr-2 text-xs hover:border-ouro">
+                    <Skin nick={m.nick} tam={18} className="rounded-full" />
+                    <span className={m.online ? "text-green-400" : ""}>{m.cargo === "dono" ? "👑 " : m.cargo === "oficial" ? "★ " : ""}{m.nick}</span>
+                    <span className="text-pedra-500">Nv {m.nivel}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+
+export function SitePublico({ inicial, mods, mapa, notas, livros, bestiario }: { inicial: DadosPublicos | null; mods: ModPublico[]; mapa: MapaDados; notas: NotaAtualizacao[]; livros: Livro[]; bestiario: CriaturaPublica[] }) {
   const [todasNotas, setTodasNotas] = useState(false);
   const [perfil, setPerfil] = useState<string | null>(null);
   const [verOnline, setVerOnline] = useState(false);
@@ -121,7 +170,7 @@ export function SitePublico({ inicial, mods, mapa, notas, livros }: { inicial: D
         <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3">
           <a href="#topo" className="font-titulo text-xl text-ouro">FRX-WORLD</a>
           <div className="flex flex-1 gap-4 overflow-x-auto whitespace-nowrap text-sm text-pedra-500">
-            {[["#agora", "Agora"], ["#aventureiros", "Aventureiros"], ["#rankings", "Rankings"], ["#mapa", "Mapa"], ["#biblioteca", "Biblioteca"], ["#mundo", "O mundo"], ["#mods", "Mods"], ["#novidades", "Novidades"], ["#entrar", "Como entrar"]].map(([h, r]) => (
+            {[["#agora", "Agora"], ["#aventureiros", "Aventureiros"], ["#rankings", "Rankings"], ["#clas", "Clãs"], ["#mapa", "Mapa"], ["#bestiario", "Bestiário"], ["#biblioteca", "Biblioteca"], ["#mundo", "O mundo"], ["#mods", "Mods"], ["#novidades", "Novidades"], ["#entrar", "Como entrar"]].map(([h, r]) => (
               <a key={h} href={h} className="hover:text-ouro">{r}</a>
             ))}
           </div>
@@ -286,10 +335,22 @@ export function SitePublico({ inicial, mods, mapa, notas, livros }: { inicial: D
           </div>
         </div>
 
+        <div id="clas" className="scroll-mt-20">
+          <h2 className="font-titulo text-3xl">Clãs</h2>
+          <p className="mb-4 text-sm text-pedra-500">Grupos fixos de aventureiros. No jogo, procure o Mestre dos Clãs numa capital para fundar o seu, pedir entrada ou usar o cofre. Dá para participar de até 3 clãs.</p>
+          <Clas clas={d?.clas ?? []} abrir={abrir} />
+        </div>
+
         <div id="mapa" className="scroll-mt-20">
           <h2 className="font-titulo text-3xl">Mapa do mundo</h2>
           <p className="mb-4 text-sm text-pedra-500">O que já foi explorado até agora. O resto, só indo lá para ver.</p>
           <MapaPublico mapa={mapa} />
+        </div>
+
+        <div id="bestiario" className="scroll-mt-20">
+          <h2 className="font-titulo text-3xl">Bestiário</h2>
+          <p className="mb-4 text-sm text-pedra-500">Os chefes e monstros próprios do servidor. Cada um só revela o nome, a história e os golpes depois que alguém o derrota pela primeira vez.</p>
+          <Bestiario criaturas={bestiario} />
         </div>
 
         <div id="biblioteca" className="scroll-mt-20">
@@ -340,7 +401,7 @@ export function SitePublico({ inicial, mods, mapa, notas, livros }: { inicial: D
                 <span className={`absolute -left-[27px] top-5 h-3 w-3 rounded-full ${i === 0 ? "bg-ouro" : "bg-pedra-500"}`} />
                 <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                   <span className="rounded bg-pedra-800 px-2 py-0.5 font-mono text-xs text-ouro">v{n.versao}</span>
-                  <span className="text-xs text-pedra-500">{n.data}</span>
+                  <span className="text-xs text-pedra-500">{n.data}{n.hora ? ` às ${n.hora}` : ""}</span>
                   {i === 0 && <span className="rounded bg-ouro-escuro/30 px-2 py-0.5 text-[10px] uppercase tracking-wider text-ouro">mais recente</span>}
                 </p>
                 <h3 className="mt-1 font-titulo text-xl text-ouro">{n.titulo}</h3>

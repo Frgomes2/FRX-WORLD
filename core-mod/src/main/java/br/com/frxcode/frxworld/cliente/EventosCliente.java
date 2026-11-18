@@ -39,8 +39,10 @@ public final class EventosCliente {
         public static void registrarTeclas(net.minecraftforge.client.event.RegisterKeyMappingsEvent evento) {
             for (var t : Teclas.BARRA) evento.register(t);
             evento.register(Teclas.MENU);
+            evento.register(Teclas.PERSONAGENS);
             evento.register(Teclas.DESPERTAR);
             for (var t : Teclas.SOMBRAS) evento.register(t);
+            evento.register(Teclas.ALVO_SOMBRAS);
         }
     }
 

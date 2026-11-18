@@ -26,6 +26,7 @@ public final class Blocos {
 
     public static final RegistryObject<Item> TOMO_ARCANO = ITENS.register("tomo_arcano",
             br.com.frxcode.frxworld.habilidades.ItemTomo::new);
+    public static final RegistryObject<Item> DISCO = ITENS.register("disco", br.com.frxcode.frxworld.musica.ItemDisco::new);
     public static final RegistryObject<Item> CARTAO = ITENS.register("cartao_aventureiro",
             br.com.frxcode.frxworld.progressao.ItemCartao::new);
 

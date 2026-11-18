@@ -149,15 +149,16 @@ public class Fenda {
         ThreadLocalRandom rnd = ThreadLocalRandom.current();
         BlockPos o = i.centro();
         boolean chefe = i.etapa > CAMARAS;
-        String[] tipos = Torre.MONSTROS[i.tema % Torre.MONSTROS.length];
+        String[] tipos = Torre.monstros(i.tema, i.rank >= 4);
         int raio = Torre.TEMAS[i.tema].raio();
         int qtd = chefe ? 2 : Math.min(14, 4 + i.rank + 2 * gente.size());
         if (chefe) {
-            Mob ch = Chefes.criar(n, new Vec3(o.getX() + 0.5, Y + 1, o.getZ() + 0.5 - 6), i.rank, i.nivel + 2, (gente.size() - 1) * 0.7);
+            Mob ch = Chefes.criar(n, new Vec3(o.getX() + 0.5, Y + 1, o.getZ() + 0.5 - 6), i.rank, i.nivel + 2, (gente.size() - 1) * 0.7, "portal");
             if (ch != null) { ch.addTag(TAG); if (!gente.isEmpty()) ch.setTarget(gente.get(rnd.nextInt(gente.size()))); }
         }
         for (int k = 0; k < qtd; k++) {
-            EntityType<?> tipo = ForgeRegistries.ENTITY_TYPES.getValue(ResourceLocation.tryParse(tipos[rnd.nextInt(tipos.length)]));
+            Criaturas.Def cria = Criaturas.sortearMonstro("portal", i.rank);   // monstro do Códex pode tomar a vaga de um comum
+            EntityType<?> tipo = ForgeRegistries.ENTITY_TYPES.getValue(ResourceLocation.tryParse(cria != null ? cria.entidade() : tipos[rnd.nextInt(tipos.length)]));
             Entity e = tipo == null ? null : tipo.create(n);
             if (!(e instanceof Mob m)) continue;
             double x = o.getX() + 0.5 + 5, z = o.getZ() + 0.5 + 5;
@@ -171,6 +172,7 @@ public class Fenda {
             m.moveTo(x, Y + 1, z, rnd.nextFloat() * 360f, 0);
             m.finalizeSpawn(n, n.getCurrentDifficultyAt(m.blockPosition()), MobSpawnType.EVENT, null, null);
             Zonas.aplicarNivel(m, i.nivel);
+            if (cria != null) Criaturas.aplicar(m, cria);
             m.setPersistenceRequired();
             m.addTag(TAG);
             n.addFreshEntity(m);

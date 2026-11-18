@@ -43,7 +43,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Chefões com mecânicas, sorteados pelo rank (0 = F ... 6 = S). Usados nas dungeons de portal e nos andares de chefe da Torre.
+ * Chefões com mecânicas, sorteados pelo rank (0 = F ... 6 = S). Usados nas dungeons de portal, nos andares de chefe da Torre e nas emboscadas do Nether.
+ * Os do Códex de Criaturas (painel) têm preferência; a lista DEFS é a reserva de fábrica.
  * Cada um é um monstro reforçado com nome, barra de vida e um repertório de golpes anunciados na tela.
  */
 public class Chefes {
@@ -83,12 +84,38 @@ public class Chefes {
     private static final Map<UUID, Ativo> ativos = new ConcurrentHashMap<>();
     private static final List<Agendado> agenda = new CopyOnWriteArrayList<>();
 
-    /** Cria um chefão sorteado para o rank. vidaExtra soma ao multiplicador de vida (grupo maior, andar alto). */
-    public static Mob criar(ServerLevel n, Vec3 pos, int rank, int nivel, double vidaExtra) {
+    /** Cria um chefão sorteado para o rank (só os de fábrica). vidaExtra soma ao multiplicador de vida (grupo maior, andar alto). */
+    public static Mob criar(ServerLevel n, Vec3 pos, int rank, int nivel, double vidaExtra) { return criar(n, pos, rank, nivel, vidaExtra, ""); }
+
+    /**
+     * Cria um chefão para o lugar ("portal", "torre", "nether") e o rank. Primeiro sorteia entre os chefes do Códex de Criaturas (painel);
+     * se não houver nenhum para esse lugar e rank, usa os de fábrica.
+     */
+    public static Mob criar(ServerLevel n, Vec3 pos, int rank, int nivel, double vidaExtra, String local) {
         int r = Math.max(0, Math.min(6, rank));
+        Criaturas.Def cd = local.isEmpty() ? null : Criaturas.sortearChefe(local, r);
+        if (cd != null) {
+            Mob m = montar(n, pos, r, nivel, vidaExtra, doCodex(cd), cd);
+            if (m != null) return m;
+        }
         List<Def> opcoes = DEFS.stream().filter(d -> r >= d.rankMin() && r <= d.rankMax()).toList();
         if (opcoes.isEmpty()) opcoes = DEFS;
-        Def def = opcoes.get(ThreadLocalRandom.current().nextInt(opcoes.size()));
+        return montar(n, pos, r, nivel, vidaExtra, opcoes.get(ThreadLocalRandom.current().nextInt(opcoes.size())), null);
+    }
+
+    /** Cria um chefe específico do Códex (painel: "Invocar perto de mim"). */
+    public static Mob criarDe(ServerLevel n, Vec3 pos, Criaturas.Def cd, int rank, int nivel, double vidaExtra) {
+        return montar(n, pos, Math.max(0, Math.min(6, rank)), nivel, vidaExtra, doCodex(cd), cd);
+    }
+
+    private static Def doCodex(Criaturas.Def cd) {
+        List<Golpe> golpes = new ArrayList<>();
+        for (String g : cd.golpes()) try { golpes.add(Golpe.valueOf(g)); } catch (IllegalArgumentException e) { /* golpe que este servidor não conhece */ }
+        if (golpes.stream().allMatch(g -> g == Golpe.FURIA)) golpes.add(0, Golpe.ONDA);
+        return new Def(cd.nome(), cd.entidade(), cd.rankMin(), cd.rankMax(), cd.lacaio().isEmpty() ? cd.entidade() : cd.lacaio(), golpes.toArray(new Golpe[0]));
+    }
+
+    private static Mob montar(ServerLevel n, Vec3 pos, int r, int nivel, double vidaExtra, Def def, Criaturas.Def cd) {
         EntityType<?> tipo = ForgeRegistries.ENTITY_TYPES.getValue(ResourceLocation.tryParse(def.tipo()));
         Entity e = tipo == null ? null : tipo.create(n);
         if (!(e instanceof Mob m)) return null;
@@ -101,11 +128,12 @@ public class Chefes {
         if (kb != null) kb.setBaseValue(Math.max(kb.getBaseValue(), 0.7));
         var alcance = m.getAttribute(Attributes.FOLLOW_RANGE);
         if (alcance != null) alcance.setBaseValue(Math.max(alcance.getBaseValue(), 40));
+        if (cd != null) Criaturas.aplicar(m, cd);
         m.setHealth(m.getMaxHealth());
         m.setPersistenceRequired();
         m.setCustomName(Component.literal("☠ " + def.nome()).withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.BOLD));
         m.setCustomNameVisible(true);
-        m.addEffect(new MobEffectInstance(MobEffects.GLOWING, Integer.MAX_VALUE, 0, false, false));
+        if (cd == null || cd.brilho()) m.addEffect(new MobEffectInstance(MobEffects.GLOWING, Integer.MAX_VALUE, 0, false, false));
         m.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, Integer.MAX_VALUE, 0, false, false));
         m.addTag(TAG);
         ativos.put(m.getUUID(), new Ativo(m, def, Math.max(1, nivel)));

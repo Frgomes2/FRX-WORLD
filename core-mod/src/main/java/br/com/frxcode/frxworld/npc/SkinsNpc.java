@@ -83,6 +83,7 @@ public class SkinsNpc {
     public static String[] papelEReino(Entity e) {
         if (!(e instanceof LivingEntity) || e instanceof Player) return null;
         var tags = e.getTags();
+        if (tags.contains(br.com.frxcode.frxworld.aventura.Criaturas.TAG)) return br.com.frxcode.frxworld.aventura.Criaturas.marca(e);   // chefe ou monstro do Códex com skin própria
         if (tags.contains("frx_npc")) {
             String papel = e.getPersistentData().getString("frx_papel");
             String reino = e.getPersistentData().getString("frx_reino");

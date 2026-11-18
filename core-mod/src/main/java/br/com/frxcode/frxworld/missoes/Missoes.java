@@ -162,6 +162,50 @@ public final class Missoes {
                 textoRecompensa(m), estado, prog, m.quantidade(), nota);
     }
 
+    // ------------------------------------------------------------------ quadro do dia (lote de missões da Guilda)
+
+    /** Missões do lote (ids g<rank>_...): são muitas por rank, então o quadro mostra uma seleção que muda todo dia. */
+    public static final int DO_RANK = 12, DO_RANK_ABAIXO = 4, DO_RANK_ACIMA = 2;
+    private static long diaDaSelecao = -1;
+    private static Map<String, MissaoDef> catalogoDaSelecao;
+    private static List<List<String>> selecao = List.of();
+
+    static boolean doLote(String id) { return id.length() > 3 && id.charAt(0) == 'g' && id.charAt(2) == '_' && id.charAt(1) >= '0' && id.charAt(1) <= '6'; }
+
+    /** As missões do lote sorteadas hoje para cada rank (a mesma lista para todos os jogadores; vira à meia-noite de Brasília). */
+    private static synchronized List<List<String>> selecaoDeHoje() {
+        long dia = java.time.LocalDate.now(java.time.ZoneId.of("America/Sao_Paulo")).toEpochDay();
+        Map<String, MissaoDef> cat = catalogo;
+        if (dia == diaDaSelecao && cat == catalogoDaSelecao) return selecao;
+        List<List<String>> nova = new ArrayList<>();
+        for (int r = 0; r <= 6; r++) {
+            final int rank = r;
+            List<String> ids = new ArrayList<>(cat.values().stream().filter(m -> doLote(m.id()) && m.rankMin() == rank).map(MissaoDef::id).sorted().toList());
+            java.util.Collections.shuffle(ids, new java.util.Random(dia * 31 + r));
+            nova.add(ids.subList(0, Math.min(DO_RANK, ids.size())));
+        }
+        diaDaSelecao = dia;
+        catalogoDaSelecao = cat;
+        selecao = nova;
+        return nova;
+    }
+
+    /**
+     * A missão aparece no quadro deste jogador? As cadastradas à mão sempre. As do lote: as que ele já aceitou, a urgente,
+     * 12 do rank dele, 4 do rank de baixo e 2 do rank de cima (bloqueadas, para ele ver o que vem depois).
+     */
+    private static boolean noQuadro(ServerPlayer p, DadosJogador d, MissaoDef m) {
+        if (!doLote(m.id())) return true;
+        RegistroMissao r = d.missoes().get(m.id());
+        if (r != null && !r.concluida) return true;
+        if (Urgentes.ativa(m.id())) return true;
+        int meu = rankDe(p), dif = m.rankMin() - meu;
+        if (dif < -1 || dif > 1) return false;
+        List<String> doDia = selecaoDeHoje().get(m.rankMin());
+        int pos = doDia.indexOf(m.id());
+        return pos >= 0 && pos < (dif == 0 ? DO_RANK : dif < 0 ? DO_RANK_ABAIXO : DO_RANK_ACIMA);
+    }
+
     // ------------------------------------------------------------------ quadro
 
     public static void abrirQuadro(ServerPlayer p) {
@@ -172,7 +216,8 @@ public final class Missoes {
         DadosJogador d = Progressao.dados(p);
         List<VisaoMissao> lista = new ArrayList<>();
         // urgente no topo; depois por estado, rank e nível
-        List<MissaoDef> ordem = new ArrayList<>(catalogo.values());
+        List<MissaoDef> ordem = new ArrayList<>();
+        for (MissaoDef m : catalogo.values()) if (noQuadro(p, d, m)) ordem.add(m);
         Map<String, VisaoMissao> visoes = new LinkedHashMap<>();
         for (MissaoDef m : ordem) visoes.put(m.id(), visao(p, d, m));
         ordem.sort(Comparator.comparing((MissaoDef m) -> !(Urgentes.ativa(m.id()) && visoes.get(m.id()).estado() <= VisaoMissao.DISPONIVEL))
@@ -196,6 +241,7 @@ public final class Missoes {
             case AcaoMissao.ACEITAR -> {
                 long ativas = d.missoes().values().stream().filter(r -> !r.concluida).count();
                 if (v.estado() != VisaoMissao.DISPONIVEL) msg = "Você não pode aceitar essa missão agora.";
+                else if (!noQuadro(p, d, m)) msg = "Essa missão não está no quadro de hoje.";
                 else if (ativas >= MAX_ATIVAS) msg = "Você já tem " + MAX_ATIVAS + " missões em andamento.";
                 else {
                     RegistroMissao r = new RegistroMissao();
@@ -256,6 +302,7 @@ public final class Missoes {
 
     private static void darRecompensa(ServerPlayer p, MissaoDef m, double vezes) {
         for (MissaoDef.ItemRecompensa i : m.itens()) {
+            if (i.item().startsWith("codex:")) { br.com.frxcode.frxworld.armas.Codex.darPorCodigo(p, i.item().substring(6)); continue; }   // arma única do Códex
             Item item = ForgeRegistries.ITEMS.getValue(ResourceLocation.tryParse(i.item()));
             if (item == null) continue;
             int resto = i.qtd();

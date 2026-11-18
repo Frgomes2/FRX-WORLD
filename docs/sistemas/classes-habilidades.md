@@ -55,6 +55,12 @@ No campo **efeito**, em vez de um efeito de poção, pode ir uma mecânica do mo
 | `frx:sifao` | Dano e devolve potência × 10 de recurso |
 | `frx:zona` | Zona persistente com dano por segundo, no elemento da habilidade (máx. 2 por jogador) |
 | `frx:singularidade` | Buraco negro que puxa, fere por segundo e explode (×2) no fim |
+| `frx:atras` | Aparece atrás do alvo da mira, virado para as costas dele, e golpeia |
+| `frx:fumaca` | Em volta (raio): inimigos cegos, lentos e sem alvo pela duração; o jogador fica invisível e rápido |
+| `frx:laminas` | Pela duração, todo golpe do jogador envenena (potência = nível; mortos-vivos definham) |
+| `frx:emboscada` | Invisível e rápido pela duração; o próximo golpe sai potência × 50% mais forte e paralisa |
+| `frx:sangria` | Golpe e sangramento: metade do dano a cada segundo pela duração |
+| `frx:danca` | Salta por até potência inimigos no raio, um golpe pelas costas em cada, e volta ao ponto de partida; imune a dano durante |
 
 Guerreiro (15 habilidades, 4 + ultimate na barra — o jogador monta a build): Golpe Brutal, Arremesso de Machado (nv 2), Investida (3), Gancho de Corrente (4), Grito de Guerra (5), Provocar (6), Salto Esmagador (8), Postura de Revide (9), Terremoto (10), Fenda Sísmica (11), Redemoinho de Aço (12, tomo), Executar (14), Sede de Sangue (16, tomo), Fúria Imortal (20, ultimate), Ira do Titã (25, ultimate).
 

@@ -6,6 +6,181 @@ Formato: versão, depois o que entrou. A versão do mod fica em `core-mod/gradle
 
 > **Situação dos testes (10/11/2026):** a última versão compilada e testada no PC é a **0.33.0** (`pack/mods/frxworld-0.33.0.jar`). As versões **0.34 a 0.40** ainda não rodaram no jogo. O roteiro de teste está no checklist "FRX-WORLD — Checklist de testes".
 
+## 1.0.2 (18/11) — Limite de escravos por rank
+
+- `Escravos.LIMITE` (por rank F a S): 0, 0, 4, 8, 16, 34, 68. A conta é por conta (UUID), não por personagem; o rank é o do personagem em uso.
+- `<mundo>/frx_escravos.json` guarda `comprados` e `perdidos` por conta; tem = comprados − perdidos (contrato não usado conta). O contrato leva o dono em `EntityTag.ForgeData.frx_escravo_dono`; `LivingDeathEvent` e `LivingConversionEvent.Post` (aldeão que vira zumbi) devolvem a vaga.
+- Aldeões comprados antes desta versão não entram na conta.
+- **Biblioteca** (`painel/src/lib/livros.ts`): livro novo "Terras, Clãs e Comércio" (terrenos, ampliar e permissões, clãs, Leiloeiro, Mercador de Discos, Mercador de Escravos); páginas novas "Seus personagens" (Guia), "Contratos da Guilda" e "Coleção de criaturas" (A Guilda e os Ranks); tabela de terrenos e aldeões por rank; banco da conta e temporada por personagem.
+
+## 1.0.1 (18/11) — Personagens (etapas 2 e 3: painel, site, Torre e temporada)
+
+- Painel: tabela `Personagem` (migração `20261118080000_personagens`: conta, vaga, `idJogo`, nome, classe, raça, nível, rank, em uso) e `POST /api/servidor/personagens`; o mod manda a cada gravação do índice (`Personagens.avisarPainel`). A ficha do admin ganhou o bloco "Personagens da conta".
+- Site: `perfilPublico` devolve `personagens` e usa o `idJogo` do personagem em uso para placar da Torre, posição na temporada e clãs; a lista de clãs resolve os membros das vagas 2 e 3 pela conta dona.
+- Mod: `Torre` (placar) e `Temporadas` (pontos e prêmios pendentes) passaram a usar `Personagens.id(p)` e `Personagens.nome(p)`. O que já estava gravado fica com o personagem da vaga 1.
+- **Ficha completa de cada personagem:** `Personagem.base` (campos do Jogador) e `Personagem.detalhe` (ficha inteira) são gravados pelas rotas `progresso` e `jogador-detalhe`, na vaga que o mod informa (`vaga` no corpo; `Personagens.vagaDaConta`). Admin: `/admin/jogadores/<uuid>?vaga=N` abre o retrato do personagem fora de uso (`FichaJogador` com `congelado`: sem atualização automática e sem ações). Site: `/api/publico/jogador?nick=…&vaga=N`; o nick também pode ser o nome de um personagem.
+- **Clãs no site:** cada membro aparece com o nome e o nível do personagem (os de fora de uso, pelo retrato).
+- A linha `Jogador` do painel continua sendo a do personagem em uso; as ações de admin (dar item, mudar nível, bolsa) só valem para ele.
+
+## 1.0.0 (18/11) — Personagens (etapa 1: mod)
+
+> Publicada no servidor como 0.43.2 e renumerada para 1.0.0 por ser a maior mudança do projeto; a 0.43.3 virou 1.0.1. O arquivo do mod passa a se chamar `frxworld-1.0.1.jar` no próximo reinício.
+
+- `acesso/Personagens`: até 3 personagens por conta. Cada um é o arquivo inteiro do jogador, guardado em `<mundo>/frx_personagens/<uuid>-<vaga>.dat` (o anterior fica em `.anterior`); `<uuid>.json` é o índice (vaga em uso, nomes e retrato de cada um).
+- Troca com o jogador fora: `trocar` desconecta; no tick seguinte `executar` copia `playerdata/<uuid>.dat` para a vaga em uso e põe o arquivo da outra no lugar (vaga nova = apaga o arquivo: o jogo trata como jogador novo e a abertura roda). O selo `frx_slot` no NBT persistente diz de quem é o arquivo e vence o índice se houver divergência.
+- Banco da conta: o saldo (`frx_banco`) é copiado para o arquivo do personagem que entra (ou aplicado no primeiro login do novo). Terrenos, mercado, progressos e FTB Quests seguem pelo UUID da conta.
+- Clãs por personagem: `Clas` passou a usar `Personagens.id(p)` (vaga 1 = UUID da conta; demais = UUID derivado) e `Personagens.jogador(...)` para achar quem está online.
+- Nome do personagem no chat, em cima da cabeça e no Tab (`NameFormat`/`TabListNameFormat`).
+- Cliente: `TelaPersonagens` (tipo `personagens`; abre 3 s depois do login e pela tecla F8), `Reconexao` (troca a tela de desconectado por uma espera e conecta de novo em 2 s). `AcaoHabilidade.PERSONAGEM` leva o nome (criar/renomear).
+- Painel e site ainda mostram só o personagem em uso de cada conta (etapas 2 e 3).
+
+## 0.43.1 (18/11) — Mercador de Escravos
+
+- NPC de papel `escravos` ("Mercador de Escravos"; `/frx npc aqui escravos`; também na lista de papéis do painel). `reinos/Escravos` + `cliente/TelaEscravos` (tipo `escravos`): sete cartões, um por tipo de aldeão, com o boneco desenhado.
+- Exige Rank D na Guilda (`RANK_MIN = 2`) e custa 5 de ouro (`PRECO = 500` cobre), fixos no código.
+- A compra entrega um ovo de aldeão do jogo marcado com `frx_aldeao` e `EntityTag.VillagerData` (tipo escolhido, profissão `none`): o jogador usa no chão onde quiser. O contrato não funciona em gerador de monstros (`RightClickBlock` cancelado).
+
+## 0.43.0 (18/11) — Ampliar terreno e áreas pintadas pelo cliente
+
+- **Sobrepor terreno próprio:** `recusa` só barra sobreposição com terreno de outro dono. `uniao()` soma retângulos contando uma vez o que se sobrepõe; `areaDe` passou a ser a união dos terrenos do jogador; `blocosNovos` (união depois − união antes) é o que se cobra e o que conta no limite de área. Área inteira já do jogador é recusada. A venda devolve `devolucao(l)`: metade do pago, limitada à metade do preço dos blocos que deixam de ser dele (`blocosSoDele`), para não dar para comprar por cima e vender o de baixo com lucro. A tela recebe `novos` na escolha e `volta` em cada terreno.
+- **Mapa (terceira correção):** a API de servidor do JourneyMap 6.0.7 (`ServerOverlayAPI`) aceitava o pedido sem erro e não desenhava nada. `MapaJm` agora só manda um pacote `AbrirMenu` de tipo `area`; `cliente/AreasMapa` desenha com a API de cliente (`PolygonOverlay` + `IClientAPI.show`), a mesma dos pontos do mapa. Os desenhos são removidos ao sair do servidor.
+
+## 0.42.9 (18/11) — Terrenos maiores
+
+- **Mapa (segunda correção):** na 0.42.8 o `MapaJm` procurava o enum `Context` em `journeymap.api.v2.client.display`, que não existe no JourneyMap 6.0.7 do 1.20.1 (lá é `journeymap.api.v2.common.Context`); dava `ClassNotFoundException` e nada era desenhado. Agora tenta os dois caminhos. A pintura ao entrar passou a esperar 3 s (`PINTAR_EM`), para o mapa do jogador já ter se apresentado ao servidor.
+- **Salvamento automático a cada 30 min** (`protecao/Salvamento`): o spark mostrou um tick de 160 a 190 ms exatamente a cada 6000 ticks, o autosave do jogo (`tickCount % 6000` em `MinecraftServer.tickServer`, sem configuração). No início do tick anterior a cada múltiplo de 6000 que não é múltiplo de 36000, o mod adianta o contador em 1 por reflexão (campo achado pelo valor) e chama só `PlayerList.saveAll()`. Os chunks seguem no salvamento incremental do jogo (20 por tick). Se a reflexão falhar, fica como antes e avisa no log.
+- `Terrenos.AREA_MAX` dobrou em todos os ranks (F a S): 512, 1.200, 2.200, 3.600, 5.600, 9.000 e 14.000 blocos. `LADO_MAX` subiu na mesma proporção de área (24, 34, 46, 58, 68, 92, 114), para um terreno só conseguir usar o limite inteiro. Preço por bloco e quantidade de terrenos não mudaram.
+
+## 0.42.8 (17/11) — Discos de edição limitada
+
+- Painel: `Disco.limite` (0 = sem limite) e `Disco.emitidas` (migração `20261117190000_disco_limite`). Campo "Unidades no mundo" no cadastro; a lista mostra "N de M no mundo" ou "N vendidos".
+- Mod: `Discos` conta as vendas em `<mundo>/frx_discos.json` e avisa o painel por `POST /api/servidor/discos` a cada venda. Com o limite atingido, a compra é recusada ("esgotado"). O disco limitado leva `frx_num`/`frx_total` no NBT e mostra "Edição limitada: nº N de M".
+- **Terrenos, permissões por jogador:** `Dono.permissoes` guarda, para cada liberado, a soma de `COLOCAR` (1), `QUEBRAR` (2) e `USAR` (4: baús, portas, alavancas, bichos); gravado em `permissoes` no `frx_terrenos.json` (quem já estava liberado fica com tudo). `pode(...)` recebe o que está sendo feito. Quem só pode colocar: `RightClickBlock` nega o uso do bloco clicado mas deixa usar o item da mão. A aba "Quem pode mexer" tem três botões por jogador; `PESSOA` manda `posição × 8 + permissão`.
+- **Correção do mapa:** `MapaJm` mandava os conjuntos `activeUIs` e `activeMapTypes` vazios, e o JourneyMap entende vazio como "não mostrar em lugar nenhum". Agora manda todos os valores dos dois enums; os terrenos e a escolha passam a aparecer no mapa.
+- `TelaDiscos` mostra `restam/limite` no cartão e trava o botão Comprar quando esgota. Disco destruído não volta ao estoque.
+
+## 0.42.7 (17/11) — Tela de terrenos e edição de dinheiro por moeda
+
+- **Terrenos** (`cliente/TelaTerrenos`, tipo `terrenos`): as três janelas de baú (Comprar terreno, Meus terrenos, Quem pode mexer) viraram uma tela com três abas, no padrão do banco. `Terrenos.enviar` manda tudo por `AbrirMenu`; a tela responde com `AcaoMenu("terrenos", 0, ação, valor)` e `Terrenos.acaoTela` trata (`ABA`, `CANTO1`, `CANTO2`, `COMPRAR`, `CANCELAR`, `VENDER`, `DIVISAS`, `PUBLICO`, `PESSOA`). O tipo `terreno` (singular) continua sendo o do menu do mapa.
+- Aba Comprar: desenho da área vista de cima (escolha em dourado, vizinhos em verde/vermelho), preço, bolsa, três barras de limite do rank (lado, área somada, quantidade) e o motivo da recusa. Botões para marcar os cantos na posição do jogador, limpar e comprar.
+- Aba Meus terrenos: lista com tamanho, coordenadas e valor pago; vender pede um segundo clique. Aba Quem pode mexer: um botão por jogador.
+- **Contratos da Guilda** (`cliente/TelaContratos`, tipo `contratos`): o quadro saiu da janela de baú. Três cartões do dia (ícone, texto, barra, moedas e XP), faixa do extra por fechar os três, cartão da semana, tempo até renovar (dia e semana) e a coleção com a dica ao passar o mouse. É só leitura: não manda ação ao servidor.
+- **Painel, Dinheiro dos jogadores:** o botão Editar abre, por jogador, os campos de ouro, prata e cobre da bolsa e do banco. Novo comando `/frx admin <jogador> bolsa <cobre>` (define a bolsa exata) e ação `bolsaDefinir` na API. A bolsa só muda com o jogador no jogo; o banco muda também com ele fora.
+
+## 0.42.6 (17/11) — Estilo de música nos discos
+
+- Painel: `Disco.estilo` (migração `20261117180000_disco_estilo`). O cadastro ganhou o campo **Estilo de música**: texto livre de até 24 letras, com sugestões (os estilos já usados e a lista `ESTILOS_DISCO` de `src/lib/discos-arte.ts`). A lista de discos do painel ganhou filtro por estilo.
+- `/api/servidor/discos` devolve `estilo`; `Discos.Def` guarda o campo e a loja manda para a tela.
+- `cliente/TelaDiscos`: botão **Estilo: todos / …** (aparece quando há pelo menos um disco com estilo) percorre os estilos da loja em ordem alfabética; Shift + clique volta. A seleção passou a ser pelo código do disco, não pela posição, para não trocar de disco ao filtrar.
+- O item mostra `artista · estilo` na descrição. Discos comprados antes continuam como estavam.
+
+## 0.42.5 (17/11) — Telas próprias para clãs, leiloeiro e discos
+
+As três lojas saíram das janelas de baú (`ChestMenu`) e ganharam telas de cliente no padrão do banco: o servidor manda tudo por `AbrirMenu(tipo, NBT)` e a tela responde com `AcaoMenu(tipo, npc, ação, valor)`. Toda ação devolve a tela inteira, com o recado do que aconteceu (`msg`/`ok`).
+
+- **Clãs** (`cliente/TelaClas`, tipo `clas`): abas Meus clãs e Todos os clãs (ranking por poder, 7 por página); na página do clã, abas Cofre (depositar/sacar com os contadores do banco, saldos e últimos movimentos), Membros (tornar oficial, passar liderança, expulsar), Pedidos (aceitar/recusar) e Gerir (nome por caixa de texto, paleta de cores, regra de saque, sair). O servidor guarda uma `Sessao` por jogador e a tela manda posições das listas, não ids. O nome novo chega por `AcaoHabilidade.NOME_CLA`. Ações perigosas pedem um segundo clique.
+- **Leiloeiro** (`cliente/TelaMercado`, tipo `mercado`): abas Comprar (cartões 4 × 2 com item, preço e vendedor; busca; ordenação; roda do mouse troca de página; dica do item ao passar o mouse), Vender (grade da bolsa do jogador; preço em ouro/prata/cobre; mostra o líquido), Meus anúncios e Receber. `ANUNCIAR` leva número do item (conferência), espaço da bolsa e preço num só valor.
+- **Discos** (`cliente/TelaDiscos`, tipo `discos`): cartões 4 × 2, detalhes do disco escolhido, botão Ouvir (toca o som do disco só para o jogador; para ao fechar) e Comprar.
+- `NpcsReino` passa a entidade do NPC para `Clas.abrir`, `Mercado.abrir` e `Discos.abrir`; cada `acao` confere papel e distância do NPC.
+
+## 0.42.4 (17/11) — Desenho próprio dos discos e sentinela de quedas
+
+- **Desenho do disco:** no cadastro dá para (1) escolher uma cor e o painel desenha o disco, (2) importar um PNG 16×16 ou 32×32, (3) desenhar na grade (o mesmo editor do Códex de Armas). Colunas `Disco.textura` e `Disco.modelo` (migração `20261117170000_disco_textura`). O pacote de recursos leva a textura, um modelo por disco e reescreve `models/item/disco.json` com os overrides (`CustomModelData` 1000 + modelo; 1 a 16 continuam sendo as aparências prontas).
+- O pacote passou a incluir **todos** os discos, não só os que estão à venda.
+- **Sentinela de quedas** (`controle/sentinela.ps1`): lançada pelo `iniciar-frx.bat`; se o painel ou o Minecraft morrerem sem o agente ter mandado, grava `logs/quedas/queda-*.txt` (quem morreu primeiro, processos que nasceram e morreram nos primeiros 15 min, eventos do Windows e do Defender) e pede `reiniciar` ao agente na hora (até 2 vezes em 30 min). O `desligar-frx.bat` escreve `parada` em `controle/sentinela.txt` para ela sair. O `agente-frx.ps1` não foi alterado.
+
+## 0.42.3 (17/11) — Discos de música
+
+- **Painel → Discos de música** (`/admin/discos`): cadastro com nome, artista, descrição, preço, rank mínimo, aparência (16 desenhos de disco do próprio jogo) e o arquivo `.ogg` (até 9 MB). Modelo `Disco`, migração `20261117160000_discos`. O áudio fica em `painel/dados/discos/<codigo>.ogg`, fora do banco e do git.
+- **Pacote de recursos:** `pacoteRecursos()` passou a levar os discos (`assets/frxworld/sounds.json` + `sounds/discos/<codigo>.ogg`); o pacote é enviado quando há armas com textura **ou** discos.
+- **Mod:** item `frxworld:disco` (um só; código, nome e arte no NBT), `musica/Discos.java` (catálogo de `/api/servidor/discos`, loja em janela, jukebox) e papel de NPC `discos` (Mercador de Discos; `/frx npc aqui discos`).
+- **Jukebox:** o disco fica guardado nos dados da jukebox comum e o mod toca `frxworld:disco.<codigo>`, para e devolve. Detalhes em [sistemas/discos.md](sistemas/discos.md).
+
+## 0.42.2 (17/11) — Invocador: alvo marcado
+
+- Tecla nova `key.frxworld.alvo_sombras` (padrão: botão do meio do mouse; reconfigurável em Controles). Só age para o Invocador.
+- `Sombras.marcarAlvo`: a criatura na mira (até 40 blocos) vira o foco de todas as sombras e invocações do jogador (`frx_foco` na entidade; `Sombras.FOCOS` por dono). Enquanto o foco vive, `LivingChangeTargetEvent` barra qualquer troca de alvo. Marcar o mesmo de novo, ou clicar sem nada na mira, solta. O foco também se solta quando o alvo morre ou fica a mais de 64 blocos do dono.
+- Sem foco, vale o comportamento de antes (monstros por perto e quem o dono ataca).
+
+## 0.42.1 (17/11) — Lote de missões da Guilda e quadro do dia
+
+- **1.062 missões novas** (ids `g<rank>_c_...` caça e `g<rank>_e_...` entrega), 104 a 188 por rank, todas com alvo diferente dentro do rank. Migração `20261117150000_missoes_guilda_lote`, gerada por `tools/gerar-missoes.py` (só entra alvo que existe nos arquivos de idioma do servidor e dos mods; não mexe em missão já cadastrada).
+- **Prêmios:** XP = 10% do que falta para subir no nível típico do rank × peso da missão; moedas = 15/30/50/80/120/170/230 cobre (F a S) × peso. Chefes têm peso de 2,5 a 9. Repetíveis a cada 20 h.
+- **Quadro do dia** (`Missoes.noQuadro`): missões do lote aparecem por sorteio diário (mesmo para todos, vira à meia-noite de Brasília): 12 do rank do jogador, 4 do rank de baixo e 2 do de cima. As cadastradas à mão, as já aceitas e a urgente aparecem sempre. Não dá para aceitar missão do lote que não esteja no quadro do dia.
+- Para desligar uma missão cujo alvo não aparece no mundo: painel → Missões → desmarcar "ativa".
+- **Torre e Fenda com monstros dos mods:** `Torre.MONSTROS` passou de 3–4 para 11–15 tipos por tema (79 no total: Born in Chaos, Twilight Forest, Cataclysm, Ice and Fire, Deeper Darker, Undergarden, Alex's Mobs/Caves, Mowzie's, Blue Skies, Illager Invasion). `Torre.ELITE` soma reforços do andar 61 em diante e nas masmorras de portal de rank B ou mais. `Torre.monstros(tema, elite)` só devolve o que existe no servidor. Ficaram de fora, de propósito, os que somem da sala ou trocam de corpo (enderman, piglins, hoglin).
+
+## 0.42.0 (17/11) — Classe Druida
+
+- **Druida (metamorfo, mana):** 14 habilidades. Formas de lobo (+25% velocidade, garras 3 + 0,28 × nível, +10% de dano recebido), urso (+25% vida, −15% de dano recebido, −10% velocidade, garras 2,5 + 0,20 × nível) e ave (voo, garras 1, +25% de dano recebido). Na forma de animal o golpe corpo a corpo ignora a arma.
+- **Tempo:** a forma dura a `duração` da habilidade (45 s lobo e urso, 15 s ave). Trocar de forma não renova o relógio; ao voltar a humano, 15 s sem poder transformar. Usar a habilidade da forma atual volta na hora, sem custo e mesmo em recarga.
+- **Barras por forma:** guardadas no jogador (`frx_druida`); a barra troca sozinha. Habilidades com código `lobo_`, `urso_` ou `ave_` só valem naquela forma, as demais só na humana; as de `frx:forma` e a suprema valem em qualquer uma.
+- **Visual:** pelo mod Woodwalkers, por reflexão (`habilidades/Formas.java`). Com ele no pack, o FRX o tranca em "só por código" ao ligar o servidor e desliga a cópia de vida/armadura e os monstros ignorando o jogador. Sem ele, as formas funcionam sem mudar o corpo. Para instalar: `pack\adicionar-woodwalkers.bat`.
+- Especiais `frx:forma` e `frx:floresta`; Despertar Coração da Floresta; três ramos de talento. Migração `20261117140000_druida`.
+- `mod_version` 0.42.0 (depois do .9 sobe o número do meio).
+
+## 0.41.9 (17/11) — Classes Bardo e Monge
+
+- **Bardo (suporte, mana):** 12 habilidades e a passiva Inspiração (jogadores a até 8 blocos causam 8% a mais de dano). Canções que ficam tocando em volta dele, uma por vez (`frx:cancao_marcha`, `frx:cancao_cura`, `frx:cancao_guerra`, `frx:sinfonia`), mais `frx:ninar`, `frx:zombaria`, `frx:eco` e `frx:heroi`. Código em `habilidades/Cancoes.java`. Despertar: Bis! (zera recargas e enche o recurso do grupo a 12 blocos, +20% de dano por 8 s).
+- **Monge (mão vazia, chi):** só vale com a classe Monge e a mão principal vazia; fora disso o combate não muda. Soco soma 2,5 + 0,3 × nível, combo de 4 golpes (o 4º é o golpe final), esquiva e redução de dano por peça de armadura a menos. Recurso novo `CHI` (0 a 100, 10 por soco, 20 no golpe final, esfria 3/s fora de combate). Especiais `frx:palma`, `frx:rajada`, `frx:meditar`, `frx:pontos`, `frx:vazio` e `frx:cem` em `habilidades/Marcial.java`. Despertar: Portão Interior (socos em dobro com onda de choque, habilidades sem custo).
+- **Apoio no mod:** `Habilidades.darRecurso`, `Habilidades.encurtarRecargas` e a marca `emHabilidade` (dano de habilidade não soma o bônus do soco). Seis ramos de talento novos.
+- **Painel:** classes `BARDO` e `MONGE`, 14 efeitos especiais descritos, migração `20261117130000_bardo_monge` (24 habilidades), livros e ícones.
+- **Tela de escolha de classe:** os dez botões ficam em grade e a descrição aparece embaixo, só da classe clicada.
+- `mod_version` 0.41.9.
+
+## 0.41.8 (17/11) — Classe Paladino e regra de versão
+
+- **Paladino** (oitava classe, recurso Mana): 12 habilidades (migração `20261117120000_paladino`), Aura de Proteção passiva (jogadores a até 6 blocos levam 10% menos dano; o Paladino leva 15% menos de mortos-vivos), três ramos de talento (Baluarte, Justiça, Devoção) e o Despertar **Égide da Aurora** (cúpula que barra 60% do dano e devolve o que barrou num clarão final).
+- Mecânicas novas em `habilidades/Sagrado.java`: `frx:voto` (o dano do aliado vem para o Paladino), `frx:sacrificio` (dá vida para curar e limpar o grupo), `frx:intervencao` (teleporta até o aliado e toma os inimigos dele) e `frx:juizo` (coluna de luz com dano e cura por segundo).
+- **Regra de versão:** cada atualização soma 1 no último número; depois do .9 sobe o do meio; mudança muito grande abre versão cheia. As notas do site foram renumeradas de 0.41.1 a 0.41.8 e o `mod_version` passou a 0.41.8.
+
+## 0.41.0 (17/11) — Mercado entre jogadores e bestiário no site
+
+- **Mercado** (NPC `leiloeiro`, `moedas/Mercado.java`): anúncios a preço fixo do item da mão, vitrine paginada, compra com o vendedor fora do jogo, taxa de 5% na venda, validade de 7 dias, limite de anúncios pelo rank e balcão "Receber".
+- **Bestiário no site** (`components/publico/bestiario.tsx`, `bestiarioPublico`, `/api/publico/criatura-skin`): galeria das criaturas do Códex; nome, história, golpes e skin só aparecem depois da primeira derrota.
+- Docs: `sistemas/mercado.md`.
+
+## 0.41.0 (17/11) — Mestre dos Clãs e cofre do clã
+
+- **Mestre dos Clãs** (NPC `clas`, `clas/Clas.java` + `clas/FtbTeams.java`): ver os clãs, pedir entrada, fundar, sair, membros, pedidos e **cofre do clã** (moedas separadas do banco, com registro de movimentos e regra de saque do líder).
+- Site: a riqueza do clã passa a somar o cofre; as notas de atualização mostram também a hora em que entraram no ar.
+- **Vários clãs por jogador (até 3):** os clãs passam a ser do próprio mod (`frx_clas.json`), com importação única dos times do FTB Teams. O líder renomeia com uma etiqueta, troca a cor, nomeia oficiais e passa a liderança pelas janelas.
+- Site: estante da Biblioteca em pixel art.
+
+## 0.41.0 (17/11) — Terrenos
+
+- **Terrenos** (`protecao/Terrenos.java`): o jogador marca dois cantos no mapa do JourneyMap (botão direito), vê o preço pela área (1,2 cobre por bloco) e compra. Só o dono e quem ele liberar mexem; explosões e monstros não destroem.
+- Terrenos comprados ficam pintados no mapa de todos com o nome do dono (`protecao/MapaJm.java`, API de sobreposições do servidor do JourneyMap); menu do mapa em `cliente/MapaTerrenos.java`.
+- Limites pelo rank da Guilda: lado máximo, área somada e quantidade (F: 16 / 256 / 1 … S: 80 / 7000 / 7).
+- Terras do reino fora de venda: capitais, Torre e ponto de partida automáticos; `/frx terreno proibir|liberar [raio]`. Reserva sem mapa: `/terreno`.
+- Docs: `sistemas/terrenos.md`.
+
+## 0.41.0 (17/11) — Contratos da Guilda, coleção e clãs
+
+- **Contratos da Guilda** (`missoes/Contratos.java`): 3 contratos por dia e 1 por semana, por jogador e pelo rank. Progresso automático, recompensa na hora, extra por fechar os três do dia. Quadro em janela pelo botão "Contratos" do Cartão de Aventureiro e do balcão.
+- **Coleção** (`progressao/Colecao.java`): tipos de criatura e chefões diferentes derrotados, com marcos que pagam moedas e XP e 8 conquistas novas (5 títulos).
+- **Clãs:** os times do FTB Teams viram clãs no site público, com ranking de mais fortes e mais ricos; a ficha do jogador mostra clã e coleção.
+- Docs: `sistemas/contratos-colecao-clas.md`.
+
+## 0.41.0 (17/11, tarde) — Códex de Criaturas
+
+- **Códex de Criaturas** (painel `/admin/criaturas`, mod `aventura/Criaturas.java`): chefes e monstros cadastrados no painel, com criatura base, ranks, multiplicadores de vida, dano e velocidade, lugares (masmorras de portal, Torre, emboscadas do Nether), peso ou chance, XP, moedas e item especial ao morrer (inclusive arma do Códex de Armas).
+- **Chefes:** os golpes e o lacaio são escolhidos no painel. `Chefes.criar` passa a receber o lugar e sorteia primeiro entre os chefes do Códex; a lista do código vira reserva. Os 14 chefes antigos entram como cadastros iniciais (migração `20261117090000_codex_criaturas`).
+- **Monstros:** podem tomar a vaga de um monstro comum nas câmaras de portal, nos andares comuns da Torre e nas hordas do Nether.
+- **Aparência:** skin 64×64 desenhada no painel (editor das skins de NPC) ou importada; viaja pela rota das skins de NPC (`papel:bicho_<código>`), sem pacote de recursos. Tamanho do desenho ajustável (`RenderRacas.escala`).
+- **Painel:** contagem de derrotas, duplicar e "Invocar perto de mim". Comandos `/frx criaturas lista|recarregar|invocar`.
+- Docs: `sistemas/codex-criaturas.md`.
+
+## 0.41.0 (17/11) — Assassino com 16 habilidades
+
+- **Assassino** passa de 7 para 16 habilidades (migração `20261117070000_assassino_novas`): Passo Fantasma (nv 2), Bomba de Fumaça (4), Lâminas Envenenadas (6), Leque de Adagas (7), Emboscada (9), Golpe de Misericórdia (11), Adaga Ricochete (13), Sangria Profunda (15, por tomo) e a suprema Dança da Morte (25).
+- **Seis mecânicas novas** em `habilidades/Especiais.java`: `frx:atras`, `frx:fumaca`, `frx:laminas`, `frx:emboscada`, `frx:sangria` e `frx:danca`. Nas mecânicas de golpe, o bônus do Assassino (pelas costas e alvo ferido) é aplicado por `bonusAssassino`.
+- Ainda não testado em jogo.
+- **Códex de Armas** (painel `/admin/codex`, mod `armas/Codex.java`): armas únicas criadas no painel, com item base, rank (classe), raridade, dano extra, encantamentos, total no mundo e "uma por jogador". Saem só do ferreiro/armeiro ou de missão (item `codex:<código>` na recompensa). Armas que evoluem ficam vinculadas ao dono e ganham dano por nível dele. Estoque em `<mundo>/frx_codex.json`, espelhado no painel. Comandos `/frx codex lista | recarregar | dar | estoque`.
+- **Aparência das armas do Códex:** editor de pixels no painel (16×16 ou 32×32, partir do item base ou importar PNG). O painel monta um pacote de recursos (`/api/publico/recursos`, `lib/codex.ts`) com um `CustomModelData` por arma (880000 + número) e o mod manda o pacote a quem entra (`sendTexturePack`), reenviando quando muda. Tabela nova `ArmaCodex` (migração `20261117080000_codex_armas`).
+- **Comando `/ping`** e **`/frx ping`** (`progressao/Ping.java`).
+- **Menu do painel em grupos** (`components/menu.tsx`): Geral, Jogadores, Progressão e combate, Economia e itens, Mundo; cada grupo abre e fecha (o navegador lembra), com ícone por tela, e a barra lateral fica fixa ao rolar a página.
+
 ## Painel (16/11, noite) — Site público em `/` e painel em `/admin`
 
 - **Site público** na raiz do endereço (`craft.frgomes.com.br`), sem login: status, jogadores online, acontecimentos, rankings, Torre, temporada, mapa, sistemas, mods e como entrar. Detalhes em [05-painel](05-painel.md).
@@ -33,6 +208,10 @@ Formato: versão, depois o que entrou. A versão do mod fica em `core-mod/gradle
 - **Biblioteca no site** (`painel/src/lib/livros.ts`, `components/publico/biblioteca.tsx`): 10 livros sobre o mundo (guia, Guilda e ranks, missões, economia, Torre, portais e chefes, dimensões, raças, talentos e poderes, eventos) e 1 por classe, com leitor de páginas que vira (duas páginas no computador, uma no celular, setas do teclado). Ranks, missões do quadro e habilidades vêm do banco; o resto é texto em `livros.ts`, que precisa ser atualizado quando uma regra mudar.
 - **Vida dos outros jogadores à vista** (16/11, 22:23, sem reinício): placares do jogo `frx_vida` (número com ❤ abaixo do nome) e `frx_vida_tab` (corações na lista do TAB), criados pelo console com `scoreboard objectives add ... health`. Ficam salvos no mundo; para tirar, `scoreboard objectives remove frx_vida` e `frx_vida_tab`.
 - **Queda de 16/11, 22:32:** painel e servidor caíram juntos sem deixar erro (o log do servidor parou às 22:27 sem mensagem de desligamento; o `painel.log` foi sobrescrito na religada). A vigia do agente religou em cerca de 1 min. Segunda queda desse tipo (a outra foi em 15/11). Para a próxima, o `iniciar-frx.bat` passa a guardar o log anterior em `logs/painel-anterior.log`.
+- **Nether recriado** (16/11, 22:42): com o servidor desligado, a pasta `server/FRX-WORLD/DIM-1` foi removida e o Nether nasce do zero, já com Bygone Nether e Piglin Proliferation. A cópia do Nether antigo foi apagada a pedido; ele só existe nos backups do mundo anteriores a essa hora.
+- **Mods de rede** (16/11, 22:54): Connectivity 7.7 (+ Cupboard 4.2, CurseForge) e Krypton Reno 26.1.1 (Modrinth `krypton-fnp`). **Cuidado com o `pack/pendentes.txt`:** quando o nome não é um slug exato, o packwiz pesquisa e instala o primeiro resultado sem avisar (`cupboard` virou Aesthetic Storage e `connectivity` virou No Moon Network Fix; os três intrusos foram removidos em seguida). Use o endereço completo do projeto (`curseforge https://www.curseforge.com/minecraft/mc-mods/<slug>`) e confira no `logs/pack.log` se o nome em "successfully added" é o esperado; "Searching Modrinth..." é sinal de que ele caiu na pesquisa.
+- **Tranca de baú** (`protecao/Trancas.java`): agachado, clique com um gancho de armadilha num baú, barril, fornalha ou qualquer bloco que guarda itens para trancá-lo (gasta o gancho). Só o dono abre e quebra; explosão não destrói; outro jogador não coloca funil embaixo. Agachado + gancho de novo destranca e devolve o gancho. Baú duplo conta inteiro. O dono fica no próprio bloco (`frx_tranca_dono` no ForgeData). Não cobre funis com carrinho nem máquinas do Create puxando itens. Ainda não testado em jogo.
+- **Comando de ping** (`progressao/Ping.java`): `/ping` (todos) mostra o ping do jogador com nota (ótimo, bom, regular, ruim) e o TPS do servidor; `/frx ping` (admin) lista o ping de todos os online.
 - Rotas sem login: `/api/publico/dados`, `/api/publico/mapa-tile`, `/api/publico/jogador` e `/api/publico/skin`. Não expõem e-mail, UUID, IP, chat, inventário nem posição de jogador.
 
 ## 0.41.0 (16/11) — Classes de equipamento, dungeon de portal, chefões e moedas só por missão e venda

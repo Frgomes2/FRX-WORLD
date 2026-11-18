@@ -121,6 +121,7 @@ public class ControleAcesso {
         pendentes.remove(jogador.getUUID());
         boasVindas(jogador);
         Abertura.iniciar(jogador);
+        Personagens.aoLiberar(jogador);
     }
 
     /** Enquanto não usa o convite: nada de comandos (só /convite) nem chat. */

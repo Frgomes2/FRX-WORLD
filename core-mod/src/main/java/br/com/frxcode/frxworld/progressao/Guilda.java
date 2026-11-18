@@ -48,7 +48,7 @@ import java.util.UUID;
 public class Guilda {
     private static final String CHAVE = "frx_guilda", TAG = "frx_examinador";
     private static final long DURACAO_MS = 180_000, ESPERA_MS = 600_000;
-    public static final int REGISTRAR = 0, PROVA = 1, CARTAO = 2;
+    public static final int REGISTRAR = 0, PROVA = 1, CARTAO = 2, CONTRATOS = 3;
 
     private record Prova(UUID examinador, int alvo, long fim) {}
     private static final Map<UUID, Prova> PROVAS = new HashMap<>();
@@ -200,6 +200,7 @@ public class Guilda {
     }
 
     public static void acao(ServerPlayer p, AcaoMenu a) {
+        if (a.acao() == CONTRATOS) { br.com.frxcode.frxworld.missoes.Contratos.abrir(p); return; }   // vale também pelo cartão, longe do balcão
         Entity npc = p.level().getEntity(a.npc());
         if (!recepcionista(npc) || npc.distanceToSqr(p) > 100) return;
         switch (a.acao()) {

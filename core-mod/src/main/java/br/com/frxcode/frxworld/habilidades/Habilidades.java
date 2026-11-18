@@ -77,9 +77,10 @@ import java.util.concurrent.ThreadLocalRandom;
  * custo, recarga e nível da habilidade que sobe com o uso. Os números vêm da aba Habilidades do painel.
  */
 public class Habilidades {
-    public static final List<String> CLASSES = List.of("GUERREIRO", "ARQUEIRO", "MAGO", "CLERIGO", "LADINO", "ASSASSINO", "INVOCADOR");
-    private static final Map<String, String> NOMES = Map.of("GUERREIRO", "Guerreiro", "ARQUEIRO", "Arqueiro", "MAGO", "Mago",
-            "CLERIGO", "Clérigo", "LADINO", "Ladino", "ASSASSINO", "Assassino", "INVOCADOR", "Invocador");
+    public static final List<String> CLASSES = List.of("GUERREIRO", "ARQUEIRO", "MAGO", "CLERIGO", "LADINO", "ASSASSINO", "INVOCADOR", "PALADINO", "BARDO", "MONGE", "DRUIDA");
+    private static final Map<String, String> NOMES = Map.ofEntries(Map.entry("GUERREIRO", "Guerreiro"), Map.entry("ARQUEIRO", "Arqueiro"), Map.entry("MAGO", "Mago"),
+            Map.entry("CLERIGO", "Clérigo"), Map.entry("LADINO", "Ladino"), Map.entry("ASSASSINO", "Assassino"), Map.entry("INVOCADOR", "Invocador"),
+            Map.entry("PALADINO", "Paladino"), Map.entry("BARDO", "Bardo"), Map.entry("MONGE", "Monge"), Map.entry("DRUIDA", "Druida"));
     public static final String TAG_INVOCADO = "frx_invocado";
     private static final long COMBATE_MS = 5000;
 
@@ -127,12 +128,13 @@ public class Habilidades {
             case "" -> "";
             case "GUERREIRO" -> "FURIA";
             case "ARQUEIRO", "LADINO", "ASSASSINO" -> "ENERGIA";
+            case "MONGE" -> "CHI";
             default -> "MANA";
         };
     }
 
     public static String nomeRecurso(String r) {
-        return switch (r) { case "FURIA" -> "Fúria"; case "ENERGIA" -> "Energia"; default -> "Mana"; };
+        return switch (r) { case "FURIA" -> "Fúria"; case "ENERGIA" -> "Energia"; case "CHI" -> "Chi"; default -> "Mana"; };
     }
 
     public static int maximo(ServerPlayer p) {
@@ -172,6 +174,9 @@ public class Habilidades {
     /** Atualiza a barra de recurso (mana/fúria/energia) do jogador depois de gastar ou ganhar fora daqui. */
     public static void atualizarRecurso(ServerPlayer p) { enviarRecurso(p, true); }
 
+    /** Invocações e sombras vivas do jogador (ids das entidades). */
+    static Set<UUID> invocadosDe(UUID dono) { return invocados.getOrDefault(dono, Set.of()); }
+
     /** Coloca uma entidade na lista de invocações do jogador (ela passa a atacar o que ele ataca e a defendê-lo). */
     public static void registrarInvocado(ServerPlayer p, Entity e) {
         invocados.computeIfAbsent(p.getUUID(), k -> ConcurrentHashMap.newKeySet()).add(e.getUUID());
@@ -200,11 +205,12 @@ public class Habilidades {
                     .withStyle(ChatFormatting.YELLOW));
             return;
         }
+        Formas.voltar(p, false);
         d.definirClasse(classe);
         d.habilidades().clear();
         d.talentos().clear();
         for (int i = 0; i < d.barra().length; i++) d.barra()[i] = "";
-        d.definirRecurso("FURIA".equals(recursoDa(classe)) ? 0 : maximo(p));
+        d.definirRecurso("FURIA".equals(recursoDa(classe)) || "CHI".equals(recursoDa(classe)) ? 0 : maximo(p));
         recargas.remove(p.getUUID());
         if (!classe.isEmpty()) {
             p.connection.send(new ClientboundSetTitlesAnimationPacket(10, 50, 20));
@@ -307,11 +313,14 @@ public class Habilidades {
         DadosJogador.RegistroHabilidade reg = d.habilidades().get(cod);
         if (h == null || reg == null || !h.classe().equals(d.classe())) return;
 
+        if (Formas.voltarSeForaMesma(p, h) || !Formas.podeUsar(p, h)) return;
+
         long agora = System.currentTimeMillis();
         Map<String, Long> rc = recargas.computeIfAbsent(p.getUUID(), k -> new ConcurrentHashMap<>());
         Long fim = rc.get(cod);
         if (fim != null && fim > agora) { avisar(p, h.nome() + " em recarga: " + String.format("%.1f", (fim - agora) / 1000.0) + "s", ChatFormatting.RED); return; }
         double custo = h.custo() * Math.max(0.4, 1 - Talentos.bonus(p, Talentos.Atributo.CUSTO));
+        if (Despertar.portaoAtivo(p) || Despertar.florestaAtiva(p)) custo = 0;   // Portão Interior e Coração da Floresta: nada gasta
         if (d.recurso() < custo) { avisar(p, nomeRecurso(recursoDa(d.classe())) + " insuficiente (" + Math.round(custo) + ")", ChatFormatting.RED); return; }
 
         boolean ok;
@@ -582,7 +591,8 @@ public class Habilidades {
         if ("SAGRADO".equals(h.elemento()) && alvo.getMobType() == MobType.UNDEAD) v *= 2;
         DamageSource fonte = "FISICO".equals(h.elemento()) ? p.damageSources().playerAttack(p) : p.damageSources().indirectMagic(p, p);
         alvo.invulnerableTime = 0;
-        alvo.hurt(fonte, v);
+        emHabilidade = true;
+        try { alvo.hurt(fonte, v); } finally { emHabilidade = false; }
         marcarCombate(p);
         switch (h.elemento()) {
             case "FOGO" -> alvo.setSecondsOnFire(4);
@@ -653,6 +663,32 @@ public class Habilidades {
         }
     }
 
+    /** Verdadeiro enquanto o dano em curso vem de uma habilidade (o soco do Monge não soma em cima). */
+    static boolean emHabilidade;
+
+    /** Soma (ou tira) recurso do jogador, dentro dos limites, e atualiza a barra. */
+    public static void darRecurso(ServerPlayer p, double quanto) {
+        if (!Progressao.temDados(p)) return;
+        DadosJogador d = Progressao.dados(p);
+        if (recursoDa(d.classe()).isEmpty()) return;
+        d.definirRecurso(Math.max(0, Math.min(maximo(p), d.recurso() + quanto)));
+        enviarRecurso(p, false);
+    }
+
+    /** Encurta as recargas em andamento do jogador (fracao 1 = zera todas). */
+    public static void encurtarRecargas(ServerPlayer p, double fracao) {
+        Map<String, Long> rc = recargas.get(p.getUUID());
+        if (rc == null) return;
+        long agora = System.currentTimeMillis();
+        for (Map.Entry<String, Long> en : rc.entrySet()) {
+            long resta = en.getValue() - agora;
+            if (resta <= 0) continue;
+            long novo = Math.max(0, (long) (resta * (1 - Math.max(0, Math.min(1, fracao)))));
+            en.setValue(agora + novo);
+            enviar(p, new SyncRecarga(en.getKey(), (int) novo, (int) Math.max(1, resta)));
+        }
+    }
+
     static void marcarCombate(ServerPlayer p) {
         ultimoCombate.put(p.getUUID(), System.currentTimeMillis());
     }
@@ -675,6 +711,7 @@ public class Habilidades {
             double porSegundo = switch (r) {
                 case "MANA" -> combate ? 1 + max * 0.01 : 3 + max * 0.03;
                 case "ENERGIA" -> 10;
+                case "CHI" -> combate ? 0 : -3; // o chi só vem dos socos e esfria fora de combate
                 default -> combate ? 0 : -4; // fúria esvazia fora de combate
             };
             if (porSegundo > 0) porSegundo *= Talentos.fator(p, Talentos.Atributo.REGEN) * (1 + br.com.frxcode.frxworld.racas.RacasJogador.num(p, "regenRecurso") / 100);

@@ -9,6 +9,12 @@ for /f "usebackq tokens=1,* delims==" %%A in ("painel\.env") do (
   if /i "%%A"=="SERVIDOR_TOKEN" set "TOKEN=%%~B"
 )
 
+rem avisa a sentinela de quedas que este desligamento e de proposito (ela sai sozinha)
+>"%~dp0controle\sentinela.txt" echo parada
+
+rem fotografa o estado do PC antes de mexer (ajuda a achar a causa quando tudo cai sozinho); nunca interrompe
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0controle\registrar-estado.ps1" >nul 2>&1
+
 echo [1/4] Parando o servidor Minecraft (salvando o mundo)...
 curl -s -m 110 -X POST -H "x-servidor-token: %TOKEN%" http://localhost:3000/api/servidor/desligar >nul 2>&1
 echo       ok

@@ -95,7 +95,7 @@ const ICONE_EVENTO: Record<Evento["tipo"], string> = {
 };
 
 const CLASSE_ICONE: Record<string, string> = {
-  GUERREIRO: "⚔️", MAGO: "🔮", ARQUEIRO: "🏹", CLERIGO: "✨", LADINO: "🎭", ASSASSINO: "🗡️", INVOCADOR: "👻", "SEM CLASSE": "❔",
+  GUERREIRO: "⚔️", MAGO: "🔮", ARQUEIRO: "🏹", CLERIGO: "✨", LADINO: "🎭", ASSASSINO: "🗡️", INVOCADOR: "👻", PALADINO: "🛡️", BARDO: "🎵", MONGE: "👊", DRUIDA: "🌿", "SEM CLASSE": "❔",
 };
 
 // ------------------------------------------------------------------ peças visuais

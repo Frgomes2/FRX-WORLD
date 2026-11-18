@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { DadosPublicos, PerfilPublico } from "@/lib/publico";
 
 export const COR_RANK: Record<string, string> = { F: "#8b8378", E: "#6fbf73", D: "#5aa9e6", C: "#b085f5", B: "#f0a04b", A: "#ef5350", S: "#f5d04a" };
-export const ICONE_CLASSE: Record<string, string> = { Guerreiro: "⚔️", Arqueiro: "🏹", Mago: "🔮", "Clérigo": "✨", Ladino: "🗡️", Assassino: "🥷", Invocador: "👻" };
+export const ICONE_CLASSE: Record<string, string> = { Guerreiro: "⚔️", Arqueiro: "🏹", Mago: "🔮", "Clérigo": "✨", Ladino: "🗡️", Assassino: "🥷", Invocador: "👻", Paladino: "🛡️", Bardo: "🎵", Monge: "👊", Druida: "🌿" };
 
 const imagens = new Map<string, Promise<HTMLImageElement>>();
 function carregarSkin(nick: string) {
@@ -102,14 +102,15 @@ function dataBr(iso: string) { return iso.split("-").reverse().join("/"); }
 export function Perfil({ nick, fechar }: { nick: string; fechar: () => void }) {
   const [p, setP] = useState<PerfilPublico | null>(null);
   const [erro, setErro] = useState(false);
+  const [vaga, setVaga] = useState(0);   // 0 = o personagem em uso (ou o do nome clicado)
   useEffect(() => {
     let vivo = true;
-    fetch(`/api/publico/jogador?nick=${encodeURIComponent(nick)}`).then((r) => (r.ok ? r.json() : Promise.reject())).then((j) => { if (vivo) setP(j); }).catch(() => { if (vivo) setErro(true); });
+    fetch(`/api/publico/jogador?nick=${encodeURIComponent(nick)}${vaga ? `&vaga=${vaga}` : ""}`).then((r) => (r.ok ? r.json() : Promise.reject())).then((j) => { if (vivo) setP(j); }).catch(() => { if (vivo) setErro(true); });
     const tecla = (e: KeyboardEvent) => { if (e.key === "Escape") fechar(); };
     window.addEventListener("keydown", tecla);
     document.body.style.overflow = "hidden";
     return () => { vivo = false; window.removeEventListener("keydown", tecla); document.body.style.overflow = ""; };
-  }, [nick, fechar]);
+  }, [nick, fechar, vaga]);
 
   const cor = COR_RANK[p?.rank ?? "F"];
   const numero = (n: string, r: string) => (
@@ -127,6 +128,22 @@ export function Perfil({ nick, fechar }: { nick: string; fechar: () => void }) {
               {p?.online && <span className="flex items-center gap-1 rounded-full border border-green-700 px-2 py-0.5 text-xs text-green-400"><span className="h-2 w-2 animate-pulse rounded-full bg-green-400" />jogando agora</span>}
             </p>
             {p?.titulo && <p className="text-ouro-escuro">«{p.titulo}»</p>}
+            {p && p.personagem && p.personagem !== p.nick && <p className="text-sm text-pedra-500">Personagem: <span className="text-pergaminho">{p.personagem}</span>{!p.personagemEmUso && " (fora de uso: ficha da última vez em que jogou)"}</p>}
+            {(p?.personagens?.length ?? 0) > 1 && (
+              <p className="flex flex-wrap justify-center gap-2 text-xs sm:justify-start">
+                {p!.personagens.map((x) => {
+                  const aberto = x.nome === p!.personagem;
+                  return (
+                    <button key={x.vaga} type="button" disabled={!x.temFicha} onClick={() => setVaga(x.emUso ? 0 : x.vaga)}
+                      className={`rounded-full border px-2 py-0.5 disabled:opacity-50 ${aberto ? "border-ouro text-ouro" : "border-pedra-700 text-pedra-500 hover:border-ouro"}`}
+                      title={!x.temFicha ? "Ainda sem ficha: aparece depois que ele jogar" : x.emUso ? "Personagem em uso" : "Ver a ficha deste personagem"}>
+                      {x.nome} · {x.classe || "sem classe"} · Nv {x.nivel}{x.emUso ? " · em uso" : ""}
+                    </button>
+                  );
+                })}
+              </p>
+            )}
+            {!!p?.clas.length && <p className="flex flex-wrap justify-center gap-x-3 text-sm sm:justify-start">{p.clas.map((c) => <span key={c.nome} style={{ color: c.cor }}>⚑ {c.nome} <span className="text-xs text-pedra-500">· {c.cargo}</span></span>)}</p>}
             {p && <p className="mt-1 text-sm text-pergaminho/80">{ICONE_CLASSE[p.classe] ?? "🎒"} {p.classe} · Nível {p.nivel}{p.raca ? ` · ${p.raca.principal}${p.raca.secundaria && p.raca.secundaria !== p.raca.principal ? ` / ${p.raca.secundaria}` : ""}` : ""}</p>}
             {p && <p className="mt-1 text-xs text-pedra-500">No servidor desde {dataBr(p.desde)}{p.vistoEm ? ` · visto em ${dataBr(p.vistoEm)}` : ""}</p>}
           </div>
@@ -166,6 +183,16 @@ export function Perfil({ nick, fechar }: { nick: string; fechar: () => void }) {
                 </ul>
               </div>
             </div>
+
+            {p.colecao && (
+              <div className="rounded-xl border border-pedra-700 p-4">
+                <p className="text-xs uppercase tracking-wider text-pedra-500">Coleção</p>
+                <p className="mt-1 text-sm">📖 <b className="text-ouro">{p.colecao.criaturas}</b>{p.colecao.total ? ` de ${p.colecao.total}` : ""} tipos de criatura derrotados{p.colecao.proximoMarco ? <span className="text-pedra-500"> · próximo marco: {p.colecao.proximoMarco}</span> : null}</p>
+                {p.colecao.total > 0 && <div className="mt-2 h-2 overflow-hidden rounded bg-pedra-800"><div className="h-full bg-ouro-escuro" style={{ width: `${Math.min(100, (p.colecao.criaturas / p.colecao.total) * 100)}%` }} /></div>}
+                <p className="mt-3 text-sm">☠ <b className="text-ouro">{p.colecao.chefes.length}</b> chefões diferentes derrotados</p>
+                {!!p.colecao.chefes.length && <p className="mt-1 flex flex-wrap gap-1.5">{p.colecao.chefes.map((c) => <span key={c} className="rounded-full border border-pedra-700 bg-pedra-800/60 px-2 py-0.5 text-xs text-pergaminho/85">{c}</span>)}</p>}
+              </div>
+            )}
 
             {p.unica && (
               <div className="rounded-xl border border-ouro-escuro bg-gradient-to-r from-[#3a2c12] to-pedra-900 p-4">

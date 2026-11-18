@@ -104,6 +104,10 @@ public final class RenderRacas {
     }
 
     static float escala(LivingEntity e) {
+        String[] marca = SkinsNpcCliente.marca(e);
+        if (marca != null && marca[1].startsWith("x")) {   // criatura do Códex: o tamanho vem do painel
+            try { return 0.9375f * Mth.clamp(Float.parseFloat(marca[1].substring(1)), 0.4f, 3f); } catch (NumberFormatException ex) { return 0.9375f; }
+        }
         return switch (raca(e)) {
             case "anao" -> 0.78f;
             case "elfo" -> 1.05f;

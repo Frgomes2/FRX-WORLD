@@ -79,7 +79,11 @@ public class NpcsReino {
             new Papel("recepcionista", "librarian", 10, -5, new String[]{"Bem-vindo à Guilda de Aventureiros!", "Suba de rank e o reino inteiro vai saber o seu nome."}),
             new Papel("pedreiro", "mason", 10, 5, new String[]{"Madeira, pedra, vidro: tudo para a sua obra!", "Quem constrói bem começa pelo material certo.", "Blocos em pilha, preço de atacado."}),
             new Papel("cozinheiro", "butcher", 0, -10, new String[]{"Comida quente para a viagem!", "Barriga cheia, espada firme.", "O cardápio muda todo dia, volte sempre."}),
-            new Papel("taverneiro", "nitwit", -7, -5, new String[]{"Procurando trabalho? Veja o quadro de missões!", "Hoje a cerveja está por conta da casa... brincadeira."})
+            new Papel("taverneiro", "nitwit", -7, -5, new String[]{"Procurando trabalho? Veja o quadro de missões!", "Hoje a cerveja está por conta da casa... brincadeira."}),
+            new Papel("clas", "librarian", -10, -5, new String[]{"Sozinho se vai rápido; em clã se vai longe.", "Todo clã forte começou com dois amigos e um cofre vazio.", "Quer fundar um clã ou entrar em um? É comigo."}),
+            new Papel("leiloeiro", "nitwit", 10, -10, new String[]{"O que sobra para um falta para outro!", "Anuncie hoje, receba mesmo dormindo.", "Tudo o que os aventureiros vendem passa pelo meu balcão."}),
+            new Papel("discos", "nitwit", -10, 10, new String[]{"Música boa é a que fica na cabeça depois da batalha.", "Tenho discos que você não acha em masmorra nenhuma.", "Uma jukebox e um bom disco: isso é lar."}),
+            new Papel("escravos", "nitwit", 10, 10, new String[]{"Mão de obra boa e barata. Só para quem a Guilda respeita.", "Sem profissão, sem vício: você ensina o que quiser.", "Rank D para cima. Abaixo disso, nem conversa."})
     );
     private static final int GUARDAS = 6;
 
@@ -122,6 +126,10 @@ public class NpcsReino {
             case "rei" -> "Soberano de " + r.nome();
             case "guarda" -> "Guarda de " + r.nome();
             case "pedreiro" -> "Mestre de Obras";
+            case "clas" -> "Mestre dos Clãs";
+            case "leiloeiro" -> "Leiloeiro";
+            case "discos" -> "Mercador de Discos";
+            case "escravos" -> "Mercador de Escravos";
             default -> Character.toUpperCase(papel.charAt(0)) + papel.substring(1);
         };
     }
@@ -436,6 +444,30 @@ public class NpcsReino {
         // ferreiro/armeiro: clique abre o menu (forja + loja); agachado abre a troca clássica do aldeão
         if ((papel.equals("ferreiro") || papel.equals("armeiro") || papel.equals("cozinheiro") || papel.equals("pedreiro")) && !evento.getEntity().isShiftKeyDown()) {
             if (evento.getEntity() instanceof ServerPlayer jogador) MenusNpc.abrirForja(jogador, e, "", true);
+            evento.setCanceled(true);
+            evento.setCancellationResult(InteractionResult.SUCCESS);
+            return;
+        }
+        if (papel.equals("escravos")) {
+            if (evento.getEntity() instanceof ServerPlayer jogador) Escravos.abrir(jogador, e);
+            evento.setCanceled(true);
+            evento.setCancellationResult(InteractionResult.SUCCESS);
+            return;
+        }
+        if (papel.equals("discos")) {
+            if (evento.getEntity() instanceof ServerPlayer jogador) br.com.frxcode.frxworld.musica.Discos.abrir(jogador, e);
+            evento.setCanceled(true);
+            evento.setCancellationResult(InteractionResult.SUCCESS);
+            return;
+        }
+        if (papel.equals("leiloeiro")) {
+            if (evento.getEntity() instanceof ServerPlayer jogador) br.com.frxcode.frxworld.moedas.Mercado.abrir(jogador, e);
+            evento.setCanceled(true);
+            evento.setCancellationResult(InteractionResult.SUCCESS);
+            return;
+        }
+        if (papel.equals("clas")) {
+            if (evento.getEntity() instanceof ServerPlayer jogador) br.com.frxcode.frxworld.clas.Clas.abrir(jogador, e);
             evento.setCanceled(true);
             evento.setCancellationResult(InteractionResult.SUCCESS);
             return;

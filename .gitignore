@@ -83,3 +83,7 @@ server/config/ftbquests/quests/chapters/bestiario.snbt
 core-mod/src/main/resources/assets/frxworld/sounds/*.ogg
 __pycache__/
 server/config/chunky/tasks/
+
+# Musicas dos discos enviadas pelo painel (arquivos do dono do servidor)
+painel/dados/
+controle/sentinela.txt

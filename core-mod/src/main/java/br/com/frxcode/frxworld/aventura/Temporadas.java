@@ -84,8 +84,8 @@ public class Temporadas {
 
     public static void pontuar(ServerPlayer p, String categoria, int quanto) {
         if (dados == null || quanto <= 0 || !PESOS.containsKey(categoria)) return;
-        JsonObject j = obj(obj(dados, "pontos"), p.getUUID().toString());
-        j.addProperty("nome", p.getGameProfile().getName());
+        JsonObject j = obj(obj(dados, "pontos"), br.com.frxcode.frxworld.acesso.Personagens.id(p).toString());
+        j.addProperty("nome", br.com.frxcode.frxworld.acesso.Personagens.nome(p));
         j.addProperty(categoria, (j.has(categoria) ? j.get(categoria).getAsInt() : 0) + quanto);
         j.addProperty("pts", (j.has("pts") ? j.get("pts").getAsLong() : 0) + (long) quanto * PESOS.get(categoria));
         sujo = true;
@@ -109,7 +109,7 @@ public class Temporadas {
         List<String> l = new ArrayList<>();
         if (dados == null) return l;
         JsonObject t = obj(dados, "titulos");
-        if (t.has(p.getUUID().toString())) for (JsonElement e : t.getAsJsonArray(p.getUUID().toString())) l.add(e.getAsString());
+        if (t.has(br.com.frxcode.frxworld.acesso.Personagens.id(p).toString())) for (JsonElement e : t.getAsJsonArray(br.com.frxcode.frxworld.acesso.Personagens.id(p).toString())) l.add(e.getAsString());
         return l;
     }
 
@@ -147,7 +147,7 @@ public class Temporadas {
     private static void pagarPendente(ServerPlayer p) {
         if (dados == null) return;
         JsonObject premios = obj(dados, "premios");
-        String id = p.getUUID().toString();
+        String id = br.com.frxcode.frxworld.acesso.Personagens.id(p).toString();
         if (!premios.has(id)) return;
         JsonObject j = premios.getAsJsonObject(id);
         long moedas = j.has("moedas") ? j.get("moedas").getAsLong() : 0;
@@ -182,7 +182,7 @@ public class Temporadas {
         p.sendSystemMessage(Component.literal("🏆 Temporada " + (dados != null ? dados.get("mes").getAsString() : "") + " — termina na virada do mês. Prêmios: "
                 + "3 / 2 / 1 runas de nível II e título.").withStyle(ChatFormatting.GOLD));
         if (l.isEmpty()) { p.sendSystemMessage(Component.literal("   Ninguém pontuou ainda. Mate chefes, feche portais, suba a Torre!").withStyle(ChatFormatting.GRAY)); return; }
-        String eu = p.getUUID().toString();
+        String eu = br.com.frxcode.frxworld.acesso.Personagens.id(p).toString();
         for (int i = 0; i < l.size(); i++) {
             Linha x = l.get(i);
             boolean sou = x.uuid().equals(eu);

@@ -81,13 +81,50 @@ public class Torre {
     private static final String TAG_NPC = "frx_torre_npc";
     private static final long ESPERA_MORTE_MS = 10 * 60_000L;
 
+    /** Monstros comuns de cada tema: os do Minecraft e os dos mods do pack (só entram os que existem no servidor). */
     static final String[][] MONSTROS = {
-            {"minecraft:zombie", "minecraft:skeleton", "minecraft:spider"},                              // Masmorra
-            {"minecraft:husk", "minecraft:skeleton", "minecraft:cave_spider"},                          // Deserto
-            {"minecraft:spider", "minecraft:witch", "minecraft:zombie", "minecraft:vindicator"},        // Floresta
-            {"minecraft:wither_skeleton", "minecraft:blaze", "minecraft:zoglin"},                       // Fornalha
-            {"minecraft:stray", "minecraft:vindicator", "minecraft:pillager"},                          // Geleira
-            {"minecraft:wither_skeleton", "minecraft:ravager", "minecraft:husk", "minecraft:witch"}};   // Abismo
+            // Masmorra
+            {"minecraft:zombie", "minecraft:skeleton", "minecraft:spider", "born_in_chaos_v1:decaying_zombie", "born_in_chaos_v1:decrepit_skeleton", "born_in_chaos_v1:baby_skeleton",
+                    "born_in_chaos_v1:barrel_zombie", "born_in_chaos_v1:bone_imp", "born_in_chaos_v1:zombie_bruiser", "born_in_chaos_v1:zombie_lumberjack", "twilightforest:kobold",
+                    "twilightforest:redcap", "cataclysm:draugr", "undergarden:rotling", "illagerinvasion:provoker"},
+            // Deserto
+            {"minecraft:husk", "minecraft:skeleton", "minecraft:cave_spider", "cataclysm:koboleton", "alexsmobs:rocky_roller", "alexsmobs:guster", "mowziesmobs:umvuthana",
+                    "born_in_chaos_v1:skeleton_demoman", "born_in_chaos_v1:phantom_creeper", "born_in_chaos_v1:skeleton_thrasher", "twilightforest:minotaur", "illagerinvasion:marauder"},
+            // Floresta
+            {"minecraft:spider", "minecraft:witch", "minecraft:zombie", "minecraft:vindicator", "twilightforest:hedge_spider", "twilightforest:swarm_spider", "twilightforest:skeleton_druid",
+                    "twilightforest:hostile_wolf", "twilightforest:mist_wolf", "twilightforest:pinch_beetle", "twilightforest:slime_beetle", "born_in_chaos_v1:dread_hound",
+                    "born_in_chaos_v1:baby_spider", "blue_skies:venom_spider", "illagerinvasion:basher"},
+            // Fornalha
+            {"minecraft:wither_skeleton", "minecraft:blaze", "minecraft:zoglin", "twilightforest:fire_beetle", "twilightforest:carminite_golem", "alexsmobs:dropbear", "alexsmobs:straddler",
+                    "born_in_chaos_v1:bone_imp", "born_in_chaos_v1:door_knight", "undergarden:rotwalker", "illagerinvasion:firecaller"},
+            // Geleira
+            {"minecraft:stray", "minecraft:vindicator", "minecraft:pillager", "twilightforest:winter_wolf", "twilightforest:yeti", "twilightforest:snow_guardian", "blue_skies:polargeist",
+                    "iceandfire:dread_thrall", "iceandfire:dread_ghoul", "iceandfire:dread_beast", "iceandfire:dread_scuttler", "illagerinvasion:inquisitor"},
+            // Abismo
+            {"minecraft:wither_skeleton", "minecraft:ravager", "minecraft:husk", "minecraft:witch", "deeperdarker:shattered", "deeperdarker:sculk_centipede", "deeperdarker:sculk_snapper",
+                    "deeperdarker:sludge", "cataclysm:endermaptera", "cataclysm:elite_draugr", "undergarden:rotbeast", "born_in_chaos_v1:nightmare_stalker", "alexscaves:deep_one"}};
+    /** Reforços da segunda volta dos temas (andar 61 em diante) e das masmorras de portal de rank alto. */
+    static final String[][] ELITE = {
+            {"cataclysm:elite_draugr", "cataclysm:royal_draugr", "born_in_chaos_v1:fallen_chaos_knight", "twilightforest:lower_goblin_knight", "illagerinvasion:inquisitor"},   // Masmorra
+            {"alexscaves:vallumraptor", "cataclysm:royal_draugr", "born_in_chaos_v1:fallen_chaos_knight", "iceandfire:dread_knight"},                                          // Deserto
+            {"twilightforest:troll", "twilightforest:minotaur", "alexscaves:vallumraptor", "born_in_chaos_v1:nightmare_stalker"},                                              // Floresta
+            {"cataclysm:ignited_revenant", "cataclysm:ignited_berserker", "born_in_chaos_v1:fallen_chaos_knight", "iceandfire:dread_knight"},                                  // Fornalha
+            {"iceandfire:dread_knight", "twilightforest:troll", "cataclysm:royal_draugr"},                                                                                     // Geleira
+            {"cataclysm:royal_draugr", "alexscaves:deep_one_knight", "born_in_chaos_v1:fallen_chaos_knight", "iceandfire:dread_knight"}};                                      // Abismo
+    private static final Map<Integer, String[]> monstrosQueExistem = new HashMap<>();
+
+    /** Lista de monstros do tema que existem neste servidor; com elite = true entram também os reforços. Nunca vem vazia. */
+    static String[] monstros(int tema, boolean elite) {
+        int t = Math.floorMod(tema, MONSTROS.length);
+        return monstrosQueExistem.computeIfAbsent(t * 2 + (elite ? 1 : 0), k -> {
+            List<String> l = new ArrayList<>();
+            for (String id : MONSTROS[t]) { ResourceLocation rl = ResourceLocation.tryParse(id); if (rl != null && ForgeRegistries.ENTITY_TYPES.containsKey(rl)) l.add(id); }
+            if (elite) for (String id : ELITE[t]) { ResourceLocation rl = ResourceLocation.tryParse(id); if (rl != null && ForgeRegistries.ENTITY_TYPES.containsKey(rl)) l.add(id); }
+            if (l.isEmpty()) l.add("minecraft:zombie");
+            return l.toArray(new String[0]);
+        });
+    }
+
     private static final String[] CHEFES = {"minecraft:ravager", "minecraft:wither_skeleton", "minecraft:illusioner", "minecraft:zoglin", "minecraft:vindicator",
             "minecraft:ravager", "minecraft:wither_skeleton", "minecraft:illusioner", "minecraft:zoglin", "minecraft:wither"};
     private static final String[] NOMES_CHEFE = {"Besta do Primeiro Selo", "Cavaleiro Sombrio", "Mestre das Ilusões", "Javali do Abismo", "O Carrasco",
@@ -147,7 +184,7 @@ public class Torre {
         Corrida c = corridaDe(p);
         if (c != null) { c.membros.remove(p.getUUID()); sair(p); if (c.membros.isEmpty()) encerrar(p.server, c, false); }
         dados(p).remove("recorde"); dados(p).remove("seguro"); dados(p).remove("bloqueio");
-        if (placar.has(p.getUUID().toString())) { placar.remove(p.getUUID().toString()); placarSujo = true; quadrosVelhos = true; }
+        if (placar.has(br.com.frxcode.frxworld.acesso.Personagens.id(p).toString())) { placar.remove(br.com.frxcode.frxworld.acesso.Personagens.id(p).toString()); placarSujo = true; quadrosVelhos = true; }
     }
 
     /** XP de um andar vencido: quase nada nos primeiros, crescendo com a dificuldade (2 × andar^1,6; chefe vale o triplo). */
@@ -401,10 +438,10 @@ public class Torre {
     private static Path arquivoPlacar(MinecraftServer s) { return s.getWorldPath(LevelResource.ROOT).resolve("frx_torre_placar.json"); }
 
     private static com.google.gson.JsonObject linhaPlacar(ServerPlayer p) {
-        String id = p.getUUID().toString();
+        String id = br.com.frxcode.frxworld.acesso.Personagens.id(p).toString();   // o placar é de cada personagem
         if (!placar.has(id)) placar.add(id, new com.google.gson.JsonObject());
         com.google.gson.JsonObject j = placar.getAsJsonObject(id);
-        j.addProperty("nome", p.getGameProfile().getName());
+        j.addProperty("nome", br.com.frxcode.frxworld.acesso.Personagens.nome(p));
         return j;
     }
 
@@ -510,6 +547,11 @@ public class Torre {
     private static boolean naTorre(BlockPos b) {
         return base != null && Math.abs(b.getX() - base.getX()) <= MEIO + 1 && Math.abs(b.getZ() - base.getZ()) <= MEIO + 1
                 && b.getY() >= base.getY() - 3 && b.getY() <= base.getY() + ALTURA + 6;
+    }
+
+    /** A coluna está a até 'margem' blocos da torre de fora? (terrenos não são vendidos ali) */
+    public static boolean pertoDaBase(int x, int z, int margem) {
+        return base != null && Math.abs(x - base.getX()) <= MEIO + margem && Math.abs(z - base.getZ()) <= MEIO + margem;
     }
 
     private static boolean protegido(Level nivel, BlockPos b) {
@@ -819,6 +861,7 @@ public class Torre {
         BlockPos o = c.centro();
         boolean chefe = c.andar % 10 == 0;
         int tema = (c.andar - 1) / 10 % MONSTROS.length;
+        String[] doTema = monstros(tema, c.andar > 60);
         int a_mais = Math.max(0, gente.size() - 1);       // companheiros além do primeiro: cada um deixa o andar mais duro
         int nivel = Math.max(1, Math.min(ConfigJogo.zonaNivelMax(), 3 + (int) Math.round(c.andar * 1.4) + a_mais));
         double extra = c.andar * 0.05;                    // vida a mais, além do nível: +5% por andar
@@ -829,10 +872,11 @@ public class Torre {
             String idEpico = oChefe && c.andar % 20 == 0 && c.andar < ANDARES ? sortearEpico(c.andar, rnd) : null;
             if (oChefe && c.andar < ANDARES && idEpico == null) {
                 Mob ch = Chefes.criar(n, new net.minecraft.world.phys.Vec3(o.getX() + 0.5, AY + 1, o.getZ() + 0.5 - 6), Math.min(6, c.andar / 15), nivel,
-                        extra + c.andar / 30.0 + a_mais * 0.9);
+                        extra + c.andar / 30.0 + a_mais * 0.9, "torre");
                 if (ch != null) { ch.addTag(TAG); if (!gente.isEmpty()) ch.setTarget(gente.get(rnd.nextInt(gente.size()))); continue; }
             }
-            String id = idEpico != null ? idEpico : oChefe ? CHEFES[(c.andar / 10 - 1) % CHEFES.length] : MONSTROS[tema][rnd.nextInt(MONSTROS[tema].length)];
+            Criaturas.Def cria = chefe || oChefe ? null : Criaturas.sortearMonstro("torre", Math.min(6, c.andar / 15));   // monstro do Códex no lugar de um comum
+            String id = idEpico != null ? idEpico : oChefe ? CHEFES[(c.andar / 10 - 1) % CHEFES.length] : cria != null ? cria.entidade() : doTema[rnd.nextInt(doTema.length)];
             EntityType<?> tipo = ForgeRegistries.ENTITY_TYPES.getValue(ResourceLocation.tryParse(id));
             Entity e = tipo == null ? null : tipo.create(n);
             if (!(e instanceof Mob m)) continue;
@@ -854,6 +898,7 @@ public class Torre {
             var ataque = m.getAttribute(Attributes.ATTACK_DAMAGE);
             if (ataque != null && danoExtra > 0) ataque.addPermanentModifier(new AttributeModifier(UUID.fromString("7a1e4c55-0b6d-4c11-8f3a-5d2e9b7c1a02"), "FRX torre dano", danoExtra, AttributeModifier.Operation.MULTIPLY_TOTAL));
             if (c.andar >= 30) m.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, Integer.MAX_VALUE, c.andar >= 70 ? 1 : 0, false, false));
+            if (cria != null) Criaturas.aplicar(m, cria);
             m.setHealth(m.getMaxHealth());
             m.setPersistenceRequired();
             m.addTag(TAG);
@@ -886,6 +931,7 @@ public class Torre {
             if (!novo) xp /= 4;
             Progressao.ganharXp(p, xp);
             int ganhas = (chefe ? 10 : 1) + (novo ? 2 : 0);
+            br.com.frxcode.frxworld.missoes.Contratos.progresso(p, "torre", 1);
             darFichas(p, ganhas);
             if (novo) {
                 dados(p).putInt("recorde", c.andar);

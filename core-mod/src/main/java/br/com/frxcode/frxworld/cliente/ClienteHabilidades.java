@@ -70,6 +70,18 @@ public final class ClienteHabilidades {
             case "ASSASSINO" -> new String[]{"Respiração do Trovão", "Demon Slayer (Zenitsu)",
                     "Enche com golpes; pelas costas ou em alvo quase morto vale o dobro.",
                     "Primeira Forma: investida-relâmpago de 12 blocos na direção do olhar, cortando todos no caminho (1,6× a 2,6× o dano da arma). Você ganha 3 investidas em 5 s — aperte de novo para encadear."};
+            case "PALADINO" -> new String[]{"Égide da Aurora", "Original do FRX-WORLD",
+                    "Enche apanhando, batendo de perto e gastando mana.",
+                    "8–14 s: uma cúpula de luz de 6 blocos segue você. Você e os aliados dentro dela levam 60% menos dano e regeneram. Todo o dano que a cúpula barrar fica guardado e, no fim, explode em luz nos inimigos em volta (dobrado em mortos-vivos), curando os aliados."};
+            case "BARDO" -> new String[]{"Bis!", "Original do FRX-WORLD",
+                    "Enche gastando mana nas canções e ferindo inimigos.",
+                    "Na hora: zera as recargas e enche o recurso de todos os jogadores a até 12 blocos (você incluso). Por 8 s o grupo causa 20% a mais de dano e regenera."};
+            case "DRUIDA" -> new String[]{"Coração da Floresta", "Original do FRX-WORLD",
+                    "Enche gastando mana, batendo de perto e apanhando.",
+                    "10 s: as habilidades não gastam mana, as garras batem 50% mais forte, você regenera e as formas de lobo e de ave deixam de apanhar a mais."};
+            case "MONGE" -> new String[]{"Portão Interior", "Original do FRX-WORLD",
+                    "Enche acertando socos e golpes de perto.",
+                    "8–12 s: seus socos causam o dobro e estouram em volta do alvo, você corre e salta mais e as habilidades não gastam chi. No fim você fica exausto (fraqueza e lentidão por 5 s)."};
             case "INVOCADOR" -> new String[]{"Levante-se!", "Solo Leveling",
                     "Sem barra: mate criaturas e erga as almas delas.",
                     "A tecla ergue como sombra a alma mais próxima (20 s depois do abate). Veja e comande o exército em ⚫ Exército."};
@@ -80,7 +92,7 @@ public final class ClienteHabilidades {
     public static int corDespertar(String classe) {
         return switch (classe) {
             case "GUERREIRO" -> 0xFFB01E1E; case "ARQUEIRO" -> 0xFF6FE3F5; case "MAGO" -> 0xFFFF7A1A;
-            case "CLERIGO" -> 0xFFFFE07A; case "LADINO" -> 0xFF5BD17A; case "ASSASSINO" -> 0xFFFFE01A; default -> 0xFFC58CF0;
+            case "CLERIGO" -> 0xFFFFE07A; case "LADINO" -> 0xFF5BD17A; case "ASSASSINO" -> 0xFFFFE01A; case "PALADINO" -> 0xFFFFF3B0; case "BARDO" -> 0xFFE879F9; case "MONGE" -> 0xFF3FD6C4; case "DRUIDA" -> 0xFF6BCB4B; default -> 0xFFC58CF0;
         };
     }
 
@@ -120,11 +132,11 @@ public final class ClienteHabilidades {
     }
 
     public static String nomeRecurso() {
-        return switch (recurso) { case "FURIA" -> "Fúria"; case "ENERGIA" -> "Energia"; case "MANA" -> "Mana"; default -> ""; };
+        return switch (recurso) { case "FURIA" -> "Fúria"; case "ENERGIA" -> "Energia"; case "MANA" -> "Mana"; case "CHI" -> "Chi"; default -> ""; };
     }
 
     public static int corRecurso() {
-        return switch (recurso) { case "FURIA" -> 0xFFC0392B; case "ENERGIA" -> 0xFFE5B91F; default -> 0xFF3B82F6; };
+        return switch (recurso) { case "FURIA" -> 0xFFC0392B; case "ENERGIA" -> 0xFFE5B91F; case "CHI" -> 0xFF3FD6C4; default -> 0xFF3B82F6; };
     }
 
     public static void limpar() {

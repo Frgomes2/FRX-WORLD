@@ -10,7 +10,7 @@ export default async function PainelLayout({ children }: { children: React.React
 
   return (
     <div className="flex min-h-screen">
-      <aside className="hidden w-60 shrink-0 border-r border-pedra-700 bg-pedra-900 p-4 md:block">
+      <aside className="hidden w-64 shrink-0 overflow-y-auto border-r border-pedra-700 bg-pedra-900 p-4 md:sticky md:top-0 md:block md:h-screen">
         <div className="mb-6 px-3">
           <p className="font-titulo text-2xl text-ouro">FRX-WORLD</p>
           <p className="text-xs text-pedra-500">Painel admin</p>

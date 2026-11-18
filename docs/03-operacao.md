@@ -56,6 +56,14 @@ O Claude também pode ligar, desligar e reiniciar o servidor sem ninguém clicar
 - **Atualização:** se o `agente-frx.ps1` mudar, o agente se reinicia sozinho com a versão nova.
 - **Para remover:** apague "FRX-WORLD agente" em `shell:startup`.
 
+## Quedas e salvamento automático
+
+- **Sentinela** (`controle\sentinela.ps1`, ligada pelo `iniciar-frx.bat`): se o painel ou o servidor morrem sem que alguém tenha pedido, grava `logs\quedas\queda-*.txt` e pede o reinício ao agente (no máximo 2 em 30 minutos). O `desligar-frx.bat` avisa a sentinela antes de parar (`controle\sentinela.txt`).
+- **Retrato antes de desligar** (`controle\registrar-estado.ps1`): a cada desligamento grava `logs\quedas\estado-*.txt` com os processos do FRX, a memória livre e os avisos do Windows da última meia hora.
+- **Salvamento do mundo a cada 30 minutos** (`protecao/Salvamento.java`): o salvamento completo do jogo, que trava um tick a cada 5 minutos, passou a rodar de 30 em 30; os jogadores continuam salvos a cada 5 e os chunks, aos poucos, o tempo todo. O log diz `Salvamento automático: a cada 30 minutos` ao ligar; se disser que continua a cada 5, o contorno não funcionou.
+- **Medir travadas:** `spark tps`, `spark health --memory` e `spark tickmonitor --threshold-tick 80 --without-gc` pelo console (o vigia escreve no chat dos admins e some no reinício).
+- **Cópias manuais** ficam em `backups\` (fora do git). `backups\playerdata-20261118-antes-personagens` é a pasta dos jogadores de antes do sistema de personagens.
+
 ## Compilar o mod
 
 - Automático: o atalho de ligar compila sempre que o código mudou.
@@ -132,6 +140,12 @@ Ficam em `server/FRX-WORLD/` e valem só para aquele mundo (mundo novo começa s
 |---|---|
 | `frx_torre.txt` · `frx_torre_placar.json` | Posição e porta da Torre Infinita · rankings (recorde e abates) |
 | `frx_temporada.json` | Placar do mês, prêmios pendentes e títulos de temporada |
+| `frx_terrenos.json` | Terrenos comprados, permissões de cada dono e terras do reino marcadas pelo admin |
+| `frx_clas.json` | Clãs: membros, cargos, cofre e pedidos |
+| `frx_mercado.json` | Anúncios e valores a receber do Leiloeiro |
+| `frx_codex.json` · `frx_discos.json` · `frx_escravos.json` | Unidades emitidas de cada arma do Códex · discos vendidos · aldeões comprados e perdidos por conta |
+| `frx_personagens/` | Índice e arquivo de cada personagem fora de uso (`<uuid>.json`, `<uuid>-<vaga>.dat`) |
+| `frx_banco_pendente.txt` | Saldos de banco definidos pelo painel para quem estava offline |
 | `frx_repor.txt` | Moradores e guardas das capitais à espera de voltar |
 | `frx_ciclo.txt` | Duração do dia e da noite |
 | `frx_ronaldinho.txt` · `frx_ladrao.txt` | Chance das visitas raras (por mil, por minuto) |

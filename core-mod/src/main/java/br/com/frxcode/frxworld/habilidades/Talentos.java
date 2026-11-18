@@ -151,6 +151,34 @@ public class Talentos {
                 "Sangue Antigo", DH, .03, "Pacto de Vida", VI, 2, "Dreno", RV, .015, "Pele Sombria", AR, 1, "Pacto Proibido", DH, .15);
         ramo("INVOCADOR", "ritualista", "Ritualista",
                 "Círculo", RM, 12, "Cântico", RG, .06, "Oferenda", CU, .03, "Selo", RC, .03, "Grande Ritual", RG, .35);
+
+        ramo("PALADINO", "baluarte_sagrado", "Baluarte",
+                "Fé de Aço", AR, 1, "Coração Firme", VI, 2, "Manto da Aurora", RE, .5, "Inquebrável", VI, 3, "Muralha da Fé", RE, 2);
+        ramo("PALADINO", "justica", "Justiça",
+                "Lâmina Abençoada", DF, .03, "Veredito", DH, .03, "Golpe Justo", CR, .02, "Ira Santa", DH, .04, "Mão do Juiz", DF, .15);
+        ramo("PALADINO", "devocao", "Devoção",
+                "Mãos que Curam", CA, .05, "Oração", RG, .06, "Reserva de Fé", RM, 10, "Compaixão", CA, .06, "Santo Protetor", CA, .25);
+
+        ramo("BARDO", "maestro", "Maestro",
+                "Voz Afinada", CA, .05, "Fôlego Longo", RG, .06, "Repertório", RM, 10, "Harmonia", CA, .05, "Grande Maestro", RG, .35);
+        ramo("BARDO", "virtuose", "Virtuose",
+                "Nota Afiada", DH, .03, "Improviso", RC, .03, "Agudo", CR, .03, "Solo", DH, .04, "Virtuose Lendário", RC, .12);
+        ramo("BARDO", "andarilho", "Andarilho",
+                "Pé na Estrada", VE, .02, "Jogo de Cintura", ES, .02, "Casca Grossa", VI, 2, "Economia de Palco", CU, .03, "Lenda das Tavernas", VE, .08);
+
+        ramo("MONGE", "punho", "Punho de Ferro",
+                "Juntas Calejadas", DF, .04, "Golpe Seco", CR, .03, "Peso do Corpo", DF, .04, "Ponto Vital", CR, .03, "Punho que Racha Pedra", DF, .20);
+        ramo("MONGE", "vento", "Vento",
+                "Passo Leve", VE, .02, "Fluir", ES, .02, "Corrente de Ar", VE, .02, "Folha ao Vento", ES, .02, "Intocável", ES, .08);
+        ramo("MONGE", "espirito", "Espírito",
+                "Respiração", RM, 8, "Corpo Temperado", VI, 2, "Disciplina", CU, .04, "Mente Calma", RC, .03, "Mestre do Chi", RM, 30);
+
+        ramo("DRUIDA", "garra", "Garra",
+                "Unhas Afiadas", DF, .03, "Faro", CR, .03, "Patas Ligeiras", VE, .02, "Instinto de Caça", DF, .04, "Alfa da Matilha", DF, .15);
+        ramo("DRUIDA", "guardiao_selvagem", "Guardião",
+                "Couro Grosso", AR, 1, "Fôlego de Urso", VI, 2, "Pelagem Densa", RE, .5, "Raízes Fundas", VI, 3, "Ancião da Mata", VI, 8);
+        ramo("DRUIDA", "bosque", "Bosque",
+                "Seiva", CA, .05, "Orvalho", RG, .06, "Reserva Verde", RM, 10, "Florescer", CA, .05, "Voz da Floresta", RG, .30);
     }
 
     // ------------------------------------------------------------------ cálculo

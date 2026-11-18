@@ -30,7 +30,7 @@ Clicar num jogador abre a ficha pública: skin, nível, raça, Guilda, Torre, te
 | Progressão | `/admin/progressao` | Curva de XP, zonas, **monstros com rank** (chances de Elite/Campeão), config geral |
 | Missões | `/admin/missoes` | Quadro de missões em cards por faixa de nível; editor com seletor de criatura, itens, moedas, XP sugerido e prévia em pergaminho |
 | Economia | `/admin/economia` | Lojas de cada reino (com aviso de arbitragem e ordenação) e ranking dos jogadores mais ricos |
-| Dinheiro dos jogadores | `/admin/dinheiro` | Bolsa, banco e total de cada jogador; edita o saldo do banco (mesmo offline) e tira da bolsa ou zera (só online) |
+| Dinheiro dos jogadores | `/admin/dinheiro` | Bolsa, banco e total de cada jogador; o botão Editar define ouro, prata e cobre da bolsa (só com o jogador online) e do banco (também offline) |
 | Reinos | `/admin/reinos` | Mapa com foco no reino, painel do rei, coordenadas, edição de reputação e matriz de reputação (heatmap) |
 | NPCs e skins | `/admin/npcs` | Skins dos NPCs por reino e raça; cards próprios para o Mestre de Obras e para as visitas raras (Ronaldinho e Ladrão) |
 | Dungeons | `/admin/dungeons` | Anéis de distância (com aviso de buracos e sobreposição), cards das camadas; editor com abas por camada, criaturas, loot com chance e medidor de dificuldade |
@@ -39,9 +39,12 @@ Clicar num jogador abre a ficha pública: skin, nível, raça, Guilda, Torre, te
 | Eventos de estrada | `/admin/eventos` | Eventos aleatórios nas estradas |
 | Habilidades | `/admin/habilidades` | Habilidades das classes. O campo **Efeito** aceita um efeito de poção ou uma mecânica do mod (`frx:puxar`, `frx:zona`...), com a lista sugerida no próprio campo |
 | Forja | `/admin/forja` | Raridades, refino e custos |
+| Códex de Armas | `/admin/codex` | Armas únicas: item base, rank, raridade, dano, total no mundo, venda no ferreiro, recompensa de missão (`codex:<código>`), evolução com o dono e aparência (editor de pixels ou PNG importado) |
+| Códex de Criaturas | `/admin/criaturas` | Chefes e monstros próprios: criatura base, ranks, vida/dano/velocidade, golpes, lacaio, lugares, peso ou chance, XP/moedas/item ao morrer, skin 64×64 desenhada ou importada, tamanho, botão de invocar. Ver [sistemas/codex-criaturas.md](sistemas/codex-criaturas.md) |
+| Discos de música | `/admin/discos` | Discos vendidos pelo Mercador de Discos: arquivo .ogg, artista, estilo, preço, rank, unidades no mundo (0 = sem limite) e a aparência (cor, PNG ou desenho) |
 | Administradores | `/admin/admins` | Admins do painel: adicionar, remover, trocar a própria senha |
 
-Ainda não implementados ("Em breve"): Conteúdo, Mobs e bosses, Códex de Armas, Estados, Lei e crimes, Rituais, Eventos globais, Versões do pack.
+Ainda não implementados ("Em breve"): Conteúdo, Estados, Lei e crimes, Rituais, Eventos globais, Versões do pack.
 
 ## Detalhes úteis
 
@@ -57,6 +60,10 @@ Ainda não implementados ("Em breve"): Conteúdo, Mobs e bosses, Códex de Armas
   - `eliteChance` (5%) e `eliteNivelMin` (3);
   - `campeaoChance` (0,5%) e `campeaoNivelMin` (10).
 
+## Personagens na ficha do jogador
+
+A ficha (`/admin/jogadores/<uuid>`) mostra os personagens da conta. Clicar num personagem fora de uso abre o retrato guardado dele (`?vaga=N`), sem atualização automática e sem ações: dar item, mudar nível e editar a bolsa só valem para o personagem em uso. Detalhes em [sistemas/personagens.md](sistemas/personagens.md).
+
 ## Rotas de API
 
 ### `/api/painel/*` (usadas pelas telas, exigem login)
@@ -65,7 +72,7 @@ Ainda não implementados ("Em breve"): Conteúdo, Mobs e bosses, Códex de Armas
 
 ### `/api/servidor/*` (usadas pelo mod, exigem `x-servidor-token`)
 
-`acesso`, `config`, `convite`, `desligar`, `dungeons`, `entidades`, `eventos`, `externos`, `habilidades`, `itens`, `jogador-detalhe`, `ligar`, `lojas`, `masmorras`, `missoes`, `npc-skins`, `progresso`, `status`.
+`acesso`, `config`, `convite`, `desligar`, `dungeons`, `entidades`, `eventos`, `externos`, `habilidades`, `itens`, `codex`, `criaturas`, `discos`, `personagens`, `jogador-detalhe`, `ligar`, `lojas`, `masmorras`, `missoes`, `npc-skins`, `progresso`, `status`.
 
 ## Ideias pendentes
 

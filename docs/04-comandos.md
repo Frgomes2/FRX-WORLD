@@ -48,8 +48,14 @@
 | `/frx talentos resetar <j>` | Reseta talentos |
 | `/frx despertar` | Enche a barra de Despertar (teste) |
 | `/frx raca <j> definir <principal> [secundaria]` · `liberar <raca>` · `limpar` | Raças |
-| `/frx admin <j> ficha` · `curar` · `banco` · `tirarmoedas <v>` · `reputacao ...` · `talento ...` | Ficha e ajustes do jogador |
+| `/frx admin <j> ficha` · `curar` · `banco` · `bolsa <cobre>` (define a bolsa exata) · `tirarmoedas <v>` · `reputacao ...` · `talento ...` | Ficha e ajustes do jogador |
 | `/frx bancooffline <uuid> <cobre>` | Define o saldo do banco; com o jogador offline, o valor entra no próximo login (usado pelo painel) |
+| `/frx codex lista` · `recarregar` · `dar <jogador> <código>` · `estoque <código> <n>` | Códex de Armas: lista, relê do painel, entrega uma arma, ajusta a contagem do mundo |
+| `/frx criaturas lista` · `recarregar` · `invocar <código> <jogador>` | Códex de Criaturas: lista, relê do painel, faz a criatura aparecer perto de um jogador |
+| `/frx terreno proibir [raio]` · `liberar [raio]` · `info` · `tomar` | Terrenos: marca ou libera terras do reino em volta do admin, mostra a situação do lugar, tira o dono do terreno |
+| `/terreno` (jogadores) | Abre o painel de terrenos (reserva para quem não usa o mapa) |
+| `/ping` | Todos: o seu ping até o servidor e o TPS |
+| `/frx ping` | Admin: ping de todos os jogadores online |
 | `/frx ajustar <nick> nivel <n>` · `rank <F..S>` · `torre` | Define nível, rank da Guilda ou zera a Torre do jogador; offline, entra no próximo login |
 | `/frx admin <j> habilidade aprender\|esquecer\|nivel\|todas` | Habilidades do jogador |
 | `/frx moedas <j> <cobre>` | Dá moedas (em cobre) |
@@ -121,4 +127,5 @@
 | `/frx masmorra portal <id>` · `/frx masmorra secar <id>` | Põe o pórtico com portal na entrada da masmorra · tira a água de dentro |
 | `/frx masmorra entradas [refazer [id]]` | Lista ou refaz as entradas das masmorras |
 | `/frx npc aqui pedreiro` | Coloca o Mestre de Obras (loja de blocos) |
+| `/frx npc aqui clas` · `leiloeiro` · `discos` · `escravos` | Coloca o Mestre dos Clãs, o Leiloeiro, o Mercador de Discos e o Mercador de Escravos |
 | `/frx populacao refazer` | Remove os moradores carregados e povoa de novo |

@@ -5,6 +5,7 @@ import { naoAutorizado, tokenValido } from "@/lib/servidor";
 
 const schema = z.object({
   uuid: z.string().min(1),
+  vaga: z.number().int().min(1).max(3).optional(),
   nick: z.string().min(1),
   nivel: z.number().int().min(1),
   xp: z.number().int().min(0),
@@ -50,5 +51,14 @@ export async function POST(req: Request) {
       ...(d.morreu ? { mortes: { increment: 1 } } : {}),
     },
   });
+  // retrato do personagem: os mesmos campos, guardados na vaga que o mod informou (ou na que está em uso)
+  if (r.count > 0) {
+    const j = await prisma.jogador.findUnique({ where: { uuid: d.uuid } });
+    if (j) {
+      const base = { nivel: j.nivel, xp: j.xp, rank: j.rank, classe: j.classe, moedas: j.moedas, titulo: j.titulo, conquistas: j.conquistas, mortes: j.mortes,
+        reputacao: j.reputacao ?? {}, campanhas: j.campanhas ?? {} };
+      await prisma.personagem.updateMany({ where: d.vaga ? { uuid: d.uuid, vaga: d.vaga } : { uuid: d.uuid, emUso: true }, data: { base: base as object } }).catch(() => null);
+    }
+  }
   return NextResponse.json({ ok: r.count > 0 });
 }

@@ -9,7 +9,7 @@ import java.util.function.Supplier;
 
 /** Cliente → servidor: usar a habilidade de um espaço da barra, escolher classe ou mudar a barra. */
 public record AcaoHabilidade(int acao, int numero, String texto) {
-    public static final int USAR = 0, CLASSE = 1, DEFINIR_ESPACO = 2, DESPERTAR = 3;
+    public static final int USAR = 0, CLASSE = 1, DEFINIR_ESPACO = 2, DESPERTAR = 3, NOME_CLA = 4, PERSONAGEM = 5;
 
     public void codificar(FriendlyByteBuf b) { b.writeVarInt(acao); b.writeVarInt(numero); b.writeUtf(texto, 64); }
 
@@ -23,6 +23,8 @@ public record AcaoHabilidade(int acao, int numero, String texto) {
             case CLASSE -> Habilidades.escolherClasse(p, texto, false);
             case DEFINIR_ESPACO -> Habilidades.definirEspaco(p, numero, texto);
             case DESPERTAR -> br.com.frxcode.frxworld.habilidades.Despertar.acionar(p);
+            case NOME_CLA -> br.com.frxcode.frxworld.clas.Clas.renomear(p, texto);
+            case PERSONAGEM -> br.com.frxcode.frxworld.acesso.Personagens.nomear(p, numero, texto);
             default -> { }
         }
     }

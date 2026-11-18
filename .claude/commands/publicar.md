@@ -48,6 +48,8 @@ Para cada mudança levantada no passo 2, atualize o documento que fala daquele a
 | Estrutura de pastas, fluxo entre mod/painel/pack | `docs/02-arquitetura.md` |
 | Versão do mod | `docs/README.md` e `core-mod/gradle.properties` |
 
+**Versão:** cada atualização que vai ao ar soma 1 no último número (`0.41.8` → `0.41.9`); depois do `.9` sobe o do meio e o último zera (`0.41.9` → `0.42.0`); só uma mudança muito grande, que mexe em muita coisa, abre versão cheia (`1.0.0`). A nota nova em `painel/src/lib/notas.ts`, o `mod_version` e o `docs/README.md` levam o mesmo número, e a nota recebe a hora em que entrou no ar.
+
 Regras: escreva em português, descreva o comportamento como está agora (não a história das tentativas), e não deixe informação velha contradizendo a nova no mesmo arquivo. Se um documento já estava certo, não mexa.
 
 ## 5. Commit

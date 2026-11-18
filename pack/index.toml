@@ -81,8 +81,18 @@ hash = "e3dd03e7fec88831974857e2cdded54dd5c5bdcaa3f6d6248c2800e82db4dd41"
 metafile = true
 
 [[files]]
+file = "mods/connectivity.pw.toml"
+hash = "ecc19205a3523f1d410c75ab03c60e8b7089820a87ad275f36a4a220cc7b6744"
+metafile = true
+
+[[files]]
 file = "mods/cosmetic-armor-reworked.pw.toml"
 hash = "cfa8aa9c0437721dab2057c932c9cf8ec3d3a11f672040601305238d13df85e8"
+metafile = true
+
+[[files]]
+file = "mods/crafted-core.pw.toml"
+hash = "b4c3945d930c8289281ed13a38327d8086f99416acca41f89bc6f7a7b9319a62"
 metafile = true
 
 [[files]]
@@ -98,6 +108,11 @@ metafile = true
 [[files]]
 file = "mods/cristel-lib.pw.toml"
 hash = "88325807c01b522a76d686f39c442da99b73a90ae3ec9b5434fea5f79baa4d49"
+metafile = true
+
+[[files]]
+file = "mods/cupboard.pw.toml"
+hash = "77f479f765b307ff09a3d0b90719bb3b929d59af193d1ed746dab513fe14f2c5"
 metafile = true
 
 [[files]]
@@ -166,8 +181,8 @@ hash = "dd7c74c71d3facf74a684055b546cef5430b06b18dfe85cf8761b61ee9c92881"
 metafile = true
 
 [[files]]
-file = "mods/frxworld-0.41.0.jar"
-hash = "292129992b674b63b4f122dd170c3eb9ff57ea874e1098bf56fdae4f5992c1a4"
+file = "mods/frxworld-1.0.2.jar"
+hash = "e2fa9b40ee3cac87875568147830305f34cc8096a4fc139ce4e45a1ef5ce52f0"
 
 [[files]]
 file = "mods/ftb-library-forge.pw.toml"
@@ -247,6 +262,11 @@ metafile = true
 [[files]]
 file = "mods/konkrete.pw.toml"
 hash = "90a70141bcec839b6a1aa647c91f97bb7b33b6b9e6ce6b3b18a4113aa7dff636"
+metafile = true
+
+[[files]]
+file = "mods/krypton-fnp.pw.toml"
+hash = "fda62419ea0d286061260ceb7dc1e27ea6ebdfc1ab6a01a588c5e9e2243a6200"
 metafile = true
 
 [[files]]
@@ -521,6 +541,11 @@ metafile = true
 [[files]]
 file = "mods/when-dungeons-arise.pw.toml"
 hash = "1901cefc095dfaeafb78fc34610febb36f9e4a0ae32f7b96f484f0dacc94c681"
+metafile = true
+
+[[files]]
+file = "mods/woodwalkers.pw.toml"
+hash = "c24b8db7dd518035d28133db7cf97a9f55795ceb58af3eae4304a58251fda4f0"
 metafile = true
 
 [[files]]

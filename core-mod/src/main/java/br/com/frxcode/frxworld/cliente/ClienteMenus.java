@@ -16,7 +16,13 @@ public final class ClienteMenus {
 
     public static void abrir(AbrirMenu msg) {
         Minecraft mc = Minecraft.getInstance();
-        if (msg.tipo().equals("marcador")) { MarcadorMapa.tratar(msg.dados()); return; }   // ponto no mapa: não abre tela
+        if (msg.tipo().equals("marcador")) { MarcadorMapa.tratar(msg.dados()); return; }
+        if (msg.tipo().equals("personagens")) {
+            if (msg.dados().getBoolean("reconectar")) { Reconexao.marcar(msg.dados().getString("nome")); return; }   // troca: o jogo vai entrar de novo
+            if (mc.screen instanceof TelaPersonagens t) t.atualizar(msg.dados()); else mc.setScreen(new TelaPersonagens(msg.dados()));
+            return;
+        }
+        if (msg.tipo().equals("area")) { AreasMapa.tratar(msg.dados()); return; }   // área pintada no mapa: não abre tela   // ponto no mapa: não abre tela
         if (msg.tipo().equals("banco")) {
             if (mc.screen instanceof TelaBanco t) t.atualizar(msg.dados()); else mc.setScreen(new TelaBanco(msg.dados()));
         } else if (msg.tipo().equals("abertura")) {
@@ -27,6 +33,18 @@ public final class ClienteMenus {
             if (mc.screen instanceof TelaVender t) t.atualizar(msg.dados()); else mc.setScreen(new TelaVender(msg.dados()));
         } else if (msg.tipo().equals("guilda")) {
             if (mc.screen instanceof TelaGuilda t) t.atualizar(msg.dados()); else mc.setScreen(new TelaGuilda(msg.dados()));
+        } else if (msg.tipo().equals("mercado")) {
+            if (mc.screen instanceof TelaMercado t) t.atualizar(msg.dados()); else mc.setScreen(new TelaMercado(msg.dados()));
+        } else if (msg.tipo().equals("discos")) {
+            if (mc.screen instanceof TelaDiscos t) t.atualizar(msg.dados()); else mc.setScreen(new TelaDiscos(msg.dados()));
+        } else if (msg.tipo().equals("clas")) {
+            if (mc.screen instanceof TelaClas t) t.atualizar(msg.dados()); else mc.setScreen(new TelaClas(msg.dados()));
+        } else if (msg.tipo().equals("escravos")) {
+            if (mc.screen instanceof TelaEscravos t) t.atualizar(msg.dados()); else mc.setScreen(new TelaEscravos(msg.dados()));
+        } else if (msg.tipo().equals("contratos")) {
+            if (mc.screen instanceof TelaContratos t) t.atualizar(msg.dados()); else mc.setScreen(new TelaContratos(msg.dados()));
+        } else if (msg.tipo().equals("terrenos")) {
+            if (mc.screen instanceof TelaTerrenos t) t.atualizar(msg.dados()); else mc.setScreen(new TelaTerrenos(msg.dados()));
         } else if (msg.tipo().equals("forja")) {
             if (mc.screen instanceof TelaForja t) t.atualizar(msg.dados()); else mc.setScreen(new TelaForja(msg.dados()));
         }

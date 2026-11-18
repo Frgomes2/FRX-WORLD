@@ -69,6 +69,10 @@ import java.util.concurrent.ThreadLocalRandom;
  *   Ladino     · Roubar! (Konosuba / Lupin III)         – enche com golpes, mais pelas costas
  *   Assassino  · Respiração do Trovão (Demon Slayer)    – enche com golpes, mais pelas costas e em alvos quase mortos
  *   Invocador  · Levante-se! (Solo Leveling)            – a tecla ergue a sombra mais próxima (sem barra)
+ *   Paladino   · Égide da Aurora (original)             – enche apanhando, batendo de perto e gastando mana
+ *   Bardo      · Bis! (original)                        – enche gastando mana e ferindo
+ *   Monge      · Portão Interior (original)             – enche com socos e golpes de perto
+ *   Druida     · Coração da Floresta (original)         – enche gastando mana, batendo de perto e apanhando
  */
 public class Despertar {
     public static final int NIVEL_MIN = 10;
@@ -87,6 +91,7 @@ public class Despertar {
         Vec3 ponto;                       // alvo da Explosão / Chuva de Luz / centro do Estandarte
         ServerLevel nivel;
         float vidaInicio;                 // Mago: vida ao começar o canto (para saber se foi interrompido)
+        double guardado;                  // Paladino: dano que a Égide barrou e devolve no clarão final
         int enviadoCarga = -1, enviadoAtivo = -1, enviadoExtra = -1;
     }
 
@@ -110,6 +115,10 @@ public class Despertar {
             case "LADINO" -> "Roubar!";
             case "ASSASSINO" -> "Respiração do Trovão";
             case "INVOCADOR" -> "Levante-se!";
+            case "PALADINO" -> "Égide da Aurora";
+            case "BARDO" -> "Bis!";
+            case "MONGE" -> "Portão Interior";
+            case "DRUIDA" -> "Coração da Floresta";
             default -> "";
         };
     }
@@ -134,6 +143,9 @@ public class Despertar {
         switch (classe(p)) {
             case "MAGO" -> carregar(p, custo * 0.55);
             case "CLERIGO" -> carregar(p, custo * 0.4);
+            case "PALADINO" -> carregar(p, custo * 0.3);
+            case "BARDO" -> carregar(p, custo * 0.45);
+            case "DRUIDA" -> carregar(p, custo * 0.35);
             default -> { }
         }
     }
@@ -179,6 +191,10 @@ public class Despertar {
                 }
                 case "CLERIGO" -> carregar(p, dano * (vitima.getMobType() == MobType.UNDEAD ? 1.5 : 0.4));
                 case "LADINO" -> { if (corpo) carregar(p, pelasCostas(p, vitima) ? 10 : 4); }
+                case "PALADINO" -> { if (corpo) carregar(p, Math.min(6, dano * 0.6)); }
+                case "BARDO" -> carregar(p, Math.min(5, dano * 0.4));
+                case "MONGE" -> { if (corpo) carregar(p, 4); }
+                case "DRUIDA" -> { if (corpo) carregar(p, 4); }
                 case "ASSASSINO" -> {
                     if (corpo) carregar(p, pelasCostas(p, vitima) || vitima.getHealth() < vitima.getMaxHealth() * 0.3f ? 10 : 5);
                 }
@@ -196,6 +212,8 @@ public class Despertar {
                     if (dano >= p.getHealth()) dano = Math.max(0, p.getHealth() - 1);   // a armadura não deixa cair
                 } else carregar(p, Math.min(10, dano * 2.5));
             }
+            if ("PALADINO".equals(c) && e.ativo <= 0) carregar(p, Math.min(10, dano * 2));
+            if ("DRUIDA".equals(c) && e.ativo <= 0) carregar(p, Math.min(6, dano));
             if ("MAGO".equals(c) && e.ativo > 0 && e.extra == 1 && dano >= p.getMaxHealth() * 0.3f) {
                 e.ativo = 0;
                 e.extra = 0;
@@ -211,6 +229,16 @@ public class Despertar {
                 Estado e = en.getValue();
                 if (e.ativo > 0 && e.ponto != null && e.nivel == vitima.level() && e.extra == 2
                         && vitima.position().distanceTo(e.ponto) <= 7.5) { dano *= 0.5f; break; }
+            }
+            // dentro da Égide da Aurora (segue o Paladino): 60% do dano é barrado e fica guardado para o clarão final
+            for (Map.Entry<UUID, Estado> en : ESTADOS.entrySet()) {
+                Estado e = en.getValue();
+                if (e.ativo <= 0 || e.extra != 3 || e.nivel != vitima.level() || vitima.getServer() == null) continue;
+                ServerPlayer dono = vitima.getServer().getPlayerList().getPlayer(en.getKey());
+                if (dono == null || dono.distanceTo(vitima) > 6.5) continue;
+                e.guardado += dano * 0.6;
+                dano *= 0.4f;
+                break;
             }
         }
         ev.setAmount(dano);
@@ -279,6 +307,10 @@ public class Despertar {
             case "CLERIGO" -> iniciarEstandarte(p, e);
             case "LADINO" -> roubar(p, e);
             case "ASSASSINO" -> iniciarTrovao(p, e);
+            case "PALADINO" -> iniciarEgide(p, e);
+            case "BARDO" -> iniciarBis(p, e);
+            case "MONGE" -> iniciarPortao(p, e);
+            case "DRUIDA" -> iniciarFloresta(p, e);
             default -> { }
         }
         sincronizar(p, e, true);
@@ -478,6 +510,121 @@ public class Despertar {
         }
     }
 
+    // ------------------------------------------------------------------ Paladino · Égide da Aurora (original do FRX-WORLD)
+
+    private static void iniciarEgide(ServerPlayer p, Estado e) {
+        e.total = e.ativo = 20 * (8 + Math.min(6, nivel(p) / 12));
+        e.extra = 3;
+        e.guardado = 0;
+        e.ponto = p.position();
+        titulo(p, "ÉGIDE DA AURORA", "a cúpula barra 60% do dano · o que ela barrar volta no clarão final", ChatFormatting.GOLD);
+        som(p, p.position(), SoundEvents.BEACON_ACTIVATE, 1.5f, 1.5f);
+        som(p, p.position(), SoundEvents.SHIELD_BLOCK, 1.5f, 0.7f);
+    }
+
+    private static void tickEgide(ServerPlayer p, Estado e) {
+        ServerLevel nv = p.serverLevel();
+        e.nivel = nv;
+        e.ponto = p.position();
+        Vec3 c = p.position();
+        if (e.ativo % 4 == 0) {
+            double giro = e.ativo * 0.12;
+            for (int i = 0; i < 20; i++) {
+                double ang = giro + Math.PI * 2 * i / 20;
+                nv.sendParticles(ParticleTypes.END_ROD, c.x + Math.cos(ang) * 6, c.y + 0.3 + (i % 4) * 0.7, c.z + Math.sin(ang) * 6, 1, 0, 0.02, 0, 0);
+            }
+        }
+        if (e.ativo % 20 == 0) {
+            for (LivingEntity x : nv.getEntitiesOfClass(LivingEntity.class, new AABB(c, c).inflate(6.5), x -> x.isAlive() && x.distanceTo(p) <= 6.5 && aliado(x)))
+                x.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 40, 0, true, true));
+        }
+        if (e.ativo != 1) return;
+        // clarão final: tudo o que a cúpula barrou, mais um tanto pelo nível
+        float dano = (float) Math.min(40 + nivel(p), 6 + nivel(p) * 0.3 + e.guardado * 1.5);
+        for (LivingEntity x : nv.getEntitiesOfClass(LivingEntity.class, new AABB(c, c).inflate(8), x -> x.isAlive() && x.distanceTo(p) <= 8)) {
+            if (aliado(x)) { x.heal((float) Math.min(20, 2 + e.guardado * 0.2)); continue; }
+            if (!inimigo(x)) continue;
+            x.invulnerableTime = 0;
+            x.hurt(p.damageSources().indirectMagic(p, p), x.getMobType() == MobType.UNDEAD ? dano * 2 : dano);
+            Vec3 fora = x.position().subtract(c).multiply(1, 0, 1);
+            if (fora.lengthSqr() > 0.01) { fora = fora.normalize(); x.setDeltaMovement(fora.x * 1.1, 0.5, fora.z * 1.1); x.hurtMarked = true; }
+        }
+        nv.sendParticles(ParticleTypes.FLASH, c.x, c.y + 1, c.z, 3, 0.5, 0.5, 0.5, 0);
+        nv.sendParticles(ParticleTypes.END_ROD, c.x, c.y + 1, c.z, 120, 0.4, 0.6, 0.4, 0.6);
+        som(p, c, SoundEvents.GENERIC_EXPLODE, 1.5f, 1.5f);
+        som(p, c, SoundEvents.BELL_BLOCK, 2f, 0.6f);
+        p.displayClientMessage(Component.literal("A Égide devolveu " + Math.round(dano) + " de dano em luz.").withStyle(ChatFormatting.GOLD), true);
+        e.guardado = 0;
+    }
+
+    // ------------------------------------------------------------------ Bardo · Bis! (original do FRX-WORLD)
+
+    private static void iniciarBis(ServerPlayer p, Estado e) {
+        e.total = e.ativo = 20 * 8;
+        e.extra = 5;
+        ServerLevel nv = p.serverLevel();
+        int quantos = 0;
+        for (ServerPlayer a : nv.players()) {
+            if (!a.isAlive() || a.isSpectator() || a.distanceTo(p) > 12) continue;
+            Habilidades.encurtarRecargas(a, 1);
+            Habilidades.darRecurso(a, 1000);
+            Cancoes.inspirar(a, 8000, 0.20);
+            a.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 160, 1, true, true));
+            nv.sendParticles(ParticleTypes.NOTE, a.getX(), a.getY() + 2.1, a.getZ(), 8, 0.4, 0.3, 0.4, 1);
+            if (a != p) { titulo(a, "BIS!", p.getGameProfile().getName() + " zerou as suas recargas · +20% de dano por 8 s", ChatFormatting.LIGHT_PURPLE); quantos++; }
+        }
+        titulo(p, "BIS!", "recargas zeradas e recurso cheio para você" + (quantos > 0 ? " e mais " + quantos : "") + " · +20% de dano por 8 s", ChatFormatting.LIGHT_PURPLE);
+        som(p, p.position(), SoundEvents.NOTE_BLOCK_BELL.value(), 2f, 1.2f);
+        som(p, p.position(), SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, 0.8f, 1.5f);
+    }
+
+    // ------------------------------------------------------------------ Monge · Portão Interior (original do FRX-WORLD)
+
+    /** O Portão Interior do Monge está aberto? (socos em dobro com onda de choque, habilidades sem custo de chi) */
+    public static boolean portaoAtivo(ServerPlayer p) {
+        Estado e = ESTADOS.get(p.getUUID());
+        return e != null && e.ativo > 0 && e.extra == 4;
+    }
+
+    private static void iniciarPortao(ServerPlayer p, Estado e) {
+        e.total = e.ativo = 20 * (8 + Math.min(4, nivel(p) / 15));
+        e.extra = 4;
+        Habilidades.darRecurso(p, 1000);
+        p.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, e.ativo, 1, false, false));
+        p.addEffect(new MobEffectInstance(MobEffects.JUMP, e.ativo, 1, false, false));
+        titulo(p, "PORTÃO INTERIOR", "socos em dobro, com onda de choque · o chi não gasta", ChatFormatting.AQUA);
+        som(p, p.position(), SoundEvents.ENDER_DRAGON_GROWL, 0.6f, 1.6f);
+        som(p, p.position(), SoundEvents.BEACON_ACTIVATE, 1.2f, 1.8f);
+    }
+
+    private static void tickPortao(ServerPlayer p, Estado e) {
+        ServerLevel nv = p.serverLevel();
+        e.nivel = nv;
+        if (e.ativo % 3 == 0) nv.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, p.getX(), p.getY() + 0.9, p.getZ(), 3, 0.3, 0.5, 0.3, 0.02);
+        if (e.ativo != 1) return;
+        p.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 100, 0));
+        p.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 100, 0));
+        p.displayClientMessage(Component.literal("O portão se fecha. Você fica exausto por 5 s.").withStyle(ChatFormatting.GRAY), true);
+    }
+
+    // ------------------------------------------------------------------ Druida · Coração da Floresta (original do FRX-WORLD)
+
+    /** Coração da Floresta ativo? (habilidades sem custo, garras +50%, formas sem a fraqueza de dano recebido) */
+    public static boolean florestaAtiva(ServerPlayer p) {
+        Estado e = ESTADOS.get(p.getUUID());
+        return e != null && e.ativo > 0 && e.extra == 6;
+    }
+
+    private static void iniciarFloresta(ServerPlayer p, Estado e) {
+        e.total = e.ativo = 20 * 10;
+        e.extra = 6;
+        p.addEffect(new MobEffectInstance(MobEffects.REGENERATION, e.ativo, 1, false, true));
+        titulo(p, "CORAÇÃO DA FLORESTA", "habilidades sem custo · garras +50% · as formas perdem as fraquezas", ChatFormatting.GREEN);
+        som(p, p.position(), SoundEvents.BEACON_ACTIVATE, 1.2f, 0.9f);
+        som(p, p.position(), SoundEvents.WOLF_HOWL, 1.2f, 1f);
+        p.serverLevel().sendParticles(ParticleTypes.HAPPY_VILLAGER, p.getX(), p.getY() + 1, p.getZ(), 60, 1.5, 1, 1.5, 0.1);
+    }
+
     // ------------------------------------------------------------------ Ladino · Roubar! (Konosuba / Lupin III)
 
     private static void roubar(ServerPlayer p, Estado e) {
@@ -615,13 +762,15 @@ public class Despertar {
                 continue;
             }
             if (e.ativo > 0) {
-                if (e.nivel != p.serverLevel() && !"GUERREIRO".equals(classe(p)) && !"ASSASSINO".equals(classe(p))) { e.ativo = 0; e.extra = 0; }
+                if (e.nivel != p.serverLevel() && !"GUERREIRO".equals(classe(p)) && !"ASSASSINO".equals(classe(p)) && !"PALADINO".equals(classe(p)) && !"MONGE".equals(classe(p)) && !"DRUIDA".equals(classe(p))) { e.ativo = 0; e.extra = 0; }
                 else {
                     switch (classe(p)) {
                         case "GUERREIRO" -> tickBerserk(p, e);
                         case "ARQUEIRO" -> tickChuva(p, e);
                         case "MAGO" -> tickExplosao(p, e);
                         case "CLERIGO" -> tickEstandarte(p, e);
+                        case "PALADINO" -> tickEgide(p, e);
+                        case "MONGE" -> tickPortao(p, e);
                         default -> { }
                     }
                     e.ativo--;

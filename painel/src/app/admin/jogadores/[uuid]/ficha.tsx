@@ -35,7 +35,7 @@ export type JogadorBase = {
 };
 
 const CLASSES = ["guerreiro", "arqueiro", "mago", "clerigo", "ladino", "assassino", "invocador"];
-const ICONE_CLASSE: Record<string, string> = { Guerreiro: "⚔️", Arqueiro: "🏹", Mago: "🔮", "Clérigo": "✨", Ladino: "🎭", Assassino: "🗡️", Invocador: "👻" };
+const ICONE_CLASSE: Record<string, string> = { Guerreiro: "⚔️", Arqueiro: "🏹", Mago: "🔮", "Clérigo": "✨", Ladino: "🎭", Assassino: "🗡️", Invocador: "👻", Paladino: "🛡️", Bardo: "🎵", Monge: "👊", Druida: "🌿" };
 const ICONE_ATR: Record<string, [string, string, string?]> = {
   vida: ["❤️", "Vida"], vidaMax: ["💗", "Vida máxima"], ataque: ["⚔️", "Ataque"], velAtaque: ["💨", "Vel. de ataque"],
   armadura: ["🛡️", "Armadura"], resistencia: ["🪨", "Resistência"], velocidade: ["👟", "Velocidade", "%"], sorte: ["🍀", "Sorte"],
@@ -68,7 +68,7 @@ function Progresso({ v, max, cor = "bg-ouro" }: { v: number; max: number; cor?: 
 
 // ------------------------------------------------------------------ tela
 
-export function FichaJogador({ base, inicial, inicialEm, inicialOnline, inicialOp }: { base: JogadorBase; inicial: Ficha | null; inicialEm: number | null; inicialOnline: boolean; inicialOp: boolean }) {
+export function FichaJogador({ base, inicial, inicialEm, inicialOnline, inicialOp, congelado }: { base: JogadorBase; inicial: Ficha | null; inicialEm: number | null; inicialOnline: boolean; inicialOp: boolean; /** nome do personagem fora de uso: a ficha é um retrato, sem atualizar nem agir */ congelado?: string }) {
   const [op, setOp] = useState(inicialOp);
   const [ficha, setFicha] = useState<Ficha | null>(inicial);
   const [em, setEm] = useState(inicialEm);
@@ -78,13 +78,14 @@ export function FichaJogador({ base, inicial, inicialEm, inicialOnline, inicialO
   const [enviando, setEnviando] = useState(false);
 
   const recarregar = useCallback(async () => {
+    if (congelado) return;
     const r = await fetch(`/api/painel/jogadores/${base.uuid}`, { cache: "no-store" }).catch(() => null);
     if (!r?.ok) return;
     const j = await r.json();
     if (j.detalhe) setFicha(j.detalhe);
     setEm(j.detalheEm);
     setOnline(j.online);
-  }, [base.uuid]);
+  }, [base.uuid, congelado]);
 
   useEffect(() => {
     const t = setInterval(recarregar, 15_000);
@@ -92,6 +93,7 @@ export function FichaJogador({ base, inicial, inicialEm, inicialOnline, inicialO
   }, [recarregar]);
 
   const acao = useCallback(async (nome: string, valor?: string | number, alvo?: string, texto?: string) => {
+    if (congelado) { setAviso({ ok: false, texto: `${congelado} não está em uso. As ações só valem para o personagem em uso da conta.` }); return; }
     setEnviando(true);
     const r = await fetch(`/api/painel/jogadores/${base.uuid}/acao`, {
       method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ acao: nome, valor, alvo }),
@@ -104,7 +106,7 @@ export function FichaJogador({ base, inicial, inicialEm, inicialOnline, inicialO
     if (nome === "deop") setOp(false);
     setTimeout(recarregar, 1500);
     setTimeout(recarregar, 4000);
-  }, [base.uuid, recarregar]);
+  }, [base.uuid, recarregar, congelado]);
 
   useEffect(() => { if (!aviso) return; const t = setTimeout(() => setAviso(null), 5000); return () => clearTimeout(t); }, [aviso]);
 

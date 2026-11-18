@@ -72,6 +72,14 @@ public class Conquistas {
         c("campanha1", "Escolhido do Rei", "Complete a missão épica de um rei", "campanhas", 1, "");
         c("campanha5", "Herói das Cinco Coroas", "Complete a missão épica dos 5 reis", "campanhas", 5, "Herói das Cinco Coroas");
         c("teimoso", "Cabeça Dura", "Morra 50 vezes", "mortes", 50, "Cabeça Dura");
+        c("colecao10", "Curioso", "Derrote 10 tipos diferentes de criatura", "colecao", 10, "");
+        c("colecao25", "Naturalista", "Derrote 25 tipos diferentes de criatura", "colecao", 25, "Naturalista");
+        c("colecao50", "Caçador de Raridades", "Derrote 50 tipos diferentes de criatura", "colecao", 50, "Caçador de Raridades");
+        c("colecao100", "Enciclopédia Viva", "Derrote 100 tipos diferentes de criatura", "colecao", 100, "Enciclopédia Viva");
+        c("colecao200", "Mestre do Bestiário", "Derrote 200 tipos diferentes de criatura", "colecao", 200, "Mestre do Bestiário");
+        c("colchefe3", "Caça-Chefes", "Derrote 3 chefões diferentes", "colecao_chefes", 3, "");
+        c("colchefe7", "Terror dos Chefes", "Derrote 7 chefões diferentes", "colecao_chefes", 7, "Terror dos Chefes");
+        c("colchefe14", "Senhor dos Chefes", "Derrote 14 chefões diferentes", "colecao_chefes", 14, "Senhor dos Chefes");
     }
 
     // ------------------------------------------------------------------ contadores
@@ -82,6 +90,7 @@ public class Conquistas {
         d.contadores().merge(chave, quanto, Integer::sum);
         checar(p, chave);
         br.com.frxcode.frxworld.aventura.Temporadas.doContador(p, chave, quanto);
+        br.com.frxcode.frxworld.missoes.Contratos.doContador(p, chave, quanto);
     }
 
     /** Guarda o maior valor já visto (nível, forja, banco). */

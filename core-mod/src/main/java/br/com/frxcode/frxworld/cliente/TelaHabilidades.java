@@ -25,6 +25,10 @@ public class TelaHabilidades extends Screen {
             {"LADINO", "Ladino", "Energia", "Furtividade e golpes pelas costas com dano dobrado."},
             {"ASSASSINO", "Assassino", "Energia", "Dano explosivo: +50% pelas costas e +50% em alvos quase mortos."},
             {"INVOCADOR", "Invocador", "Mana", "Invoca criaturas aliadas que lutam por você."},
+            {"PALADINO", "Paladino", "Mana", "Protetor sagrado: toma o dano dos aliados, cura e pune os mortos-vivos."},
+            {"BARDO", "Bardo", "Mana", "Suporte: canções que deixam o grupo mais rápido, mais forte e mais vivo, e encurtam as recargas dos aliados. Quem luta perto de um Bardo causa 8% a mais de dano."},
+            {"DRUIDA", "Druida", "Mana", "Metamorfo: vira lobo (rápido, garras), urso (aguenta dano) e ave (voa) por tempo limitado. Cada forma tem a sua barra de habilidades; na forma humana cura aos poucos e prende inimigos com raízes."},
+            {"MONGE", "Monge", "Chi", "Luta de mão vazia: socos em combo (o 4º é o golpe final) geram chi, que paga as habilidades. Quanto menos armadura, mais esquiva e menos dano recebido."},
     };
 
     private int x0, y0, pagina = 0, selecionada = 0, classeEscolhida = -1;
@@ -67,7 +71,7 @@ public class TelaHabilidades extends Screen {
             final int idx = i;
             int col = i % 3, lin = i / 3;
             addRenderableWidget(Button.builder(Component.literal(CLASSES[i][1] + " · " + CLASSES[i][2]), b -> { classeEscolhida = idx; rebuildWidgets(); })
-                    .bounds(x0 + 8 + col * 122, y0 + 26 + lin * 52, 118, 18).build());
+                    .bounds(x0 + 8 + col * 122, y0 + 26 + lin * 22, 118, 18).build());
         }
         Button confirmar = Button.builder(Component.literal(classeEscolhida >= 0 ? "Ser " + CLASSES[classeEscolhida][1] : "Escolha uma classe"), b -> {
             Rede.CANAL.sendToServer(new AcaoHabilidade(AcaoHabilidade.CLASSE, 0, CLASSES[classeEscolhida][0]));
@@ -206,12 +210,14 @@ public class TelaHabilidades extends Screen {
 
     private void renderClasses(GuiGraphics g) {
         g.drawCenteredString(font, "Escolha sua classe", x0 + LARG / 2, y0 + 10, OURO);
-        for (int i = 0; i < CLASSES.length; i++) {
-            int col = i % 3, lin = i / 3;
-            int cor = i == classeEscolhida ? OURO : CINZA;
-            List<FormattedCharSequence> linhas = font.split(Component.literal(CLASSES[i][3]), 116);
-            for (int k = 0; k < Math.min(3, linhas.size()); k++)
-                g.drawString(font, linhas.get(k), x0 + 10 + col * 122, y0 + 46 + lin * 52 + k * 9, cor, false);
+        int yTexto = y0 + 30 + ((CLASSES.length + 2) / 3) * 22;
+        if (classeEscolhida < 0) {
+            g.drawCenteredString(font, "Clique numa classe para ver como ela joga.", x0 + LARG / 2, yTexto + 10, CINZA);
+        } else {
+            g.drawString(font, CLASSES[classeEscolhida][1] + " · " + CLASSES[classeEscolhida][2], x0 + 12, yTexto, OURO, false);
+            List<FormattedCharSequence> linhas = font.split(Component.literal(CLASSES[classeEscolhida][3]), LARG - 24);
+            for (int k = 0; k < Math.min(5, linhas.size()); k++)
+                g.drawString(font, linhas.get(k), x0 + 12, yTexto + 13 + k * 10, TEXTO, false);
         }
         g.drawCenteredString(font, "A escolha é permanente (só um administrador troca).", x0 + LARG / 2, y0 + ALT - 42, VERMELHO);
     }
@@ -219,7 +225,7 @@ public class TelaHabilidades extends Screen {
     private void renderHabilidades(GuiGraphics g) {
         String classe = switch (ClienteHabilidades.classe) {
             case "GUERREIRO" -> "Guerreiro"; case "ARQUEIRO" -> "Arqueiro"; case "MAGO" -> "Mago";
-            case "CLERIGO" -> "Clérigo"; case "LADINO" -> "Ladino"; case "ASSASSINO" -> "Assassino"; case "INVOCADOR" -> "Invocador"; default -> ClienteHabilidades.classe;
+            case "CLERIGO" -> "Clérigo"; case "LADINO" -> "Ladino"; case "ASSASSINO" -> "Assassino"; case "INVOCADOR" -> "Invocador"; case "PALADINO" -> "Paladino"; case "BARDO" -> "Bardo"; case "MONGE" -> "Monge"; case "DRUIDA" -> "Druida"; default -> ClienteHabilidades.classe;
         };
         g.drawString(font, classe + " · " + ClienteHabilidades.nomeRecurso() + " " + ClienteHabilidades.recursoAtual + "/" + ClienteHabilidades.recursoMax,
                 x0 + 8, y0 + 8, OURO, false);

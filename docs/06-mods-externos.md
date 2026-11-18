@@ -68,6 +68,9 @@ O pack é gerenciado pelo **packwiz** em `pack/`. Cada mod é um `mods/<slug>.pw
 | Macaw's Bridges, Roofs, Doors, Furniture, Windows, Fences and Walls | Modrinth | os dois | Blocos de construção e decoração |
 | Bygone Nether (1.3.2) | Modrinth | os dois | Estruturas e monstros próprios de cada bioma do Nether. Só aparecem em chunks novos |
 | Piglin Proliferation (1.2.8) | Modrinth | os dois | Tipos novos de piglin (Alquimista, Viajante) e piglins zumbis com armas de longe |
+| Connectivity (7.7) + Cupboard (4.2) | CurseForge | os dois | Evita quedas e tempo esgotado no login de pack grande |
+| Krypton Reno (26.1.1) | Modrinth (`krypton-fnp`) | os dois | Otimiza o tráfego de rede |
+| Woodwalkers + CraftedCore | Modrinth (`woodwalkers`, `crafted-core`) | os dois | Dá o corpo de animal às formas do Druida. O FRX o tranca em "só por código": nenhuma outra classe se transforma |
 | Patchouli, Cloth Config API | Modrinth | os dois | Bibliotecas exigidas por Mythic Mounts e Artifacts |
 | Domestication Innovation (1.7.1) | Modrinth | os dois | Mais pets (raposa, coelho, sapo, axolote), cama de pet, coleira encantável e comandos de seguir/ficar. Usa o Citadel |
 

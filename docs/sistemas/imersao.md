@@ -115,3 +115,15 @@ Perto de uma capital, a cada 40 minutos há 50% de chance de abrir um portal, qu
 ## Conquistas no livro
 
 As 28 conquistas ficam no capítulo **Conquistas** do FTB Quests. Cada uma é uma tarefa de avanço oculto `frxworld:frx/conq_<id>`, marcado por `Marcos.marcar`.
+
+## Tranca de baú
+
+Código: `protecao/Trancas.java`. Sem comando e sem item novo.
+
+- **Trancar:** agachado, clique com um **gancho de armadilha** no baú (ou barril, fornalha, baú dos mods). Gasta 1 gancho.
+- **Efeito:** só o dono abre e quebra. Explosões não destroem o bloco e outro jogador não consegue pôr funil embaixo. Quem tenta abrir vê de quem é.
+- **Destrancar:** o dono, agachado, clica com um gancho de novo; o gancho usado volta.
+- Baú duplo é trancado inteiro. Baús de saque (Lootr) e lápides ficam de fora.
+- Admin em modo criativo abre, quebra e destranca qualquer um.
+- Limites: funil em carrinho e máquinas do Create ainda conseguem puxar itens de um baú trancado.
+

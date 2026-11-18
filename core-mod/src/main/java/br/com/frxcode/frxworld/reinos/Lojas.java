@@ -221,6 +221,12 @@ public final class Lojas {
         } finally { fatorVenda = 1; }
     }
 
+    /** Uma oferta avulsa (armas do Códex), já com o desconto do jogador. */
+    public static MerchantOffer ofertaAvulsa(ItemStack item, int cobre, double desconto) {
+        fatorVenda = 1 - desconto;
+        try { return venda(item, cobre); } finally { fatorVenda = 1; }
+    }
+
     /** Tabela do comprador pagando a mais pela reputação. */
     public static List<MerchantOffer> comprador(double bonus) {
         fatorCompra = 1 + bonus;

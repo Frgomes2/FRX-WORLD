@@ -12,7 +12,7 @@ export default async function DinheiroPage() {
     <>
       <div className="mb-5">
         <h1 className="font-titulo text-3xl">Dinheiro dos jogadores</h1>
-        <p className="text-pedra-500">Quanto cada um tem na bolsa e no banco. Clique no saldo do banco para editar, mesmo com o jogador offline. Tirar da bolsa exige o jogador online.</p>
+        <p className="text-pedra-500">Quanto cada um tem na bolsa e no banco. Em "Editar" você define o ouro, a prata e o cobre de cada um. O banco muda mesmo com o jogador fora do jogo; a bolsa, só com ele dentro.</p>
       </div>
       <TabelaDinheiro jogadores={jogadores.map((j) => ({ ...j, ultimoLogin: j.ultimoLogin?.toISOString() ?? null }))} />
     </>

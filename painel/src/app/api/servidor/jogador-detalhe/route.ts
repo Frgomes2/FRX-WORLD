@@ -14,5 +14,11 @@ export async function POST(req: Request) {
     where: { uuid: corpo.uuid },
     data: { detalhe: corpo as object, detalheEm: new Date(), online: corpo.online !== false },
   });
+  // a mesma ficha fica guardada no personagem (o mod diz a vaga; sem ela, vale o que está em uso)
+  const vaga = typeof corpo.vaga === "number" ? corpo.vaga : 0;
+  await prisma.personagem.updateMany({
+    where: vaga >= 1 ? { uuid: corpo.uuid, vaga } : { uuid: corpo.uuid, emUso: true },
+    data: { detalhe: corpo as object, detalheEm: new Date() },
+  }).catch(() => null);
   return NextResponse.json({ ok: true });
 }

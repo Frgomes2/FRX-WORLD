@@ -135,6 +135,12 @@ function texturaDoModelo(nomeModelo: string, nsPadrao: string, profundidade = 0)
 }
 
 /** PNG do ícone de um item (ex.: "minecraft:iron_sword"). */
+/** Modelo original de um item (assets/<mod>/models/item/<nome>.json), para o pacote de recursos do Códex. */
+export function modeloDoItem(id: string): Record<string, unknown> | null {
+  const [ns, nome] = id.includes(":") ? id.split(":") : ["minecraft", id];
+  return lerJson(`assets/${ns}/models/item/${nome}.json`);
+}
+
 export function iconeItem(id: string): Buffer | null {
   indice();
   const cache = g.__frxIcones!;

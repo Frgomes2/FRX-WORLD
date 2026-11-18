@@ -67,8 +67,9 @@ function Leitor({ livro, fechar }: { livro: Livro; fechar: () => void }) {
           <p className="min-w-0 truncate font-titulo text-2xl text-ouro"><span className="mr-2">{livro.icone}</span>{livro.titulo}<span className="ml-3 hidden text-sm text-pedra-500 sm:inline">{livro.subtitulo}</span></p>
           <button type="button" onClick={fechar} className={botao}>Fechar ✕</button>
         </div>
-        <div className="frx-livro-aberto rounded-lg p-2 shadow-2xl sm:p-3" style={{ background: livro.cor }}>
-          <div key={base} className={`flex overflow-hidden rounded ${virando === "frente" ? "frx-virar-frente" : virando === "tras" ? "frx-virar-tras" : ""}`}>
+        <div className="frx-livro-aberto relative p-2.5 sm:p-4" style={{ "--cor": livro.cor } as React.CSSProperties}>
+          {duplo && <span className="frx-aberto-fita" aria-hidden />}
+          <div key={base} className={`frx-miolo flex overflow-hidden ${virando === "frente" ? "frx-virar-frente" : virando === "tras" ? "frx-virar-tras" : ""}`}>
             <Folha pagina={livro.paginas[base] ?? null} numero={base + 1} total={total} lado="esq" />
             {duplo && <Folha pagina={livro.paginas[base + 1] ?? null} numero={base + 2} total={total} lado="dir" />}
           </div>
@@ -83,6 +84,29 @@ function Leitor({ livro, fechar }: { livro: Livro; fechar: () => void }) {
   );
 }
 
+/**
+ * Livro em pixel art (grade de 16 × 20, desenho próprio): capa na cor do livro (--cor), lombada com duas faixas douradas,
+ * fecho, janela escura para o ícone e as páginas aparecendo embaixo.
+ */
+function LivroPixel() {
+  const mistura = (pct: number, com: string) => `color-mix(in srgb, var(--cor) ${pct}%, ${com})`;
+  const r = (x: number, y: number, w: number, h: number, fill: string, k: string) => <rect key={k} x={x} y={y} width={w} height={h} style={{ fill }} />;
+  return (
+    <svg viewBox="0 0 16 20" className="frx-livro-pixel" shapeRendering="crispEdges" aria-hidden>
+      {r(2, 0, 12, 1, mistura(35, "black"), "t")}{r(1, 1, 14, 18, mistura(35, "black"), "c")}{r(2, 19, 12, 1, mistura(35, "black"), "b")}
+      {r(2, 1, 12, 16, "var(--cor)", "capa")}
+      {r(2, 1, 2, 16, mistura(60, "black"), "lombada")}
+      {r(4, 1, 9, 1, mistura(70, "white"), "luz")}{r(4, 2, 1, 3, mistura(70, "white"), "luz2")}
+      {r(13, 1, 1, 16, mistura(75, "black"), "sombra")}{r(4, 16, 9, 1, mistura(75, "black"), "sombra2")}
+      {r(2, 3, 2, 1, "#f5d04a", "f1")}{r(2, 4, 2, 1, "#b8860b", "f1s")}{r(2, 13, 2, 1, "#f5d04a", "f2")}{r(2, 14, 2, 1, "#b8860b", "f2s")}
+      {r(5, 4, 7, 1, mistura(45, "black"), "j1")}{r(5, 5, 7, 6, mistura(30, "black"), "janela")}{r(5, 11, 7, 1, mistura(85, "white"), "j2")}
+      {r(12, 7, 2, 2, "#f5d04a", "fecho")}{r(13, 8, 1, 1, "#b8860b", "fechos")}
+      {r(6, 13, 5, 1, "#f5d04a", "linha")}{r(7, 14, 3, 1, "#b8860b", "linha2")}
+      {r(3, 17, 11, 1, "#efe4c3", "pag")}{r(3, 18, 11, 1, "#c9b98c", "pag2")}{r(2, 17, 1, 2, mistura(60, "black"), "pe")}
+    </svg>
+  );
+}
+
 /** Estante com os livros do servidor: clicar abre e dá para folhear. */
 export function Biblioteca({ livros }: { livros: Livro[] }) {
   const [aberto, setAberto] = useState<Livro | null>(null);
@@ -93,16 +117,16 @@ export function Biblioteca({ livros }: { livros: Livro[] }) {
       {(["Mundo", "Classes"] as const).map((grupo) => (
         <div key={grupo} className="mb-6">
           <p className="mb-3 text-xs uppercase tracking-[0.25em] text-pedra-500">{grupo === "Mundo" ? "Sobre o mundo" : "Livros das classes"}</p>
-          <div className="frx-estante flex flex-wrap items-end gap-4 rounded-xl border border-pedra-700 px-4 pb-0 pt-5">
+          <div className="frx-estante flex flex-wrap px-3 sm:px-5">
             {livros.filter((l) => l.grupo === grupo).map((l) => (
-              <button key={l.id} type="button" onClick={() => setAberto(l)} title={`Abrir ${l.titulo}`}
-                className="frx-capa group relative mb-3 flex h-44 w-28 flex-col justify-between rounded-r-md rounded-l-sm p-3 text-left shadow-lg transition hover:-translate-y-2 sm:h-48 sm:w-32"
-                style={{ background: `linear-gradient(90deg, rgba(0,0,0,.45) 0, rgba(0,0,0,.15) 8%, transparent 14%), ${l.cor}` }}>
-                <span className="text-3xl drop-shadow">{l.icone}</span>
-                <span>
-                  <span className="block font-titulo text-[15px] leading-tight text-[#f3e3b3]">{l.titulo}</span>
-                  <span className="mt-1 block text-[10px] leading-tight text-[#f3e3b3]/70">{l.subtitulo}</span>
-                  <span className="mt-2 block text-[10px] text-[#f3e3b3]/50">{l.paginas.length} páginas</span>
+              <button key={l.id} type="button" onClick={() => setAberto(l)} title={`Abrir ${l.titulo} (${l.paginas.length} páginas)`} className="frx-nicho" style={{ "--cor": l.cor } as React.CSSProperties}>
+                <span className="frx-livro">
+                  <LivroPixel />
+                  <span className="frx-livro-icone" aria-hidden>{l.icone}</span>
+                </span>
+                <span className="frx-placa">
+                  <span className="frx-placa-titulo">{l.titulo}</span>
+                  <span className="frx-placa-sub">{l.subtitulo}</span>
                 </span>
               </button>
             ))}

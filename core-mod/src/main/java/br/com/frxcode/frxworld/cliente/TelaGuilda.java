@@ -34,6 +34,8 @@ public class TelaGuilda extends Screen {
         x0 = (width - LARG) / 2;
         y0 = (height - ALT) / 2;
         addRenderableWidget(Button.builder(Component.literal("x"), b -> onClose()).bounds(x0 + LARG - 22, y0 + 4, 16, 16).build());
+        if (d.getBoolean("registrado"))
+            addRenderableWidget(Button.builder(Component.literal("Contratos"), b -> enviar(3)).bounds(x0 + 6, y0 + 4, 64, 16).build());
         if (!noBalcao()) return;
         String estado = d.getString("estado");
         int by = y0 + ALT - 30;

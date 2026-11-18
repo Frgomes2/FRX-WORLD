@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { dadosPublicos, mapaPublico, modsDoPack } from "@/lib/publico";
+import { bestiarioPublico, dadosPublicos, mapaPublico, modsDoPack } from "@/lib/publico";
 import { NOTAS } from "@/lib/notas";
 import { livros } from "@/lib/livros";
 import { SitePublico } from "@/components/publico/site";
@@ -14,5 +14,6 @@ export const metadata: Metadata = {
 export default async function Inicio() {
   const dados = await dadosPublicos().catch(() => null);
   const biblioteca = await livros().catch(() => []);
-  return <SitePublico inicial={dados} mods={modsDoPack()} mapa={mapaPublico()} notas={NOTAS} livros={biblioteca} />;
+  const bestiario = await bestiarioPublico().catch(() => []);
+  return <SitePublico inicial={dados} mods={modsDoPack()} mapa={mapaPublico()} notas={NOTAS} livros={biblioteca} bestiario={bestiario} />;
 }

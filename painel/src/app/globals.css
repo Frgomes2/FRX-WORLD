@@ -63,11 +63,59 @@ body {
 @media (prefers-reduced-motion: reduce) { .frx-dragao-ceu { display: none; } }
 
 /* Site público: biblioteca (estante, páginas de pergaminho e virada de página) */
-.frx-estante { background: linear-gradient(180deg, #221d17 0%, #17140f 78%, #3a2a18 78%, #2a1d10 100%); }
-.frx-capa { border: 1px solid rgba(243, 227, 179, 0.25); box-shadow: inset -3px 0 0 rgba(255, 255, 255, 0.08), 0 8px 14px rgba(0, 0, 0, 0.5); }
-.frx-folha { background: #e9dcb8; background-image: radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.35), transparent 60%); }
-.frx-folha-esq { box-shadow: inset -14px 0 18px -12px rgba(60, 35, 10, 0.55); }
-.frx-folha-dir { box-shadow: inset 14px 0 18px -12px rgba(60, 35, 10, 0.55); }
+/* Bestiário em pixel art: cartões em bloco; os não descobertos ficam apagados com um "?" */
+.frx-bicho { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 10px 8px 12px; text-align: center; background: #241f1a; border: 4px solid #17120c; box-shadow: inset 0 0 0 2px #4a3d2c; font-family: "Courier New", ui-monospace, monospace; }
+.frx-bicho-retrato { display: grid; place-items: center; width: 100%; height: 176px; margin-bottom: 4px; background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.2) 0 4px, transparent 4px 32px), repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.2) 0 4px, transparent 4px 64px), #3a2a4a; border: 2px solid #17120c; }
+.frx-bicho-nome { font-size: 14px; font-weight: 700; line-height: 1.15; color: #f5d04a; text-shadow: 1px 1px 0 #3f3a1c; }
+.frx-bicho-linha { font-size: 11px; color: #a8a8a8; }
+.frx-bicho-historia { font-size: 11px; line-height: 1.25; color: #e9dfc8; font-style: italic; }
+.frx-bicho-golpes { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; font-size: 16px; cursor: help; }
+.frx-bicho-dica { margin-top: auto; padding-top: 4px; font-size: 10px; line-height: 1.2; color: #7a7466; }
+.frx-bicho-oculto { background: #171411; box-shadow: inset 0 0 0 2px #2a251f; }
+.frx-bicho-oculto .frx-bicho-retrato { background: #1d1a17; }
+.frx-bicho-oculto .frx-bicho-nome { color: #6b6558; text-shadow: none; letter-spacing: 0.2em; }
+.frx-bicho-sombra { font-family: "Courier New", ui-monospace, monospace; font-size: 88px; font-weight: 700; line-height: 1; color: #2f2a24; text-shadow: 4px 4px 0 #0f0d0b; }
+/* Biblioteca em pixel art: parede de pedra, prateleiras de tábuas e livros desenhados em blocos (sem degradê, sem canto redondo) */
+.frx-estante {
+  --px: 4px;
+  --linha: 254px;
+  padding-top: 12px;
+  border: var(--px) solid #17120c;
+  background:
+    /* prateleira: luz, madeira, veio, madeira, sombra */
+    linear-gradient(180deg, transparent 0 148px, #c79a5e 148px 152px, #a67c47 152px 160px, #8b6436 160px 164px, #a67c47 164px 168px, #5d4124 168px 172px, #17120c 172px 176px, transparent 176px) 0 12px / 100% var(--linha) repeat-y,
+    /* parede de pedra em blocos */
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.18) 0 4px, transparent 4px 32px),
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.18) 0 4px, transparent 4px 64px),
+    #332e29;
+}
+.frx-nicho { position: relative; width: 136px; height: var(--linha); display: flex; flex-direction: column; align-items: center; cursor: pointer; text-align: center; }
+.frx-livro { position: relative; margin-top: 8px; width: 112px; height: 140px; transition: transform 0.12s steps(2); }
+.frx-nicho:hover .frx-livro, .frx-nicho:focus-visible .frx-livro { transform: translateY(-8px); }
+.frx-nicho:focus-visible { outline: var(--px) solid #f5d04a; outline-offset: -4px; }
+.frx-livro-pixel { width: 100%; height: 100%; display: block; image-rendering: pixelated; filter: drop-shadow(4px 4px 0 rgba(0, 0, 0, 0.45)); }
+/* o ícone fica na janela escura da capa (colunas 5 a 11, linhas 5 a 10 da grade) */
+.frx-livro-icone { position: absolute; left: 35px; top: 35px; width: 49px; height: 42px; display: grid; place-items: center; font-size: 24px; line-height: 1; }
+/* plaquinha com o nome, no estilo das dicas de item */
+.frx-placa {
+  margin-top: 36px; width: 128px; height: 64px; padding: 4px; display: flex; flex-direction: column; justify-content: center; gap: 2px; overflow: hidden;
+  font-family: "Courier New", ui-monospace, monospace; background: #170b1f; border: 2px solid #3b1a6b; box-shadow: 0 0 0 2px #0a050e;
+}
+.frx-placa-titulo { font-size: 12px; font-weight: 700; line-height: 1.1; color: #fff7c2; text-shadow: 1px 1px 0 #3f3a1c; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.frx-placa-sub { font-size: 10px; line-height: 1.1; color: #a8a8a8; text-shadow: 1px 1px 0 #2a2a2a; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.frx-nicho:hover .frx-placa { border-color: #f5d04a; }
+@media (max-width: 640px) {
+  .frx-nicho { width: 120px; }
+  .frx-placa { width: 114px; }
+}
+@media (prefers-reduced-motion: reduce) { .frx-livro { transition: none; } }
+/* livro aberto: capa em bloco com borda dupla e folhas de pergaminho lisas */
+.frx-livro-aberto { background: var(--cor); border: 4px solid #17120c; box-shadow: inset 0 0 0 4px color-mix(in srgb, var(--cor) 60%, black), inset 0 0 0 8px #f5d04a55, 8px 8px 0 rgba(0, 0, 0, 0.5); }
+.frx-miolo { box-shadow: 0 4px 0 #c9b98c, 0 8px 0 #a8976b; margin-bottom: 8px; }
+.frx-aberto-fita { position: absolute; left: calc(50% - 6px); top: 0; width: 12px; height: 44px; z-index: 2; background: #c4302a; box-shadow: inset 4px 0 0 #8f1a16; clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 82%, 0 100%); }
+.frx-folha { background: #e9dcb8; }
+.frx-folha-esq { box-shadow: inset -8px 0 0 #d8c99f, inset -12px 0 0 #c9b98c; }
+.frx-folha-dir { box-shadow: inset 8px 0 0 #d8c99f, inset 12px 0 0 #c9b98c; }
 .frx-livro-aberto { perspective: 1800px; }
 .frx-virar-frente { animation: frx-virar-frente 0.45s ease-out; transform-origin: left center; }
 .frx-virar-tras { animation: frx-virar-tras 0.45s ease-out; transform-origin: right center; }

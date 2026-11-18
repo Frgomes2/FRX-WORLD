@@ -179,6 +179,65 @@ public final class PainelApi {
         });
     }
 
+    /** Armas do Códex (aba Códex de Armas do painel). */
+    public static CompletableFuture<JsonObject> lerCodex() {
+        HttpRequest req = HttpRequest.newBuilder(URI.create(Config.PAINEL_URL.get() + "/api/servidor/codex"))
+                .timeout(Duration.ofSeconds(8))
+                .header("x-servidor-token", Config.SERVIDOR_TOKEN.get())
+                .GET()
+                .build();
+        return HTTP.sendAsync(req, HttpResponse.BodyHandlers.ofString()).thenApply(resp -> {
+            if (resp.statusCode() != 200) throw new IllegalStateException("Painel respondeu HTTP " + resp.statusCode());
+            return JsonParser.parseString(resp.body()).getAsJsonObject();
+        });
+    }
+
+    /** Discos de música à venda (painel). */
+    public static CompletableFuture<JsonObject> lerDiscos() {
+        HttpRequest req = HttpRequest.newBuilder(URI.create(Config.PAINEL_URL.get() + "/api/servidor/discos"))
+                .timeout(Duration.ofSeconds(8))
+                .header("x-servidor-token", Config.SERVIDOR_TOKEN.get())
+                .GET()
+                .build();
+        return HTTP.sendAsync(req, HttpResponse.BodyHandlers.ofString()).thenApply(resp -> {
+            if (resp.statusCode() != 200) throw new IllegalStateException("Painel respondeu HTTP " + resp.statusCode());
+            return JsonParser.parseString(resp.body()).getAsJsonObject();
+        });
+    }
+
+    /** Chefes e monstros do Códex de Criaturas (painel). */
+    public static CompletableFuture<JsonObject> lerCriaturas() {
+        HttpRequest req = HttpRequest.newBuilder(URI.create(Config.PAINEL_URL.get() + "/api/servidor/criaturas"))
+                .timeout(Duration.ofSeconds(8))
+                .header("x-servidor-token", Config.SERVIDOR_TOKEN.get())
+                .GET()
+                .build();
+        return HTTP.sendAsync(req, HttpResponse.BodyHandlers.ofString()).thenApply(resp -> {
+            if (resp.statusCode() != 200) throw new IllegalStateException("Painel respondeu HTTP " + resp.statusCode());
+            return JsonParser.parseString(resp.body()).getAsJsonObject();
+        });
+    }
+
+    /** Uma criatura do Códex foi derrotada (o painel conta). */
+    public static void enviarDerrotaCriatura(String codigo) {
+        JsonObject corpo = new JsonObject();
+        corpo.addProperty("codigo", codigo);
+        post("/api/servidor/criaturas", corpo).exceptionally(e -> null);
+    }
+
+    /** Quantas unidades de cada arma do Códex já existem no mundo, e com quem. */
+    public static void enviarPersonagens(JsonObject corpo) {
+        post("/api/servidor/personagens", corpo).exceptionally(e -> null);
+    }
+
+    public static void enviarDiscos(JsonObject corpo) {
+        post("/api/servidor/discos", corpo).exceptionally(e -> null);
+    }
+
+    public static void enviarCodex(JsonObject corpo) {
+        post("/api/servidor/codex", corpo).exceptionally(e -> null);
+    }
+
     /** Ficha completa de um jogador para a aba Jogadores. */
     public static void enviarDetalheJogador(JsonObject ficha) {
         post("/api/servidor/jogador-detalhe", ficha).exceptionally(e -> null);
@@ -228,6 +287,8 @@ public final class PainelApi {
         JsonObject corpo = new JsonObject();
         if (extra != null) for (var e : extra.entrySet()) corpo.add(e.getKey(), e.getValue());
         corpo.addProperty("uuid", uuid.toString());
+        int vaga = Personagens.vagaDaConta(uuid);   // de qual personagem da conta é este progresso
+        if (vaga >= 1) corpo.addProperty("vaga", vaga);
         corpo.addProperty("nick", nick);
         corpo.addProperty("nivel", nivel);
         corpo.addProperty("xp", xp);

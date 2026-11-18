@@ -146,7 +146,9 @@ public final class MenusNpc {
             Reino rr = Reputacao.reino(reino);
             return Lojas.mercadorMenu(desc, Reputacao.indice(Reputacao.pontos(p, reino)), rr != null ? rr.nome() : "", nivel, p.server, reino + papel);
         }
-        return Lojas.forja(papel.equals("armeiro"), nivel, desc, p.server, reino + papel);
+        java.util.List<MerchantOffer> forja = new java.util.ArrayList<>(Lojas.forja(papel.equals("armeiro"), nivel, desc, p.server, reino + papel));
+        forja.addAll(0, br.com.frxcode.frxworld.armas.Codex.ofertas(p, papel.equals("armeiro"), desc));   // armas únicas do Códex no topo
+        return forja;
     }
 
     private static boolean temCusto(ServerPlayer p, ItemStack c) {
@@ -222,6 +224,13 @@ public final class MenusNpc {
                 MerchantOffer o = lista.get(i);
                 ItemStack ca = o.getBaseCostA().copy();
                 if (o.isOutOfStock()) { abrirForja(p, npc, "Esgotado por enquanto. Volte mais tarde.", false); return; }
+                // arma do Códex: confere o total do mundo antes de cobrar
+                String codCodex = br.com.frxcode.frxworld.armas.Codex.codigoDe(o.getResult());
+                br.com.frxcode.frxworld.armas.Codex.Def defCodex = codCodex == null ? null : br.com.frxcode.frxworld.armas.Codex.def(codCodex);
+                if (codCodex != null) {
+                    String motivo = defCodex == null ? "Essa arma saiu do Códex." : br.com.frxcode.frxworld.armas.Codex.recusa(p, defCodex);
+                    if (motivo != null) { abrirForja(p, npc, motivo, false); return; }
+                }
                 if (!temCusto(p, ca) || !temCusto(p, o.getCostB())) { abrirForja(p, npc, "Você não tem o que essa troca pede.", false); return; }
                 // moedas dos dois custos somadas numa cobrança só (o troco muda as pilhas)
                 long va = valorMoeda(ca), vb = o.getCostB().isEmpty() ? -1 : valorMoeda(o.getCostB());
@@ -229,7 +238,7 @@ public final class MenusNpc {
                     if (Moedas.contar(p) < va + vb) { abrirForja(p, npc, "Faltam moedas.", false); return; }
                     Moedas.cobrar(p, va + vb);
                 } else { pagarCusto(p, ca); pagarCusto(p, o.getCostB()); }
-                ItemStack res = o.getResult().copy();
+                ItemStack res = defCodex != null ? br.com.frxcode.frxworld.armas.Codex.emitir(p, defCodex) : o.getResult().copy();
                 String nomeItem = res.getHoverName().getString();
                 int qtd = res.getCount();
                 entregar(p, res);

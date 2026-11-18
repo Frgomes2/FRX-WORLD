@@ -77,7 +77,7 @@ public class Inferno {
         if (centro == null) return;
         int nivel = Zonas.nivel(n, centro);
         if (rnd.nextInt(100) < CHANCE_CHEFE) {
-            Mob chefe = Chefes.criar(n, new Vec3(centro.getX() + 0.5, centro.getY(), centro.getZ() + 0.5), Math.max(2, Guilda.indice(p)), nivel + 3, 0);
+            Mob chefe = Chefes.criar(n, new Vec3(centro.getX() + 0.5, centro.getY(), centro.getZ() + 0.5), Math.max(2, Guilda.indice(p)), nivel + 3, 0, "nether");
             if (chefe != null) {
                 chefe.setTarget(p);
                 n.playSound(null, centro, SoundEvents.WITHER_SPAWN, SoundSource.HOSTILE, 1.2f, 0.7f);
@@ -89,11 +89,13 @@ public class Inferno {
         for (int k = 0; k < qtd; k++) {
             BlockPos pe = k == 0 ? centro : lugar(n, p, rnd);
             if (pe == null) continue;
-            EntityType<?> tipo = ForgeRegistries.ENTITY_TYPES.getValue(ResourceLocation.tryParse(HORDA[rnd.nextInt(HORDA.length)]));
+            Criaturas.Def cria = Criaturas.sortearMonstro("nether", Guilda.indice(p));
+            EntityType<?> tipo = ForgeRegistries.ENTITY_TYPES.getValue(ResourceLocation.tryParse(cria != null ? cria.entidade() : HORDA[rnd.nextInt(HORDA.length)]));
             Entity e = tipo == null ? null : tipo.create(n);
             if (!(e instanceof Mob m)) continue;
             m.moveTo(pe.getX() + 0.5, pe.getY(), pe.getZ() + 0.5, rnd.nextFloat() * 360, 0);
             m.finalizeSpawn(n, n.getCurrentDifficultyAt(pe), MobSpawnType.EVENT, null, null);
+            if (cria != null) Criaturas.aplicar(m, cria);
             m.addTag("frx_emboscada");
             m.setTarget(p);
             n.addFreshEntity(m);

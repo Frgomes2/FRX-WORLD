@@ -60,6 +60,7 @@
 - As missões vêm do painel (menu **Missões**): caçar uma criatura ou coletar itens, com faixa de nível e recompensas em XP, moedas e itens.
   - O mod recarrega a cada minuto ou com `/frx recarregar`.
 - Admin: `/frx taverna ...`, `/frx quadro ...`.
+- **Lote da Guilda e quadro do dia:** além das missões cadastradas à mão, há um lote de mais de mil (ids `g<rank>_...`, 100+ por rank, gerado por `tools/gerar-missoes.py`). Como são muitas, o quadro sorteia todo dia 12 do rank do jogador, 4 do rank de baixo e 2 do de cima (bloqueadas); a seleção é igual para todos e vira à meia-noite de Brasília. Missões à mão, as já aceitas e a urgente aparecem sempre. Os números ficam em `Missoes.DO_RANK`, `DO_RANK_ABAIXO` e `DO_RANK_ACIMA`.
 - Marcos: `taverna_1`, `taverna_10`.
 
 ## Campanhas dos reis

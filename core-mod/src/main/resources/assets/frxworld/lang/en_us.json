@@ -5,6 +5,7 @@
   "block.frxworld.portao_selado": "Sealed Gate",
   "item.frxworld.chave_camada": "Layer Key",
   "item.frxworld.cartao_aventureiro": "Adventurer Card",
+  "item.frxworld.disco": "Music Disc",
   "item.frxworld.tomo_arcano": "Arcane Tome",
   "key.categories.frxworld": "FRX-WORLD",
   "key.frxworld.hab1": "Ability 1",
@@ -19,6 +20,8 @@
   "key.frxworld.sombra1": "Shadow: shortcut 1",
   "key.frxworld.sombra2": "Shadow: shortcut 2",
   "key.frxworld.sombra3": "Shadow: shortcut 3",
+  "key.frxworld.alvo_sombras": "Shadows: mark target",
+  "key.frxworld.personagens": "Switch character",
   "key.frxworld.sombras_todas": "Shadows: summon/recall all",
   "key.frxworld.despertar": "Awakening (class power)"
 }
