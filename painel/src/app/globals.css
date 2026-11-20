@@ -122,3 +122,53 @@ body {
 @keyframes frx-virar-frente { from { transform: rotateY(-22deg); opacity: 0.35; } to { transform: rotateY(0); opacity: 1; } }
 @keyframes frx-virar-tras { from { transform: rotateY(22deg); opacity: 0.35; } to { transform: rotateY(0); opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .frx-virar-frente, .frx-virar-tras { animation: none; } }
+
+/* ------------------------------------------------------------------ Site público: o topo muda com o estado real do mundo */
+.frx-cena { transition: background 1.5s ease; }
+.frx-cena-dia { background: radial-gradient(ellipse at 50% -10%, rgba(245, 208, 74, 0.22), transparent 55%), linear-gradient(180deg, #2b3a2a 0%, #1c241b 45%, transparent 100%); }
+.frx-cena-noite { background: linear-gradient(180deg, #0a0e22 0%, #121833 50%, transparent 100%); }
+.frx-cena-chuva { background: linear-gradient(180deg, #1f2a36 0%, #18212b 55%, transparent 100%); }
+.frx-cena-tempestade { background: linear-gradient(180deg, #12111b 0%, #1a1928 55%, transparent 100%); }
+.frx-cena-chefe { background: radial-gradient(ellipse at 50% 0%, rgba(155, 44, 44, 0.55), transparent 65%), linear-gradient(180deg, #2a0e0e 0%, #1c0c0c 55%, transparent 100%); animation: frx-alerta 2.4s ease-in-out infinite; }
+.frx-cena-desligado { background: linear-gradient(180deg, #1a1a1a 0%, #141414 55%, transparent 100%); }
+/* chuva e tempestade: nuvens escuras passando no alto e névoa embaixo (as gotas e os raios são desenhados em components/publico/clima.tsx) */
+.frx-nuvens { position: absolute; left: -20%; right: -20%; top: -25%; height: 85%; filter: blur(22px); opacity: 0.9;
+  background:
+    radial-gradient(ellipse 28% 55% at 12% 38%, rgba(70, 84, 104, 0.7), transparent 70%),
+    radial-gradient(ellipse 34% 60% at 38% 22%, rgba(52, 64, 84, 0.8), transparent 70%),
+    radial-gradient(ellipse 30% 50% at 63% 36%, rgba(74, 88, 110, 0.65), transparent 70%),
+    radial-gradient(ellipse 36% 62% at 88% 24%, rgba(48, 60, 80, 0.8), transparent 70%);
+  animation: frx-nuvens 70s ease-in-out infinite alternate; }
+.frx-nuvens-forte { opacity: 1;
+  background:
+    radial-gradient(ellipse 30% 60% at 10% 34%, rgba(34, 34, 52, 0.9), transparent 70%),
+    radial-gradient(ellipse 36% 66% at 36% 20%, rgba(22, 22, 38, 0.95), transparent 70%),
+    radial-gradient(ellipse 32% 56% at 62% 32%, rgba(40, 38, 60, 0.85), transparent 70%),
+    radial-gradient(ellipse 38% 68% at 90% 22%, rgba(20, 20, 36, 0.95), transparent 70%);
+  animation-duration: 38s; }
+@keyframes frx-nuvens { from { transform: translateX(-6%); } to { transform: translateX(6%); } }
+.frx-nevoa { position: absolute; left: 0; right: 0; bottom: 0; height: 35%; background: linear-gradient(180deg, transparent, rgba(150, 175, 215, 0.1)); }
+@keyframes frx-alerta { 0%, 100% { box-shadow: inset 0 0 0 rgba(155, 44, 44, 0); } 50% { box-shadow: inset 0 0 90px rgba(210, 58, 58, 0.45); } }
+
+/* microinterações: cartões e linhas que surgem, barras que enchem */
+@keyframes frx-surge { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.frx-surge { animation: frx-surge 0.45s ease-out both; }
+@keyframes frx-enche { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.frx-enche { transform-origin: left; animation: frx-enche 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+@media (prefers-reduced-motion: reduce) {
+  .frx-surge, .frx-enche, .frx-nuvens, .frx-cena-chefe { animation: none; }
+}
+
+/* o céu de cada cena é desenhado em components/publico/clima.tsx: as brasas fixas do topo saem */
+.frx-cena.frx-heroi::before { display: none; }
+/* nuvens claras do dia e fumaça vermelha do chefe mundial */
+.frx-nuvens-dia { opacity: 0.55; filter: blur(26px); animation-duration: 110s;
+  background:
+    radial-gradient(ellipse 22% 34% at 14% 46%, rgba(255, 255, 255, 0.5), transparent 70%),
+    radial-gradient(ellipse 26% 38% at 44% 34%, rgba(255, 255, 255, 0.4), transparent 70%),
+    radial-gradient(ellipse 20% 30% at 70% 50%, rgba(255, 255, 255, 0.35), transparent 70%); }
+.frx-nuvens-chefe { opacity: 0.9; animation-duration: 30s;
+  background:
+    radial-gradient(ellipse 30% 60% at 12% 30%, rgba(60, 10, 10, 0.9), transparent 70%),
+    radial-gradient(ellipse 36% 66% at 40% 18%, rgba(30, 6, 6, 0.95), transparent 70%),
+    radial-gradient(ellipse 34% 60% at 72% 28%, rgba(70, 14, 14, 0.85), transparent 70%); }

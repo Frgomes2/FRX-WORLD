@@ -41,6 +41,10 @@ public class Unica {
     private static final String CHAVE = "frx_unica";
     private static final int[] DEGRAUS = {0, 50, 200, 600, 1500};
     private static final UUID MOD_VENTO = UUID.fromString("6f0e4c1a-51b7-4c0e-9a55-0b8f7d1c2a10");
+    private static final UUID MOD_TITAN = UUID.fromString("6f0e4c1a-51b7-4c0e-9a55-0b8f7d1c2a11"), MOD_SORTE = UUID.fromString("6f0e4c1a-51b7-4c0e-9a55-0b8f7d1c2a12");
+    /** Momentos que não precisam sobreviver a um reinício: último dano recebido, vingança armada, escudo pronto de novo. */
+    private static final Map<UUID, Long> FERIDO = new java.util.concurrent.ConcurrentHashMap<>(), VINGANCA = new java.util.concurrent.ConcurrentHashMap<>(),
+            ESCUDO = new java.util.concurrent.ConcurrentHashMap<>();
 
     public record Def(String id, String nome, String descricao) {}
 
@@ -57,6 +61,17 @@ public class Unica {
         def("vento", "Filho do Vento", "Você anda mais rápido; no nível 3, não sofre dano de queda.");
         def("imortal", "Segunda Chance", "Um golpe fatal deixa você vivo com 30% da vida (tem recarga).");
         def("cacador", "Instinto do Caçador", "Dano extra contra Elites, Campeões e chefes.");
+        // 18/11: mais dez, para os jogadores não repetirem tanto
+        def("titan", "Sangue de Titã", "Seu corpo aguenta mais: corações extras permanentes.");
+        def("espinhos", "Pele de Espinhos", "Quem bate em você de perto leva parte do dano de volta.");
+        def("vingador", "Olho por Olho", "Depois de apanhar, o seu próximo golpe sai muito mais forte.");
+        def("sorte", "Estrela da Sorte", "A sorte anda com você: os baús e os monstros rendem mais.");
+        def("gelo", "Toque Gélido", "Seus golpes têm chance de congelar o passo do inimigo.");
+        def("chama", "Coração de Brasa", "Seus golpes têm chance de incendiar, e o fogo fere você menos.");
+        def("berserk", "Sede de Batalha", "Cada monstro abatido deixa você mais rápido e mais forte por alguns segundos.");
+        def("regen", "Sangue de Troll", "Fora de combate, suas feridas se fecham sozinhas.");
+        def("eco", "Golpe em Eco", "Chance de o seu golpe acertar de novo, como um eco.");
+        def("guardiao", "Escudo do Guardião", "De tempos em tempos, um escudo invisível anula por completo o próximo golpe que você receberia.");
     }
 
     public Unica() {}
@@ -106,6 +121,16 @@ public class Unica {
             case "vento" -> "+" + (6 + 3 * (n - 1)) + "% de velocidade" + (n >= 3 ? ", sem dano de queda" : "");
             case "imortal" -> "recarga de " + (10 - (n - 1)) + " min";
             case "cacador" -> "+" + (10 + 5 * (n - 1)) + "% de dano em inimigos fortes";
+            case "titan" -> "+" + (2 + (n - 1)) + " corações";
+            case "espinhos" -> (15 + 5 * (n - 1)) + "% do dano de perto volta no agressor";
+            case "vingador" -> "+" + (30 + 10 * (n - 1)) + "% no golpe seguinte a um dano recebido (até 5 s)";
+            case "sorte" -> "+" + n + " de sorte";
+            case "gelo" -> (15 + 5 * (n - 1)) + "% de chance de deixar o alvo lento por 3 s";
+            case "chama" -> (15 + 5 * (n - 1)) + "% de chance de incendiar, -" + (20 + 5 * (n - 1)) + "% de dano de fogo";
+            case "berserk" -> "Velocidade e Força por " + (4 + (n - 1)) + " s a cada abate";
+            case "regen" -> "cura " + (1 + (n - 1)) / 2.0 + " coração(ões) a cada 5 s fora de combate";
+            case "eco" -> (8 + 3 * (n - 1)) + "% de chance de um segundo golpe (60% do dano)";
+            case "guardiao" -> "anula um golpe a cada " + (30 - 3 * (n - 1)) + " s";
             default -> "";
         };
     }
@@ -126,12 +151,25 @@ public class Unica {
         vel.removeModifier(MOD_VENTO);
         double b = v(p, "vento", 0.06, 0.03);
         if (b > 0) vel.addTransientModifier(new AttributeModifier(MOD_VENTO, "FRX habilidade unica", b, AttributeModifier.Operation.MULTIPLY_TOTAL));
+        AttributeInstance vida = p.getAttribute(Attributes.MAX_HEALTH), sorte = p.getAttribute(Attributes.LUCK);
+        if (vida != null) {
+            vida.removeModifier(MOD_TITAN);
+            double c = v(p, "titan", 4, 2);   // em pontos de vida: 2 corações, +1 por nível
+            if (c > 0) vida.addTransientModifier(new AttributeModifier(MOD_TITAN, "FRX habilidade unica", c, AttributeModifier.Operation.ADDITION));
+            if (p.getHealth() > p.getMaxHealth()) p.setHealth(p.getMaxHealth());
+        }
+        if (sorte != null) {
+            sorte.removeModifier(MOD_SORTE);
+            double c = v(p, "sorte", 1, 1);
+            if (c > 0) sorte.addTransientModifier(new AttributeModifier(MOD_SORTE, "FRX habilidade unica", c, AttributeModifier.Operation.ADDITION));
+        }
     }
 
     public static void definir(ServerPlayer p, String id, boolean anunciar) {
         Def d = TODAS.get(id);
         if (d == null) return;
         dados(p).putString("id", id);
+        registrar(p, id);
         dados(p).putInt("abates", 0);
         dados(p).remove("suprema");
         aplicarAtributos(p);
@@ -141,9 +179,44 @@ public class Unica {
         }
     }
 
-    private static void sortear(ServerPlayer p) {
-        List<String> ids = new ArrayList<>(TODAS.keySet());
-        definir(p, ids.get(ThreadLocalRandom.current().nextInt(ids.size())), true);
+    private static void sortear(ServerPlayer p) { definir(p, menosUsada(p), true); }
+
+    // ------------------------------------------------------------------ quem tem o quê (para o sorteio espalhar as habilidades)
+
+    /** personagem → habilidade, em <mundo>/frx_unicas.json. */
+    private static com.google.gson.JsonObject registro;
+    private static java.nio.file.Path arquivo(net.minecraft.server.MinecraftServer s) { return s.getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT).resolve("frx_unicas.json"); }
+
+    private static com.google.gson.JsonObject registro(net.minecraft.server.MinecraftServer s) {
+        if (registro == null) {
+            try { registro = java.nio.file.Files.exists(arquivo(s)) ? com.google.gson.JsonParser.parseString(java.nio.file.Files.readString(arquivo(s), java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject() : new com.google.gson.JsonObject(); }
+            catch (Exception e) { registro = new com.google.gson.JsonObject(); }
+        }
+        return registro;
+    }
+
+    private static void registrar(ServerPlayer p, String id) {
+        com.google.gson.JsonObject r = registro(p.server);
+        String quem = br.com.frxcode.frxworld.acesso.Personagens.id(p).toString();
+        if (r.has(quem) && id.equals(r.get(quem).getAsString())) return;
+        r.addProperty(quem, id);
+        try { java.nio.file.Files.writeString(arquivo(p.server), new com.google.gson.GsonBuilder().setPrettyPrinting().create().toJson(r), java.nio.charset.StandardCharsets.UTF_8); }
+        catch (Exception e) { br.com.frxcode.frxworld.FrxWorld.LOG.warn("Unica: não gravei frx_unicas.json: {}", e.toString()); }
+    }
+
+    /** Sorteia entre as habilidades que menos personagens têm, para o servidor ficar variado. */
+    private static String menosUsada(ServerPlayer p) {
+        Map<String, Integer> conta = new LinkedHashMap<>();
+        for (String id : TODAS.keySet()) conta.put(id, 0);
+        String eu = br.com.frxcode.frxworld.acesso.Personagens.id(p).toString();
+        for (var e : registro(p.server).entrySet()) {
+            String id = e.getValue().getAsString();
+            if (!e.getKey().equals(eu) && conta.containsKey(id)) conta.merge(id, 1, Integer::sum);
+        }
+        int menor = java.util.Collections.min(conta.values());
+        List<String> ids = new ArrayList<>();
+        for (var e : conta.entrySet()) if (e.getValue() == menor) ids.add(e.getKey());
+        return ids.get(ThreadLocalRandom.current().nextInt(ids.size()));
     }
 
     private static void mostrar(ServerPlayer p) {
@@ -162,11 +235,10 @@ public class Unica {
     @SubscribeEvent
     public void aoEntrar(PlayerEvent.PlayerLoggedInEvent ev) {
         if (!(ev.getEntity() instanceof ServerPlayer p)) return;
-        if (def(p) != null) { aplicarAtributos(p); return; }
+        if (def(p) != null) { registrar(p, id(p)); aplicarAtributos(p); return; }
         // quem ainda vai ver a abertura descobre a habilidade lá, não no chat
         boolean calado = !br.com.frxcode.frxworld.racas.RacasJogador.escolheu(p);
-        List<String> ids = new ArrayList<>(TODAS.keySet());
-        definir(p, ids.get(ThreadLocalRandom.current().nextInt(ids.size())), !calado);
+        definir(p, menosUsada(p), !calado);
     }
 
     @SubscribeEvent
@@ -177,6 +249,16 @@ public class Unica {
     @SubscribeEvent
     public void esquiva(LivingAttackEvent ev) {
         if (!(ev.getEntity() instanceof ServerPlayer p) || ev.getSource().getEntity() == null || ev.getAmount() <= 0) return;
+        if ("guardiao".equals(id(p)) && !ev.getSource().is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
+            long agora = System.currentTimeMillis();
+            if (ESCUDO.getOrDefault(p.getUUID(), 0L) <= agora) {
+                ESCUDO.put(p.getUUID(), agora + (30 - 3 * (nivel(p) - 1)) * 1000L);
+                ev.setCanceled(true);
+                p.displayClientMessage(Component.literal("Escudo do Guardião: golpe anulado!").withStyle(ChatFormatting.LIGHT_PURPLE), true);
+                p.level().playSound(null, p.blockPosition(), SoundEvents.SHIELD_BLOCK, SoundSource.PLAYERS, 0.9f, 1.4f);
+                return;
+            }
+        }
         double c = v(p, "sombra", 0.08, 0.03);
         if (c > 0 && p.getRandom().nextDouble() < c) {
             ev.setCanceled(true);
@@ -201,6 +283,22 @@ public class Unica {
                 a.level().playSound(null, alvo.blockPosition(), SoundEvents.PLAYER_ATTACK_CRIT, SoundSource.PLAYERS, 1f, 1.2f);
                 a.displayClientMessage(Component.literal("Olho do Falcão: crítico!").withStyle(ChatFormatting.GOLD), true);
             }
+            double vinganca = v(a, "vingador", 0.30, 0.10);
+            if (vinganca > 0 && VINGANCA.getOrDefault(a.getUUID(), 0L) > System.currentTimeMillis()) {
+                VINGANCA.remove(a.getUUID());
+                mult += vinganca;
+                a.displayClientMessage(Component.literal("Olho por Olho!").withStyle(ChatFormatting.RED), true);
+            }
+            double eco = v(a, "eco", 0.08, 0.03);
+            if (eco > 0 && a.getRandom().nextDouble() < eco) {
+                mult += 0.6;
+                a.level().playSound(null, alvo.blockPosition(), SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.PLAYERS, 0.8f, 1.5f);
+                a.displayClientMessage(Component.literal("Golpe em Eco!").withStyle(ChatFormatting.AQUA), true);
+            }
+            double gelo = v(a, "gelo", 0.15, 0.05);
+            if (gelo > 0 && a.getRandom().nextDouble() < gelo) alvo.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN, 60, 1));
+            double chama = v(a, "chama", 0.15, 0.05);
+            if (chama > 0 && a.getRandom().nextDouble() < chama) alvo.setSecondsOnFire(4);
             q = (float) (q * mult);
             double sangue = v(a, "sangue", 0.04, 0.02);
             if (sangue > 0) a.heal((float) (q * sangue));
@@ -208,6 +306,15 @@ public class Unica {
         if (ev.getEntity() instanceof ServerPlayer p) {
             double aco = v(p, "aco", 0.06, 0.03);
             if (aco > 0) q = (float) (q * (1 - aco));
+            long agora = System.currentTimeMillis();
+            FERIDO.put(p.getUUID(), agora);
+            if ("vingador".equals(id(p))) VINGANCA.put(p.getUUID(), agora + 5000);
+            double fogo = v(p, "chama", 0.20, 0.05);
+            if (fogo > 0 && ev.getSource().is(DamageTypeTags.IS_FIRE)) q = (float) (q * (1 - fogo));
+            double espinhos = v(p, "espinhos", 0.15, 0.05);
+            if (espinhos > 0 && ev.getSource().getEntity() instanceof LivingEntity agressor && agressor != p && ev.getSource().getDirectEntity() == agressor
+                    && !ev.getSource().is(net.minecraft.world.damagesource.DamageTypes.THORNS))
+                agressor.hurt(p.damageSources().thorns(p), (float) (q * espinhos));
         }
         if (q != ev.getAmount()) ev.setAmount(q);
     }
@@ -238,12 +345,25 @@ public class Unica {
         dados(p).putInt("abates", abates(p) + 1);
         double cura = v(p, "devorador", 2, 1);
         if (cura > 0) p.heal((float) cura);
+        if ("berserk".equals(id(p))) {
+            int t = 20 * (4 + (nivel(p) - 1));
+            p.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.MOVEMENT_SPEED, t, 0, false, false));
+            p.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.DAMAGE_BOOST, t, 0, false, false));
+        }
         if (nivel(p) > antes) {
             aplicarAtributos(p);
             p.level().playSound(null, p.blockPosition(), SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.PLAYERS, 1f, 1.2f);
             Sistema.avisar(p, def(p).nome() + " evoluiu para o nível " + nivel(p), "Agora: " + efeito(p) + "."
                     + (nivel(p) == 5 ? " Ela pode se tornar uma Habilidade Suprema: use /suprema." : ""), Sistema.ROXO);
         }
+    }
+
+    /** Sangue de Troll: a cada 5 s sem levar dano há 6 s, fecha um pouco das feridas. */
+    @SubscribeEvent
+    public void aCadaTick(net.minecraftforge.event.TickEvent.PlayerTickEvent ev) {
+        if (ev.phase != net.minecraftforge.event.TickEvent.Phase.END || !(ev.player instanceof ServerPlayer p) || p.tickCount % 100 != 0 || !"regen".equals(id(p)) || !p.isAlive()) return;
+        if (System.currentTimeMillis() - FERIDO.getOrDefault(p.getUUID(), 0L) < 6000 || p.getHealth() >= p.getMaxHealth()) return;
+        p.heal((float) v(p, "regen", 1, 1));
     }
 
     @SubscribeEvent

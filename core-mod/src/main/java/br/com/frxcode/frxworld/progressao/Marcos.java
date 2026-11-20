@@ -60,5 +60,12 @@ public class Marcos {
         if (!d.dungeons().isEmpty()) marcar(p, "dungeon");
         if (d.contadores().getOrDefault("chefes", 0) > 0) marcar(p, "chefe_mundial");
         for (String id : d.conquistas().keySet()) marcar(p, "conq_" + id);
+        // Guia do Aventureiro (capítulo de tutorial do livro de missões)
+        if (Guilda.registrado(p)) marcar(p, "guia_guilda");
+        if (br.com.frxcode.frxworld.protecao.Terrenos.temTerreno(p)) marcar(p, "guia_terreno");
+        if (br.com.frxcode.frxworld.clas.Clas.temCla(p)) marcar(p, "guia_cla");
+        if (br.com.frxcode.frxworld.reinos.Costureira.capacidade(p) > 0) marcar(p, "guia_bolsos");
+        if (br.com.frxcode.frxworld.aventura.Torre.recorde(p) >= 1) marcar(p, "guia_torre");
+        if (br.com.frxcode.frxworld.aventura.Torre.recorde(p) >= 10) marcar(p, "guia_torre10");
     }
 }

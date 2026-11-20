@@ -23,7 +23,7 @@ import java.util.function.Consumer;
 public class TelaStatus extends Screen {
     public static final String[][] ABAS = {
             {"INVENTARIO", "Inventário"}, {"STATUS", "Status"}, {"HABILIDADES", "Habilidades"}, {"TALENTOS", "Talentos"},
-            {"REINOS", "Reinos"}, {"GRUPO", "Grupo"}};
+            {"REINOS", "Reinos"}};   // a aba Grupo saiu na 1.1.9: ficaram só os clãs
 
     // mesmas cores da tela de Habilidades (painel marrom-escuro, moldura marrom, títulos dourados)
     static final int FUNDO = 0xF017140F, MOLDURA = 0xFF5A3A1E, BORDA2 = 0xFF5A3A1E, TITULO = 0xFFD4A93A, TEXTO = 0xFFE9DFC8,

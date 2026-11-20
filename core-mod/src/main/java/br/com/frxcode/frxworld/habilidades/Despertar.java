@@ -119,6 +119,8 @@ public class Despertar {
             case "BARDO" -> "Bis!";
             case "MONGE" -> "Portão Interior";
             case "DRUIDA" -> "Coração da Floresta";
+            case "SAMURAI" -> "Lâmina das Três Formas";
+            case "CARTOMANTE" -> "Mão Perfeita";
             default -> "";
         };
     }
@@ -193,7 +195,9 @@ public class Despertar {
                 case "LADINO" -> { if (corpo) carregar(p, pelasCostas(p, vitima) ? 10 : 4); }
                 case "PALADINO" -> { if (corpo) carregar(p, Math.min(6, dano * 0.6)); }
                 case "BARDO" -> carregar(p, Math.min(5, dano * 0.4));
+                case "CARTOMANTE" -> carregar(p, Math.min(6, dano * 0.5));
                 case "MONGE" -> { if (corpo) carregar(p, 4); }
+                case "SAMURAI" -> { if (corpo) carregar(p, Bushido.katana(p.getMainHandItem()) ? 7 : 2); }
                 case "DRUIDA" -> { if (corpo) carregar(p, 4); }
                 case "ASSASSINO" -> {
                     if (corpo) carregar(p, pelasCostas(p, vitima) || vitima.getHealth() < vitima.getMaxHealth() * 0.3f ? 10 : 5);
@@ -310,6 +314,8 @@ public class Despertar {
             case "PALADINO" -> iniciarEgide(p, e);
             case "BARDO" -> iniciarBis(p, e);
             case "MONGE" -> iniciarPortao(p, e);
+            case "SAMURAI" -> iniciarFormas(p, e);
+            case "CARTOMANTE" -> iniciarMaoPerfeita(p, e);
             case "DRUIDA" -> iniciarFloresta(p, e);
             default -> { }
         }
@@ -607,6 +613,56 @@ public class Despertar {
         p.displayClientMessage(Component.literal("O portão se fecha. Você fica exausto por 5 s.").withStyle(ChatFormatting.GRAY), true);
     }
 
+    // ------------------------------------------------------------------ Samurai · Lâmina das Três Formas (original do FRX-WORLD)
+
+    /** Lâmina das Três Formas ativa? (todo golpe de katana é um Saque e alterna Brasa, Maré e Relâmpago: habilidades/Bushido) */
+    public static boolean formasAtivas(ServerPlayer p) {
+        Estado e = ESTADOS.get(p.getUUID());
+        return e != null && e.ativo > 0 && e.extra == 7;
+    }
+
+    private static void iniciarFormas(ServerPlayer p, Estado e) {
+        e.total = e.ativo = 20 * (8 + Math.min(4, nivel(p) / 15));
+        e.extra = 7;
+        p.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, e.ativo, 1, false, false));
+        p.addEffect(new MobEffectInstance(MobEffects.DIG_SPEED, e.ativo, 1, false, false));   // golpes mais rápidos
+        titulo(p, "LÂMINA DAS TRÊS FORMAS", "todo golpe é um Saque · brasa, maré e relâmpago", ChatFormatting.RED);
+        som(p, p.position(), SoundEvents.TRIDENT_THUNDER, 0.5f, 1.5f);
+        som(p, p.position(), SoundEvents.PLAYER_ATTACK_SWEEP, 1.2f, 0.7f);
+    }
+
+    private static void tickFormas(ServerPlayer p, Estado e) {
+        ServerLevel nv = p.serverLevel();
+        e.nivel = nv;
+        if (e.ativo % 3 != 0) return;
+        int forma = (e.ativo / 12) % 3;   // o brilho em volta do samurai troca de forma junto com o tempo
+        nv.sendParticles(forma == 0 ? ParticleTypes.FLAME : forma == 1 ? ParticleTypes.FALLING_WATER : ParticleTypes.ELECTRIC_SPARK, p.getX(), p.getY() + 0.9, p.getZ(), 3, 0.35, 0.5, 0.35, 0.02);
+    }
+
+    // ------------------------------------------------------------------ Cartomante · Mão Perfeita (original do FRX-WORLD)
+
+    /** Mão Perfeita ativa? (toda carta que entra na mão é um Coringa: habilidades/Cartas) */
+    public static boolean maoPerfeita(ServerPlayer p) {
+        Estado e = ESTADOS.get(p.getUUID());
+        return e != null && e.ativo > 0 && e.extra == 8;
+    }
+
+    private static void iniciarMaoPerfeita(ServerPlayer p, Estado e) {
+        e.total = e.ativo = 20 * (8 + Math.min(4, nivel(p) / 15));
+        e.extra = 8;
+        Cartas.embaralhar(p, null);   // a mão vira três Coringas na hora
+        titulo(p, "MÃO PERFEITA", "toda carta é um Coringa · os quatro naipes em cada golpe", ChatFormatting.AQUA);
+        som(p, p.position(), SoundEvents.PLAYER_LEVELUP, 1.0f, 1.6f);
+        som(p, p.position(), SoundEvents.BOOK_PAGE_TURN, 1.4f, 0.8f);
+    }
+
+    private static void tickMaoPerfeita(ServerPlayer p, Estado e) {
+        ServerLevel nv = p.serverLevel();
+        e.nivel = nv;
+        if (e.ativo % 4 != 0) return;
+        nv.sendParticles(ParticleTypes.ENCHANT, p.getX(), p.getY() + 1.4, p.getZ(), 4, 0.5, 0.5, 0.5, 0.4);
+    }
+
     // ------------------------------------------------------------------ Druida · Coração da Floresta (original do FRX-WORLD)
 
     /** Coração da Floresta ativo? (habilidades sem custo, garras +50%, formas sem a fraqueza de dano recebido) */
@@ -762,7 +818,7 @@ public class Despertar {
                 continue;
             }
             if (e.ativo > 0) {
-                if (e.nivel != p.serverLevel() && !"GUERREIRO".equals(classe(p)) && !"ASSASSINO".equals(classe(p)) && !"PALADINO".equals(classe(p)) && !"MONGE".equals(classe(p)) && !"DRUIDA".equals(classe(p))) { e.ativo = 0; e.extra = 0; }
+                if (e.nivel != p.serverLevel() && !"GUERREIRO".equals(classe(p)) && !"ASSASSINO".equals(classe(p)) && !"PALADINO".equals(classe(p)) && !"MONGE".equals(classe(p)) && !"DRUIDA".equals(classe(p)) && !"SAMURAI".equals(classe(p)) && !"CARTOMANTE".equals(classe(p))) { e.ativo = 0; e.extra = 0; }
                 else {
                     switch (classe(p)) {
                         case "GUERREIRO" -> tickBerserk(p, e);
@@ -771,6 +827,8 @@ public class Despertar {
                         case "CLERIGO" -> tickEstandarte(p, e);
                         case "PALADINO" -> tickEgide(p, e);
                         case "MONGE" -> tickPortao(p, e);
+                        case "SAMURAI" -> tickFormas(p, e);
+                        case "CARTOMANTE" -> tickMaoPerfeita(p, e);
                         default -> { }
                     }
                     e.ativo--;

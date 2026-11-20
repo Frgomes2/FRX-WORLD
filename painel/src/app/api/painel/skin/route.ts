@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
+import { contaLogada } from "@/lib/conta-site";
 import { textura } from "@/lib/jar-icones";
 
 export const runtime = "nodejs";
@@ -14,8 +15,11 @@ const cache: Cache = (g.__frxSkins ??= new Map());
  * Cabeçalho x-skin-modelo: "slim" (braços finos) ou "classic". Sem internet ou sem skin: a do Steve do jogo.
  */
 export async function GET(req: Request) {
-  if (!(await auth())?.user) return new NextResponse(null, { status: 401 });
   const uuid = (new URL(req.url).searchParams.get("uuid") ?? "").replace(/-/g, "").toLowerCase();
+  if (!(await auth())?.user) {
+    const eu = await contaLogada();
+    if (!eu || eu.uuid.replace(/-/g, "").toLowerCase() !== uuid) return new NextResponse(null, { status: 401 });
+  }
   if (!/^[0-9a-f]{32}$/.test(uuid)) return new NextResponse(null, { status: 400 });
 
   const novo = new URL(req.url).searchParams.get("novo") === "1";

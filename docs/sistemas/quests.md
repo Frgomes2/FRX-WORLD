@@ -29,6 +29,7 @@
 | Everdawn | Nv 35–50 |
 | O Outro Lado | Nv 45–60 |
 | Lendas | Raças lendárias, chefe mundial, Campeões, nível 100 |
+| Guia do Aventureiro | Tutorial dos sistemas do reino: Guilda, Torre, bolsos da Costureira, terreno e clã (marcos `guia_*`) |
 
 ### Como as quests se ligam ao mod
 

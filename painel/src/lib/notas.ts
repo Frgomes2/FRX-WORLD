@@ -16,6 +16,204 @@ export type NotaAtualizacao = { versao: string; data: string; hora?: string; tit
 
 export const NOTAS: NotaAtualizacao[] = [
   {
+    versao: "1.2.1", data: "20/11/2026", hora: "17:43:42", titulo: "Classe nova: Cartomante, e habilidades com efeitos novos",
+    itens: [
+      "Classe nova: Cartomante, a classe que joga com a sorte. Você tem uma mão de 3 cartas sorteadas, mostrada acima da barra de itens, e cada habilidade de dano gasta a carta da vez.",
+      "Os naipes: Espadas dá 40% a mais de dano, Copas cura você, Ouros devolve mana, Paus prende o alvo. O raro Coringa faz os quatro de uma vez.",
+      "São 12 habilidades, entre elas Embaralhar (troca a mão), Cara ou Coroa (dobro ou metade), Mão Cheia (joga as três cartas) e a ultimate Casa Cheia.",
+      "Despertar do Cartomante: Mão Perfeita. Por alguns segundos toda carta é um Coringa.",
+      "Para testar sem perder o que você já tem, crie outro personagem (tecla F8).",
+      "As habilidades ganharam animações: quem lança faz um gesto com fitas de luz, o projétil corre até o alvo deixando rastro em espiral e estoura na chegada.",
+      "Golpes de área desenham um círculo rúnico no chão, com onda de choque e colunas de luz na borda. Golpes em alvo único convergem para o inimigo antes do impacto.",
+      "Investidas e teleportes deixam um rastro de imagens; bênçãos e reforços sobem em espiral em volta do jogador; invocações surgem de um círculo com coluna de luz.",
+      "Cada elemento tem as suas cores e o seu som: fogo, gelo, raio, sagrado, sombra, natureza e arcano.",
+    ],
+  },
+  {
+    versao: "1.2.0", data: "20/11/2026", hora: "15:32:04", titulo: "Invocador: mande a tropa para um lugar",
+    itens: [
+      "A tecla de marcar alvo agora também manda as invocações para um lugar: mire num ponto do chão ou da parede e aperte. Elas vão até lá, lutam com o que aparecer e voltam para o ponto.",
+      "Para chamar de volta, mire no céu e aperte a tecla, ou marque um inimigo. Se você se afastar mais de 48 blocos do ponto, elas voltam a seguir você sozinhas.",
+      "As invocações comuns, como o golem de ferro, agora seguem o Invocador como as sombras. Antes ficavam paradas onde nasciam.",
+      "Mapa: os marcadores (losangos coloridos) não aparecem mais flutuando na tela durante o jogo. Continuam todos no mapa e no minimapa.",
+      "Bestiário do site: cada criatura passa a mostrar quem foi o primeiro a derrotá-la, com a data. Vale para as que forem derrotadas pela primeira vez daqui para frente; as que já tinham caído ficam como \"sem registro\".",
+      "Limpeza de itens: agora só some o que está largado no chão há mais de 2 minutos. O que você acabou de soltar não é apagado, e os avisos no chat antes da limpeza saíram.",
+    ],
+  },
+  {
+    versao: "1.1.9", data: "20/11/2026", hora: "13:01:53", titulo: "Mural: o primeiro a vencer o labirinto",
+    itens: [
+      "Marco novo no Mural dos Primeiros do site: o primeiro a chegar ao coração do Labirinto do Dragão. O nome fica gravado para sempre.",
+      "Quando o primeiro aventureiro pisar no salão central, o servidor inteiro é avisado no chat.",
+      "Vale só para quem chegar andando, em sobrevivência. Administradores não contam.",
+      "Prova da Guilda mais difícil a partir do Rank D: o Examinador tem mais vida, bate mais forte, corre mais e quase não é empurrado. Quanto mais alto o rank, maior a diferença. A prova do Rank E continua igual.",
+      "Invocador: o golem de ferro invocado não ataca mais as suas próprias sombras. Nenhuma invocação ataca outra invocação, aldeões ou bichos domados.",
+      "Invocador: as invocações só atacam outro jogador quando o Invocador marca esse jogador com a tecla de marcar alvo. O jogador marcado recebe um aviso. Não dá para marcar quem é do mesmo clã.",
+      "O sistema de Grupo saiu: a aba Grupo da janela de Status e os comandos /grupo e /g não existem mais. Para jogar junto, use os clãs.",
+      "Clãs: quem é do mesmo clã e está por perto agora divide a experiência dos monstros, com bônus de 10% para cada companheiro (até 6 juntos). O abate também conta para as missões e campanhas de todos.",
+      "Árvores: uma construção de tora com folhas decorativas não é mais confundida com árvore.",
+      "Saiu a névoa branca que subia do chão em pântanos e cemitérios e atrapalhava a visão.",
+      "Tradução: as poções e bebidas especiais dos baús das masmorras (Esmeraldas Líquidas, Soro Espesso, Cerveja Viciante e outras) agora vêm com nome e descrição em português. As que você já tem guardadas continuam em inglês; só as novas mudam.",
+      "Limpeza automática: a cada 30 minutos os itens soltos no chão somem, para o servidor não pesar. O chat avisa 1 minuto e 10 segundos antes. Túmulos e o que está dentro deles não são afetados.",
+      "Túmulos: ao quebrar o seu túmulo, o que você estava vestindo quando morreu volta sozinho para o lugar: armadura, mão secundária, anéis, amuletos e os outros acessórios. Só não volta se você já tiver colocado outra coisa no lugar.",
+      "Túmulos: quem morrer na Torre Infinita ou perto dela, dentro de um terreno de outro jogador ou junto às casas dos moradores dos reinos agora consegue quebrar o túmulo para pegar os itens. Nenhuma proteção do servidor segura mais o túmulo.",
+    ],
+  },
+  {
+    versao: "1.1.8", data: "19/11/2026", hora: "22:38:43", titulo: "Árvores caem inteiras",
+    itens: [
+      "Mod novo: FallingTree. Cortando o tronco de uma árvore com um machado, a árvore inteira cai de uma vez.",
+      "Só vale para árvore de verdade, com folhas. Casas, cercas e vigas de tora continuam quebrando bloco por bloco.",
+      "Não precisa baixar nada: o mod roda só no servidor.",
+    ],
+  },
+  {
+    versao: "1.1.7", data: "19/11/2026", hora: "21:09:32", titulo: "Túmulo dentro do labirinto",
+    itens: [
+      "Quem morrer dentro do Labirinto do Dragão agora consegue quebrar o próprio túmulo para pegar os itens de volta. Antes a proteção do lugar impedia.",
+    ],
+  },
+  {
+    versao: "1.1.6", data: "19/11/2026", hora: "19:33:17", titulo: "Bolsos dentro do inventário",
+    itens: [
+      "Os bolsos da calça agora aparecem dentro do próprio inventário, num painel à esquerda da mochila, um espaço para cada bolso costurado. Acabou o botão Bolsos.",
+      "Clique para guardar, pegar ou trocar; botão direito pega metade ou põe um; com Shift o item volta para a mochila. A tecla O continua abrindo os bolsos sem abrir o inventário.",
+      "Na página Minha conta do site, os atributos e as estatísticas agora usam a largura toda em vez de ficarem espremidos numa coluna.",
+      "Saiu o clima de terror, a pedido do pessoal: o Homem da Neblina (o monstro que perseguia os jogadores à noite) e os sons assustadores de ambiente foram removidos.",
+    ],
+  },
+  {
+    versao: "1.1.5", data: "19/11/2026", hora: "00:20:12", titulo: "O Labirinto do Dragão",
+    itens: [
+      "Surgiu um labirinto fechado no mundo. Lá dentro os monstros são muito mais fortes que os de fora, e há baús de tesouro (cada jogador tem o seu saque) nos becos mais fundos.",
+      "No coração do labirinto fica um salão seguro, onde monstro nenhum entra, com o Criador de Dragões, cama, baús e bancadas.",
+      "O labirinto é protegido: nada lá dentro pode ser quebrado nem construído, e explosão não abre caminho.",
+      "Só quem colocou uma Pedra de Viagem pode trocar o nome dela.",
+      "Ovos de dragão agora chocam sempre do tipo comprado: o lugar onde o ovo é colocado não muda mais a raça.",
+      "A página Minha conta do site ficou nova: seu personagem em destaque com a barra de XP, a sua jornada (tempo de jogo, monstros, posição nos rankings, Torre e temporada), a sua história, o bestiário pessoal, a reputação nos reinos e os seus terrenos marcados no mapa.",
+      "No Criador de Dragões, cada ovo agora mostra o que o dragão tem de especial.",
+      "A tela \"O Enhanced Celestials 2 chegou!\", que aparecia toda vez que você entrava no mundo, não abre mais.",
+    ],
+  },
+  {
+    versao: "1.1.4", data: "18/11/2026", hora: "22:39:36", titulo: "Habilidades únicas novas e mais mods em português",
+    itens: [
+      "Começamos a traduzir os mods que só vinham em inglês. Neste primeiro lote: as luas (Lua de Sangue, Lua Azul, Lua da Colheita e Superlua), o Homem da Neblina, os dragões e o que faltava do mod de samurai (katanas, armaduras e blocos).",
+      "A tradução aparece para quem joga com o Minecraft em português. Os outros mods vêm nos próximos lotes.",
+      "Dez habilidades únicas novas (agora são 20): Sangue de Titã, Pele de Espinhos, Olho por Olho, Estrela da Sorte, Toque Gélido, Coração de Brasa, Sede de Batalha, Sangue de Troll, Golpe em Eco e Escudo do Guardião. Cada uma tem a sua Habilidade Suprema.",
+      "O sorteio da habilidade única agora dá preferência às que menos gente tem, para não ficar todo mundo com a mesma. Quem já tem a sua continua com ela.",
+      "O mapa do site agora mostra onde fica a capital de cada reino, com o nome.",
+      "Os espaços extras de habilidade (liberados pelo rank da Guilda) agora ficam na mesma linha dos outros, entre os quatro comuns e a ultimate, em vez de soltos acima da barra.",
+    ],
+  },
+  {
+    versao: "1.1.3", data: "18/11/2026", hora: "16:14:30", titulo: "Kit inicial para personagens novos",
+    itens: [
+      "Todo personagem novo nasce com um kit: armadura de couro completa já vestida, espada, machado, pá e picareta de pedra e 32 pães. Tudo de classe F, então dá para usar desde o primeiro minuto.",
+      "Quem escolhe a classe Samurai recebe a Katana de Aprendiz, que já permite treinar o Saque no Rank F.",
+      "A criatura da neblina foi domada: só aparece à noite, não quebra portas, vidros nem blocos, e aparece com menos frequência.",
+      "O kit vale para personagens criados a partir de agora; os que já existem não recebem.",
+    ],
+  },
+  {
+    versao: "1.1.2", data: "18/11/2026", hora: "15:58:56", titulo: "Classe nova: Samurai, e noites mais sombrias",
+    itens: [
+      "Classe nova: Samurai, o duelista da katana. Depois de 3 segundos sem golpear, a katana volta à bainha e o próximo golpe é um Saque, 75% mais forte.",
+      "São 12 habilidades em três formas: Maré (gelo), Brasa (fogo) e Relâmpago (raio), além de cortes que sangram, uma postura de aparar e o golpe de misericórdia.",
+      "Despertar do Samurai: Lâmina das Três Formas. Por alguns segundos todo golpe é um Saque e alterna brasa, maré e relâmpago.",
+      "Mod novo: Samurai Dynasty, com katanas e armaduras de samurai. Com uma katana na mão o Samurai bate 10% mais forte; sem katana não há Saque.",
+      "As noites ficaram mais sombrias: sons tensos à noite e nas cavernas, noites de lua de sangue, e dizem que uma figura anda na neblina.",
+      "Para testar o Samurai sem perder o que você já tem, crie um segundo personagem (tecla F8).",
+    ],
+  },
+  {
+    versao: "1.1.1", data: "18/11/2026", hora: "14:17:33", titulo: "O céu do site acompanha o jogo",
+    itens: [
+      "Quando chove no jogo, o topo do site mostra chuva de verdade: gotas perto e longe, inclinadas pelo vento, com nuvens escuras passando.",
+      "Na tempestade, raios cortam o céu com galhos e um clarão que ilumina tudo por um instante.",
+      "De noite: estrelas piscando, lua, vaga-lumes e, de vez em quando, uma estrela cadente.",
+      "De dia: sol com raios, poeira dourada no ar e pássaros cruzando o céu.",
+      "Com chefe mundial à solta: fumaça vermelha e brasas subindo.",
+    ],
+  },
+  {
+    versao: "1.1.0", data: "18/11/2026", hora: "14:05:43", titulo: "Crônicas do mundo",
+    itens: [
+      "O site passou a guardar o que acontece: quem subiu de nível, quem mudou de rank na Guilda, conquistas, recordes na Torre e criaturas descobertas no bestiário.",
+      "O quadro Acontecendo agora mostra esses acontecimentos junto com o movimento ao vivo, e não fica mais vazio quando o servidor está calmo.",
+      "Seção nova: Crônicas do FRX. Os grandes feitos viram manchete com data e hora e ficam guardados para sempre.",
+      "A ficha de cada personagem ganhou um Histórico com os últimos acontecimentos dele.",
+      "No ranking Mais fortes aparece quantos níveis cada um ganhou na semana e, a partir de amanhã, quem subiu ou caiu de posição desde o dia anterior.",
+      "Tudo isso começa a contar de agora: o que aconteceu antes desta atualização não foi registrado.",
+    ],
+  },
+  {
+    versao: "1.0.9", data: "18/11/2026", hora: "14:05:43", titulo: "Site mais vivo",
+    itens: [
+      "O topo do site agora acompanha o mundo de verdade: muda de cara de dia, de noite, na chuva, na tempestade e quando um chefe mundial aparece, e diz quantos aventureiros estão jogando.",
+      "A temporada ganhou contagem regressiva até a virada do mês, medalhas para os três primeiros e a tabela de quantos pontos vale cada feito.",
+      "O bestiário virou coleção: uma barra mostra quantos chefes e monstros o servidor já descobriu.",
+      "Os rankings ganharam medalhas e uma barra que compara cada um com o primeiro colocado.",
+      "Números que sobem, barras que enchem e linhas que surgem: pequenas animações por todo o site.",
+    ],
+  },
+  {
+    versao: "1.0.8", data: "18/11/2026", hora: "13:35:33", titulo: "Criador de Dragões e cabeçalho novo no site",
+    itens: [
+      "Chegou o Criador de Dragões. Ele vende ovos dos 8 tipos de dragão, e são caríssimos: de 1.500 de ouro (Floresta e Água) até 12.000 de ouro (Dragão do Fim). Quanto mais raro, mais caro.",
+      "Coloque o ovo no chão e clique nele para começar a chocar. O lugar onde ele choca pode mudar o tipo do dragão, então escolha bem o ninho.",
+      "Fora do Criador, o único jeito de conseguir um ovo continua sendo derrotar o Dragão do Fim.",
+      "O site ganhou um cabeçalho novo: os atalhos principais ficam à vista, o resto fica em Mais, e no celular tudo abre por um botão.",
+    ],
+  },
+  {
+    versao: "1.0.7", data: "18/11/2026", hora: "13:24:22", titulo: "Conta no site, Guia do Aventureiro, Mural dos Primeiros e dragões",
+    itens: [
+      "Conta no site: o botão Minha conta mostra o seu inventário, as moedas, os terrenos e a ficha de cada personagem, sem abrir o jogo. No primeiro acesso, aperte F9 dentro do jogo para ver um código, digite no site e crie a sua senha. Depois é só nick e senha.",
+      "Capítulo novo no livro de missões: Guia do Aventureiro. Ele ensina, passo a passo, a se registrar na Guilda, subir a Torre, costurar bolsos na calça, comprar um terreno e entrar num clã, com experiência de recompensa.",
+      "Quem já fez essas coisas recebe as missões como concluídas e só precisa pegar a recompensa.",
+      "No site, o Mural dos Primeiros mostra quem foi o primeiro do servidor a chegar em cada rank da Guilda, em cada marco de nível e nos andares 10, 25, 50 e 100 da Torre. O nome fica lá para sempre.",
+      "Mod novo no pack: Dragon Mounts. Choque um ovo de dragão, crie o dragão e voe nele.",
+    ],
+  },
+  {
+    versao: "1.0.6", data: "18/11/2026", hora: "10:19:26", titulo: "Site: rankings por personagem",
+    itens: [
+      "No site, os aventureiros e os rankings agora mostram cada personagem em uma linha, com o nome dele. Quem tem dois ou três personagens aparece duas ou três vezes.",
+      "Clicar num personagem abre a ficha dele, mesmo que o dono esteja jogando com outro.",
+      "O personagem que não está em uso aparece com os números da última vez em que foi jogado. O banco é da conta, então conta para todos os personagens dela.",
+    ],
+  },
+  {
+    versao: "1.0.5", data: "18/11/2026", hora: "09:44:05", titulo: "Costureira: bolsos na calça",
+    itens: [
+      "Chegou a Costureira. Leve uma calça até ela (na mão ou vestida) e ela costura bolsos: cada bolso é um espaço a mais para guardar itens.",
+      "Cada bolso custa 2 de ouro e a calça aceita até 12. Dá para costurar um por vez ou vários de uma vez.",
+      "Vestindo a calça, abra os bolsos pelo botão Bolsos do inventário ou pela tecla O (dá para trocar a tecla nos controles).",
+      "Os bolsos são da calça, e o que está dentro é do personagem: se você tirar a calça, os itens voltam para a mochila, e o que não couber cai no chão.",
+      "Ao morrer, o que está nos bolsos cai junto com o resto da mochila.",
+    ],
+  },
+  {
+    versao: "1.0.4", data: "18/11/2026", hora: "09:26:24", titulo: "Anéis sem repetição",
+    itens: [
+      "Você continua com 10 espaços de anel, mas não dá mais para usar dois anéis iguais ao mesmo tempo.",
+      "Quem já estava com anéis repetidos recebe os repetidos de volta na mochila ao entrar no jogo.",
+    ],
+  },
+  {
+    versao: "1.0.3", data: "18/11/2026", hora: "09:12:26", titulo: "Mais espaços de habilidade e habilidades novas",
+    itens: [
+      "A barra de habilidades cresce com o rank da Guilda: além dos 4 espaços e da ultimate, o Rank E libera o 5º espaço, o D o 6º, o C o 7º e o B o 8º.",
+      "Os espaços novos aparecem numa linha acima da barra e têm teclas próprias (Z, H, N e Y), que você troca na janela de habilidades (tecla K).",
+      "Ao aprender uma habilidade, ela vai sozinha para um espaço livre, inclusive os novos.",
+      "Ladino, Clérigo e Invocador ganharam 6 habilidades cada e passam a ter 12, como as outras classes.",
+      "Ladino: Gancho do Gatuno, Cortina de Fumaça, Marcar a Vítima, Moeda Ricochete, Troca de Lugar e Armadilha do Gatuno.",
+      "Clérigo: Bênção da Vida, Correntes de Luz, Solo Sagrado, Manto da Fé, Lança de Luz e Dardos Celestiais.",
+      "Invocador: Correntes Espectrais, Marca da Presa, Dreno de Alma, Espíritos Caçadores, Alcateia Sombria e Círculo de Almas.",
+    ],
+  },
+  {
     versao: "1.0.2", data: "18/11/2026", hora: "08:37:53", titulo: "Limite de escravos por rank",
     itens: [
       "O Mercador de Escravos passou a ter limite: Rank D pode ter 4 aldeões comprados, C tem 8, B tem 16, A tem 34 e S tem 68.",

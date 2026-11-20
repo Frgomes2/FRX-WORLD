@@ -84,12 +84,17 @@ public class Grupos {
     }
 
     /** Membros online perto (mesma dimensão, até 48 blocos), incluindo o próprio. */
+    /**
+     * Quem divide a XP e o progresso de campanha com o jogador. Desde a 1.1.9 (grupos desativados) são os companheiros
+     * de clã que estão perto (mesma dimensão, até DISTANCIA blocos, vivos): no máximo MAXIMO contando com ele, os mais próximos.
+     */
     public static List<ServerPlayer> perto(ServerPlayer p) {
-        Grupo g = de(p);
-        if (g == null) return List.of(p);
         List<ServerPlayer> l = new ArrayList<>();
-        for (ServerPlayer m : online(g))
-            if (m == p || (m.level() == p.level() && m.distanceTo(p) <= DISTANCIA && m.isAlive())) l.add(m);
+        for (ServerPlayer m : p.serverLevel().players())
+            if (m != p && m.isAlive() && !m.isSpectator() && m.distanceTo(p) <= DISTANCIA && br.com.frxcode.frxworld.clas.Clas.mesmoCla(p, m)) l.add(m);
+        l.sort(java.util.Comparator.comparingDouble(m -> m.distanceToSqr(p)));
+        if (l.size() > MAXIMO - 1) l = new ArrayList<>(l.subList(0, MAXIMO - 1));
+        l.add(0, p);
         return l;
     }
 
@@ -328,7 +333,8 @@ public class Grupos {
         if (g != null) avisarGrupo(g, prefixo(g).append(Component.literal(e.getEntity().getGameProfile().getName() + " saiu do jogo.").withStyle(ChatFormatting.GRAY)));
     }
 
-    @SubscribeEvent
+    // Grupos foram desativados na 1.1.9 (ficaram só os clãs): os comandos /grupo e /g não são mais registrados e a aba saiu da
+    // janela de Status. Sem como formar grupo, a XP e o progresso de campanha voltam a ser só de quem matou.
     public void comandos(RegisterCommandsEvent evento) {
         evento.getDispatcher().register(Commands.literal("grupo")
                 .executes(ctx -> { mostrar(ctx.getSource().getPlayerOrException()); return 1; })

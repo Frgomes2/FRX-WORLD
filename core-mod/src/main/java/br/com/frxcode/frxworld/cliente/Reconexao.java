@@ -36,6 +36,11 @@ public final class Reconexao {
 
     @SubscribeEvent
     public static void aoAbrirTela(ScreenEvent.Opening e) {
+        // Propaganda do Enhanced Celestials 2 (aparece a cada entrada no mundo): não abre.
+        if (e.getNewScreen() != null && e.getNewScreen().getClass().getName().endsWith("EC2AnnouncementScreen")) {
+            e.setCanceled(true);
+            return;
+        }
         if (servidor == null || !(e.getNewScreen() instanceof DisconnectedScreen)) return;
         ServerData destino = servidor;
         servidor = null;

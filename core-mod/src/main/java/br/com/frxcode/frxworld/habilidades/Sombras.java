@@ -231,6 +231,7 @@ public class Sombras {
         if (!e.getEntity().getTags().contains(TAG)) return;
         LivingEntity alvo = e.getNewTarget();
         if (alvo == null) return;
+        if (Habilidades.focoEm(e.getEntity(), alvo)) return;   // jogador que o dono marcou de propósito
         if (alvo instanceof Player || alvo instanceof AbstractVillager || alvo.getTags().contains(Habilidades.TAG_INVOCADO)
                 || alvo.getTags().contains("frx_npc") || alvo.getTags().contains("frx_cidadao") || (alvo instanceof TamableAnimal t && t.isTame()))
             e.setCanceled(true);
@@ -248,6 +249,55 @@ public class Sombras {
         return l;
     }
 
+    // ------------------------------------------------------------------ posto: lugar para onde o Invocador mandou a tropa
+
+    static final String POSTO = "frx_posto";
+    /** Invocador → lugar marcado. A tropa vai até lá, luta com o que aparecer e volta para o lugar. */
+    private static final Map<UUID, Vec3> POSTOS = new HashMap<>();
+
+    private static void soltarPosto(ServerPlayer p) {
+        POSTOS.remove(p.getUUID());
+        for (Mob m : tropa(p)) m.getPersistentData().remove(POSTO);
+    }
+
+    /** Manda todas as sombras e invocações para o ponto olhado. Solta o alvo marcado, se havia. */
+    private static void mandarPara(ServerPlayer p, Vec3 ponto) {
+        boolean tinhaFoco = FOCOS.remove(p.getUUID()) != null;
+        POSTOS.put(p.getUUID(), ponto);
+        List<Mob> tropa = tropa(p);
+        for (Mob m : tropa) {
+            m.getPersistentData().remove(FOCO);
+            m.getPersistentData().putBoolean(POSTO, true);
+            if (tinhaFoco) m.setTarget(null);
+            m.getNavigation().moveTo(ponto.x, ponto.y, ponto.z, 1.25);
+        }
+        p.serverLevel().sendParticles(ParticleTypes.SOUL_FIRE_FLAME, ponto.x, ponto.y + 0.3, ponto.z, 16, 0.4, 0.2, 0.4, 0.01);
+        p.playNotifySound(SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.PLAYERS, 0.7f, 0.9f);
+        avisar(p, tropa.isEmpty() ? "⚫ Lugar marcado (nenhuma invocação agora)." : "⚫ Lugar marcado: " + tropa.size() + (tropa.size() == 1 ? " invocação vai para lá" : " invocações vão para lá")
+                + ". Mire no céu e marque de novo para chamá-las de volta.", ChatFormatting.LIGHT_PURPLE);
+    }
+
+    /** A cada segundo: quem tem posto e está sem alvo volta para o lugar; dono longe demais (48 blocos) ou fora desfaz o posto. */
+    private static void tickPostos(net.minecraft.server.MinecraftServer s) {
+        for (var it = POSTOS.entrySet().iterator(); it.hasNext(); ) {
+            var en = it.next();
+            ServerPlayer p = s.getPlayerList().getPlayer(en.getKey());
+            Vec3 ponto = en.getValue();
+            if (p == null || !p.isAlive() || p.distanceToSqr(ponto) > 48 * 48) {
+                it.remove();
+                if (p != null) {
+                    for (Mob m : tropa(p)) m.getPersistentData().remove(POSTO);
+                    avisar(p, "⚫ Você se afastou do lugar marcado: as invocações voltam a seguir você.", ChatFormatting.GRAY);
+                }
+                continue;
+            }
+            for (Mob m : tropa(p)) {
+                if (!m.getPersistentData().contains(POSTO)) m.getPersistentData().putBoolean(POSTO, true);   // invocadas depois da ordem
+                if (m.getTarget() == null && m.distanceToSqr(ponto) > 9 && m.getNavigation().isDone()) m.getNavigation().moveTo(ponto.x, ponto.y, ponto.z, 1.25);
+            }
+        }
+    }
+
     private static void soltarFoco(ServerPlayer p, boolean avisar) {
         boolean tinha = FOCOS.remove(p.getUUID()) != null;
         for (Mob m : tropa(p)) { m.getPersistentData().remove(FOCO); if (tinha) m.setTarget(null); }
@@ -257,11 +307,26 @@ public class Sombras {
     /** Tecla de marcar alvo: a criatura na mira vira o foco de todas as sombras e invocações; sem nada na mira, solta o foco. */
     static void marcarAlvo(ServerPlayer p) {
         LivingEntity alvo = Habilidades.mirar(p, 40, 0.6, false);
-        if (alvo == null || alvo.getTags().contains("frx_npc") || alvo.getTags().contains("frx_cidadao")) { soltarFoco(p, true); return; }
+        if (alvo == null && p.server.isPvpAllowed()) {
+            // nenhuma criatura na mira: vale marcar outro jogador (as invocações só atacam jogador assim, marcado de propósito)
+            LivingEntity j = Habilidades.mirar(p, 40, 0.6, true);
+            if (j instanceof ServerPlayer outro && !outro.isCreative() && !outro.isSpectator() && !br.com.frxcode.frxworld.clas.Clas.mesmoCla(p, outro)) alvo = outro;
+        }
+        if (alvo == null || alvo.getTags().contains("frx_npc") || alvo.getTags().contains("frx_cidadao")) {
+            // nada vivo na mira: olhando para um bloco, a tropa vai para lá e fica; olhando para o céu, volta a seguir o dono
+            Vec3 olho = p.getEyePosition();
+            net.minecraft.world.phys.BlockHitResult r = p.level().clip(new net.minecraft.world.level.ClipContext(olho, olho.add(p.getLookAngle().scale(40)),
+                    net.minecraft.world.level.ClipContext.Block.COLLIDER, net.minecraft.world.level.ClipContext.Fluid.NONE, p));
+            if (r.getType() == net.minecraft.world.phys.HitResult.Type.MISS) { soltarPosto(p); soltarFoco(p, true); }
+            else mandarPara(p, r.getLocation());
+            return;
+        }
         if (alvo.getUUID().equals(FOCOS.get(p.getUUID()))) { soltarFoco(p, true); return; }   // marcar o mesmo de novo desmarca
+        soltarPosto(p);   // com alvo marcado a tropa larga o posto e vai atrás dele
         FOCOS.put(p.getUUID(), alvo.getUUID());
         List<Mob> tropa = tropa(p);
         for (Mob m : tropa) { m.getPersistentData().putUUID(FOCO, alvo.getUUID()); m.setTarget(alvo); }
+        if (alvo instanceof ServerPlayer marcado) avisar(marcado, "⚫ " + p.getGameProfile().getName() + " marcou você: as invocações dele vão atacar você.", ChatFormatting.RED);
         alvo.addEffect(new MobEffectInstance(MobEffects.GLOWING, 60, 0, false, false));
         p.serverLevel().sendParticles(ParticleTypes.SOUL_FIRE_FLAME, alvo.getX(), alvo.getY() + alvo.getBbHeight() + 0.4, alvo.getZ(), 12, 0.2, 0.2, 0.2, 0.01);
         p.playNotifySound(SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.PLAYERS, 0.7f, 0.6f);
@@ -302,6 +367,7 @@ public class Sombras {
     public void aCadaTick(TickEvent.ServerTickEvent e) {
         if (e.phase != TickEvent.Phase.END || ++ticks % 10 != 0) return;
         if (!FOCOS.isEmpty()) tickFocos(e.getServer());
+        if (!POSTOS.isEmpty() && ticks % 20 == 0) tickPostos(e.getServer());
         // almas brilhando no chão
         for (List<Alma> lista : ALMAS.values()) {
             lista.removeIf(a -> a.nivel().getGameTime() > a.expira() || a.tentativas()[0] >= TENTATIVAS);
@@ -645,6 +711,7 @@ public class Sombras {
         public boolean canUse() {
             ServerPlayer p = dono();
             if (p == null) return false;
+            if (m.getPersistentData().contains(POSTO)) return false;   // mandada para um lugar: fica lá em vez de seguir
             double d = m.distanceToSqr(p);
             return d > (m.getTarget() == null ? 36 : 400);
         }
@@ -652,7 +719,7 @@ public class Sombras {
         @Override
         public boolean canContinueToUse() {
             ServerPlayer p = dono();
-            return p != null && m.distanceToSqr(p) > 9 && (m.getTarget() == null || m.distanceToSqr(p) > 400);
+            return p != null && !m.getPersistentData().contains(POSTO) && m.distanceToSqr(p) > 9 && (m.getTarget() == null || m.distanceToSqr(p) > 400);
         }
 
         @Override

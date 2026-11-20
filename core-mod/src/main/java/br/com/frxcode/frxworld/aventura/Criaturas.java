@@ -204,7 +204,7 @@ public class Criaturas {
                 }
             }
         }
-        PainelApi.enviarDerrotaCriatura(d.codigo());
+        PainelApi.enviarDerrotaCriatura(d.codigo(), matador != null ? br.com.frxcode.frxworld.acesso.Personagens.nome(matador) : gente.isEmpty() ? "" : br.com.frxcode.frxworld.acesso.Personagens.nome(gente.get(0)));
     }
 
     // ------------------------------------------------------------------ comandos de admin (o painel usa "invocar" e "recarregar")

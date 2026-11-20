@@ -208,7 +208,7 @@ public class Oficios {
 
     @SubscribeEvent
     public void naoQuebrar(BlockEvent.BreakEvent ev) {
-        if (!(ev.getLevel() instanceof ServerLevel nivel) || !(ev.getPlayer() instanceof ServerPlayer p) || p.isCreative()) return;
+        if (!(ev.getLevel() instanceof ServerLevel nivel) || !(ev.getPlayer() instanceof ServerPlayer p) || p.isCreative() || br.com.frxcode.frxworld.protecao.AreasProtegidas.tumulo(ev.getState())) return;
         for (Caixa c : caixas(nivel)) {
             if (c.contem(ev.getPos())) {
                 ev.setCanceled(true);

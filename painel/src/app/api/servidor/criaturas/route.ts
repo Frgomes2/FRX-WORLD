@@ -22,13 +22,20 @@ export async function GET(req: Request) {
   });
 }
 
-const schema = z.object({ codigo: z.string().regex(/^[a-z0-9_]{2,30}$/) });
+const schema = z.object({ codigo: z.string().regex(/^[a-z0-9_]{2,30}$/), matador: z.string().max(40).optional() });
 
 /** O servidor avisa cada vez que uma criatura do Códex é derrotada. */
 export async function POST(req: Request) {
   if (!tokenValido(req)) return naoAutorizado();
   const dados = schema.safeParse(await req.json().catch(() => null));
   if (!dados.success) return NextResponse.json({ erro: "dados inválidos" }, { status: 400 });
+  // primeira derrota de todas: guarda quem foi (só quando o contador ainda está em zero, para não dar o título a quem veio depois)
+  const matador = (dados.data.matador ?? "").trim();
+  if (matador) {
+    type Tabela = { updateMany: (a: { where: Record<string, unknown>; data: Record<string, unknown> }) => Promise<unknown> };
+    await (prisma as unknown as { criaturaCodex: Tabela }).criaturaCodex
+      .updateMany({ where: { codigo: dados.data.codigo, derrotas: 0 }, data: { primeiroNome: matador, primeiroEm: new Date() } }).catch(() => null);
+  }
   await prisma.criaturaCodex.updateMany({ where: { codigo: dados.data.codigo }, data: { derrotas: { increment: 1 } } });
   return NextResponse.json({ ok: true });
 }

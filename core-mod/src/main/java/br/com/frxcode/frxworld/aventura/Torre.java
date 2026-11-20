@@ -562,7 +562,7 @@ public class Torre {
 
     @SubscribeEvent
     public void aoQuebrar(BlockEvent.BreakEvent ev) {
-        if (ev.getLevel() instanceof Level l && protegido(l, ev.getPos()) && !admin(ev.getPlayer())) {
+        if (ev.getLevel() instanceof Level l && protegido(l, ev.getPos()) && !admin(ev.getPlayer()) && !br.com.frxcode.frxworld.protecao.AreasProtegidas.tumulo(ev.getState())) {
             ev.setCanceled(true);
             ev.getPlayer().displayClientMessage(Component.literal("A Torre não pode ser quebrada.").withStyle(ChatFormatting.RED), true);
         }

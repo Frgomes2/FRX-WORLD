@@ -106,6 +106,8 @@ Código: `habilidades/Sombras.java` · Pacotes `SyncSombras` e `AcaoSombra` · T
   - As sombras seguem o dono e atacam o que ele ataca.
   - Uma sombra que morre leva 60 s para se recompor.
   - Ao sair ou morrer, as sombras fora são recolhidas.
+  - **Marcar:** aponta para uma criatura e a tropa ataca; com PvP ligado, vale para outro jogador (menos membros do mesmo clã), que recebe um aviso. Apontando para um bloco a até 40 blocos, a tropa vai até lá e fica de **posto**; o posto se desfaz se o dono se afastar mais de 48 blocos, e apontar para o céu libera a tropa.
+  - Invocações (sombras, golem e as demais) não atacam jogadores, aldeões, NPCs, animais domados nem outras invocações, a não ser o alvo marcado.
 - **Comandos:** `/sombra erguer|invocar|todas|guardar|libertar` e `/levantese`.
 
 ## Talentos
@@ -117,3 +119,26 @@ Código: `habilidades/Talentos.java`. Tela: aba Talentos da janela de Status.
 - O 2º talento do ramo pede 5 pontos no ramo, o 3º pede 10, o 4º 15 e o último (capstone) 20.
 - Os talentos dão atributos, como dano, vida, crítico, esquiva e roubo de vida. Com o Apothic ativo, crítico, roubo de vida, esquiva e dano de arco viram atributos do Apothic. Veja [atributos-forja.md](atributos-forja.md).
 - `/talentos aprender <id>` · `/talentos resetar` · admin `/frx talentos resetar <j>`.
+
+## Espaços da barra por rank da Guilda
+
+A barra tem 4 espaços comuns e 1 de ultimate para todos. O rank da Guilda libera mais espaços comuns: Rank E o 5º, D o 6º, C o 7º e B o 8º (A e S ficam com 8). Os extras aparecem numa linha acima da barra, com as teclas Z, H, N e Y por padrão; todas as teclas são trocadas na janela de habilidades (tecla K). Quem perde o rank mantém a habilidade no espaço, mas não consegue usá-la até recuperar o rank.
+
+## Samurai (1.1.2)
+
+- **Recurso:** Energia. **Arma:** katana (qualquer item cujo id contenha `katana`, `odachi`, `nodachi`, `wakizashi`, `tachi` ou `uchigatana`; as do mod Samurai Dynasty servem).
+- **Saque:** 3 s sem golpear embainham a katana; o golpe corpo a corpo seguinte causa 75% a mais. Todo golpe com katana causa 10% a mais. Código em `habilidades/Bushido.java`.
+- **Formas:** as habilidades usam os elementos Gelo (Maré), Fogo (Brasa) e Raio (Relâmpago).
+- **Despertar:** Lâmina das Três Formas (todo golpe é Saque e alterna as três formas).
+- **Talentos:** Fio da Lâmina (dano físico e crítico), Três Formas (dano de habilidade) e Honra (armadura, vida e resistência).
+
+## Cartomante (1.2.1)
+
+- **Recurso:** Mana. Classe da sorte, original do FRX-WORLD. Código: `habilidades/Cartas.java`.
+- **Mão:** 3 cartas sorteadas, mostradas na barra de ação (a da vez entre colchetes). Toda habilidade de dano gasta a carta da vez e puxa outra para o fim da mão.
+- **Naipes:** Espadas +40% de dano · Copas cura 20% do dano causado · Ouros devolve 60% da mana gasta · Paus prende o alvo por 2 s · Coringa (8% por carta) faz os quatro.
+- **Habilidades:** Carta Cortante (1), Embaralhar (2), Cara ou Coroa (4), Leque de Cartas (5), Truque de Mão (7), Carta Marcada (8), Maré de Sorte (10), Mão Cheia (12), Cartas na Mesa (14), Blefe (16), Ás na Manga (18, Tomo), Casa Cheia (25, ultimate).
+- **Não gastam carta:** Embaralhar, Maré de Sorte, Blefe, Truque de Mão. Mão Cheia gasta as três. Casa Cheia vale como Coringa e não mexe na mão.
+- **Despertar:** Mão Perfeita, 8 a 12 s com toda carta saindo Coringa.
+- **Talentos:** Naipes (dano), Baralho (recarga e custo), Sorte (vida, crítico, resistência).
+- A mão fica só na memória do servidor: ao sair e voltar, o jogador recebe uma mão nova.

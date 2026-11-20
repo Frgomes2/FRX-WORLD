@@ -36,7 +36,8 @@ public class DadosJogador {
     private double recurso = 0;
     private final Map<String, RegistroHabilidade> habilidades = new HashMap<>();
     /** Barra de combate: 4 ativas + ultimate (posição 4). "" = vazio. */
-    private final String[] barra = {"", "", "", "", ""};
+    /** 0 a 3: habilidades; 4: ultimate; 5 a 8: espaços extras, liberados pelo rank da Guilda. */
+    private final String[] barra = {"", "", "", "", "", "", "", "", ""};
 
     /** Reputação por reino (id do reino → pontos) e título escolhido ("" = nenhum). */
     private final Map<String, Integer> reputacao = new HashMap<>();

@@ -74,6 +74,16 @@ public class Suprema {
         TODAS.put("sangue", new Def("Monarca Carmesim", "Sede: por 10 s, 30% do dano causado volta como vida.", 90));
         TODAS.put("vento", new Def("Deus do Vento", "Rajada: avanço de 12 blocos e Velocidade III por 10 s.", 45));
         TODAS.put("imortal", new Def("Fênix Eterna", "Renascer: cura toda a vida e limpa os efeitos ruins.", 180));
+        TODAS.put("titan", new Def("Colosso Primordial", "Colosso: corações extras e Resistência II por 10 s.", 90));
+        TODAS.put("espinhos", new Def("Rei dos Espinhos", "Estouro: espinhos ferem e deixam lentos todos os inimigos a 8 blocos.", 75));
+        TODAS.put("vingador", new Def("Juiz Implacável", "Sentença: Força III por 8 s.", 90));
+        TODAS.put("sorte", new Def("Favorito do Destino", "Fortuna: muita sorte por 60 s (baús e monstros rendem bem mais).", 180));
+        TODAS.put("gelo", new Def("Senhor do Inverno", "Nevasca: fere e prende no gelo por 5 s os inimigos a 8 blocos.", 75));
+        TODAS.put("chama", new Def("Coração do Vulcão", "Erupção: fere e incendeia os inimigos a 8 blocos; você fica imune a fogo por 20 s.", 75));
+        TODAS.put("berserk", new Def("Deus da Guerra", "Frenesi: Força II, Velocidade II e Pressa II por 12 s.", 90));
+        TODAS.put("regen", new Def("Fonte da Vida", "Nascente: Regeneração forte por 8 s em você e nos jogadores a 8 blocos.", 90));
+        TODAS.put("eco", new Def("Mil Ecos", "Ressonância: Pressa III e Força I por 10 s.", 90));
+        TODAS.put("guardiao", new Def("Guardião Eterno", "Domo: quase nenhum dano passa por 4 s.", 120));
         TODAS.put("cacador", new Def("Predador Ápice", "Marca: o inimigo mais forte a 24 blocos fica marcado e sofre 40% a mais de dano por 12 s.", 75));
     }
 
@@ -263,6 +273,49 @@ public class Suprema {
                 p.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 200, 1, false, true));
                 nivel.sendParticles(ParticleTypes.FLAME, p.getX(), p.getY() + 1, p.getZ(), 80, 0.5, 1, 0.5, 0.08);
             }
+            case "titan" -> {
+                p.addEffect(new MobEffectInstance(MobEffects.ABSORPTION, 200, 4, false, true));
+                p.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 200, 1, false, true));
+            }
+            case "espinhos" -> {
+                for (LivingEntity e : inimigos(p, 8)) {
+                    e.hurt(p.damageSources().thorns(p), fatia(e, 0.18, 7, 70));
+                    e.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 100, 1));
+                    nivel.sendParticles(ParticleTypes.CRIT, e.getX(), e.getY() + 1, e.getZ(), 14, 0.3, 0.5, 0.3, 0.2);
+                }
+            }
+            case "vingador" -> p.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, 160, 2, false, true));
+            case "sorte" -> p.addEffect(new MobEffectInstance(MobEffects.LUCK, 1200, 4, false, true));
+            case "gelo" -> {
+                for (LivingEntity e : inimigos(p, 8)) {
+                    e.hurt(p.damageSources().freeze(), fatia(e, 0.15, 6, 60));
+                    e.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 100, 6));
+                    e.setTicksFrozen(200);
+                    nivel.sendParticles(ParticleTypes.SNOWFLAKE, e.getX(), e.getY() + 1, e.getZ(), 20, 0.4, 0.6, 0.4, 0.02);
+                }
+            }
+            case "chama" -> {
+                for (LivingEntity e : inimigos(p, 8)) {
+                    e.hurt(p.damageSources().onFire(), fatia(e, 0.15, 6, 60));
+                    e.setSecondsOnFire(8);
+                }
+                p.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 400, 0, false, true));
+                nivel.sendParticles(ParticleTypes.LAVA, p.getX(), p.getY() + 1, p.getZ(), 40, 3, 0.5, 3, 0);
+            }
+            case "berserk" -> {
+                p.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, 240, 1, false, true));
+                p.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 240, 1, false, true));
+                p.addEffect(new MobEffectInstance(MobEffects.DIG_SPEED, 240, 1, false, true));
+            }
+            case "regen" -> {
+                for (ServerPlayer j : nivel.players()) if (j.distanceToSqr(p) <= 64) j.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 160, 3, false, true));
+                nivel.sendParticles(ParticleTypes.HEART, p.getX(), p.getY() + 1.5, p.getZ(), 16, 2, 0.5, 2, 0);
+            }
+            case "eco" -> {
+                p.addEffect(new MobEffectInstance(MobEffects.DIG_SPEED, 200, 2, false, true));
+                p.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, 200, 0, false, true));
+            }
+            case "guardiao" -> p.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 80, 4, false, true));
             case "cacador" -> {
                 LivingEntity alvo = null;
                 for (LivingEntity e : inimigos(p, 24)) if (alvo == null || e.getMaxHealth() > alvo.getMaxHealth()) alvo = e;

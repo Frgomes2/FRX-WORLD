@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { DadosPublicos, PerfilPublico } from "@/lib/publico";
 
 export const COR_RANK: Record<string, string> = { F: "#8b8378", E: "#6fbf73", D: "#5aa9e6", C: "#b085f5", B: "#f0a04b", A: "#ef5350", S: "#f5d04a" };
-export const ICONE_CLASSE: Record<string, string> = { Guerreiro: "⚔️", Arqueiro: "🏹", Mago: "🔮", "Clérigo": "✨", Ladino: "🗡️", Assassino: "🥷", Invocador: "👻", Paladino: "🛡️", Bardo: "🎵", Monge: "👊", Druida: "🌿" };
+export const ICONE_CLASSE: Record<string, string> = { Cartomante: "🃏", Samurai: "🎌", Guerreiro: "⚔️", Arqueiro: "🏹", Mago: "🔮", "Clérigo": "✨", Ladino: "🗡️", Assassino: "🥷", Invocador: "👻", Paladino: "🛡️", Bardo: "🎵", Monge: "👊", Druida: "🌿" };
 
 const imagens = new Map<string, Promise<HTMLImageElement>>();
 function carregarSkin(nick: string) {
@@ -60,9 +60,9 @@ export function Podio({ fortes, abrir }: { fortes: DadosPublicos["rankings"]["fo
   return (
     <div className="mb-6 flex items-end justify-center gap-3 sm:gap-6">
       {ordem.map((j, i) => (
-        <button key={j.nick} type="button" onClick={() => abrir(j.nick)} className="group flex w-28 flex-col items-center sm:w-36">
+        <button key={`${j.conta}#${j.vaga}`} type="button" onClick={() => abrir(`${j.conta}#${j.vaga}`)} className="group flex w-28 flex-col items-center sm:w-36">
           {i === 1 && <span className="mb-1 text-2xl" aria-hidden="true">👑</span>}
-          <span className="transition-transform group-hover:-translate-y-1"><Skin nick={j.nick} modo="corpo" tam={i === 1 ? 72 : 56} /></span>
+          <span className="transition-transform group-hover:-translate-y-1"><Skin nick={j.conta} modo="corpo" tam={i === 1 ? 72 : 56} /></span>
           <span className="mt-1 max-w-full truncate font-semibold group-hover:text-ouro">{j.nick}</span>
           <span className="text-xs text-pedra-500">Nível {j.valor}</span>
           <span className={`mt-1 flex w-full items-start justify-center rounded-t-lg border border-b-0 border-pedra-700 bg-gradient-to-b from-pedra-700 to-pedra-900 pt-2 font-titulo text-2xl ${alt[i]}`} style={{ color: cor[i] }}>{lugar[i]}</span>
@@ -78,11 +78,11 @@ export function Galeria({ lista, abrir }: { lista: DadosPublicos["aventureiros"]
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
       {lista.map((j) => (
-        <button key={j.nick} type="button" onClick={() => abrir(j.nick)}
+        <button key={`${j.conta}#${j.vaga}`} type="button" onClick={() => abrir(`${j.conta}#${j.vaga}`)}
           className="group relative flex flex-col items-center rounded-xl border border-pedra-700 bg-gradient-to-b from-pedra-800 to-pedra-900 px-3 pb-3 pt-4 text-center transition hover:-translate-y-1 hover:border-ouro">
           {j.online && <span className="absolute right-2 top-2 flex items-center gap-1 text-[10px] text-green-400"><span className="h-2 w-2 animate-pulse rounded-full bg-green-400" />online</span>}
           <span className="absolute left-2 top-2"><SeloRank rank={j.rank} /></span>
-          <Skin nick={j.nick} modo="corpo" tam={56} />
+          <Skin nick={j.conta} modo="corpo" tam={56} />
           <span className="mt-2 max-w-full truncate font-semibold group-hover:text-ouro">{j.nick}</span>
           {j.titulo && <span className="max-w-full truncate text-[11px] text-ouro-escuro">«{j.titulo}»</span>}
           <span className="mt-1 text-xs text-pedra-500">{ICONE_CLASSE[j.classe] ?? "🎒"} {j.classe} · Nv {j.nivel}</span>
@@ -99,10 +99,12 @@ function horas(min: number) {
 function dataBr(iso: string) { return iso.split("-").reverse().join("/"); }
 
 /** Ficha do jogador numa janela por cima da página. */
-export function Perfil({ nick, fechar }: { nick: string; fechar: () => void }) {
+export function Perfil({ nick: pedido, fechar }: { nick: string; fechar: () => void }) {
+  // "Conta#2" abre direto o personagem da vaga 2 daquela conta; um nome sozinho abre a conta (ou o personagem com esse nome)
+  const [nick, vagaPedida] = pedido.split("#");
   const [p, setP] = useState<PerfilPublico | null>(null);
   const [erro, setErro] = useState(false);
-  const [vaga, setVaga] = useState(0);   // 0 = o personagem em uso (ou o do nome clicado)
+  const [vaga, setVaga] = useState(Number(vagaPedida) || 0);   // 0 = o personagem em uso (ou o do nome clicado)
   useEffect(() => {
     let vivo = true;
     fetch(`/api/publico/jogador?nick=${encodeURIComponent(nick)}${vaga ? `&vaga=${vaga}` : ""}`).then((r) => (r.ok ? r.json() : Promise.reject())).then((j) => { if (vivo) setP(j); }).catch(() => { if (vivo) setErro(true); });
@@ -217,6 +219,20 @@ export function Perfil({ nick, fechar }: { nick: string; fechar: () => void }) {
                 </ul>
               ) : <p className="text-sm text-pedra-500">{p.totalHabilidades ? "Ainda não aprendeu nenhuma habilidade." : "As habilidades aparecem depois que o jogador entrar no servidor de novo."}</p>}
             </div>
+            {p.historico.length > 0 && (
+              <div className="mt-6">
+                <h3 className="mb-3 font-titulo text-xl text-ouro">Histórico</h3>
+                <ol className="relative space-y-3 border-l border-pedra-700 pl-5">
+                  {p.historico.map((h, i) => (
+                    <li key={i} className="frx-surge relative" style={{ animationDelay: `${i * 40}ms` }}>
+                      <span className={`absolute -left-[26px] top-1 h-3 w-3 rounded-full border-2 border-pedra-900 ${h.destaque ? "bg-ouro" : "bg-pedra-500"}`} aria-hidden="true" />
+                      <p className="text-xs text-pedra-500">{new Date(h.quando).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}</p>
+                      <p className={h.destaque ? "text-ouro" : ""}><span aria-hidden="true">{h.icone}</span> {h.texto.charAt(0).toUpperCase() + h.texto.slice(1)}</p>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            )}
           </div>
         )}
       </div>

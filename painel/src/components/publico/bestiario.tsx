@@ -50,6 +50,11 @@ function Cartao({ c }: { c: CriaturaPublica }) {
       <div className="frx-bicho-retrato">{c.skin ? <Corpo codigo={c.codigo} slim={c.slim} /> : <span className="text-5xl" aria-hidden>{c.tipo === "chefe" ? "☠" : "👹"}</span>}</div>
       <p className="frx-bicho-nome">{c.tipo === "chefe" ? "☠ " : ""}{c.nome}</p>
       <p className="frx-bicho-linha">{faixa} · derrotado {c.derrotas}×</p>
+      <p className="frx-bicho-linha" title={c.primeiro ? "Primeiro personagem do servidor a derrotar esta criatura" : "A primeira derrota aconteceu antes de o servidor passar a registrar quem foi"}>
+        {c.primeiro
+          ? <>🏆 Primeiro: <b className="text-ouro">{c.primeiro}</b>{c.primeiroEm ? ` · ${new Date(c.primeiroEm).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo", day: "2-digit", month: "2-digit" })}` : ""}</>
+          : <span className="opacity-70">🏆 Primeiro: sem registro</span>}
+      </p>
       {c.descricao && <p className="frx-bicho-historia">{c.descricao}</p>}
       {!!c.golpes.length && <p className="frx-bicho-golpes">{c.golpes.map((g) => <span key={g.nome} title={`${g.nome}: ${g.desc}`}>{g.icone}</span>)}</p>}
       {!!c.locais.length && <p className="frx-bicho-dica">{c.locais.join(" · ")}</p>}
@@ -73,7 +78,20 @@ export function Bestiario({ criaturas }: { criaturas: CriaturaPublica[] }) {
   };
   return (
     <>
-      <div className="mb-4 flex flex-wrap gap-2">{botao("chefe", "☠ Chefes")}{!!total("monstro").length && botao("monstro", "👹 Monstros")}</div>
+      <div className="mb-3 flex flex-wrap gap-2">{botao("chefe", "☠ Chefes")}{!!total("monstro").length && botao("monstro", "👹 Monstros")}</div>
+      {(() => {
+        const todos = total(aba), achados = todos.filter((c) => c.descoberto).length, pct = todos.length ? Math.round((achados / todos.length) * 100) : 0;
+        return (
+          <div className="mb-4 rounded-xl border border-pedra-700 bg-pedra-900 px-4 py-3">
+            <p className="mb-1.5 flex items-baseline justify-between text-sm">
+              <span>Coleção do servidor: <b className="text-ouro">{achados}</b> de {todos.length} {aba === "chefe" ? "chefes" : "monstros"} descobertos</span>
+              <span className="font-titulo text-xl text-ouro">{pct}%</span>
+            </p>
+            <div className="h-2.5 overflow-hidden rounded-full bg-pedra-950"><div key={aba} className="frx-enche h-full rounded-full bg-gradient-to-r from-ouro-escuro to-ouro" style={{ width: `${pct}%` }} /></div>
+            {achados < todos.length && <p className="mt-1.5 text-xs text-pedra-500">Os que faltam aparecem como «?». Derrote um para revelar o nome, a história e os golpes dele para todo mundo.</p>}
+          </div>
+        );
+      })()}
       {lista.length ? <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">{lista.map((c, i) => <Cartao key={c.descoberto ? c.codigo : `oculto-${i}`} c={c} />)}</div>
         : <p className="text-sm text-pedra-500">Nenhuma criatura deste tipo ainda.</p>}
     </>

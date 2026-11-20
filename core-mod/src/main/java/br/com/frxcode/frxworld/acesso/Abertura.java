@@ -253,6 +253,7 @@ public class Abertura {
         }
         p.removeEffect(MobEffects.BLINDNESS);
         p.removeEffect(MobEffects.DAMAGE_RESISTANCE);
+        kitInicial(p);
         if (pararAoNascer()) pararMusica(p); else dados(p).remove("musica");
         p.level().playSound(null, p.blockPosition(), SoundEvents.BEACON_ACTIVATE, SoundSource.PLAYERS, 1.5f, 1.2f);
         String reino = r != null ? r.nome() : "este mundo";
@@ -265,6 +266,29 @@ public class Abertura {
         Sistema.avisar(p, "Bem-vindo a " + reino, "Fale com o taverneiro para pegar missões e com a recepcionista da Guilda para se registrar.", Sistema.OURO);
         p.sendSystemMessage(Component.literal("Dicas: ").withStyle(ChatFormatting.GOLD)
                 .append(Component.literal("tecla K = habilidades · tecla E = status · /raca · /unica · /banco").withStyle(ChatFormatting.WHITE)));
+    }
+
+    /**
+     * Kit de quem acaba de nascer (uma vez por personagem): armadura de couro e ferramentas de pedra, tudo de classe F
+     * (qualquer um pode usar, mesmo sem registro na Guilda), e pão para os primeiros dias.
+     * A armadura já vem vestida; se o espaço estiver ocupado, vai para a mochila.
+     */
+    private static void kitInicial(ServerPlayer p) {
+        if (dados(p).getBoolean("kit")) return;
+        dados(p).putBoolean("kit", true);
+        net.minecraft.world.item.Item[] armadura = {net.minecraft.world.item.Items.LEATHER_HELMET, net.minecraft.world.item.Items.LEATHER_CHESTPLATE,
+                net.minecraft.world.item.Items.LEATHER_LEGGINGS, net.minecraft.world.item.Items.LEATHER_BOOTS};
+        net.minecraft.world.entity.EquipmentSlot[] onde = {net.minecraft.world.entity.EquipmentSlot.HEAD, net.minecraft.world.entity.EquipmentSlot.CHEST,
+                net.minecraft.world.entity.EquipmentSlot.LEGS, net.minecraft.world.entity.EquipmentSlot.FEET};
+        for (int i = 0; i < armadura.length; i++) {
+            net.minecraft.world.item.ItemStack peca = new net.minecraft.world.item.ItemStack(armadura[i]);
+            if (p.getItemBySlot(onde[i]).isEmpty()) p.setItemSlot(onde[i], peca);
+            else if (!p.getInventory().add(peca)) p.drop(peca, false);
+        }
+        net.minecraft.world.item.ItemStack[] itens = {new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.STONE_SWORD),
+                new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.STONE_AXE), new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.STONE_SHOVEL),
+                new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.STONE_PICKAXE), new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.BREAD, 32)};
+        for (net.minecraft.world.item.ItemStack s : itens) if (!p.getInventory().add(s)) p.drop(s, false);
     }
 
     /**

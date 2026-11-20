@@ -142,6 +142,7 @@ Ficam em `server/FRX-WORLD/` e valem só para aquele mundo (mundo novo começa s
 | `frx_temporada.json` | Placar do mês, prêmios pendentes e títulos de temporada |
 | `frx_terrenos.json` | Terrenos comprados, permissões de cada dono e terras do reino marcadas pelo admin |
 | `frx_clas.json` | Clãs: membros, cargos, cofre e pedidos |
+| `frx_protegidas.txt` · `frx_chegadas.json` | Áreas protegidas e seus refúgios · primeira chegada de cada personagem a cada refúgio |
 | `frx_mercado.json` | Anúncios e valores a receber do Leiloeiro |
 | `frx_codex.json` · `frx_discos.json` · `frx_escravos.json` | Unidades emitidas de cada arma do Códex · discos vendidos · aldeões comprados e perdidos por conta |
 | `frx_personagens/` | Índice e arquivo de cada personagem fora de uso (`<uuid>.json`, `<uuid>-<vaga>.dat`) |

@@ -41,6 +41,11 @@ hash = "53b7beb4046bd6d00cee083ce3d7be9be5dfa392515c68596f932eaba7f184fe"
 metafile = true
 
 [[files]]
+file = "mods/azurelib.pw.toml"
+hash = "822fa82df5f0c29fa6b58aaf7b56a93e1897dd72e0b7a5b3b0644ad47d18c213"
+metafile = true
+
+[[files]]
 file = "mods/balm.pw.toml"
 hash = "92eef137f9ea740673053ec3604ddf3ed197f22fdf5e5da35c8364f88ad31650"
 metafile = true
@@ -86,6 +91,11 @@ hash = "ecc19205a3523f1d410c75ab03c60e8b7089820a87ad275f36a4a220cc7b6744"
 metafile = true
 
 [[files]]
+file = "mods/corgilib.pw.toml"
+hash = "3a04e507c1411b97bf5aa3ce3f238249de5f43b876997d7bfb4d98e325231494"
+metafile = true
+
+[[files]]
 file = "mods/cosmetic-armor-reworked.pw.toml"
 hash = "cfa8aa9c0437721dab2057c932c9cf8ec3d3a11f672040601305238d13df85e8"
 metafile = true
@@ -121,6 +131,11 @@ hash = "55d77d596c2d805f28b47ea53725ccaa220d2857177cad3909e48d8c12b2a2cb"
 metafile = true
 
 [[files]]
+file = "mods/data-anchor.pw.toml"
+hash = "62472a60936379eed43ebc923d32ecc8b17521db391a49ea687d38a5e47a047f"
+metafile = true
+
+[[files]]
 file = "mods/deeperdarker.pw.toml"
 hash = "eb60f70cc84efa111a51c35311a44ae352b3b9c98ec7ba4e64595ae627e33006"
 metafile = true
@@ -128,6 +143,11 @@ metafile = true
 [[files]]
 file = "mods/domestication-innovation.pw.toml"
 hash = "bfd2911d1fc7136f92be93d4e3081b85f30109373ac640fbac2e3b3896d709f2"
+metafile = true
+
+[[files]]
+file = "mods/dragon-mounts-legacy.pw.toml"
+hash = "03160102e1de0cc704dc461daae4507f12476cade47f5ecb0287c15ddd683222"
 metafile = true
 
 [[files]]
@@ -166,8 +186,23 @@ hash = "5ec0c37f3f4ad07a40c10376668bca80334ddb7ad2bab06eb4de8f7aac339c8e"
 metafile = true
 
 [[files]]
+file = "mods/enhanced-celestials.pw.toml"
+hash = "83d47d0556bae400118973eed53c20e87bc81536f70af1c8add6cd5ef9f7cbb7"
+metafile = true
+
+[[files]]
+file = "mods/epic-samurais.pw.toml"
+hash = "5c02302f5c6f1c82cb6caabc7e0f88dfd3a14504dd6963c193e65f1e1bc79ce3"
+metafile = true
+
+[[files]]
 file = "mods/explorify.pw.toml"
 hash = "6adce6422e74091638dbd7872270ee58d9a22dc18340580f809cc50c739e0d4f"
+metafile = true
+
+[[files]]
+file = "mods/fallingtree.pw.toml"
+hash = "6fb316b91683ac19e1b3486b9ca99e0c1cd6c59d086d134b23c0dd033de0be60"
 metafile = true
 
 [[files]]
@@ -181,8 +216,8 @@ hash = "dd7c74c71d3facf74a684055b546cef5430b06b18dfe85cf8761b61ee9c92881"
 metafile = true
 
 [[files]]
-file = "mods/frxworld-1.0.2.jar"
-hash = "e2fa9b40ee3cac87875568147830305f34cc8096a4fc139ce4e45a1ef5ce52f0"
+file = "mods/frxworld-1.2.1.jar"
+hash = "587e2d32412fbacea3236fd9d53feda51a5e33c951076fe0606c5f0a4832850a"
 
 [[files]]
 file = "mods/ftb-library-forge.pw.toml"

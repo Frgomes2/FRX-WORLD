@@ -74,6 +74,7 @@ public class Guilda {
     public static void definirRank(ServerPlayer p, int indice) {
         dados(p).putBoolean("registrado", true);
         dados(p).putInt("rank", Math.max(0, Math.min(ConfigJogo.totalRanks() - 1, indice)));
+        br.com.frxcode.frxworld.habilidades.Habilidades.sincronizar(p);   // o rank libera espaços na barra de habilidades
         Progressao.atualizarNome(p);
         Progressao.enviarAoPainel(p, false);
     }
@@ -256,12 +257,15 @@ public class Guilda {
         ex.setItemSlot(EquipmentSlot.HEAD, new ItemStack(elmo[alvo]));
         ex.setItemSlot(EquipmentSlot.CHEST, new ItemStack(peito[alvo]));
         for (EquipmentSlot s : EquipmentSlot.values()) ex.setDropChance(s, 0f);
-        base(ex, Attributes.MAX_HEALTH, 50 + 25 * alvo);
-        base(ex, Attributes.ATTACK_DAMAGE, 2 + alvo);
-        base(ex, Attributes.MOVEMENT_SPEED, 0.27 + 0.01 * alvo);
-        base(ex, Attributes.KNOCKBACK_RESISTANCE, 0.3);
+        // Da prova do Rank D em diante o examinador é bem mais duro: a cada rank ganha +50% de vida e +2 de dano na base,
+        // corre mais, quase não é empurrado e luta alguns níveis acima do mínimo do rank (D +5, C +10, B +15, A +20, S +25).
+        int duro = Math.max(0, alvo - 1);   // 0 nas provas de E; 1 em D, 2 em C, 3 em B, 4 em A, 5 em S
+        base(ex, Attributes.MAX_HEALTH, (50 + 25 * alvo) * (1 + 0.5 * duro));
+        base(ex, Attributes.ATTACK_DAMAGE, 2 + alvo + 2 * duro);
+        base(ex, Attributes.MOVEMENT_SPEED, 0.27 + 0.01 * alvo + (duro > 0 ? 0.02 : 0));
+        base(ex, Attributes.KNOCKBACK_RESISTANCE, duro > 0 ? 0.6 : 0.3);
         base(ex, Attributes.FOLLOW_RANGE, 48);
-        Zonas.aplicarNivel(ex, ConfigJogo.nivelMinDoRank(alvo));   // força de um monstro do nível daquele rank
+        Zonas.aplicarNivel(ex, ConfigJogo.nivelMinDoRank(alvo) + 5 * duro);   // força de um monstro do nível daquele rank (mais o extra acima)
         ex.setHealth(ex.getMaxHealth());
         ex.setCustomName(Component.literal("Examinador da Guilda · Prova Rank " + ConfigJogo.nomeRank(alvo)).withStyle(ChatFormatting.GOLD));
         ex.setCustomNameVisible(true);
@@ -299,6 +303,7 @@ public class Guilda {
     private static void vencer(ServerPlayer p, Prova pr) {
         PROVAS.remove(p.getUUID());
         dados(p).putInt("rank", pr.alvo());
+        br.com.frxcode.frxworld.habilidades.Habilidades.sincronizar(p);   // o rank libera espaços na barra de habilidades
         String r = ConfigJogo.nomeRank(pr.alvo());
         Moedas.dar(p, premio(pr.alvo()));
         p.level().playSound(null, p.blockPosition(), SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.PLAYERS, 1f, 1f);

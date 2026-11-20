@@ -210,6 +210,15 @@ public class Clas {
 
     // ------------------------------------------------------------------ números do clã
 
+    /** O personagem está em algum clã? (marco do Guia do Aventureiro) */
+    /** Os dois personagens têm pelo menos um clã em comum? */
+    public static boolean mesmoCla(ServerPlayer a, ServerPlayer b) {
+        UUID ia = br.com.frxcode.frxworld.acesso.Personagens.id(a), ib = br.com.frxcode.frxworld.acesso.Personagens.id(b);
+        for (Cla c : CLAS.values()) if (c.membros.containsKey(ia) && c.membros.containsKey(ib)) return true;
+        return false;
+    }
+
+    public static boolean temCla(ServerPlayer p) { return !clasDe(br.com.frxcode.frxworld.acesso.Personagens.id(p)).isEmpty(); }
     private static List<Cla> clasDe(UUID jogador) { List<Cla> l = new ArrayList<>(); for (Cla c : CLAS.values()) if (c.membros.containsKey(jogador)) l.add(c); return l; }
     private static int poder(Cla c) { int n = 0; for (UUID m : c.membros.keySet()) n += resumo(m).nivel(); return n; }
     private static long riqueza(Cla c) { long n = c.cofre; for (UUID m : c.membros.keySet()) n += resumo(m).dinheiro(); return n; }

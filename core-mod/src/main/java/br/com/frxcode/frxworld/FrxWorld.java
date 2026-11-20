@@ -45,6 +45,10 @@ public class FrxWorld {
         MinecraftForge.EVENT_BUS.register(new EventosProgressao());
         MinecraftForge.EVENT_BUS.register(new EventosMorte());
         MinecraftForge.EVENT_BUS.register(new Tavernas());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.protecao.AreasProtegidas());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.protecao.Limpeza());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.protecao.Reequipar());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.habilidades.Efeitos());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.dungeon.Dungeons());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.dungeon.Externos());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.eventos.EventosEstrada());
@@ -72,12 +76,16 @@ public class FrxWorld {
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.protecao.Terrenos());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.protecao.Salvamento());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.reinos.Escravos());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.reinos.Costureira());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.acesso.Personagens());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.protecao.AneisUnicos());
+        br.com.frxcode.frxworld.protecao.AneisUnicos.ligar();
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.clas.Clas());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.moedas.Mercado());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.habilidades.Sagrado());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.habilidades.Cancoes());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.habilidades.Marcial());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.habilidades.Bushido());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.habilidades.Formas());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.musica.Discos());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.progressao.ClassesEquip());

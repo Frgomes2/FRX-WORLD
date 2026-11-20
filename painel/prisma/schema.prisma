@@ -297,6 +297,8 @@ model CriaturaCodex {
   skin         String   @default("") // PNG 64×64 em base64, formato de skin de jogador; vazio = aparência da criatura base
   slim         Boolean  @default(false)
   derrotas     Int      @default(0) // quantas vezes foi derrotado (enviado pelo servidor)
+  primeiroNome String   @default("") // personagem que derrotou pela primeira vez (vazio = antes de existir o registro)
+  primeiroEm   DateTime?
   ativa        Boolean  @default(true)
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
@@ -324,4 +326,64 @@ model Disco {
   ordem        Int      @default(0)
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
+}
+
+// Mural dos Primeiros (site público): o primeiro personagem a alcançar cada marco. chave = "rank:S", "nivel:50", "torre:100"...
+model Feito {
+  chave  String   @id
+  nome   String   @default("") // nome do personagem ("" = marco que mais de um já tinha quando o mural foi criado)
+  conta  String   @default("") // nick da conta (para a skin e para abrir a ficha)
+  vaga   Int      @default(0)
+  antigo Boolean  @default(false) // alcançado antes de o mural existir: a data não é conhecida
+  quando DateTime @default(now())
+}
+
+// Conta do jogador no site (/conta). A senha nasce no primeiro acesso, com o código de 6 dígitos mostrado dentro do jogo.
+model ContaSite {
+  uuid       String    @id // Jogador.uuid
+  senha      String    @default("") // bcrypt ("" = ainda não criou senha)
+  codigo     String    @default("") // sha256 do código do jogo ("" = nenhum válido)
+  codigoAte  DateTime?
+  erros      Int       @default(0) // tentativas erradas seguidas
+  travadaAte DateTime?
+  criadoEm   DateTime  @default(now())
+}
+
+model SessaoSite {
+  id       String   @id // sha256 do valor do cookie
+  uuid     String
+  expira   DateTime
+  criadoEm DateTime @default(now())
+
+  @@index([uuid])
+}
+
+// Crônicas do mundo: acontecimentos guardados (subiu de nível, mudou de rank, recorde na Torre, criatura descoberta, primeiro do servidor).
+// Alimentam o feed, o jornal e o histórico de cada personagem no site. chave única evita registrar o mesmo marco duas vezes.
+model Cronica {
+  id       String   @id @default(cuid())
+  chave    String?  @unique
+  tipo     String   // nivel | rank | conquista | torre | descoberta | primeiro
+  icone    String   @default("")
+  texto    String   // frase pronta, sem o nome ("subiu para o nível 12")
+  nome     String   @default("") // personagem ("" = acontecimento do mundo)
+  conta    String   @default("") // nick da conta (skin e ficha)
+  vaga     Int      @default(0)
+  destaque Boolean  @default(false) // vira manchete no jornal
+  semente  Boolean  @default(false) // já era verdade quando as crônicas começaram: fica guardado só para não repetir, não aparece
+  quando   DateTime @default(now())
+
+  @@index([quando])
+  @@index([conta, vaga])
+}
+
+// Foto diária do ranking de nível, para mostrar quem subiu ou caiu e quanto cada um evoluiu na semana.
+model FotoRanking {
+  dia     String // AAAA-MM-DD (horário de Brasília)
+  conta   String
+  vaga    Int
+  nivel   Int
+  posicao Int
+
+  @@id([dia, conta, vaga])
 }

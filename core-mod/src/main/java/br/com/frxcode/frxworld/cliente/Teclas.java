@@ -13,10 +13,16 @@ public final class Teclas {
     public static final String CATEGORIA = "key.categories.frxworld";
     public static final KeyMapping[] BARRA = {
             tecla("hab1", GLFW.GLFW_KEY_R), tecla("hab2", GLFW.GLFW_KEY_G), tecla("hab3", GLFW.GLFW_KEY_V),
-            tecla("hab4", GLFW.GLFW_KEY_C), tecla("ultimate", GLFW.GLFW_KEY_X)
+            tecla("hab4", GLFW.GLFW_KEY_C), tecla("ultimate", GLFW.GLFW_KEY_X),
+            // espaços extras, liberados pelo rank da Guilda (E, D, C, B)
+            tecla("hab5", GLFW.GLFW_KEY_Z), tecla("hab6", GLFW.GLFW_KEY_H), tecla("hab7", GLFW.GLFW_KEY_N), tecla("hab8", GLFW.GLFW_KEY_Y)
     };
     public static final KeyMapping MENU = tecla("habilidades", GLFW.GLFW_KEY_K);
     public static final KeyMapping PERSONAGENS = tecla("personagens", GLFW.GLFW_KEY_F8);
+    /** Mostra o código para criar a senha da conta do site. */
+    public static final KeyMapping SITE = tecla("site", GLFW.GLFW_KEY_F9);
+    /** Abre os bolsos da calça (costurados pela Costureira). */
+    public static final KeyMapping BOLSOS = tecla("bolsos", GLFW.GLFW_KEY_O);
     /** Despertar: poder especial da classe (Invocador: Levante-se!). */
     public static final KeyMapping DESPERTAR = tecla("despertar", GLFW.GLFW_KEY_B);
     /** Exército de sombras (Invocador): 3 atalhos para uma sombra escolhida + chamar/recolher todas. */
@@ -59,6 +65,12 @@ public final class Teclas {
         }
         while (PERSONAGENS.consumeClick()) {
             if (mc.screen == null) Rede.CANAL.sendToServer(new br.com.frxcode.frxworld.rede.AcaoMenu("personagens", 0, br.com.frxcode.frxworld.acesso.Personagens.ABRIR, 0));
+        }
+        while (SITE.consumeClick()) {
+            if (mc.screen == null) Rede.CANAL.sendToServer(new br.com.frxcode.frxworld.rede.AcaoMenu("codigosite", 0, 0, 0));
+        }
+        while (BOLSOS.consumeClick()) {
+            if (mc.screen == null) BolsosCliente.abrir();
         }
         while (MENU.consumeClick()) {
             if (mc.screen == null) mc.setScreen(new TelaStatus("STATUS"));

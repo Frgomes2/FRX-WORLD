@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { naoAutorizado, tokenValido } from "@/lib/servidor";
+import { registrarProgresso, retratoAntes } from "@/lib/cronicas";
 
 const schema = z.object({
   uuid: z.string().min(1),
@@ -34,6 +35,9 @@ export async function POST(req: Request) {
   if (!dados.success) return NextResponse.json({ erro: "dados inválidos" }, { status: 400 });
   const d = dados.data;
 
+  // crônicas: o retrato deste personagem antes do progresso novo
+  const antes = await retratoAntes(d.uuid, d.vaga, d.nick);
+
   const r = await prisma.jogador.updateMany({
     where: { uuid: d.uuid },
     data: {
@@ -60,5 +64,6 @@ export async function POST(req: Request) {
       await prisma.personagem.updateMany({ where: d.vaga ? { uuid: d.uuid, vaga: d.vaga } : { uuid: d.uuid, emUso: true }, data: { base: base as object } }).catch(() => null);
     }
   }
+  if (r.count > 0) await registrarProgresso(antes, { nivel: d.nivel, rank: d.rank, conquistas: d.conquistas }).catch(() => null);
   return NextResponse.json({ ok: r.count > 0 });
 }

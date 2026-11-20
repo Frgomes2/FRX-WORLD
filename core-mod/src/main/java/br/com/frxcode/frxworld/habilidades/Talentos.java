@@ -173,6 +173,18 @@ public class Talentos {
         ramo("MONGE", "espirito", "Espírito",
                 "Respiração", RM, 8, "Corpo Temperado", VI, 2, "Disciplina", CU, .04, "Mente Calma", RC, .03, "Mestre do Chi", RM, 30);
 
+        ramo("SAMURAI", "fio", "Fio da Lâmina",
+                "Fio Perfeito", DF, .03, "Corte Limpo", CR, .02, "Mão Firme", DF, .03, "Golpe Certeiro", CR, .03, "Um Corte, Uma Vida", DF, .15);
+        ramo("SAMURAI", "formas", "Três Formas",
+                "Brasa Viva", DH, .03, "Maré Cheia", DH, .03, "Trovão Distante", CR, .02, "Fluxo", DH, .04, "Mestre das Formas", DH, .15);
+        ramo("SAMURAI", "honra", "Honra",
+                "Postura", AR, 1, "Sangue Frio", VI, 2, "Pele de Aço", RE, .5, "Vontade", VI, 3, "Inabalável", RE, 2);
+        ramo("CARTOMANTE", "naipes", "Naipes",
+                "Fio da Carta", DH, .03, "Mão Rápida", DH, .03, "Carta Afiada", CR, .02, "Baralho Viciado", DH, .04, "Rei de Espadas", DH, .15);
+        ramo("CARTOMANTE", "baralho", "Baralho",
+                "Embaralhar Ligeiro", RC, .03, "Manga Larga", CU, .04, "Dedos Leves", RC, .03, "Carta na Manga", CU, .04, "Mestre do Baralho", RC, .10);
+        ramo("CARTOMANTE", "sorte", "Sorte",
+                "Pé de Coelho", VI, 2, "Trevo", CR, .02, "Pele de Jogador", RE, .5, "Sangue Frio", VI, 3, "Nascido com Sorte", CR, .08);
         ramo("DRUIDA", "garra", "Garra",
                 "Unhas Afiadas", DF, .03, "Faro", CR, .03, "Patas Ligeiras", VE, .02, "Instinto de Caça", DF, .04, "Alfa da Matilha", DF, .15);
         ramo("DRUIDA", "guardiao_selvagem", "Guardião",

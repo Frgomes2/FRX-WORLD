@@ -198,6 +198,22 @@ rl = c.q("raca_lendaria", "Despertar lendário", ["Desperte uma raça lendária:
          [("item", "minecraft:enchanted_golden_apple", 1)] + premio(5000, 5000), "gear", 1.5)
 c.q("nivel100", "Imortal", ["Chegue ao nível 100."], [("adv", "nivel_100")], 6, 3, [n50, rl], [("item", "minecraft:nether_star", 1)] + premio(0, 20000), "gear", 2.0)
 
+# ------------------------------------------------------------------ Guia do Aventureiro (tutorial dos sistemas do reino)
+# Cada missão fecha sozinha quando o mod concede o marco frxworld:frx/guia_* (progressao/Marcos.java).
+c = Cap("guia", "Guia do Aventureiro", "minecraft:lectern", 12); caps.append(c)
+g1 = c.q("guilda", "Registre-se na Guilda", ["Na capital, procure a Recepcionista da Guilda e faça o seu registro.", "", "Você começa no Rank F. Subir de rank libera portais, dimensões, mais espaços de habilidade e muito mais."],
+         [("adv", "guia_guilda")], 0, 0, recompensas=premio(150, 0), forma="gear", tam=1.5)
+g2 = c.q("torre", "O primeiro andar", ["A Torre Infinita fica perto do reino principal. Entre e vença o primeiro andar.", "", "A experiência só vem ao limpar o andar inteiro, e cresce com a altura."],
+         [("adv", "guia_torre")], 2, -1.5, [g1], premio(200, 0))
+c.q("torre10", "Dez andares", ["Chegue ao andar 10 da Torre.", "", "A cada dez andares o tema muda. Leve comida e combine um grupo."],
+    [("adv", "guia_torre10")], 4, -1.5, [g2], [("item", "minecraft:golden_apple", 2)] + premio(600, 0))
+c.q("bolsos", "Bolsos na calça", ["Leve uma calça até a Costureira e costure pelo menos um bolso. Depois vista a calça.", "", "Cada bolso é um espaço a mais para guardar itens. Abra pelo botão Bolsos do inventário ou pela tecla O."],
+    [("adv", "guia_bolsos")], 2, 0, [g1], premio(200, 0))
+c.q("terreno", "Um chão para chamar de seu", ["Compre o seu primeiro terreno pelo mapa (tecla J): marque os dois cantos da área e confirme.", "", "Dentro do terreno só mexe quem você liberar. O tamanho máximo cresce com o rank da Guilda."],
+    [("adv", "guia_terreno")], 2, 1.5, [g1], premio(300, 0))
+c.q("cla", "Ninguém vence sozinho", ["Fale com o Mestre dos Clãs e funde um clã, ou entre no clã de um amigo.", "", "O clã tem cofre próprio e aparece no ranking do site."],
+    [("adv", "guia_cla")], 4, 1.5, [g1], premio(300, 0))
+
 # ------------------------------------------------------------------ gravar
 os.makedirs(os.path.join(SAIDA, "chapters"), exist_ok=True)
 os.makedirs(os.path.join(SAIDA, "reward_tables"), exist_ok=True)

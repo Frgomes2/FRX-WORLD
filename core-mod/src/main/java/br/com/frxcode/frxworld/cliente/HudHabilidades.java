@@ -25,7 +25,11 @@ public class HudHabilidades implements IGuiOverlay {
             return;
         }
 
-        int larguraBarra = 5 * TAM + 4 * ESP + 4;
+        // Os espaços extras do rank da Guilda ficam na mesma linha, entre os 4 comuns e a ultimate.
+        // Se a tela for estreita demais para todos, voltam para uma linha acima.
+        int extras = ClienteHabilidades.extras;
+        boolean naLinha = x0 + (5 + extras) * (TAM + ESP) + 4 <= largura - 2;
+        int larguraBarra = (naLinha ? 5 + extras : 5) * TAM + (naLinha ? 4 + extras : 4) * ESP + 4;
         // recurso
         int yr = y0 - 7;
         float frac = Math.min(1f, (float) ClienteHabilidades.recursoAtual / ClienteHabilidades.recursoMax);
@@ -56,8 +60,9 @@ public class HudHabilidades implements IGuiOverlay {
             g.pose().popPose();
         }
 
-        for (int i = 0; i < 5; i++) {
-            int x = x0 + i * (TAM + ESP) + (i == 4 ? 4 : 0), y = y0;
+        for (int i = 0; i < 5 + ClienteHabilidades.extras; i++) {
+            int pos = i < 4 ? i : i == 4 ? (naLinha ? 4 + extras : 4) : (naLinha ? i - 1 : i - 5);   // ordem na linha: 4 comuns, extras, ultimate
+            int x = x0 + pos * (TAM + ESP) + (i == 4 ? 4 : 0), y = i < 5 || naLinha ? y0 : y0 - TAM - 24;
             boolean ult = i == 4;
             g.fill(x - 1, y - 1, x + TAM + 1, y + TAM + 1, ult ? 0xFFB8892A : 0xFF5A3A1E);
             g.fill(x, y, x + TAM, y + TAM, 0xDD17140F);

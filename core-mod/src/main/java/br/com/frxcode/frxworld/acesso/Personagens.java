@@ -241,6 +241,8 @@ public class Personagens {
             case "BARDO" -> Items.NOTE_BLOCK;
             case "MONGE" -> Items.LEATHER_BOOTS;
             case "DRUIDA" -> Items.OAK_SAPLING;
+            case "SAMURAI" -> Items.IRON_SWORD;
+            case "CARTOMANTE" -> Items.PAPER;
             default -> Items.NETHER_STAR;
         };
     }

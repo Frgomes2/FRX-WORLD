@@ -28,6 +28,8 @@ public class TelaHabilidades extends Screen {
             {"PALADINO", "Paladino", "Mana", "Protetor sagrado: toma o dano dos aliados, cura e pune os mortos-vivos."},
             {"BARDO", "Bardo", "Mana", "Suporte: canções que deixam o grupo mais rápido, mais forte e mais vivo, e encurtam as recargas dos aliados. Quem luta perto de um Bardo causa 8% a mais de dano."},
             {"DRUIDA", "Druida", "Mana", "Metamorfo: vira lobo (rápido, garras), urso (aguenta dano) e ave (voa) por tempo limitado. Cada forma tem a sua barra de habilidades; na forma humana cura aos poucos e prende inimigos com raízes."},
+            {"SAMURAI", "Samurai", "Energia", "Duelista da katana: depois de 3 s sem golpear, o próximo golpe é um Saque muito mais forte. Golpes de brasa, maré e relâmpago."},
+            {"CARTOMANTE", "Cartomante", "Mana", "Joga com a sorte: uma mão de 3 cartas sorteadas, e cada golpe gasta a carta da vez. Espadas fere mais, Copas cura, Ouros devolve mana, Paus prende. O raro Coringa faz tudo de uma vez."},
             {"MONGE", "Monge", "Chi", "Luta de mão vazia: socos em combo (o 4º é o golpe final) geram chi, que paga as habilidades. Quanto menos armadura, mais esquiva e menos dano recebido."},
     };
 
@@ -104,15 +106,17 @@ public class TelaHabilidades extends Screen {
                 addRenderableWidget(Button.builder(Component.literal("Pôr na ultimate (" + Teclas.rotulo(4) + ")"),
                         b -> definir(4, h.codigo())).bounds(bx, by, 204, 18).build());
             } else {
-                for (int i = 0; i < 4; i++) {
-                    final int espaco = i;
-                    addRenderableWidget(Button.builder(Component.literal(Teclas.rotulo(i)), b -> definir(espaco, h.codigo()))
-                            .bounds(bx + 52 + i * 38, by, 34, 18).build());
+                int[] comuns = espacosComuns();
+                int passo = 152 / comuns.length;
+                for (int k = 0; k < comuns.length; k++) {
+                    final int espaco = comuns[k];
+                    addRenderableWidget(Button.builder(Component.literal(Teclas.rotulo(espaco)), b -> definir(espaco, h.codigo()))
+                            .bounds(bx + 52 + k * passo, by, passo - 4, 18).build());
                 }
             }
         }
         // teclas de cada espaço: clique e aperte a nova
-        for (int i = 0; i < 5; i++) addRenderableWidget(botaoTecla(i, xEspaco(i) - 2, y0 + ALT - 55, 26));
+        for (int i : ordem()) addRenderableWidget(botaoTecla(i < 5 ? i : i + 5, xEspaco(i) - (passoBarra() >= 40 ? 2 : 0), y0 + ALT - 55, Math.min(26, passoBarra() - 1)));
         addRenderableWidget(botaoTecla(5, x0 + LARG - 40, y0 + 6, 32));
         {
             String[] info = ClienteHabilidades.despertarInfo(ClienteHabilidades.classe);
@@ -127,7 +131,7 @@ public class TelaHabilidades extends Screen {
             addRenderableWidget(botaoTecla(6, x0 + 248, y0 + 5, 22));
         }
         // barra: tirar
-        for (int i = 0; i < 5; i++) {
+        for (int i : ordem()) {
             final int espaco = i;
             if (ClienteHabilidades.barra[i].isEmpty()) continue;
             addRenderableWidget(Button.builder(Component.literal("x"), b -> definir(espaco, ""))
@@ -136,7 +140,8 @@ public class TelaHabilidades extends Screen {
     }
 
     private net.minecraft.client.KeyMapping mapa(int i) {
-        return i < 5 ? Teclas.BARRA[i] : i == 6 ? Teclas.DESPERTAR : Teclas.MENU;
+        // 0 a 4: barra; 5: janela de Status; 6: Despertar; 10 a 13: espaços extras da barra
+        return i < 5 ? Teclas.BARRA[i] : i >= 10 ? Teclas.BARRA[i - 5] : i == 6 ? Teclas.DESPERTAR : Teclas.MENU;
     }
 
     /** Outra tecla do jogo que usa a mesma (null = nenhuma). */
@@ -155,7 +160,7 @@ public class TelaHabilidades extends Screen {
         Component rot = esperandoTecla == i ? Component.literal("> ? <").withStyle(net.minecraft.ChatFormatting.YELLOW)
                 : outra != null ? Component.literal(nome).withStyle(net.minecraft.ChatFormatting.RED) : Component.literal(nome);
         Button b = Button.builder(rot, bt -> { esperandoTecla = esperandoTecla == i ? -1 : i; rebuildWidgets(); }).bounds(x, y, w, i == 6 ? 14 : 12).build();
-        String dica = (i == 4 ? "Tecla da ultimate" : i == 5 ? "Tecla que abre a Janela de Status" : i == 6 ? "Tecla do Despertar (" + ClienteHabilidades.despertarInfo(ClienteHabilidades.classe)[0] + ")" : "Tecla do espaço " + (i + 1))
+        String dica = (i == 4 ? "Tecla da ultimate" : i == 5 ? "Tecla que abre a Janela de Status" : i == 6 ? "Tecla do Despertar (" + ClienteHabilidades.despertarInfo(ClienteHabilidades.classe)[0] + ")" : "Tecla do espaço " + (i >= 10 ? i - 5 : i + 1) + (i >= 10 ? " (extra do rank da Guilda)" : ""))
                 + "\nClique e aperte a tecla nova (Esc cancela)."
                 + (outra != null ? "\nAtenção: já é usada por \"" + outra + "\"." : "");
         b.setTooltip(net.minecraft.client.gui.components.Tooltip.create(Component.literal(dica)));
@@ -190,8 +195,32 @@ public class TelaHabilidades extends Screen {
         return super.mouseClicked(mx, my, botao);
     }
 
+    /** Espaços na ordem em que aparecem: os 4 de sempre, os extras do rank da Guilda e a ultimate por último. */
+    private int[] ordem() {
+        int n = ClienteHabilidades.extras;
+        int[] o = new int[5 + n];
+        for (int k = 0; k < 4; k++) o[k] = k;
+        for (int k = 0; k < n; k++) o[4 + k] = 5 + k;
+        o[4 + n] = 4;
+        return o;
+    }
+
+    /** Os espaços que aceitam habilidade comum (todos menos a ultimate). */
+    private int[] espacosComuns() {
+        int n = ClienteHabilidades.extras;
+        int[] o = new int[4 + n];
+        for (int k = 0; k < 4; k++) o[k] = k;
+        for (int k = 0; k < n; k++) o[4 + k] = 5 + k;
+        return o;
+    }
+
+    private int passoBarra() { return ClienteHabilidades.extras == 0 ? 40 : 182 / (4 + ClienteHabilidades.extras); }
+
     private int xEspaco(int i) {
-        return x0 + 168 + i * 40 + (i == 4 ? 6 : 0);
+        int[] o = ordem();
+        int v = 0;
+        for (int k = 0; k < o.length; k++) if (o[k] == i) v = k;
+        return x0 + 168 + v * passoBarra() + (i == 4 ? 6 : 0);
     }
 
     private void definir(int espaco, String codigo) {
@@ -225,7 +254,7 @@ public class TelaHabilidades extends Screen {
     private void renderHabilidades(GuiGraphics g) {
         String classe = switch (ClienteHabilidades.classe) {
             case "GUERREIRO" -> "Guerreiro"; case "ARQUEIRO" -> "Arqueiro"; case "MAGO" -> "Mago";
-            case "CLERIGO" -> "Clérigo"; case "LADINO" -> "Ladino"; case "ASSASSINO" -> "Assassino"; case "INVOCADOR" -> "Invocador"; case "PALADINO" -> "Paladino"; case "BARDO" -> "Bardo"; case "MONGE" -> "Monge"; case "DRUIDA" -> "Druida"; default -> ClienteHabilidades.classe;
+            case "CLERIGO" -> "Clérigo"; case "LADINO" -> "Ladino"; case "ASSASSINO" -> "Assassino"; case "INVOCADOR" -> "Invocador"; case "PALADINO" -> "Paladino"; case "BARDO" -> "Bardo"; case "MONGE" -> "Monge"; case "DRUIDA" -> "Druida"; case "SAMURAI" -> "Samurai"; case "CARTOMANTE" -> "Cartomante"; default -> ClienteHabilidades.classe;
         };
         g.drawString(font, classe + " · " + ClienteHabilidades.nomeRecurso() + " " + ClienteHabilidades.recursoAtual + "/" + ClienteHabilidades.recursoMax,
                 x0 + 8, y0 + 8, OURO, false);
@@ -267,7 +296,11 @@ public class TelaHabilidades extends Screen {
         // barra atual
         g.drawString(font, "Sua barra", dx, y0 + ALT - 68, OURO, false);
         g.drawString(font, "Abrir janela:", x0 + LARG - 44 - font.width("Abrir janela:"), y0 + 8, CINZA, false);
-        for (int i = 0; i < 5; i++) {
+        if (ClienteHabilidades.extras < 4) {
+            String falta = "Mais espaços: suba de rank na Guilda";
+            g.drawString(font, falta, x0 + LARG - 10 - font.width(falta), y0 + ALT - 68, CINZA, false);
+        }
+        for (int i : ordem()) {
             int x = xEspaco(i), y = y0 + ALT - 40;
             g.fill(x - 1, y - 1, x + 23, y + 23, i == 4 ? 0xFFB8892A : MOLDURA);
             g.fill(x, y, x + 22, y + 22, 0xFF0F0D0B);

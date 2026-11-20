@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Fragment, useState } from "react";
 import { Moedas } from "@/components/itens";
 
-type J = { uuid: string; nick: string; moedas: number; banco: number; online: boolean; nivel: number; rank: string; ultimoLogin: string | null };
+type J = { uuid: string; nick: string; moedas: number; banco: number; online: boolean; nivel: number; rank: string; ultimoLogin: string | null; emUso: string; outros: { nome: string; vaga: number; moedas: number; nivel: number; rank: string }[] };
 type Ordem = "total" | "bolsa" | "banco" | "nick";
 type Tres = { ouro: string; prata: string; cobre: string };
 type Edicao = { uuid: string; bolsa: Tres; banco: Tres };
@@ -125,6 +125,13 @@ export function TabelaDinheiro({ jogadores }: { jogadores: J[] }) {
                       <Link href={`/admin/jogadores/${j.uuid}`} className="font-semibold hover:text-ouro">{j.nick}</Link>
                       <span className="ml-2 text-xs text-pedra-500">Nv {j.nivel} · {j.rank}</span>
                       <span className={`ml-2 text-xs ${j.online ? "text-green-400" : "text-pedra-500"}`}>{j.online ? "● online" : "offline"}</span>
+                      {(j.outros.length > 0 || j.emUso !== j.nick) && <span className="block text-xs text-pedra-500">personagem em uso: <span className="text-pergaminho">{j.emUso}</span></span>}
+                      {j.outros.map((o) => (
+                        <span key={o.vaga} className="mt-0.5 flex flex-wrap items-center gap-1.5 text-xs text-pedra-500">
+                          <Link href={`/admin/jogadores/${j.uuid}?vaga=${o.vaga}`} className="hover:text-ouro">{o.nome}</Link>
+                          <span>(fora de uso · Nv {o.nivel} · {o.rank}) bolsa</span><Moedas cobre={o.moedas} tam={12} />
+                        </span>
+                      ))}
                     </td>
                     <td className="px-3 py-2"><Moedas cobre={j.moedas} tam={14} /></td>
                     <td className="px-3 py-2"><Moedas cobre={j.banco} tam={14} /></td>

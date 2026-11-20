@@ -70,6 +70,10 @@ public class Especiais {
     /** null = não é um efeito especial conhecido (segue o tipo normal). */
     static Boolean executar(ServerPlayer p, HabilidadeDef h, double mult) {
         return switch (h.efeito()) {
+            case "frx:carta_embaralhar" -> Cartas.embaralhar(p, h);
+            case "frx:carta_sorte" -> Cartas.mare(p, h);
+            case "frx:carta_moeda" -> Cartas.moeda(p, h, mult);
+            case "frx:carta_mao" -> Cartas.maoCheia(p, h, mult);
             case "frx:puxar" -> puxar(p, h, mult);
             case "frx:provocar" -> provocar(p, h, mult);
             case "frx:salto" -> salto(p, h, mult);

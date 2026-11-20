@@ -1,3 +1,4 @@
+import { personagensGuardados, porPersonagem } from "@/lib/personagens";
 import "server-only";
 import fs from "fs";
 import path from "path";
@@ -9,13 +10,17 @@ import { contarMods, feed, mapaExplorado, type EventoFeed } from "@/lib/mapa-mun
 import { reinosDoServidor } from "@/lib/reinos-servidor";
 import { CLASSES } from "@/lib/habilidades";
 import { lerClas } from "@/lib/clas";
+import { conferirMural, type FeitoPublico } from "@/lib/feitos";
+import { evolucao, historicoDe, registrarMarcos, ultimasCronicas, type CronicaPublica, type Marco } from "@/lib/cronicas";
 import { GOLPES, LOCAIS, pngDaSkin } from "@/lib/criaturas-codex";
 
 /**
  * Tudo o que o site público (/) mostra. Regra: nada de e-mail, UUID, IP, endereço do servidor,
  * conversa do chat nem a posição dos jogadores no mapa.
  */
-export type LinhaRank = { nick: string; valor: number; extra: string; titulo: string };
+/** nick = nome do personagem (o que aparece); conta + vaga dizem de quem é e servem para a skin e para abrir a ficha (vaga 0 = conta sem personagens registrados). */
+export type LinhaRank = { nick: string; conta: string; vaga: number; valor: number; extra: string; titulo: string;
+  /** só em "Mais fortes": níveis ganhos em 7 dias e posições ganhas (+) ou perdidas (−) desde ontem */ semana?: number; mudou?: number };
 export type DadosPublicos = {
   agora: number;
   online: boolean;
@@ -32,8 +37,12 @@ export type DadosPublicos = {
   temporada: { mes: string; linhas: { nome: string; pts: number; abates: number; torre: number; historia: number }[] } | null;
   reinos: string[];
   feed: EventoFeed[];
-  aventureiros: { nick: string; nivel: number; rank: string; classe: string; titulo: string; online: boolean }[];
+  aventureiros: { nick: string; conta: string; vaga: number; nivel: number; rank: string; classe: string; titulo: string; online: boolean }[];
   clas: ClaPublico[];
+  /** Mural dos Primeiros: quem alcançou primeiro cada marco do servidor. */
+  mural: FeitoPublico[];
+  /** Crônicas: acontecimentos guardados pelo painel (os 60 mais recentes). */
+  cronicas: CronicaPublica[];
 };
 /** Clã (do Mestre dos Clãs). riqueza = cofre do clã + bolsa e banco de todos; poder = soma dos níveis. */
 export type ClaPublico = {
@@ -45,6 +54,8 @@ export type PerfilPublico = {
   personagens: { vaga: number; nome: string; classe: string; raca: string; nivel: number; rank: string; emUso: boolean; temFicha: boolean }[];
   /** Nome do personagem desta ficha e se é o que está em uso na conta. */
   personagem: string; personagemEmUso: boolean;
+  /** Últimos acontecimentos deste personagem. */
+  historico: CronicaPublica[];
   nick: string; titulo: string; nivel: number; xp: number; rank: string; classe: string; estilo: string; recurso: string; online: boolean;
   mortes: number; conquistas: number; riqueza: number; desde: string; vistoEm: string | null;
   guilda: { indice: number; bonusMissao: number; desconto: number; proximo: string | null };
@@ -63,6 +74,8 @@ export type PerfilPublico = {
 export type CriaturaPublica = {
   descoberto: boolean; tipo: "chefe" | "monstro"; rankMin: number; rankMax: number; locais: string[];
   codigo: string; nome: string; descricao: string; derrotas: number; skin: boolean; slim: boolean; golpes: { nome: string; icone: string; desc: string }[];
+  /** Quem derrotou primeiro e quando ("" = derrotada antes de existir o registro). */
+  primeiro: string; primeiroEm: number | null;
 };
 export type ModPublico = { nome: string; lado: string; link: string | null };
 export type MapaPublico = {
@@ -102,13 +115,17 @@ export async function dadosPublicos(): Promise<DadosPublicos> {
     where: { ativo: true },
     select: { uuid: true, nick: true, nivel: true, rank: true, classe: true, titulo: true, moedas: true, banco: true, mortes: true, conquistas: true, online: true },
   });
-  const linha = (j: (typeof todos)[number], valor: number, extra: string): LinhaRank => ({ nick: j.nick, valor, extra, titulo: j.titulo });
-  const perfil = (j: (typeof todos)[number]) => `Rank ${j.rank} · ${nomeClasse(j.classe)}`;
-  const porNivel = [...todos].sort((a, b) => b.nivel - a.nivel || b.conquistas - a.conquistas);
+  // Uma linha por PERSONAGEM (não por conta). O que está em uso leva os números ao vivo da conta; os outros, o retrato guardado na última vez em que jogaram.
+  // O banco é da conta: vale para todos os personagens dela.
+  const fichas = porPersonagem(todos, await personagensGuardados());
+  type Ficha = (typeof fichas)[number];
+  const linha = (j: Ficha, valor: number, extra: string): LinhaRank => ({ nick: j.nick, conta: j.conta, vaga: j.vaga, valor, extra, titulo: j.titulo });
+  const perfil = (j: Ficha) => `Rank ${j.rank} · ${nomeClasse(j.classe)}`;
+  const porNivel = [...fichas].sort((a, b) => b.nivel - a.nivel || b.conquistas - a.conquistas);
 
   const guilda: Record<string, number> = {};
   const classes: Record<string, number> = {};
-  for (const j of todos) {
+  for (const j of fichas) {
     guilda[j.rank] = (guilda[j.rank] ?? 0) + 1;
     const c = nomeClasse(j.classe);
     classes[c] = (classes[c] ?? 0) + 1;
@@ -171,6 +188,35 @@ export async function dadosPublicos(): Promise<DadosPublicos> {
   } catch { /* nenhum clã ainda */ }
   clas.sort((a, b) => b.poder - a.poder);
 
+  // o placar inteiro (não só os 10 primeiros) e todos os personagens entram na conferência do mural
+  const mural = await conferirMural(
+    porNivel.map((j) => ({ nome: j.nick, conta: j.conta, vaga: j.vaga, nivel: j.nivel, rank: j.rank, conquistas: j.conquistas })),
+    Object.values(placar).map((p) => ({ nome: p.nome ?? "?", recorde: p.recorde ?? 0 })).sort((a, b) => b.recorde - a.recorde),
+    Object.fromEntries(Object.entries(lerJson<Record<string, { primeiro?: { nome?: string } }>>(path.join(mundo, "frx_chegadas.json")) ?? {})
+      .map(([area, v]) => [area, v.primeiro?.nome ?? ""])),
+  );
+
+  // crônicas: marcos com chave única (só grava o que é novo) e a foto diária do ranking
+  const marcos: Marco[] = [];
+  for (const t of Object.values(placar)) {
+    const nome = t.nome ?? "", ate = Math.floor((t.recorde ?? 0) / 5) * 5;
+    const dono = porNivel.find((j) => j.nick.toLowerCase() === nome.toLowerCase());
+    for (let andar = 5; nome && andar <= ate; andar += 5) {
+      marcos.push({ chave: `torre:${nome.toLowerCase()}:${andar}`, tipo: "torre", icone: "🗼", texto: andar >= 100 ? "zerou a Torre Infinita" : `chegou ao andar ${andar} da Torre`,
+        nome, conta: dono?.conta ?? "", vaga: dono?.vaga ?? 0, destaque: andar % 25 === 0 });
+    }
+  }
+  for (const m of mural) {
+    if (m.feito && m.nome && m.quando) marcos.push({ chave: `mural:${m.chave}`, tipo: "primeiro", icone: m.icone, texto: `entrou para o Mural: ${m.titulo}`, nome: m.nome, conta: m.conta, vaga: m.vaga, destaque: true });
+  }
+  try {
+    for (const c of await prisma.criaturaCodex.findMany({ where: { ativa: true, derrotas: { gt: 0 } }, select: { codigo: true, nome: true } })) {
+      marcos.push({ chave: `codex:${c.codigo}`, tipo: "descoberta", icone: "☠", texto: `Nova descoberta no bestiário: ${c.nome} foi derrotado pela primeira vez`, destaque: true });
+    }
+  } catch { /* */ }
+  await registrarMarcos(marcos);
+  const evo = await evolucao(porNivel.map((j) => ({ conta: j.conta, vaga: j.vaga, nivel: j.nivel })));
+
   const dados: DadosPublicos = {
     agora: Date.now(),
     online: !!st,
@@ -181,21 +227,21 @@ export async function dadosPublicos(): Promise<DadosPublicos> {
     onlineAgora: (st?.jogadores ?? []).map((j) => ({ nick: j.nick, nivel: j.nivel ?? 0, classe: nomeClasse(j.classe ?? ""), reino: j.reino ?? "" })),
     totais: {
       jogadores: todos.length,
-      mortes: todos.reduce((s, j) => s + j.mortes, 0),
-      conquistas: todos.reduce((s, j) => s + j.conquistas, 0),
-      nivelMedio: todos.length ? Math.round(todos.reduce((s, j) => s + j.nivel, 0) / todos.length) : 0,
+      mortes: fichas.reduce((s, j) => s + j.mortes, 0),
+      conquistas: fichas.reduce((s, j) => s + j.conquistas, 0),
+      nivelMedio: fichas.length ? Math.round(fichas.reduce((s, j) => s + j.nivel, 0) / fichas.length) : 0,
       chunks, mundoMb, mods,
     },
     rankings: {
-      fortes: porNivel.slice(0, 10).map((j) => linha(j, j.nivel, perfil(j))),
+      fortes: porNivel.slice(0, 10).map((j) => ({ ...linha(j, j.nivel, perfil(j)), ...(evo.get(`${j.conta}#${j.vaga}`) ?? {}) })),
       fracos: [...porNivel].reverse().slice(0, 5).map((j) => linha(j, j.nivel, perfil(j))),
-      ricos: [...todos].sort((a, b) => b.moedas + b.banco - (a.moedas + a.banco)).slice(0, 10).map((j) => linha(j, j.moedas + j.banco, perfil(j))),
-      mortes: todos.filter((j) => j.mortes > 0).sort((a, b) => b.mortes - a.mortes).slice(0, 10).map((j) => linha(j, j.mortes, perfil(j))),
-      conquistas: todos.filter((j) => j.conquistas > 0).sort((a, b) => b.conquistas - a.conquistas).slice(0, 10).map((j) => linha(j, j.conquistas, perfil(j))),
+      ricos: [...fichas].sort((a, b) => b.moedas + b.banco - (a.moedas + a.banco)).slice(0, 10).map((j) => linha(j, j.moedas + j.banco, perfil(j))),
+      mortes: fichas.filter((j) => j.mortes > 0).sort((a, b) => b.mortes - a.mortes).slice(0, 10).map((j) => linha(j, j.mortes, perfil(j))),
+      conquistas: fichas.filter((j) => j.conquistas > 0).sort((a, b) => b.conquistas - a.conquistas).slice(0, 10).map((j) => linha(j, j.conquistas, perfil(j))),
     },
     guilda, classes, torre, temporada, reinos, feed: eventos,
-    aventureiros: porNivel.map((j) => ({ nick: j.nick, nivel: j.nivel, rank: j.rank, classe: nomeClasse(j.classe), titulo: j.titulo, online: noJogo.has(j.nick.toLowerCase()) })),
-    clas,
+    aventureiros: porNivel.map((j) => ({ nick: j.nick, conta: j.conta, vaga: j.vaga, nivel: j.nivel, rank: j.rank, classe: nomeClasse(j.classe), titulo: j.titulo, online: j.emUso && noJogo.has(j.conta.toLowerCase()) })),
+    clas, mural, cronicas: await ultimasCronicas(),
   };
   g.__frxPublico = { em: Date.now(), dados };
   return dados;
@@ -209,10 +255,12 @@ export async function bestiarioPublico(): Promise<CriaturaPublica[]> {
     const descoberto = c.derrotas > 0;
     const locais = c.locais.split(",").map((l) => LOCAIS.find((x) => x.id === l)?.nome).filter((x): x is string => !!x);
     const tipo = c.tipo === "monstro" ? "monstro" : "chefe";
-    if (!descoberto) return { descoberto, tipo, rankMin: c.rankMin, rankMax: c.rankMax, locais, codigo: "", nome: "", descricao: "", derrotas: 0, skin: false, slim: false, golpes: [] };
+    if (!descoberto) return { descoberto, tipo, rankMin: c.rankMin, rankMax: c.rankMax, locais, codigo: "", nome: "", descricao: "", derrotas: 0, skin: false, slim: false, golpes: [], primeiro: "", primeiroEm: null };
     return {
       descoberto, tipo, rankMin: c.rankMin, rankMax: c.rankMax, locais, codigo: c.codigo, nome: c.nome, descricao: c.descricao, derrotas: c.derrotas,
       skin: !!pngDaSkin(c.skin), slim: c.slim,
+      primeiro: (c as unknown as { primeiroNome?: string }).primeiroNome ?? "",
+      primeiroEm: (c as unknown as { primeiroEm?: Date | null }).primeiroEm?.getTime() ?? null,
       golpes: c.golpes.split(",").map((id) => GOLPES.find((x) => x.id === id)).filter((x): x is (typeof GOLPES)[number] => !!x).map((x) => ({ nome: x.nome, icone: x.icone, desc: x.desc })),
     };
   });
@@ -259,7 +307,7 @@ function spawnDoMundo(): [number, number] | null {
   } catch { return null; }
 }
 
-/** Mapa público: só as imagens da superfície, o spawn e a Torre. Reinos só com PUBLICO_MAPA_REINOS=1 no .env. */
+/** Mapa público: as imagens da superfície, o spawn, a Torre e as capitais dos reinos (decisão de 18/11; PUBLICO_MAPA_REINOS=0 no .env esconde os reinos). */
 export function mapaPublico(): MapaPublico {
   let tiles: [number, number][] = [], atualizadoEm = 0;
   try { const jm = mapaExplorado().jm; tiles = jm?.tiles.day ?? []; atualizadoEm = jm?.atualizadoEm ?? 0; } catch { /* */ }
@@ -267,7 +315,7 @@ export function mapaPublico(): MapaPublico {
   let reinos: MapaPublico["reinos"] = [];
   try {
     const r = reinosDoServidor();
-    if (process.env.PUBLICO_MAPA_REINOS === "1") reinos = r.reinos.map((x) => ({ nome: x.nome, x: x.x, z: x.z }));
+    if (process.env.PUBLICO_MAPA_REINOS !== "0") reinos = r.reinos.map((x) => ({ nome: x.nome, x: x.x, z: x.z }));
   } catch { /* */ }
   let torre: [number, number] | null = null;
   try {
@@ -328,6 +376,7 @@ export async function perfilPublico(nick: string, vagaPedida = 0): Promise<Perfi
     perfil = {
       personagens: personagens.map((p) => ({ vaga: p.vaga, nome: p.nome || j.nick, classe: p.classe, raca: p.raca, nivel: p.nivel, rank: p.rank, emUso: p.emUso, temFicha: p.emUso || !!p.base })),
       personagem: dele?.nome || j.nick, personagemEmUso: !outro,
+      historico: await historicoDe(j.nick, dele?.vaga ?? 0),
       nick: j.nick, titulo: j.titulo, nivel: j.nivel, xp: j.xp, rank: j.rank, classe: nomeClasse(j.classe), estilo: cls?.estilo ?? "", recurso: cls?.recurso ?? "",
       online: !outro && !!st && st.jogadores.some((x) => x.uuid === contaUuid),
       mortes: j.mortes, conquistas: j.conquistas, riqueza: j.moedas + j.banco,

@@ -40,6 +40,8 @@ public final class EventosCliente {
             for (var t : Teclas.BARRA) evento.register(t);
             evento.register(Teclas.MENU);
             evento.register(Teclas.PERSONAGENS);
+            evento.register(Teclas.BOLSOS);
+            evento.register(Teclas.SITE);
             evento.register(Teclas.DESPERTAR);
             for (var t : Teclas.SOMBRAS) evento.register(t);
             evento.register(Teclas.ALVO_SOMBRAS);

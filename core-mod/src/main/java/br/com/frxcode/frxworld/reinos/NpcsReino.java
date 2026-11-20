@@ -83,7 +83,9 @@ public class NpcsReino {
             new Papel("clas", "librarian", -10, -5, new String[]{"Sozinho se vai rápido; em clã se vai longe.", "Todo clã forte começou com dois amigos e um cofre vazio.", "Quer fundar um clã ou entrar em um? É comigo."}),
             new Papel("leiloeiro", "nitwit", 10, -10, new String[]{"O que sobra para um falta para outro!", "Anuncie hoje, receba mesmo dormindo.", "Tudo o que os aventureiros vendem passa pelo meu balcão."}),
             new Papel("discos", "nitwit", -10, 10, new String[]{"Música boa é a que fica na cabeça depois da batalha.", "Tenho discos que você não acha em masmorra nenhuma.", "Uma jukebox e um bom disco: isso é lar."}),
-            new Papel("escravos", "nitwit", 10, 10, new String[]{"Mão de obra boa e barata. Só para quem a Guilda respeita.", "Sem profissão, sem vício: você ensina o que quiser.", "Rank D para cima. Abaixo disso, nem conversa."})
+            new Papel("escravos", "nitwit", 10, 10, new String[]{"Mão de obra boa e barata. Só para quem a Guilda respeita.", "Sem profissão, sem vício: você ensina o que quiser.", "Rank D para cima. Abaixo disso, nem conversa."}),
+            new Papel("costureira", "shepherd", -10, -10, new String[]{"Calça sem bolso é calça pela metade.", "Traga a calça que eu costuro: um bolso de cada vez, até doze.", "Linha boa, ponto firme. Bolso meu não rasga."}),
+            new Papel("dragoes", "cleric", -10, -14, new String[]{"Um ovo destes vale mais que a sua casa. E a casa do vizinho.", "Dragão não se compra: se conquista. Mas o ovo, esse eu vendo.", "Volte quando a bolsa pesar. Muito."})
     );
     private static final int GUARDAS = 6;
 
@@ -130,6 +132,7 @@ public class NpcsReino {
             case "leiloeiro" -> "Leiloeiro";
             case "discos" -> "Mercador de Discos";
             case "escravos" -> "Mercador de Escravos";
+            case "dragoes" -> "Criador de Dragões";
             default -> Character.toUpperCase(papel.charAt(0)) + papel.substring(1);
         };
     }
@@ -448,6 +451,18 @@ public class NpcsReino {
             evento.setCancellationResult(InteractionResult.SUCCESS);
             return;
         }
+        if (papel.equals("dragoes")) {
+            if (evento.getEntity() instanceof ServerPlayer jogador) Dragoes.abrir(jogador, e);
+            evento.setCanceled(true);
+            evento.setCancellationResult(InteractionResult.SUCCESS);
+            return;
+        }
+        if (papel.equals("costureira")) {
+            if (evento.getEntity() instanceof ServerPlayer jogador) Costureira.abrir(jogador, e);
+            evento.setCanceled(true);
+            evento.setCancellationResult(InteractionResult.SUCCESS);
+            return;
+        }
         if (papel.equals("escravos")) {
             if (evento.getEntity() instanceof ServerPlayer jogador) Escravos.abrir(jogador, e);
             evento.setCanceled(true);
@@ -622,14 +637,15 @@ public class NpcsReino {
                             ctx.getSource().sendSuccess(() -> Component.literal(r.nome() + ": " + tirados + " removidos, " + criados + " criados."), true);
                             return criados;
                         }))
+                        .then(Commands.literal("remover").executes(ctx -> removerSolto(ctx.getSource(), ctx.getSource().getPlayerOrException())))
                         .then(Commands.literal("aqui").then(Commands.argument("papel", StringArgumentType.word())
                                 .suggests((c, b) -> SharedSuggestionProvider.suggest(papeis, b))
                                 .executes(ctx -> {
                                     ServerPlayer p = ctx.getSource().getPlayerOrException();
                                     String papel = StringArgumentType.getString(ctx, "papel");
                                     Reino r = reinoDe(p);
-                                    if (r == null) { ctx.getSource().sendFailure(Component.literal("Entre numa capital primeiro.")); return 0; }
                                     if (!papeis.contains(papel)) { ctx.getSource().sendFailure(Component.literal("Papel inválido.")); return 0; }
+                                    if (r == null) return soltar(ctx.getSource(), p, papel);
                                     salvarPosicao(r, papel, p.blockPosition());
                                     String base = papel.startsWith("guarda") ? "guarda" : papel;
                                     if (!base.equals("guarda")) {
@@ -640,6 +656,44 @@ public class NpcsReino {
                                             + (base.equals("guarda") ? ". Use /frx npc recriar para reposicionar os guardas." : ".")), true);
                                     return 1;
                                 })))));
+    }
+
+    /**
+     * NPC fora de capital (labirinto, masmorra, acampamento): nasce onde o admin está, olhando para o
+     * mesmo lado. Não pertence a reino nenhum: o "recriar" das capitais não mexe nele e não há desconto
+     * de reputação. Para tirar: /frx npc remover, encostado nele.
+     */
+    private static int soltar(net.minecraft.commands.CommandSourceStack fonte, ServerPlayer p, String papel) {
+        if (papel.equals("rei") || papel.startsWith("guarda")) { fonte.sendFailure(Component.literal("Rei e guardas só dentro de uma capital.")); return 0; }
+        Papel def = null;
+        for (Papel x : PAPEIS) if (x.id().equals(papel)) def = x;
+        Reino perto = null;
+        for (Reino x : Reinos.todos()) if (perto == null || x.distancia(p.getBlockX(), p.getBlockZ()) < perto.distancia(p.getBlockX(), p.getBlockZ())) perto = x;
+        if (def == null || perto == null) { fonte.sendFailure(Component.literal("Não consegui criar esse NPC aqui.")); return 0; }
+        ServerLevel nivel = p.serverLevel();
+        BlockPos b = p.blockPosition();
+        Entity e = criarMorador(nivel, perto, def, b);
+        if (e == null) { fonte.sendFailure(Component.literal("Não consegui criar esse NPC aqui.")); return 0; }
+        e.moveTo(b.getX() + 0.5, b.getY(), b.getZ() + 0.5, p.getYRot(), 0);
+        e.setYHeadRot(e.getYRot());
+        e.addTag(TAG);
+        e.addTag(TAG + "_solto");
+        e.getPersistentData().putString("frx_papel", papel);
+        e.getPersistentData().putString("frx_reino", "");
+        if (e instanceof Mob m) m.setPersistenceRequired();
+        nivel.addFreshEntity(e);
+        fonte.sendSuccess(() -> Component.literal("NPC " + papel + " criado aqui, fora de capital. Para tirar: /frx npc remover."), true);
+        return 1;
+    }
+
+    private static int removerSolto(net.minecraft.commands.CommandSourceStack fonte, ServerPlayer p) {
+        Entity alvo = null;
+        for (Entity e : p.serverLevel().getEntities((Entity) null, p.getBoundingBox().inflate(4), x -> x.getTags().contains(TAG + "_solto")))
+            if (alvo == null || e.distanceToSqr(p) < alvo.distanceToSqr(p)) alvo = e;
+        if (alvo == null) { fonte.sendFailure(Component.literal("Nenhum NPC solto a até 4 blocos de você.")); return 0; }
+        alvo.discard();
+        fonte.sendSuccess(() -> Component.literal("NPC removido."), true);
+        return 1;
     }
 
     private static void salvarPosicao(Reino r, String papel, BlockPos b) {

@@ -20,7 +20,9 @@ public final class ClienteHabilidades {
     public static String classe = "";
     public static String recurso = "";
     public static List<SyncHabilidades.Info> habilidades = new ArrayList<>();
-    public static String[] barra = {"", "", "", "", ""};
+    public static String[] barra = {"", "", "", "", "", "", "", "", ""};
+    /** Espaços extras (5 a 8) que o rank da Guilda já liberou. */
+    public static int extras;
     public static int recursoAtual = 0, recursoMax = 100;
     public static boolean recebido = false;
     /** Despertar: barra 0-100, poder ativo (ticks), duração, cargas extras, se já liberou (nível 10). */
@@ -37,6 +39,7 @@ public final class ClienteHabilidades {
         recurso = msg.recurso();
         habilidades = msg.habilidades();
         for (int i = 0; i < barra.length; i++) barra[i] = i < msg.barra().size() ? msg.barra().get(i) : "";
+        extras = Math.max(0, Math.min(4, msg.extras()));
         recebido = true;
         if (Minecraft.getInstance().screen instanceof TelaHabilidades tela) tela.atualizar();
     }
@@ -79,6 +82,12 @@ public final class ClienteHabilidades {
             case "DRUIDA" -> new String[]{"Coração da Floresta", "Original do FRX-WORLD",
                     "Enche gastando mana, batendo de perto e apanhando.",
                     "10 s: as habilidades não gastam mana, as garras batem 50% mais forte, você regenera e as formas de lobo e de ave deixam de apanhar a mais."};
+            case "SAMURAI" -> new String[]{"Lâmina das Três Formas", "Original do FRX-WORLD",
+                    "Enche acertando golpes de perto; com uma katana na mão enche bem mais rápido.",
+                    "8–12 s: todo golpe de katana é um Saque e alterna três formas: Brasa (queima), Maré (deixa lento) e Relâmpago (dano extra). Você corre e golpeia mais rápido."};
+            case "CARTOMANTE" -> new String[]{"Mão Perfeita", "Original do FRX-WORLD",
+                    "Enche acertando habilidades.",
+                    "8–12 s: a mão vira três Coringas e toda carta nova também é Coringa. Cada golpe fere 40% a mais, cura você, devolve mana e prende o alvo."};
             case "MONGE" -> new String[]{"Portão Interior", "Original do FRX-WORLD",
                     "Enche acertando socos e golpes de perto.",
                     "8–12 s: seus socos causam o dobro e estouram em volta do alvo, você corre e salta mais e as habilidades não gastam chi. No fim você fica exausto (fraqueza e lentidão por 5 s)."};
@@ -92,7 +101,7 @@ public final class ClienteHabilidades {
     public static int corDespertar(String classe) {
         return switch (classe) {
             case "GUERREIRO" -> 0xFFB01E1E; case "ARQUEIRO" -> 0xFF6FE3F5; case "MAGO" -> 0xFFFF7A1A;
-            case "CLERIGO" -> 0xFFFFE07A; case "LADINO" -> 0xFF5BD17A; case "ASSASSINO" -> 0xFFFFE01A; case "PALADINO" -> 0xFFFFF3B0; case "BARDO" -> 0xFFE879F9; case "MONGE" -> 0xFF3FD6C4; case "DRUIDA" -> 0xFF6BCB4B; default -> 0xFFC58CF0;
+            case "CLERIGO" -> 0xFFFFE07A; case "LADINO" -> 0xFF5BD17A; case "ASSASSINO" -> 0xFFFFE01A; case "PALADINO" -> 0xFFFFF3B0; case "BARDO" -> 0xFFE879F9; case "MONGE" -> 0xFF3FD6C4; case "DRUIDA" -> 0xFF6BCB4B; case "SAMURAI" -> 0xFFE0524A; case "CARTOMANTE" -> 0xFF4FD6E8; default -> 0xFFC58CF0;
         };
     }
 

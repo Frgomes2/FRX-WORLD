@@ -483,7 +483,7 @@
     // Fog particles that rise from moss.
     fogParticles: {
       // Set false to turn the fog particles off. Client setting.
-      enabled: true,
+      enabled: false,
       // Higher numbers mean rarer particles. Range 1 to 100000. Client setting.
       rarity: 50
     },

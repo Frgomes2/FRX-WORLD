@@ -1,0 +1,176 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "guia"
+	group: ""
+	icon: "minecraft:lectern"
+	id: "29487DCB6844DA76"
+	order_index: 13
+	quest_links: [ ]
+	quests: [
+		{
+			description: ["Na capital, procure a Recepcionista da Guilda e faça o seu registro." "" "Você começa no Rank F. Subir de rank libera portais, dimensões, mais espaços de habilidade e muito mais."]
+			id: "20E3495CF85925B4"
+			rewards: [
+				{
+					command: "/frx xp {p} 150"
+					elevate_perms: true
+					id: "661900EF9EE79303"
+					silent: true
+					title: "150 XP"
+					type: "command"
+				}
+			]
+			shape: "gear"
+			size: 1.5d
+			tasks: [
+				{
+					advancement: "frxworld:frx/guia_guilda"
+					criterion: ""
+					id: "5B7D359AA79EC257"
+					type: "advancement"
+				}
+			]
+			title: "Registre-se na Guilda"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["20E3495CF85925B4"]
+			description: ["A Torre Infinita fica perto do reino principal. Entre e vença o primeiro andar." "" "A experiência só vem ao limpar o andar inteiro, e cresce com a altura."]
+			id: "3742E41580D8C9D6"
+			rewards: [
+				{
+					command: "/frx xp {p} 200"
+					elevate_perms: true
+					id: "71C6E004EA51F26B"
+					silent: true
+					title: "200 XP"
+					type: "command"
+				}
+			]
+			tasks: [
+				{
+					advancement: "frxworld:frx/guia_torre"
+					criterion: ""
+					id: "10F3144ADB6A5FE3"
+					type: "advancement"
+				}
+			]
+			title: "O primeiro andar"
+			x: 2.0d
+			y: -1.5d
+		}
+		{
+			dependencies: ["3742E41580D8C9D6"]
+			description: ["Chegue ao andar 10 da Torre." "" "A cada dez andares o tema muda. Leve comida e combine um grupo."]
+			id: "1F44B5EAEC6E70B0"
+			rewards: [
+				{
+					count: 2
+					id: "7C6B70A21845E82E"
+					item: "minecraft:golden_apple"
+					type: "item"
+				}
+				{
+					command: "/frx xp {p} 600"
+					elevate_perms: true
+					id: "4B68ED4C1F8728E5"
+					silent: true
+					title: "600 XP"
+					type: "command"
+				}
+			]
+			tasks: [
+				{
+					advancement: "frxworld:frx/guia_torre10"
+					criterion: ""
+					id: "4EBD8D837A2C4CA3"
+					type: "advancement"
+				}
+			]
+			title: "Dez andares"
+			x: 4.0d
+			y: -1.5d
+		}
+		{
+			dependencies: ["20E3495CF85925B4"]
+			description: ["Leve uma calça até a Costureira e costure pelo menos um bolso. Depois vista a calça." "" "Cada bolso é um espaço a mais para guardar itens. Abra pelo botão Bolsos do inventário ou pela tecla O."]
+			id: "2A9B6A4F1C13C68E"
+			rewards: [
+				{
+					command: "/frx xp {p} 200"
+					elevate_perms: true
+					id: "1CEF4AAF135C4BDC"
+					silent: true
+					title: "200 XP"
+					type: "command"
+				}
+			]
+			tasks: [
+				{
+					advancement: "frxworld:frx/guia_bolsos"
+					criterion: ""
+					id: "25DEF1B80679858D"
+					type: "advancement"
+				}
+			]
+			title: "Bolsos na calça"
+			x: 2.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["20E3495CF85925B4"]
+			description: ["Compre o seu primeiro terreno pelo mapa (tecla J): marque os dois cantos da área e confirme." "" "Dentro do terreno só mexe quem você liberar. O tamanho máximo cresce com o rank da Guilda."]
+			id: "68C214C2232848E2"
+			rewards: [
+				{
+					command: "/frx xp {p} 300"
+					elevate_perms: true
+					id: "7F6DAF48BEFED0EF"
+					silent: true
+					title: "300 XP"
+					type: "command"
+				}
+			]
+			tasks: [
+				{
+					advancement: "frxworld:frx/guia_terreno"
+					criterion: ""
+					id: "2914B037A288C129"
+					type: "advancement"
+				}
+			]
+			title: "Um chão para chamar de seu"
+			x: 2.0d
+			y: 1.5d
+		}
+		{
+			dependencies: ["20E3495CF85925B4"]
+			description: ["Fale com o Mestre dos Clãs e funde um clã, ou entre no clã de um amigo." "" "O clã tem cofre próprio e aparece no ranking do site."]
+			id: "2BEF880A90DA822D"
+			rewards: [
+				{
+					command: "/frx xp {p} 300"
+					elevate_perms: true
+					id: "1D20DB25220DCA89"
+					silent: true
+					title: "300 XP"
+					type: "command"
+				}
+			]
+			tasks: [
+				{
+					advancement: "frxworld:frx/guia_cla"
+					criterion: ""
+					id: "7F7083E03ADC6268"
+					type: "advancement"
+				}
+			]
+			title: "Ninguém vence sozinho"
+			x: 4.0d
+			y: 1.5d
+		}
+	]
+	title: "Guia do Aventureiro"
+}

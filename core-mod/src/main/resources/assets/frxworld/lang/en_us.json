@@ -13,6 +13,10 @@
   "key.frxworld.hab3": "Ability 3",
   "key.frxworld.hab4": "Ability 4",
   "key.frxworld.ultimate": "Ultimate",
+  "key.frxworld.hab5": "Ability 5 (Rank E)",
+  "key.frxworld.hab6": "Ability 6 (Rank D)",
+  "key.frxworld.hab7": "Ability 7 (Rank C)",
+  "key.frxworld.hab8": "Ability 8 (Rank B)",
   "key.frxworld.habilidades": "Status window",
   "item.frxworld.moeda_cobre": "Copper Coin",
   "item.frxworld.moeda_prata": "Silver Coin",
@@ -22,6 +26,8 @@
   "key.frxworld.sombra3": "Shadow: shortcut 3",
   "key.frxworld.alvo_sombras": "Shadows: mark target",
   "key.frxworld.personagens": "Switch character",
+  "key.frxworld.bolsos": "Open trouser pockets",
+  "key.frxworld.site": "Website account code",
   "key.frxworld.sombras_todas": "Shadows: summon/recall all",
   "key.frxworld.despertar": "Awakening (class power)"
 }

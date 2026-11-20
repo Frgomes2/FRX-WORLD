@@ -1,0 +1,198 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:empty",
+          "weight": 30
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:potion",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{display:{Name:'{\"text\":\"Tônico de Estanho Importado\",\"italic\":false}',Lore:['{\"text\":\"Uma bebida poderosa, destilada de carne ressequida.\",\"italic\":true}','{\"text\":\"Nota: o fornecedor cortou contato desde então.\",\"italic\":true}']},CustomPotionEffects:[{Id:5,Amplifier:0b,Duration:4800},{Id:11,Amplifier:0b,Duration:4800},{Id:17,Amplifier:0b,Duration:4800}],Potion:\"minecraft:strength\",CustomPotionColor:11752018}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:potion",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{display:{Name:'{\"text\":\"Ameaça Fantasma Importada\",\"italic\":false}',Lore:['{\"text\":\"Destilada de lágrimas que nunca foram choradas.\",\"italic\":true}','{\"text\":\"Melhor servida gelada.\",\"italic\":true}','{\"text\":\"Nota: o fornecedor cortou contato desde então.\",\"italic\":true}']},CustomPotionEffects:[{Id:1,Amplifier:2b,Duration:9600},{Id:3,Amplifier:1b,Duration:9600},{Id:18,Amplifier:1b,Duration:9600}],Potion:\"minecraft:swiftness\",CustomPotionColor:2163727}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:splash_potion",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{display:{Name:'{\"text\":\"Cerveja Viciante Importada\",\"italic\":false}',Lore:['{\"text\":\"Cerveja comum com um toque de algo mais forte.\",\"italic\":true}','{\"text\":\"Mantém os aldeões longe.\",\"italic\":true}','{\"text\":\"Nota: o fornecedor cortou contato desde então.\",\"italic\":true}']},CustomPotionEffects:[{Id:2,Amplifier:2b,Duration:4800},{Id:4,Amplifier:2b,Duration:4800},{Id:11,Amplifier:3b,Duration:4800},{Id:18,Amplifier:2b,Duration:4800}],Potion:\"minecraft:weakness\",CustomPotionColor:16773151}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:potion",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{display:{Name:'{\"text\":\"Maldição de Kayra Importada\",\"italic\":false}',Lore:['{\"text\":\"Destilada de pernas de rã cozidas e reforçada pelo oculto.\",\"italic\":true}','{\"text\":\"Ninguém erguerá fortaleza mais alta que o passo de um homem.\",\"italic\":true}','{\"text\":\"Nota: o fornecedor cortou contato desde então.\",\"italic\":true}']},CustomPotionEffects:[{Id:8,Amplifier:80b,Duration:400},{Id:28,Amplifier:0b,Duration:4800}],Potion:\"minecraft:weakness\",CustomPotionColor:6519211}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:lingering_potion",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{display:{Name:'{\"text\":\"Buraco Negro Engarrafado Importado\",\"italic\":false}',Lore:['{\"text\":\"As partículas desta bebida parecem atrair\",\"italic\":true}','{\"text\":\"e absorver objetos próximos.\",\"italic\":true}','{\"text\":\"O nome é pura metáfora.\",\"italic\":true}','{\"text\":\"Nota: o fornecedor cortou contato desde então.\",\"italic\":true}']},CustomPotionEffects:[{Id:2,Amplifier:4b,Duration:1200},{Id:6,Amplifier:3b,Duration:0},{Id:7,Amplifier:3b,Duration:0},{Id:19,Amplifier:8b,Duration:1200},{Id:20,Amplifier:8b,Duration:1200}],Potion:\"minecraft:harming\",CustomPotionColor:0}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:potion",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{display:{Name:'{\"text\":\"Cerveja Fogo-Fátuo Importada\",\"italic\":false}',Lore:['{\"text\":\"Há quem descreva os efeitos como\",\"italic\":true}','{\"text\":\"incrivelmente leves e libertadores.\",\"italic\":true}','{\"text\":\"Mas os prisioneiros sempre contam a\",\"italic\":true}','{\"text\":\"verdade quando já beberam o bastante.\",\"italic\":true}','{\"text\":\"Nota: o fornecedor cortou contato desde então.\",\"italic\":true}']},CustomPotionEffects:[{Id:25,Amplifier:1b,Duration:9600}],Potion:\"minecraft:harming\",CustomPotionColor:0}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:potion",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{display:{Name:'{\"text\":\"Esponja Viva Importada\",\"italic\":false}',Lore:['{\"text\":\"Partículas microscópicas de esponja\",\"italic\":true}','{\"text\":\"usadas para segurar o fôlego.\",\"italic\":true}','{\"text\":\"Apesar dos relatos de sussurros e\",\"italic\":true}','{\"text\":\"pensamentos intrusivos, elas devem ser\",\"italic\":true}','{\"text\":\"consideradas inofensivas.\",\"italic\":true}','{\"text\":\"Nota: o fornecedor cortou contato desde então.\",\"italic\":true}']},CustomPotionEffects:[{Id:13,Amplifier:0b,Duration:18000}],Potion:\"minecraft:harming\",CustomPotionColor:16776960}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:potion",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{display:{Name:'{\"text\":\"Cerveja Importada\",\"italic\":false}',Lore:['{\"text\":\"Cerveja de verdade. Sério, só cerveja.\",\"italic\":true}','{\"text\":\"Cerveja, cerveja, cerveja, cerveja.\",\"obfuscated\":true}','{\"text\":\"Nota: o fornecedor cortou contato desde então.\",\"italic\":true}']},CustomPotionEffects:[{Id:2,Amplifier:2b,Duration:4800},{Id:3,Amplifier:2b,Duration:4800},{Id:9,Amplifier:2b,Duration:4800},{Id:15,Amplifier:2b,Duration:4800},{Id:17,Amplifier:2b,Duration:4800},{Id:18,Amplifier:2b,Duration:4800}],Potion:\"minecraft:strength\",CustomPotionColor:16776960}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:potion",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{display:{Name:'{\"text\":\"Soro Espesso Importado\",\"italic\":false}',Lore:['{\"text\":\"Destilado de cubos de magma e de\",\"italic\":true}','{\"text\":\"luzes de sapo recém-colhidas.\",\"italic\":true}','{\"text\":\"Aumenta a resistência em situações quentes.\",\"italic\":true}','{\"text\":\"Nota: o fornecedor cortou contato desde então.\",\"italic\":true}']},CustomPotionEffects:[{Id:12,Amplifier:1b,Duration:18000}],Potion:\"minecraft:strength\",CustomPotionColor:16711680}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:potion",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{display:{Name:'{\"text\":\"Esmeraldas Líquidas Importadas\",\"italic\":false}',Lore:['{\"text\":\"Quem bebe sente a emoção dos negócios\",\"italic\":true}','{\"text\":\"correndo nas veias.\",\"italic\":true}','{\"text\":\"Testes projetivos revelam\",\"italic\":true}','{\"text\":\"tendências psicopáticas temporárias.\",\"italic\":true}','{\"text\":\"Nota: o fornecedor cortou contato desde então.\",\"italic\":true}']},CustomPotionEffects:[{Id:32,Amplifier:1b,Duration:18000}],Potion:\"minecraft:strength\",CustomPotionColor:7798597}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:potion",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{display:{Name:'{\"text\":\"Viagem Antiética Importada\",\"italic\":false}',Lore:['{\"text\":\"Espalha uma aura de malícia e, quem sabe, mau hálito.\",\"italic\":true}','{\"text\":\"Nota: o fornecedor cortou contato desde então.\",\"italic\":true}']},CustomPotionEffects:[{Id:31,Amplifier:4b,Duration:1200}],Potion:\"minecraft:swiftness\",CustomPotionColor:3014656}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:glass_bottle",
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": {
+                "min": 2,
+                "max": 3
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rolls": 2,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:golden_carrot",
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": {
+                "min": 4,
+                "max": 8
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:golden_apple",
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": {
+                "min": 4,
+                "max": 8
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:diamond",
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": {
+                "min": 2,
+                "max": 3
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:gold_ingot",
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": {
+                "min": 2,
+                "max": 3
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

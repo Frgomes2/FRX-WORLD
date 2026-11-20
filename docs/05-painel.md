@@ -17,7 +17,7 @@ A seção **Biblioteca** traz livros folheáveis sobre as regras do servidor (`s
 
 Clicar num jogador abre a ficha pública: skin, nível, raça, Guilda, Torre, temporada, habilidade única e habilidades aprendidas (vêm do campo `detalhe` do jogador). Não mostra inventário, baú de ender nem posição.
 
-**O que o site público nunca mostra** (regra em `lib/publico.ts`): e-mail, UUID, IP, endereço do servidor, conversa do chat e a posição dos jogadores. O mapa mostra só a superfície, o ponto de partida e a Torre; para marcar também os reinos, ponha `PUBLICO_MAPA_REINOS=1` no `painel/.env`. O endereço do servidor fica de fora de propósito: o servidor roda com `online-mode=false`.
+**O que o site público nunca mostra** (regra em `lib/publico.ts`): e-mail, UUID, IP, endereço do servidor, conversa do chat e a posição dos jogadores. O mapa mostra a superfície, o ponto de partida, a Torre e a capital de cada reino (desde 18/11; `PUBLICO_MAPA_REINOS=0` no `.env` esconde os reinos).
 
 ## Menus
 
@@ -62,7 +62,11 @@ Ainda não implementados ("Em breve"): Conteúdo, Estados, Lei e crimes, Rituais
 
 ## Personagens na ficha do jogador
 
-A ficha (`/admin/jogadores/<uuid>`) mostra os personagens da conta. Clicar num personagem fora de uso abre o retrato guardado dele (`?vaga=N`), sem atualização automática e sem ações: dar item, mudar nível e editar a bolsa só valem para o personagem em uso. Detalhes em [sistemas/personagens.md](sistemas/personagens.md).
+**Crônicas (`src/lib/cronicas.ts`)**: o painel guarda os acontecimentos (nível, rank, conquistas, Torre, bestiário, Mural) na tabela `Cronica` e uma foto diária do ranking em `FotoRanking`. Alimentam o quadro Acontecendo, a seção Crônicas do FRX, o histórico da ficha pública e a variação do ranking.
+
+**Conta do jogador (`/conta`)**: página do site onde o jogador entra com nick e senha (criada no primeiro acesso com o código que o jogo mostra na tecla F9) e consulta o próprio inventário, moedas, terrenos e personagens. Não faz parte do admin e não usa o login do admin. Código em `src/lib/conta-site.ts`, `src/app/conta/` e `src/app/api/publico/conta/`.
+
+A lista de Jogadores, o Dinheiro e os rankings da Visão geral mostram uma linha por personagem (`src/lib/personagens.ts`); o personagem fora de uso aparece com os números da última vez em que foi jogado. A ficha (`/admin/jogadores/<uuid>`) mostra os personagens da conta. Clicar num personagem fora de uso abre o retrato guardado dele (`?vaga=N`), sem atualização automática e sem ações: dar item, mudar nível e editar a bolsa só valem para o personagem em uso. Detalhes em [sistemas/personagens.md](sistemas/personagens.md).
 
 ## Rotas de API
 

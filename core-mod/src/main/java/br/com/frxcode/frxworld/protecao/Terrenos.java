@@ -247,6 +247,8 @@ public class Terrenos {
         return d == null || liberado(d, quem, oQue);
     }
 
+    /** A conta tem algum terreno? (marco do Guia do Aventureiro) */
+    public static boolean temTerreno(ServerPlayer p) { return !lotesDe(p.getUUID()).isEmpty(); }
     private static List<Lote> lotesDe(UUID id) { List<Lote> l = new ArrayList<>(); for (Lote t : LOTES) if (t.dono.equals(id)) l.add(t); return l; }
     /** Área somada de vários retângulos {x0, z0, x1, z1} (cantos inclusive), contando uma vez só o que se sobrepõe. */
     private static int uniao(List<int[]> rets) {
@@ -322,7 +324,7 @@ public class Terrenos {
 
     @SubscribeEvent(priority = EventPriority.HIGH)
     public void aoQuebrar(BlockEvent.BreakEvent ev) {
-        if (pode(ev.getLevel(), ev.getPos(), ev.getPlayer(), QUEBRAR)) return;
+        if (AreasProtegidas.tumulo(ev.getState()) || pode(ev.getLevel(), ev.getPos(), ev.getPlayer(), QUEBRAR)) return;
         ev.setCanceled(true);
         negar(ev.getPlayer(), ev.getPos());
     }

@@ -219,15 +219,21 @@ public final class PainelApi {
     }
 
     /** Uma criatura do Códex foi derrotada (o painel conta). */
-    public static void enviarDerrotaCriatura(String codigo) {
+    public static void enviarDerrotaCriatura(String codigo, String matador) {
         JsonObject corpo = new JsonObject();
         corpo.addProperty("codigo", codigo);
+        if (matador != null && !matador.isBlank()) corpo.addProperty("matador", matador);   // o painel guarda quem derrotou primeiro
         post("/api/servidor/criaturas", corpo).exceptionally(e -> null);
     }
 
     /** Quantas unidades de cada arma do Códex já existem no mundo, e com quem. */
     public static void enviarPersonagens(JsonObject corpo) {
         post("/api/servidor/personagens", corpo).exceptionally(e -> null);
+    }
+
+    /** Código de 6 números da conta do site (acesso/CodigoSite). */
+    public static void enviarCodigoSite(JsonObject corpo) {
+        post("/api/servidor/codigo-site", corpo).exceptionally(e -> null);
     }
 
     public static void enviarDiscos(JsonObject corpo) {

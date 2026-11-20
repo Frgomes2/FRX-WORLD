@@ -68,7 +68,7 @@ function Progresso({ v, max, cor = "bg-ouro" }: { v: number; max: number; cor?: 
 
 // ------------------------------------------------------------------ tela
 
-export function FichaJogador({ base, inicial, inicialEm, inicialOnline, inicialOp, congelado }: { base: JogadorBase; inicial: Ficha | null; inicialEm: number | null; inicialOnline: boolean; inicialOp: boolean; /** nome do personagem fora de uso: a ficha é um retrato, sem atualizar nem agir */ congelado?: string }) {
+export function FichaJogador({ base, inicial, inicialEm, inicialOnline, inicialOp, congelado, leitura }: { base: JogadorBase; inicial: Ficha | null; inicialEm: number | null; inicialOnline: boolean; inicialOp: boolean; /** nome do personagem fora de uso: a ficha é um retrato, sem atualizar nem agir */ congelado?: string; /** ficha do próprio jogador no site: só consulta, sem nenhum botão de admin */ leitura?: boolean }) {
   const [op, setOp] = useState(inicialOp);
   const [ficha, setFicha] = useState<Ficha | null>(inicial);
   const [em, setEm] = useState(inicialEm);
@@ -118,7 +118,7 @@ export function FichaJogador({ base, inicial, inicialEm, inicialOnline, inicialO
 
   return (
     <div className="space-y-5">
-      <Link href="/admin/jogadores" className="text-sm text-pedra-500 hover:text-ouro">← Todos os jogadores</Link>
+      {!leitura && <Link href="/admin/jogadores" className="text-sm text-pedra-500 hover:text-ouro">← Todos os jogadores</Link>}
 
       {/* ---------------- cabeçalho */}
       <div className="relative overflow-hidden rounded-2xl border border-ouro/30 bg-gradient-to-r from-pedra-900 via-pedra-800 to-pedra-900 p-5">
@@ -132,7 +132,7 @@ export function FichaJogador({ base, inicial, inicialEm, inicialOnline, inicialO
               </span>
               {!base.ativo && <span className="rounded-full bg-red-500/20 px-2.5 py-0.5 text-xs text-red-300">acesso revogado</span>}
               {op && <span className="rounded-full bg-ouro/20 px-2.5 py-0.5 text-xs text-ouro">👑 admin do servidor</span>}
-              <button disabled={enviando}
+              <button style={leitura ? { display: "none" } : undefined} disabled={enviando}
                 onClick={() => { if (confirm(op ? `Tirar o admin de ${base.nick}?` : `Tornar ${base.nick} admin do servidor? Ele vai poder usar todos os comandos (/gamemode, /give, /tp, /frx...).`)) acao(op ? "deop" : "op", undefined, undefined, op ? `${base.nick} não é mais admin.` : `${base.nick} agora é admin.`); }}
                 className={`rounded border px-2 py-0.5 text-xs disabled:opacity-40 ${op ? "border-red-500/50 text-red-300 hover:bg-red-500/15" : "border-ouro/50 text-ouro hover:bg-ouro/15"}`}>
                 {op ? "Remover admin" : "Tornar admin"}
@@ -162,7 +162,7 @@ export function FichaJogador({ base, inicial, inicialEm, inicialOnline, inicialO
           {f && <span>📍 {f.x}, {f.y}, {f.z} <span className="text-pedra-500">({f.dim.replace("minecraft:", "")} · zona Nv {f.zona})</span></span>}
           <span className="ml-auto text-xs text-pedra-500">
             ficha de {quando(em)}{" "}
-            <button disabled={!online || enviando} onClick={() => acao("ficha", undefined, undefined, "Pedindo ficha nova ao servidor…")} className="ml-2 rounded border border-pedra-700 px-2 py-0.5 hover:border-ouro disabled:opacity-40">↻ atualizar</button>
+            <button style={leitura ? { display: "none" } : undefined} disabled={!online || enviando} onClick={() => acao("ficha", undefined, undefined, "Pedindo ficha nova ao servidor…")} className="ml-2 rounded border border-pedra-700 px-2 py-0.5 hover:border-ouro disabled:opacity-40">↻ atualizar</button>
           </span>
         </div>
       </div>
@@ -176,7 +176,7 @@ export function FichaJogador({ base, inicial, inicialEm, inicialOnline, inicialO
           <p className="text-sm text-pedra-500">A ficha completa (inventário, habilidades, conquistas) chega quando o jogador entrar no servidor com o core mod 0.30 ou mais novo.</p>
         </Cartao>
       ) : (
-        <div className="grid gap-5 2xl:grid-cols-[auto_1fr]">
+        <div className={`grid gap-5 ${leitura ? "" : "2xl:grid-cols-[auto_1fr]"}`}>{/* na página da conta (mais estreita) o inventário fica em cima e as abas usam a largura toda */}
           {/* ---------------- inventário com bonequinho */}
           <div className="space-y-3">
             <Inventario uuid={base.uuid} nick={base.nick} inventario={f.inventario ?? []} armadura={f.armadura ?? []}
@@ -195,7 +195,7 @@ export function FichaJogador({ base, inicial, inicialEm, inicialOnline, inicialO
           {/* ---------------- abas */}
           <div className="min-w-0">
             <div className="mb-3 flex flex-wrap gap-1.5">
-              {abas.map(([id, n]) => (
+              {abas.filter(([id]) => !leitura || id !== "admin").map(([id, n]) => (
                 <button key={id} onClick={() => setAba(id)}
                   className={`rounded-lg border px-3 py-1.5 text-sm transition ${aba === id ? "border-ouro bg-ouro/15 text-ouro" : "border-pedra-700 text-pedra-500 hover:border-ouro/50 hover:text-pergaminho"}`}>{n}</button>
               ))}
@@ -228,10 +228,10 @@ export function FichaJogador({ base, inicial, inicialEm, inicialOnline, inicialO
                   ) : <p className="text-sm text-pedra-500">Desperta sozinha no próximo login do jogador.</p>}
                 </Cartao>
                 <Cartao titulo="Atributos">
-                  <ul className="grid grid-cols-2 gap-2">
+                  <ul className="grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-2">
                     {Object.entries(f.atributos).map(([k, v]) => {
                       const [ic, nome, suf] = ICONE_ATR[k] ?? ["•", k];
-                      return <li key={k} className="flex items-center justify-between rounded-lg bg-pedra-950/60 px-3 py-2 text-sm"><span>{ic} {nome}</span><b className="font-mono text-pergaminho">{v}{suf ?? ""}</b></li>;
+                      return <li key={k} className="flex items-center justify-between gap-2 rounded-lg bg-pedra-950/60 px-3 py-2 text-sm"><span className="min-w-0 truncate">{ic} {nome}</span><b className="shrink-0 font-mono text-pergaminho">{v}{suf ?? ""}</b></li>;
                     })}
                   </ul>
                 </Cartao>
@@ -259,7 +259,7 @@ export function FichaJogador({ base, inicial, inicialEm, inicialOnline, inicialO
                         const h = f.habilidades!.find((x) => x.codigo === c);
                         return <span key={i} className={`rounded-md border px-2 py-1 text-xs ${i === 4 ? "border-ouro/60" : "border-pedra-700"}`}>{i === 4 ? "★" : i + 1}: {h?.nome ?? "—"}</span>;
                       })}
-                      <button disabled={!online || enviando} onClick={() => acao("habTodas")} className="ml-auto rounded-md border border-pedra-700 px-3 py-1 text-xs hover:border-ouro disabled:opacity-40">Ensinar todas</button>
+                      <button style={leitura ? { display: "none" } : undefined} disabled={!online || enviando} onClick={() => acao("habTodas")} className="ml-auto rounded-md border border-pedra-700 px-3 py-1 text-xs hover:border-ouro disabled:opacity-40">Ensinar todas</button>
                     </div>
                     <ul className="grid gap-2 md:grid-cols-2">
                       {f.habilidades.map((h) => (
@@ -273,14 +273,14 @@ export function FichaJogador({ base, inicial, inicialEm, inicialOnline, inicialO
                             <div className="flex shrink-0 flex-col items-end gap-1">
                               {h.aprendida ? (
                                 <>
-                                  <select disabled={!online || enviando} value={h.nivel} onChange={(e) => acao("habNivel", e.target.value, h.codigo)}
+                                  <select disabled={leitura || !online || enviando} value={h.nivel} onChange={(e) => acao("habNivel", e.target.value, h.codigo)}
                                     className="rounded border border-pedra-700 bg-pedra-950 px-1 py-0.5 text-xs">
                                     {Array.from({ length: 10 }, (_, i) => <option key={i + 1} value={i + 1}>Nv {i + 1}</option>)}
                                   </select>
-                                  <button disabled={!online || enviando} onClick={() => acao("habEsquecer", undefined, h.codigo)} className="text-xs text-red-400 hover:underline disabled:opacity-40">esquecer</button>
+                                  <button style={leitura ? { display: "none" } : undefined} disabled={!online || enviando} onClick={() => acao("habEsquecer", undefined, h.codigo)} className="text-xs text-red-400 hover:underline disabled:opacity-40">esquecer</button>
                                 </>
                               ) : (
-                                <button disabled={!online || enviando} onClick={() => acao("habAprender", undefined, h.codigo)} className="rounded border border-purple-500/50 px-2 py-0.5 text-xs text-purple-200 hover:bg-purple-500/20 disabled:opacity-40">ensinar</button>
+                                <button style={leitura ? { display: "none" } : undefined} disabled={!online || enviando} onClick={() => acao("habAprender", undefined, h.codigo)} className="rounded border border-purple-500/50 px-2 py-0.5 text-xs text-purple-200 hover:bg-purple-500/20 disabled:opacity-40">ensinar</button>
                               )}
                             </div>
                           </div>
@@ -297,7 +297,7 @@ export function FichaJogador({ base, inicial, inicialEm, inicialOnline, inicialO
             {aba === "talentos" && (
               <Cartao titulo={`Talentos · ${f.talentos.livres} livres de ${f.talentos.total}`}>
                 <div className="mb-3 flex justify-end">
-                  <button disabled={!online || enviando} onClick={() => acao("talentosResetar")} className="rounded-md border border-pedra-700 px-3 py-1 text-xs hover:border-ouro disabled:opacity-40">Resetar de graça</button>
+                  <button style={leitura ? { display: "none" } : undefined} disabled={!online || enviando} onClick={() => acao("talentosResetar")} className="rounded-md border border-pedra-700 px-3 py-1 text-xs hover:border-ouro disabled:opacity-40">Resetar de graça</button>
                 </div>
                 {!f.talentos.ramos?.length ? <p className="text-sm text-pedra-500">Escolha uma classe para ver a árvore.</p> : (
                   <div className="grid gap-4 md:grid-cols-3">
@@ -310,9 +310,9 @@ export function FichaJogador({ base, inicial, inicialEm, inicialOnline, inicialO
                               <div className="flex items-center justify-between gap-2">
                                 <span>{t.nome}</span>
                                 <span className="flex items-center gap-1">
-                                  <button disabled={!online || enviando || t.atual <= 0} onClick={() => acao("talento", t.atual - 1, t.id)} className="h-5 w-5 rounded border border-pedra-700 text-xs disabled:opacity-30">−</button>
+                                  <button style={leitura ? { display: "none" } : undefined} disabled={!online || enviando || t.atual <= 0} onClick={() => acao("talento", t.atual - 1, t.id)} className="h-5 w-5 rounded border border-pedra-700 text-xs disabled:opacity-30">−</button>
                                   <b className="w-10 text-center font-mono text-xs">{t.atual}/{t.max}</b>
-                                  <button disabled={!online || enviando || t.atual >= t.max} onClick={() => acao("talento", t.atual + 1, t.id)} className="h-5 w-5 rounded border border-pedra-700 text-xs disabled:opacity-30">+</button>
+                                  <button style={leitura ? { display: "none" } : undefined} disabled={!online || enviando || t.atual >= t.max} onClick={() => acao("talento", t.atual + 1, t.id)} className="h-5 w-5 rounded border border-pedra-700 text-xs disabled:opacity-30">+</button>
                                 </span>
                               </div>
                               <p className="text-xs text-pedra-500">{t.efeito || t.porPonto}{t.pede ? ` · ${t.pede}` : ""}</p>
@@ -334,7 +334,7 @@ export function FichaJogador({ base, inicial, inicialEm, inicialOnline, inicialO
                       <li key={r.id}>
                         <div className="flex items-center justify-between gap-2 text-sm">
                           <span>👑 {r.nome} <span className="text-xs text-ouro">{r.nivel}</span>{r.desconto > 0 && <span className="text-xs text-green-400"> · {r.desconto}% off</span>}</span>
-                          <form className="flex items-center gap-1" onSubmit={(e) => { e.preventDefault(); const v = new FormData(e.currentTarget).get("v"); acao("reputacao", String(v), r.id); }}>
+                          <form style={leitura ? { display: "none" } : undefined} className="flex items-center gap-1" onSubmit={(e) => { e.preventDefault(); const v = new FormData(e.currentTarget).get("v"); acao("reputacao", String(v), r.id); }}>
                             <input name="v" type="number" defaultValue={r.pontos} className="w-20 rounded border border-pedra-700 bg-pedra-950 px-1.5 py-0.5 text-right font-mono text-xs" />
                             <button disabled={!online || enviando} className="rounded border border-pedra-700 px-1.5 py-0.5 text-xs hover:border-ouro disabled:opacity-40">✓</button>
                           </form>

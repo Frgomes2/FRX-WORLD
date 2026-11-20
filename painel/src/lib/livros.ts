@@ -44,9 +44,11 @@ const DESPERTAR: Record<string, [string, string, string]> = {
   BARDO: ["Bis!", "Gastando mana nas canções e ferindo inimigos.", "Na hora, zera as recargas e enche o recurso de todos os jogadores a até 12 blocos, você incluso. Por 8 s o grupo causa 20% a mais de dano e regenera."],
   MONGE: ["Portão Interior", "Acertando socos e golpes de perto.", "Por 8 a 12 s os socos causam o dobro e estouram em volta do alvo, você corre e salta mais e as habilidades não gastam chi. No fim vem a exaustão: fraqueza e lentidão por 5 s."],
   DRUIDA: ["Coração da Floresta", "Gastando mana, batendo de perto e apanhando.", "Por 10 s as habilidades não gastam mana, as garras batem 50% mais forte, você regenera e as formas de lobo e de ave deixam de apanhar a mais."],
+  CARTOMANTE: ["Mão Perfeita", "Acertando habilidades.", "Por 8 a 12 s a mão vira três Coringas e toda carta nova também é Coringa: cada golpe fere 40% a mais, cura você, devolve mana e prende o alvo."],
+  SAMURAI: ["Lâmina das Três Formas", "Acertando golpes de perto; com uma katana na mão enche bem mais rápido.", "Por 8 a 12 s todo golpe de katana é um Saque e alterna três formas: Brasa (queima), Maré (deixa lento) e Relâmpago (dano extra). Você corre e golpeia mais rápido."],
 };
-const ICONE: Record<string, string> = { GUERREIRO: "⚔️", ARQUEIRO: "🏹", MAGO: "🔮", CLERIGO: "✨", LADINO: "🗡️", ASSASSINO: "🥷", INVOCADOR: "👻", PALADINO: "🛡️", BARDO: "🎵", MONGE: "👊", DRUIDA: "🌿" };
-const COR: Record<string, string> = { GUERREIRO: "#8f2f2f", ARQUEIRO: "#3f6b3a", MAGO: "#4b3f8f", CLERIGO: "#9c7a22", LADINO: "#4a4a55", ASSASSINO: "#5a2346", INVOCADOR: "#3a2a5f", PALADINO: "#a8892e", BARDO: "#8a3f8f", MONGE: "#2f7f78", DRUIDA: "#3d6b2a" };
+const ICONE: Record<string, string> = { CARTOMANTE: "🃏", GUERREIRO: "⚔️", ARQUEIRO: "🏹", MAGO: "🔮", CLERIGO: "✨", LADINO: "🗡️", ASSASSINO: "🥷", INVOCADOR: "👻", PALADINO: "🛡️", BARDO: "🎵", SAMURAI: "🎌", MONGE: "👊", DRUIDA: "🌿" };
+const COR: Record<string, string> = { CARTOMANTE: "#1f6f7a", SAMURAI: "#9c2f2f", GUERREIRO: "#8f2f2f", ARQUEIRO: "#3f6b3a", MAGO: "#4b3f8f", CLERIGO: "#9c7a22", LADINO: "#4a4a55", ASSASSINO: "#5a2346", INVOCADOR: "#3a2a5f", PALADINO: "#a8892e", BARDO: "#8a3f8f", MONGE: "#2f7f78", DRUIDA: "#3d6b2a" };
 const TIPO: Record<string, string> = { SKILLSHOT: "Projétil", ALVO: "Alvo", AREA: "Área", MOBILIDADE: "Mobilidade", BUFF: "Reforço", INVOCAR: "Invocação" };
 
 function moedas(c: number) {
@@ -78,7 +80,7 @@ export async function livros(): Promise<Livro[]> {
       paginas: [
         { titulo: "Bem-vindo ao FRX-WORLD", blocos: [
           p("O FRX-WORLD é um MMORPG dentro do Minecraft. Você escolhe uma raça e uma classe, sobe de nível, entra para a Guilda de Aventureiros e explora um mundo com reinos, masmorras, portais e uma torre de 100 andares."),
-          lista("Nível máximo: 100.", "Tecla K: janela de Status (inventário, habilidades, talentos, reinos, missões, conquistas e grupo).", "Tecla B: Despertar, o poder especial da sua classe, a partir do nível 10.", "Tecla F8: escolher ou trocar de personagem.", "Livro de missões: a campanha principal, capítulo por capítulo."),
+          lista("Nível máximo: 100.", "Tecla K: janela de Status (inventário, habilidades, talentos, reinos, missões e conquistas).", "Tecla B: Despertar, o poder especial da sua classe, a partir do nível 10.", "Tecla F8: escolher ou trocar de personagem.", "Livro de missões: a campanha principal, capítulo por capítulo."),
         ] },
         { titulo: "Seus personagens", blocos: [
           p("Cada conta pode ter até 3 personagens. Ao entrar no servidor aparece a tela de escolha, com um estandarte para cada um; a tecla F8 abre a mesma tela a qualquer hora."),
@@ -90,6 +92,12 @@ export async function livros(): Promise<Livro[]> {
             ["Clãs, placar da Torre e temporada", "Progressos do jogo e livro de missões"],
           ]),
           nota("O limite de aldeões do Mercador de Escravos também é da conta: soma os três personagens."),
+          nota("Todo personagem novo nasce com um kit: armadura de couro já vestida, espada, machado, pá e picareta de pedra e 32 pães. É tudo de classe F, que qualquer um pode usar."),
+        ] },
+        { titulo: "Sua conta no site", blocos: [
+          p("No site, o botão Minha conta mostra o seu inventário, as moedas da bolsa e do banco, os terrenos e a ficha de cada personagem, sem abrir o jogo."),
+          lista("Primeiro acesso: dentro do jogo, aperte F9. O jogo mostra um código de 6 números que vale por 10 minutos.", "No site, clique em Minha conta, escolha Primeiro acesso, digite o seu nick, o código e a senha que quer usar.", "Das próximas vezes, entre só com o nick e a senha.", "Esqueceu a senha? Faça o Primeiro acesso de novo, com um código novo."),
+          nota("A senha é só do site, não é a da sua conta do Minecraft. Não passe o código para ninguém. A página é só de consulta: nada muda no jogo por ela."),
         ] },
         { titulo: "Nível e experiência", blocos: [
           p("Você ganha experiência matando monstros, cumprindo missões e avançando na história. Cada nível pede mais que o anterior."),
@@ -126,7 +134,7 @@ export async function livros(): Promise<Livro[]> {
           nota("Passar na prova rende um prêmio em moedas, uma única vez por rank."),
         ] },
         { titulo: "O que cada rank dá", blocos: [
-          lista("Missões: +10% de experiência e moedas por rank acima do F.", "Lojas e forja: 2% de desconto por rank, somando com a reputação (até 50%).", "Portais: você entra nos portais do seu rank ou abaixo.", "Dimensões: o Nether pede Rank D e o End pede Rank C.", "Terrenos: quanto maior o rank, maior a área e a quantidade de terrenos.", "Mercador de Escravos: só vende a partir do Rank D, e o limite de aldeões cresce com o rank."),
+          lista("Missões: +10% de experiência e moedas por rank acima do F.", "Lojas e forja: 2% de desconto por rank, somando com a reputação (até 50%).", "Portais: você entra nos portais do seu rank ou abaixo.", "Dimensões: o Nether pede Rank D e o End pede Rank C.", "Habilidades: cada rank até o B libera mais um espaço na barra (veja o livro Talentos e Poderes).", "Terrenos: quanto maior o rank, maior a área e a quantidade de terrenos.", "Mercador de Escravos: só vende a partir do Rank D, e o limite de aldeões cresce com o rank."),
           tabela(["Rank", "Lado do terreno", "Área somada", "Terrenos", "Aldeões comprados"], [
             ["F", "24", "512", "1", "não compra"], ["E", "34", "1.200", "2", "não compra"], ["D", "46", "2.200", "3", "4"], ["C", "58", "3.600", "4", "8"],
             ["B", "68", "5.600", "5", "16"], ["A", "92", "9.000", "6", "34"], ["S", "114", "14.000", "7", "68"],
@@ -142,6 +150,7 @@ export async function livros(): Promise<Livro[]> {
         ] },
         { titulo: "Classes de equipamento", blocos: [
           p("Toda arma e armadura tem uma classe, de F a S, mostrada na descrição do item. Só usa quem tem aquele rank. Guardar na mochila e nos baús é livre."),
+          nota("Anéis: você tem 10 espaços de anel, mas não pode usar dois anéis iguais ao mesmo tempo."),
           tabela(["Rank", "Pode usar até"], LETRAS.map((l, i) => [l, EQUIP[i]])),
           nota("Armadura acima do seu rank sai do corpo e volta para a mochila. Arma acima do rank não acerta ninguém, e arco não dispara. As lojas só mostram o que o seu rank já pode usar."),
         ] },
@@ -238,6 +247,17 @@ export async function livros(): Promise<Livro[]> {
           p("Vende aldeões sem profissão, só a aventureiros de Rank D ou mais. Você escolhe a roupa do aldeão e recebe um contrato."),
           lista("Use o contrato no chão, onde quiser, para o aldeão aparecer.", "Com uma bancada de trabalho livre por perto, ele aprende o ofício.", "Cada aldeão custa 5 de ouro.", "Quando um aldeão comprado morre, a vaga volta."),
           tabela(["Rank", "Aldeões que você pode ter"], [["D", "4"], ["C", "8"], ["B", "16"], ["A", "34"], ["S", "68"]]),
+        ] },
+        { titulo: "Costureira", blocos: [
+          p("A Costureira costura bolsos na sua calça. Cada bolso é um espaço a mais para guardar itens, além da mochila."),
+          lista("Leve a calça na mão, ou vá vestindo uma. Serve qualquer calça, de couro a netherita.", "Cada bolso custa 2 de ouro. A calça aceita até 12 bolsos.", "Vestindo a calça, os bolsos aparecem dentro do próprio inventário, num painel à esquerda da mochila: é só clicar para guardar e pegar. Segurando Shift, o item volta direto para a mochila. A tecla O também abre os bolsos sem abrir o inventário.", "Caixas de shulker e outros itens que guardam itens não entram no bolso."),
+          nota("Os bolsos ficam na calça, mas o que está dentro é do personagem. Se você tirar a calça ou vestir uma com menos bolsos, o que não couber volta para a mochila ou cai no chão. Ao morrer, o que está nos bolsos cai junto com a mochila."),
+        ] },
+        { titulo: "Criador de Dragões", blocos: [
+          p("O Criador de Dragões vende ovos de dragão. São o item mais caro do reino: é coisa para quem já juntou uma fortuna."),
+          tabela(["Dragão", "Raridade", "Preço em ouro"], [["Floresta", "★", "1.500"], ["Água", "★", "1.500"], ["Gelo", "★★", "2.000"], ["Fogo", "★★", "2.500"], ["Éter", "★★★", "4.000"], ["Nether", "★★★", "5.000"], ["Fantasma", "★★★★", "7.500"], ["Fim", "★★★★★", "12.000"]]),
+          lista("Coloque o ovo no chão e clique nele para começar a chocar.", "O filhote nasce selvagem: dome com peixe e, quando crescer, ponha uma sela para voar.", "Fora do Criador, só o ovo do Dragão do Fim pode ser chocado."),
+          nota("O ovo choca sempre do tipo que você comprou, em qualquer lugar. Cada dragão tem a sua marca: o do Éter voa mais rápido, o do Nether tem couraça, o do Fim tem a maior vida; os de Fogo e do Nether não se queimam."),
         ] },
       ],
     },
@@ -352,12 +372,17 @@ export async function livros(): Promise<Livro[]> {
           p("As habilidades da classe são aprendidas sozinhas quando você chega ao nível de cada uma. Algumas vêm de um Tomo Arcano."),
           lista("Cada habilidade sobe de nível com o uso, de 1 a 10.", "Nível 2 com 5 usos, 3 com 20, 5 com 80 e 10 com 405.", "Cada nível reduz a recarga em 3% e deixa a habilidade mais forte."),
         ] },
+        { titulo: "A barra de habilidades", blocos: [
+          p("Todo aventureiro tem 4 espaços de habilidade e 1 de ultimate. O rank da Guilda libera mais espaços, para você levar mais habilidades prontas para a luta."),
+          tabela(["Rank da Guilda", "Espaços", "Tecla do espaço novo"], [["F", "4 + ultimate", "—"], ["E", "5 + ultimate", "Z"], ["D", "6 + ultimate", "H"], ["C", "7 + ultimate", "N"], ["B, A e S", "8 + ultimate", "Y"]]),
+          lista("Os espaços novos aparecem numa linha acima da barra.", "Tecla K: escolha qual habilidade vai em cada espaço e troque a tecla de qualquer um.", "Ao subir de rank, o espaço novo aparece na hora.", "Cada classe tem pelo menos 12 habilidades: escolher quais levar faz parte da estratégia."),
+        ] },
         { titulo: "Despertar", blocos: [
           p("A partir do nível 10, cada classe tem um poder especial na tecla B. Uma barra fina enche conforme você luta do jeito da sua classe; em 100%, está pronto."),
           nota("O Despertar de cada classe está no livro dela."),
         ] },
         { titulo: "Habilidade única", blocos: [
-          p("Todo aventureiro recebe uma habilidade única, só dele, que evolui com os abates. Ela aparece na ficha do jogador aqui no site."),
+          p("Todo aventureiro recebe uma habilidade única, só dele, que evolui com os abates. Ela aparece na ficha do jogador aqui no site. São 20 habilidades diferentes, e o sorteio dá preferência às que menos gente tem."),
         ] },
         { titulo: "Runas", blocos: [
           p("Runas se encaixam na bigorna: item à esquerda, runa à direita. Cada item aceita até 2 runas de tipos diferentes. Duas runas iguais do mesmo nível viram uma do nível seguinte."),

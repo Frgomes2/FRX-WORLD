@@ -26,8 +26,6 @@
 | `/invasao` | Estado da invasão atual | Reinos |
 | `/masmorras` | Lista as masmorras | [Dungeons](sistemas/dungeons-chefes.md) |
 | `/chefe` | Informações do chefe mundial | Dungeons |
-| `/grupo convidar <j>` · `aceitar` · `recusar` · `sair` · `expulsar <j>` · `chat` | Grupos | Grupos |
-| `/g <mensagem>` | Chat do grupo | Grupos |
 | `/unica` | Mostra a Habilidade Única e o progresso | [Imersão](sistemas/imersao.md) |
 | `/suprema` · `/suprema prova` · `/suprema usar` | Habilidade Suprema: situação, prova e efeito ativo (também com Agachar + F) | Imersão |
 | `/nomeacao` | Nome recebido dos reis e bônus | Imersão |
@@ -127,5 +125,5 @@
 | `/frx masmorra portal <id>` · `/frx masmorra secar <id>` | Põe o pórtico com portal na entrada da masmorra · tira a água de dentro |
 | `/frx masmorra entradas [refazer [id]]` | Lista ou refaz as entradas das masmorras |
 | `/frx npc aqui pedreiro` | Coloca o Mestre de Obras (loja de blocos) |
-| `/frx npc aqui clas` · `leiloeiro` · `discos` · `escravos` | Coloca o Mestre dos Clãs, o Leiloeiro, o Mercador de Discos e o Mercador de Escravos |
+| `/frx npc aqui clas` · `leiloeiro` · `discos` · `escravos` · `costureira` · `dragoes` | Coloca o Mestre dos Clãs, o Leiloeiro, o Mercador de Discos, o Mercador de Escravos e a Costureira |
 | `/frx populacao refazer` | Remove os moradores carregados e povoa de novo |

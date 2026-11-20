@@ -13,6 +13,10 @@
   "key.frxworld.hab3": "Habilidade 3",
   "key.frxworld.hab4": "Habilidade 4",
   "key.frxworld.ultimate": "Ultimate",
+  "key.frxworld.hab5": "Habilidade 5 (Rank E)",
+  "key.frxworld.hab6": "Habilidade 6 (Rank D)",
+  "key.frxworld.hab7": "Habilidade 7 (Rank C)",
+  "key.frxworld.hab8": "Habilidade 8 (Rank B)",
   "key.frxworld.habilidades": "Janela de Status",
   "item.frxworld.moeda_cobre": "Moeda de Cobre",
   "item.frxworld.moeda_prata": "Moeda de Prata",
@@ -22,6 +26,8 @@
   "key.frxworld.sombra3": "Sombra: atalho 3",
   "key.frxworld.alvo_sombras": "Sombras: marcar alvo",
   "key.frxworld.personagens": "Trocar de personagem",
+  "key.frxworld.bolsos": "Abrir os bolsos da calça",
+  "key.frxworld.site": "Código da conta do site",
   "key.frxworld.sombras_todas": "Sombras: chamar/recolher todas",
   "key.frxworld.despertar": "Despertar (poder da classe)"
 }

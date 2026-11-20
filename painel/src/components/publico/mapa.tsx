@@ -6,15 +6,17 @@ import type { MapaPublico as Dados } from "@/lib/publico";
 type Vista = { x: number; z: number; esc: number };
 
 /** Mapa do mundo já explorado: arrastar move, roda do mouse (ou os botões) aproxima. Sem posição de jogadores. */
-export function MapaPublico({ mapa }: { mapa: Dados }) {
+/** foco = onde o mapa abre (padrão: ponto de partida); marcas = pontos extras, como os terrenos de quem está logado. */
+export function MapaPublico({ mapa, foco, marcas = [] }: { mapa: Dados; foco?: [number, number]; marcas?: { x: number; z: number; nome: string }[] }) {
   const caixa = useRef<HTMLDivElement>(null);
   const ref = useRef<HTMLCanvasElement>(null);
   const imgs = useRef(new Map<string, HTMLImageElement>());
   const arrasto = useRef<{ px: number; py: number; vx: number; vz: number } | null>(null);
   const [tam, setTam] = useState({ w: 800, h: 480 });
   const [, setCarregadas] = useState(0);
-  const centro = mapa.spawn ?? mapa.torre ?? [0, 0];
-  const [vista, setVista] = useState<Vista>({ x: centro[0], z: centro[1], esc: 0.2 });
+  const centro = foco ?? mapa.spawn ?? mapa.torre ?? [0, 0];
+  const escInicial = foco ? 0.6 : 0.2;
+  const [vista, setVista] = useState<Vista>({ x: centro[0], z: centro[1], esc: escInicial });
   const [mouse, setMouse] = useState<{ x: number; z: number } | null>(null);
 
   useEffect(() => {
@@ -63,6 +65,7 @@ export function MapaPublico({ mapa }: { mapa: Dados }) {
     for (const r of mapa.reinos) marca(r.x, r.z, "👑", r.nome, "#d4a93a");
     if (mapa.torre) marca(mapa.torre[0], mapa.torre[1], "🗼", "Torre Infinita", "#c9a2ff");
     if (mapa.spawn) marca(mapa.spawn[0], mapa.spawn[1], "✦", "Ponto de partida", "#8fd18f");
+    for (const m of marcas) marca(m.x, m.z, "🏠", m.nome, "#7fd4ff");
   });
 
   const zoom = (f: number) => setVista((v) => ({ ...v, esc: Math.max(0.03, Math.min(4, v.esc * f)) }));
@@ -86,7 +89,7 @@ export function MapaPublico({ mapa }: { mapa: Dados }) {
       <div className="absolute right-3 top-3 flex flex-col gap-1.5">
         <button type="button" className={botao} onClick={() => zoom(1.5)} aria-label="Aproximar">+</button>
         <button type="button" className={botao} onClick={() => zoom(1 / 1.5)} aria-label="Afastar">−</button>
-        <button type="button" className={botao} onClick={() => setVista({ x: centro[0], z: centro[1], esc: 0.2 })} aria-label="Voltar ao ponto de partida">⌂</button>
+        <button type="button" className={botao} onClick={() => setVista({ x: centro[0], z: centro[1], esc: escInicial })} aria-label="Voltar ao ponto de partida">⌂</button>
       </div>
       <p className="absolute bottom-2 left-3 rounded bg-pedra-950/80 px-2 py-0.5 font-mono text-xs text-pedra-500">
         {mouse ? `x ${mouse.x} · z ${mouse.z}` : "arraste para mover · role para aproximar"}

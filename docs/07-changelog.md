@@ -6,6 +6,174 @@ Formato: versão, depois o que entrou. A versão do mod fica em `core-mod/gradle
 
 > **Situação dos testes (10/11/2026):** a última versão compilada e testada no PC é a **0.33.0** (`pack/mods/frxworld-0.33.0.jar`). As versões **0.34 a 0.40** ainda não rodaram no jogo. O roteiro de teste está no checklist "FRX-WORLD — Checklist de testes".
 
+## 1.2.1 (20/11) — Classe Cartomante e efeitos visuais das habilidades
+
+- **Cartomante** (13ª classe, mana; original): `habilidades/Cartas` guarda a mão de 3 cartas por jogador (em memória; some ao sair) e a carta da vez. `Habilidades.usar` chama `Cartas.antes/depois/aposCusto` e `ferir` aplica `fatorDano` (Espadas/Coringa ×1,4) e `aoFerir` (Copas cura 20% do dano, Paus dá Lentidão VII e Fraqueza II por 2 s); Ouros devolve 60% do custo. Coringa: 8% por carta (35% com Maré de Sorte, 100% no Despertar). Gasta carta toda habilidade da classe com `dano != 0` que não seja BUFF. A mão aparece na barra de ação a cada 2 s.
+- Efeitos próprios em `Especiais`: `frx:carta_embaralhar`, `frx:carta_sorte`, `frx:carta_moeda`, `frx:carta_mao`; `frx:carta_final` (Casa Cheia) é uma AREA comum que vale como Coringa. As outras reaproveitam `frx:leque`, `frx:sangria`, `frx:refletir`, `frx:executar`.
+- Despertar **Mão Perfeita** (`Despertar`, `extra == 8`); talentos `naipes`, `baralho`, `sorte`; 12 habilidades em `painel/src/lib/habilidades.ts` e na migração `20261120180000_cartomante`; ícone e cor no site, no painel e nos livros.
+
+- `habilidades/Efeitos`: biblioteca de animações no servidor (agenda por tick, com teto de 4000 tarefas) usando partículas `dust` coloridas por elemento mais uma partícula de destaque: `conjurar`, `projetil` (cabeça que corre a 4 blocos/tick com rastro em espiral e `estouro`), `golpe` (convergência + coluna), `area` (círculo rúnico, estrela, onda de choque, colunas), `rastro`, `aura`, `invocacao`, `somImpacto`.
+- `Habilidades`: os seis tipos genéricos (SKILLSHOT, ALVO, AREA, MOBILIDADE, BUFF, INVOCAR) passam a usar a biblioteca; o dano continua instantâneo. Habilidades especiais (`Especiais`, `Marcial`, `Sagrado`, `Cancoes`, `Formas`, `Despertar`, `Suprema`) ainda usam os efeitos antigos.
+
+## 1.2.0 (20/11) — Invocador: posto da tropa
+
+- `Sombras.marcarAlvo`: sem criatura na mira, o bloco olhado (até 40 blocos) vira o **posto** (`POSTOS`, marca `frx_posto` em cada invocação): `mandarPara` leva a tropa até lá e `tickPostos` (1 s) a faz voltar ao ponto quando fica sem alvo; mirar no céu, marcar um alvo ou o dono passar de 48 blocos desfaz. `SeguirDono` não puxa quem tem posto.
+- `Habilidades.invocar`: invocações que não são bichos domáveis (golem) ganham o objetivo `Sombras.SeguirDono`.
+- `Limpeza`: só descarta `ItemEntity` com `getAge() >= 2400` (2 min no chão); saíram os avisos de 1 min e 10 s, fica só o total quando houve remoção.
+- Bestiário, primeiro a derrotar: migração `20261120140000_primeiro_codex` (`CriaturaCodex.primeiroNome`, `primeiroEm`); `Criaturas` manda o nome do personagem em `PainelApi.enviarDerrotaCriatura(codigo, matador)`; a rota `api/servidor/criaturas` grava só quando `derrotas = 0`; `bestiarioPublico` devolve `primeiro`/`primeiroEm` e o cartão mostra.
+- JourneyMap: `showInGameBeacons = false` em `server/journeymap/server/6.0/journeymap.server.global.config` (original em `logs/journeymap.server.global.antes.config`): os marcadores deixam de ser desenhados no mundo para todos; no mapa e no minimapa continuam.
+
+## 1.1.9 (20/11) — Mural: primeiro no coração do labirinto
+
+- `AreasProtegidas.chegou`: a cada segundo, jogador em sobrevivência (não operador) dentro do refúgio de uma área fica registrado em `<mundo>/frx_chegadas.json` (`{ área: { primeiro, todos } }`, por personagem). O primeiro de todos ganha anúncio no chat.
+- Painel: marco `chegada:labirinto` em `lib/feitos.ts` (grupo "Labirinto"); `conferirMural` recebe as chegadas lidas do arquivo em `dadosPublicos`. A crônica do mural sai sozinha, como nos outros marcos.
+- Túmulos em qualquer proteção: `AreasProtegidas.tumulo(BlockState)` (blocos `gravestone:*`) passa a ser exceção também em `Torre.aoQuebrar`, `Terrenos.aoQuebrar` e `Oficios.naoQuebrar`.
+- Guilda, prova de promoção (`Guilda.iniciarProva`): da prova do Rank D em diante (`duro = alvo - 1`), vida base ×(1 + 0,5·duro), dano base +2·duro, velocidade +0,02, resistência a empurrão 0,6 e nível do examinador = mínimo do rank + 5·duro. Prova do Rank E inalterada.
+- `protecao/Limpeza`: a cada 30 min descarta todos os `ItemEntity` de todas as dimensões carregadas (equivale a `/kill @e[type=item]`), com aviso no chat 1 min e 10 s antes e o total removido depois. A contagem recomeça a cada reinício.
+- Tradução das poções do When Dungeons Arise: os nomes e descrições ficam fixos (em inglês) dentro das tabelas de saque do mod (`set_nbt` com `display.Name`/`Lore`), fora do alcance dos arquivos de idioma. As 10 tabelas afetadas foram copiadas com os 64 textos traduzidos para `server/kubejs/data/dungeons_arise/loot_tables/chests/...`, que tem prioridade sobre o jar. Itens já gerados não mudam.
+- The Graveyard: `fogParticles.enabled = false` em `server/config/graveyard/graveyard.json5` (névoa que sobe do musgo; é configuração de cliente). O arquivo entrou no `from-server` do AutoModpack (`server/automodpack/server.conf`) para chegar a todos os jogadores.
+- Invocador: `Habilidades.alvoDeInvocacao` (LivingChangeTargetEvent) impede qualquer entidade com `frx_invocado` de mirar jogadores, aldeões, NPCs, bichos domados e outras invocações. Corrige o golem de ferro matando as sombras do próprio dono.
+- Invocador, alvo marcado: `Sombras.marcarAlvo` aceita outro jogador quando não há criatura na mira (PvP ligado, fora do criativo/espectador e fora do mesmo clã, `Clas.mesmoCla`); `Habilidades.focoEm` libera esse alvo nos dois filtros de alvo. O marcado recebe aviso.
+- **Grupos desativados**: saiu a aba Grupo de `TelaStatus.ABAS` e `Grupos.comandos` não é mais registrado (`/grupo`, `/g`). A classe `Grupos` continua no código, sem como formar grupo: `Grupos.perto` passou a devolver os companheiros de clã próximos (`Clas.mesmoCla`, mesma dimensão, até `DISTANCIA`, no máximo 6 com o jogador), então `distribuirXp` e o progresso de campanha agora são divididos entre membros do mesmo clã.
+- `protecao/Reequipar`: no `LivingDeathEvent` guarda em `frx_reequipar` (NBT persistente do personagem) a armadura, a mão secundária e os espaços do Curios (por reflexão, como em `AneisUnicos`). Ao quebrar um túmulo (`BreakEvent` não cancelado), tenta por 10 s mover cada peça da mochila para o lugar original, se estiver vazio. Retrato vale 2 h. Não cobre os bolsos da calça nem `/restore`.
+- FallingTree: passam a valer `minimumLeavesAroundRequired = 3` e `includePersistentLeavesInRequiredCount = false`.
+
+## 1.1.8 (19/11) — FallingTree
+
+- Mod **FallingTree 1.20.1-4.3.x** (só servidor) via `pack/pendentes.txt`: árvore inteira cai ao cortar o tronco com machado. Config em `server/config/fallingtree.json`.
+
+## 1.1.7 (19/11) — Túmulo em área protegida
+
+- `AreasProtegidas.aoQuebrar` deixa quebrar blocos do mod Gravestone (`gravestone:*`) dentro de área protegida, para o jogador recuperar os itens de onde morreu.
+
+## 1.1.6 (19/11) — Bolsos dentro do inventário
+
+- `cliente/BolsosCliente`: painel de bolsos à esquerda da janela do inventário (sai o botão "Bolsos"); cliques vão ao servidor pela ação `bolso` e são resolvidos em `Costureira.clique` com o item carregado do `inventoryMenu`; o conteúdo volta em `bolsosdados`. Os slots do `InventoryMenu` não foram alterados.
+- Removidos os mods de terror **The Man From The Fog** e **Tense Ambience** (pedido dos jogadores: não combinam com o propósito do servidor): os `.pw.toml` saíram do pack (guardado em `logs/removidos/`); o instalador tira o jar do servidor e dos clientes na próxima atualização.
+- Painel/site: na ficha em modo leitura (`/conta`) o inventário fica em cima e as abas usam a largura toda; grade de atributos responsiva.
+
+## 1.1.5 (18/11) — Labirinto do Dragão, áreas protegidas e NPC fora de capital
+
+- **Áreas protegidas** (`protecao/AreasProtegidas`): registro em `<mundo>/frx_protegidas.txt` (`id;minX;minY;minZ;maxX;maxY;maxZ` + opcional caixa de refúgio com mais seis números). Dentro da área só admin no criativo quebra/coloca bloco, explosão não estraga nada; no refúgio os monstros são retirados a cada segundo.
+- **Labirinto do Dragão**: construção de 141 × 141 colada pelo Forgematica em (1240,63,1711)–(1380,71,1851), paredes com miolo de rocha-mãe. Área protegida `labirinto`, refúgio no salão central (1303–1317, 1774–1788), nível fixo 20 em `frx_areas.txt`. 67 geradores no piso (becos e corredores) com monstros reforçados em três faixas conforme a distância ao salão, 16 baús Lootr nos becos (`frxworld:chests/masmorra` e `masmorra_chefe`) e mais 4 no salão. Gerador do arquivo e dos comandos: scripts guardados fora do repositório; a planta fica em `cliente/jogo/schematics/labirinto_grande_141.litematic`.
+- **NPC fora de capital**: `/frx npc aqui <papel>` fora de qualquer capital cria um NPC solto (tag `frx_npc_solto`, sem reino); `/frx npc remover` tira o que estiver a até 4 blocos.
+- Waystones: `restrictRenameToOwner = true`.
+- Dragon Mounts: `update_habitats = false` (o ovo choca sempre do tipo comprado); `Dragoes.TIPOS` passou a descrever a característica de cada dragão; em `TelaDragoes` o botão Comprar só aparece com um ovo escolhido.
+- Site, **Minha conta** (`app/conta/painel.tsx`): cabeçalho do personagem com skin e barra de XP, cartões de personagem, jornada (estatísticas, posição nos rankings, Torre, temporada, habilidade única), história (crônicas), bestiário pessoal, reputação, dinheiro e terrenos no mapa (`MapaPublico` ganhou `foco` e `marcas`). Só usa dados que o site já recebia (`perfilPublico`, `dadosPublicos`). A ficha completa do admin continua abaixo, em modo leitura.
+- `cliente/Reconexao`: não abre mais a tela de anúncio do Enhanced Celestials 2.
+
+- `cliente/Reconexao.aoAbrirTela` cancela a abertura da `EC2AnnouncementScreen` (propaganda do mod que abria a cada entrada no mundo). Vale só no cliente; chega aos jogadores pelo pack.
+
+## 1.1.4 (18/11) — Tradução dos mods para português (primeiro lote)
+
+- Levantamento em `logs/traducao-levantamento.json` (18/11): dos 108 mods com textos, 32 já vêm em português, 21 em parte e 54 sem nada; faltam cerca de 11.300 frases.
+- Traduções ficam no nosso mod, em `core-mod/src/main/resources/assets/<mod>/lang/pt_br.json`: o jogo junta esse arquivo com o do mod original, então para mod traduzido em parte basta pôr as chaves que faltam.
+- **Habilidades Únicas: de 10 para 20** (`habilidades/Unica` e `Suprema`): `titan` (vida máxima), `espinhos` (devolve dano de perto), `vingador` (golpe seguinte a um dano), `sorte` (atributo Sorte), `gelo` e `chama` (chance no golpe), `berserk` (efeitos no abate), `regen` (cura fora de combate, a cada 100 ticks), `eco` (chance de +60%) e `guardiao` (anula um golpe a cada 30 a 18 s). Cada uma ganhou a sua Suprema. O sorteio usa `menosUsada`, com o registro personagem → habilidade em `<mundo>/frx_unicas.json` (preenchido no login de quem já tem). Tabela completa em `docs/sistemas/imersao.md`.
+- Mapa do site: as capitais dos reinos passam a aparecer por padrão, com coroa e nome (`mapaPublico`; antes só com `PUBLICO_MAPA_REINOS=1`). Para esconder de novo, `PUBLICO_MAPA_REINOS=0` no `.env` do painel. Muda a regra antiga de não marcar reinos no mapa público, a pedido do Flavio.
+- `cliente/HudHabilidades`: os espaços extras de habilidade passam a ficar na mesma linha (4 comuns, extras, ultimate), e a barra de recurso e a do Despertar acompanham a largura. Só voltam para a linha de cima se a tela for estreita demais para caber tudo.
+- Primeiro lote: Enhanced Celestials (51), The Man From The Fog (26), Dragon Mounts (41) e o que faltava do Samurai Dynasty (161).
+
+- O aviso "Enhanced Celestials 2" aparece a cada entrada num mundo e o mod não tem opção para desligar.
+- Se um mod for atualizado e ganhar chaves novas, elas aparecem em inglês até serem acrescentadas.
+
+## 1.1.3 (18/11) — Kit inicial e ajustes do Samurai e da criatura da neblina
+
+- **Kit inicial** (`Abertura.kitInicial`, chamado em `nascer`, uma vez por personagem pela marca `kit`): couro completo já vestido (vai para a mochila se o espaço estiver ocupado), espada, machado, pá e picareta de pedra e 32 pães. Todos de classe F pela regra de `ClassesEquip` (couro pontua menos de 4,5; pedra tem bônus de dano 1).
+- **Katana de Aprendiz** (`Bushido.katanaDeAprendiz`, em `Habilidades.escolherClasse` quando a classe é `SAMURAI`, uma vez por personagem): espada de pedra com a marca `frx_katana`, que `Bushido.katana` aceita como katana. O "cabo de katana" (`katana_handle`) deixou de contar como katana.
+- **Trava de rank nos itens do Samurai Dynasty:** conferida no código. As armas do mod estendem `SwordItem` com um `Tier`, então caem na regra por bônus de dano do material; as armaduras são `ArmorItem`, regra por defesa. Não precisou de exceção em `config/frx_classes.txt`. Kunai e shuriken são de arremesso e só entram na trava se tiverem dano de ataque 5 ou mais.
+- **The Man From The Fog** (`server/config/man_config.toml`): `spawn_at_day = false`, `break_blocks = false`, `block_hardness = -1`, `block_hardness_search = -1`, intervalo de 12000 a 36000 ticks.
+
+## 1.1.2 (18/11) — Classe Samurai e mods de terror
+
+- **Classe `SAMURAI`** (recurso Energia). Estilo: duelista de katana com formas elementares, original do FRX-WORLD.
+  - `habilidades/Bushido` (novo, registrado em `FrxWorld`): **Saque** (60 ticks sem golpear → próximo golpe corpo a corpo ×1,75) e +10% em todo golpe com katana. Katana = item cujo id contém `katana`, `odachi`, `nodachi`, `wakizashi`, `tachi` ou `uchigatana`, de qualquer mod. Sem katana não há Saque nem bônus.
+  - Despertar **Lâmina das Três Formas** (`Despertar.iniciarFormas`, `extra == 7`): 8 a 12 s, todo golpe de katana é Saque (×1,5) e alterna Brasa (4 s de fogo), Maré (Lentidão II por 2,5 s) e Relâmpago (+30% de dano); Velocidade II e Pressa II. Enche 7 por golpe com katana, 2 sem.
+  - 12 habilidades (migração `20261118160000_samurai` e `painel/src/lib/habilidades.ts`), todas com efeitos que já existiam: `leque`, `sangria`, `refletir`, `perfurar`, `atras`, `congelar`, `meditar`, `danca`, `executar`, `fenda` e `cem`. A Fenda do Trovão (nível 18) é aprendida por Tomo Arcano; a ultimate é Tempestade de Mil Cortes (nível 25).
+  - Talentos: ramos Fio da Lâmina, Três Formas e Honra. Cliente: entrada na escolha de classe, descrição do Despertar e cor. Painel e site: ícone 🎌, livro da classe (sai do cadastro) e "12 classes".
+- **Mods pedidos por `pack/pendentes.txt`:** `epic-samurais` (Samurai Dynasty: katanas e armaduras), `tense-ambience` (sons tensos à noite e em cavernas, só cliente), `enhanced-celestials` (lua de sangue) e `the-man-from-the-fog` (criatura que persegue). Conferir versões e configurações depois do primeiro início.
+
+## 1.1.1 (18/11) — O céu do topo do site, por cena
+
+- `components/publico/clima.tsx` (novo): canvas com gotas em três distâncias inclinadas pelo vento e, na tempestade, raios em ziguezague com galhos e clarão (um a cada 3,5 a 10 s). Substitui a camada `.frx-chuva` de riscos fixos e o piscar do cabeçalho inteiro.
+- O mesmo canvas desenha as outras cenas (`Cena`): noite (estrelas que piscam, lua, vaga-lumes, estrela cadente), dia (sol com raios girando, poeira dourada, pássaros), chefe (brasas subindo) e desligado (poeira lenta). O site monta `<Clima key={cena} tipo={cena} />` sempre.
+- `globals.css`: `.frx-nuvens` (nuvens borradas que deslizam, mais escuras com `.frx-nuvens-forte`) e `.frx-nevoa`; as brasas do topo somem na chuva. Com `prefers-reduced-motion`, a chuva vira um quadro parado e não há raios.
+
+## 1.1.0 (18/11) — Crônicas do mundo (site, fase 2)
+
+Só o painel; nenhuma mudança no mod. Tabelas novas `Cronica` e `FotoRanking` (migração `20261118150000_cronicas`); código em `painel/src/lib/cronicas.ts`.
+
+- **Progresso:** `/api/servidor/progresso` lê o retrato anterior do mesmo personagem (`Personagem.base`) antes de gravar e registra subida de nível, de rank e conquistas novas. Comparar pelo personagem evita crônica falsa quando a conta troca de personagem.
+- **Marcos com chave única** (`registrarMarcos`, junto com `dadosPublicos()`): andares da Torre de 5 em 5 (`torre:<nome>:<andar>`), criaturas descobertas (`codex:<codigo>`) e primeiros do Mural (`mural:<chave>`). Na primeira conferência, o que já era verdade entra como `semente` e não aparece.
+- **Foto diária do ranking** (`evolucao`): uma linha por personagem por dia; dá os níveis ganhos em 7 dias e a troca de posição desde ontem em "Mais fortes".
+- **Site:** quadro Acontecendo junta as crônicas com o feed ao vivo; seção "Crônicas do FRX" com as manchetes (`destaque`); bloco Histórico na ficha pública (`PerfilPublico.historico`).
+- **Custo:** grava só quando algo muda; chaves e fotos ficam em memória; leituras com cache de 10 s. Limpeza diária apaga crônicas comuns com mais de 90 dias e fotos com mais de 30.
+
+## 1.0.9 (18/11) — Site mais vivo (fase 1)
+
+Só o site público (`painel/src/components/publico/` e `globals.css`); nenhuma mudança no mod nem no banco.
+
+- **Topo conforme o mundo:** `site.tsx` calcula `cena` a partir do status do servidor (`desligado`, `chefe`, `tempestade`, `chuva`, `noite`, `dia`) e aplica `frx-cena-<cena>` no cabeçalho da página; chuva e tempestade ganham a camada `.frx-chuva`. A faixa `momento` diz o que está acontecendo (dia e hora do jogo, clima, chefe mundial avistado ou ativo) e quantos estão jogando. Botão "Entrar no mundo" leva a Como entrar.
+- **Temporada:** `FimDaTemporada` conta o tempo até 00:00 do dia 1 do mês seguinte (horário de Brasília); medalhas nos três primeiros; lista "Como ganhar pontos" em `PONTOS_TEMPORADA`, que repete os pesos de `aventura/Temporadas.java` (se mudar lá, mudar aqui).
+- **Bestiário:** barra de coleção com descobertos, total e porcentagem, por aba.
+- **Rankings:** medalhas, destaque no primeiro e barra proporcional ao primeiro colocado.
+- **Animações:** `Subindo` (número que sobe), `.frx-surge` (linhas que surgem em sequência) e `.frx-enche` (barras que enchem). Tudo desliga com `prefers-reduced-motion`.
+
+## 1.0.8 (18/11) — Criador de Dragões e cabeçalho do site
+
+- NPC de papel `dragoes` ("Criador de Dragões", aparência de clérigo; `/frx npc aqui dragoes`; na lista de papéis do painel). `reinos/Dragoes` + `cliente/TelaDragoes` (tipo de menu `dragoes`).
+- Vende o item `dragonmounts:dragon_egg` com o tipo em `BlockEntityTag.Breed`. Preços em `Dragoes.TIPOS` (cobre): Floresta e Água 150.000, Gelo 200.000, Fogo 250.000, Éter 400.000, Nether 500.000, Fantasma 750.000, Fim 1.200.000. Sem exigência de rank: o preço é a barreira. Cada compra vai para o log do servidor. Sem o mod Dragon Mounts, o NPC abre mas não vende.
+- O Dragon Mounts fica com `use_loot_tables = false` (padrão): os ovos não aparecem em baús. Com `update_habitats = true`, o ovo pode mudar de tipo conforme o lugar onde choca.
+- Site: cabeçalho refeito em `components/publico/site.tsx` (`NAV_PRINCIPAL` e `NAV_MAIS`): seis atalhos à vista e a lista "Mais" nas telas largas; painel aberto por botão nas estreitas; contador de jogadores online; "Minha conta" em destaque. Acabou a barra de rolagem horizontal.
+- **Biblioteca:** página "Criador de Dragões" no livro Terras, Clãs e Comércio.
+
+## 1.0.7 (18/11) — Conta no site, Guia do Aventureiro, Mural dos Primeiros e Dragon Mounts
+
+- **Conta do jogador no site** (`/conta`, botão "Minha conta"):
+  - Primeiro acesso ou senha esquecida: nick + código de 6 dígitos + senha nova. O código vem do jogo: tecla `key.frxworld.site` (F9) → `AcaoMenu("codigosite")` → `acesso/CodigoSite` sorteia, manda ao painel por `/api/servidor/codigo-site` e abre `cliente/TelaCodigoSite`. Vale 10 minutos, uma vez; um código novo a cada 20 s no máximo.
+  - Depois: nick + senha. `painel/src/lib/conta-site.ts` guarda a senha com bcrypt e o código só como sha256 (tabelas `ContaSite` e `SessaoSite`, migração `20261118140000_conta_site`). 5 erros seguidos travam a conta por 5 minutos. A sessão é um cookie `frx_conta` httpOnly de 30 dias; criar senha nova derruba as sessões antigas.
+  - A página mostra banco, bolsa, terrenos (de `frx_terrenos.json`), os personagens e a ficha completa (`FichaJogador` com a propriedade nova `leitura`, que esconde todos os botões e a aba de admin). Só consulta.
+  - `/api/painel/item-icone` e `/api/painel/itens` aceitam também o jogador logado; `/api/painel/skin` aceita o jogador logado só para a própria skin.
+
+- **Guia do Aventureiro** (capítulo `guia` do FTB Quests, em `tools/gerar_ftbquests.py`): 6 missões de tutorial (Guilda, Torre andar 1 e 10, bolsos, terreno, clã), com XP de recompensa. Fecham pelos marcos novos `frxworld:frx/guia_guilda`, `guia_torre`, `guia_torre10`, `guia_bolsos`, `guia_terreno` e `guia_cla`, concedidos em `progressao/Marcos.tick` (a cada 5 s). Ajudantes novos: `Clas.temCla(p)` e `Terrenos.temTerreno(p)`.
+- **Mural dos Primeiros** (site): tabela `Feito` (migração `20261118130000_feitos`) e `painel/src/lib/feitos.ts`. `conferirMural()` roda junto com `dadosPublicos()` e grava, uma vez só, o primeiro personagem a alcançar cada marco: Rank E a S, níveis 10, 25, 50, 75 e 100, andares 10, 25, 50 e 100 da Torre. Na primeira conferência, marco que só um personagem tem vai para ele sem data; marco que vários já tinham fica como "alcançado antes de o mural existir".
+- **Dragon Mounts: Legacy** entra no pack por `pack/pendentes.txt` (`mr dragon-mounts-legacy`), aplicado no início seguinte.
+
+## 1.0.6 (18/11) — Site e painel por personagem
+
+- `painel/src/lib/publico.ts` → `dadosPublicos()`: a galeria de aventureiros, os cinco rankings, a contagem por rank da Guilda e por classe e os totais de mortes, conquistas e nível médio passam a ter uma linha por **personagem** (tabela `Personagem`), não por conta. O personagem em uso leva os números ao vivo do `Jogador`; os outros, o retrato `Personagem.base`. Conta sem personagens registrados continua aparecendo como uma linha só. `totais.jogadores` segue contando contas.
+- `LinhaRank` e `aventureiros` ganharam `conta` e `vaga`. A skin é buscada pela conta; o clique abre a ficha com a referência `Conta#vaga`, que o componente `Perfil` separa e manda como `?nick=&vaga=`.
+- Riqueza de um personagem = bolsa dele + banco da conta (o banco é compartilhado, então aparece em todos os personagens da conta).
+- `painel/src/lib/personagens.ts` (novo): `personagensGuardados()` e `porPersonagem(contas, guardados)`, usados pelo site e pelo admin para transformar contas em linhas de personagem.
+- **Admin → Jogadores:** uma linha por personagem, agrupadas por conta, com a marca "em uso" ou "fora de uso"; o nome leva à ficha daquele personagem (`?vaga=N` para os fora de uso). Acesso, último login e Revogar ficam uma vez por conta.
+- **Admin → Dinheiro:** cada conta mostra o personagem em uso e, embaixo, a bolsa dos outros personagens, só para consulta. A edição da bolsa continua valendo para o personagem em uso.
+- **Admin → Visão geral:** Mais fortes, Mais ricos, Mais azarados, a contagem por classe e os totais de bolsa, mortes e conquistas passam a ser por personagem.
+- Nenhuma mudança no mod; o número sobe só para acompanhar as notas.
+
+## 1.0.5 (18/11) — Costureira: bolsos na calça
+
+- NPC de papel `costureira` ("Costureira", aparência de pastor; `/frx npc aqui costureira`; também na lista de papéis do painel). `reinos/Costureira` + `cliente/TelaCostureira` (tipo de menu `costureira`).
+- Ela trabalha na calça que está na mão do jogador; se a mão não tem calça, na que está vestida. Vale qualquer item que veste nas pernas. Cada bolso custa `PRECO` (200 de cobre = 2 de ouro), até `MAXIMO` (12). A calça guarda só a quantidade, na marca `frx_bolsos`.
+- O conteúdo dos bolsos fica no personagem (`frx_bolso_itens`, nos dados persistentes do jogador, então cada personagem da conta tem o seu). A capacidade é a da calça vestida. A cada segundo, o que está em bolso que o jogador não tem mais volta para a mochila; o que não cabe cai no chão.
+- Janela dos bolsos: baú comum de 2 linhas (`MenuBolsos`), 6 bolsos por linha; os lugares sem bolso ficam tampados com placas de vidro que não saem. Abre pelo botão "Bolsos" no inventário (`cliente/BolsosCliente`, só aparece vestindo calça com bolsos) ou pela tecla `key.frxworld.bolsos` (padrão O). Menu do cliente → servidor: `AcaoMenu("bolsos")`.
+- Itens que guardam itens (caixa de shulker e parecidos) não entram. Na morte, o conteúdo entra na lista de itens caídos (`LivingDropsEvent`), a não ser com `keepInventory`.
+- A dica da calça mostra "Bolsos: n de 12".
+- **Biblioteca:** página "Costureira" no livro Terras, Clãs e Comércio.
+
+## 1.0.4 (18/11) — Anéis sem repetição
+
+- `protecao/AneisUnicos`: escuta o `CurioEquipEvent` do Curios (por reflexão, registrado em `ligar()`) e nega o equipar quando o espaço é `ring` e outro espaço de anel já tem o mesmo item. Compara só o item, não encantamentos nem NBT.
+- Ao entrar no jogo, anéis repetidos que já estavam postos voltam para a mochila (fica um de cada).
+- Vale só para o espaço de anel; os outros espaços do Curios não mudam.
+
+## 1.0.3 (18/11) — Espaços de habilidade por rank da Guilda
+
+- A barra passou de 5 para 9 posições (`DadosJogador.barra`): 0 a 3 comuns, 4 ultimate, 5 a 8 extras. `Habilidades.espacosExtras(p)` = índice do rank da Guilda, até 4 (E 1, D 2, C 3, B em diante 4). `usar` e `definirEspaco` recusam espaço ainda trancado e dizem o rank que libera.
+- `SyncHabilidades` leva `extras`; `Guilda.definirRank` e a vitória na prova de rank sincronizam a barra na hora.
+- Cliente: `Teclas.BARRA` ganhou `hab5` a `hab8` (Z, H, N, Y); o HUD desenha os extras numa segunda linha, acima da barra de recurso; `TelaHabilidades` mostra todos os espaços liberados, com tecla configurável em cada um.
+- As barras por forma do Druida guardam também os extras.
+- **Ladino, Clérigo e Invocador com 12 habilidades** (migração `20261118090000_ladino_clerigo_invocador` e a lista de `painel/src/lib/habilidades.ts`): 6 novas por classe, todas com efeitos que já existiam no mod (`frx:gancho`, `fumaca`, `marca`, `ricochete`, `trocar`, `armadilha`, `zona`, `escudo_mana`, `perfurar`, `misseis`, `puxar`, `sifao`, regeneração, lentidão e invocação de lobos). Nenhum código Java novo. Uma por classe é aprendida por Tomo Arcano (níveis 16 e 17).
+- **Biblioteca:** página "A barra de habilidades" no livro Talentos e Poderes e a linha dos espaços em "O que cada rank dá"; os livros de Ladino, Clérigo e Invocador mostram as 12 habilidades sozinhos (vêm do cadastro). A página da barra só aparece no site depois do reinício seguinte ao da 1.0.3.
+
 ## 1.0.2 (18/11) — Limite de escravos por rank
 
 - `Escravos.LIMITE` (por rank F a S): 0, 0, 4, 8, 16, 34, 68. A conta é por conta (UUID), não por personagem; o rank é o do personagem em uso.
@@ -426,3 +594,17 @@ Abas Inventário, Status, Habilidades, Talentos, Reinos, Missões, Conquistas e 
 - Fases 0–2: painel, convites, servidor e pack; XP, níveis, ranks e morte; missões, quadro e taverna.
 - Dungeons próprias (catacumba em 3 camadas), chefes de mods (0.8), eventos de estrada (0.9), classes, mana e habilidades (0.10).
 - Reinos e capitais com NPCs (0.11–0.12), reputação e campanhas, painel de reinos (0.22).
+
+## Anotado para depois: site, fase 3 (não começar sem o Flavio pedir)
+
+Decisão de 18/11: as fases 1 e 2 das melhorias do site foram feitas; a fase 3 fica para depois. Itens e o risco de cada um para o desempenho do jogo:
+
+- Descobridor do chefe e "derrotou tal chefe" no histórico: um aviso ao painel quando um chefe morre (risco quase nenhum).
+- Região de quem está online, sem coordenadas: entra no aviso de status que já existe (risco quase nenhum). Depende de o Flavio liberar a regra de não mostrar posição.
+- Ficha pública com vida, mana, ataque e equipamento: os dados já chegam na ficha completa (sem risco no jogo).
+- Painel do Aventureiro com missões e clãs: a ficha completa fica maior; conferir antes de quanto em quanto tempo ela é montada (risco baixo).
+- Mapa clicável com reinos e masmorras: só painel (sem risco no jogo).
+- Chat do site ligado ao chat do jogo: risco baixo no jogo, risco de spam; a regra atual proíbe chat no site público, e a recomendação é só para quem está logado.
+- Lua de Sangue, Fendas e guerra de clãs: sistemas novos de jogo, risco médio; tratar como projeto separado, por último.
+
+Como fazer: uma parte por reinício, medindo os ticks antes e depois com gente jogando.

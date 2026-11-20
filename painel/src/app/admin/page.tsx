@@ -1,3 +1,4 @@
+import { personagensGuardados, porPersonagem } from "@/lib/personagens";
 import { prisma } from "@/lib/prisma";
 import { VisaoAoVivo, type DadosBanco } from "./visao/visao-ao-vivo";
 
@@ -12,21 +13,23 @@ export default async function VisaoGeral() {
     prisma.masmorra.findMany({ where: { ativo: true }, select: { id: true, nome: true, chefe: true, colocadaX: true, colocadaZ: true, x: true, z: true }, orderBy: { ordem: "asc" } }),
   ]);
 
-  const porNivel = [...todos].sort((a, b) => b.nivel - a.nivel || b.conquistas - a.conquistas).slice(0, 5);
-  const porRiqueza = [...todos].sort((a, b) => b.moedas + b.banco - (a.moedas + a.banco)).slice(0, 5);
-  const porMortes = [...todos].filter((j) => j.mortes > 0).sort((a, b) => b.mortes - a.mortes).slice(0, 3);
+  // rankings e contagens por personagem (o banco continua sendo o da conta)
+  const fichas = porPersonagem(todos, await personagensGuardados());
+  const porNivel = [...fichas].sort((a, b) => b.nivel - a.nivel || b.conquistas - a.conquistas).slice(0, 5);
+  const porRiqueza = [...fichas].sort((a, b) => b.moedas + b.banco - (a.moedas + a.banco)).slice(0, 5);
+  const porMortes = [...fichas].filter((j) => j.mortes > 0).sort((a, b) => b.mortes - a.mortes).slice(0, 3);
   const classes: Record<string, number> = {};
-  for (const j of todos) classes[j.classe || "SEM CLASSE"] = (classes[j.classe || "SEM CLASSE"] ?? 0) + 1;
+  for (const j of fichas) classes[j.classe || "SEM CLASSE"] = (classes[j.classe || "SEM CLASSE"] ?? 0) + 1;
 
   const dados: DadosBanco = {
     jogadores,
     ativos,
     convitesLivres,
     economia: {
-      bolsa: todos.reduce((s, j) => s + j.moedas, 0),
+      bolsa: fichas.reduce((s, j) => s + j.moedas, 0),
       banco: todos.reduce((s, j) => s + j.banco, 0),
-      mortes: todos.reduce((s, j) => s + j.mortes, 0),
-      conquistas: todos.reduce((s, j) => s + j.conquistas, 0),
+      mortes: fichas.reduce((s, j) => s + j.mortes, 0),
+      conquistas: fichas.reduce((s, j) => s + j.conquistas, 0),
     },
     porNivel: porNivel.map((j) => ({ nick: j.nick, uuid: j.uuid, valor: j.nivel, extra: `${j.rank} · ${j.classe || "sem classe"}`, titulo: j.titulo })),
     porRiqueza: porRiqueza.map((j) => ({ nick: j.nick, uuid: j.uuid, valor: j.moedas + j.banco, extra: `banco ${j.banco}`, titulo: j.titulo })),

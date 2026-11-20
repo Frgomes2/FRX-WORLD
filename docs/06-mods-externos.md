@@ -64,6 +64,7 @@ O pack é gerenciado pelo **packwiz** em `pack/`. Cada mod é um `mods/<slug>.pw
 | Cosmetic Armor Reworked (1.20.1-v1a) | CurseForge | os dois | Botão no inventário para esconder cada peça de armadura e mostrar a skin |
 | Naturalist (2.0.9) | Modrinth | os dois | Animais comuns pelo mundo (veados, ursos, cobras, vaga-lumes) |
 | Mythic Mounts (7.4.2) | Modrinth | os dois | Montarias lendárias. Pede Geckolib e Patchouli |
+| Dragon Mounts: Legacy (1.2.0-beta) | Modrinth (`dragon-mounts-legacy`) | os dois | Ovos de dragão em baús; chocar, criar e voar. Pedido em 18/11 por `pack/pendentes.txt`; conferir a versão depois do primeiro início |
 | Artifacts (9.5.19) | Modrinth | os dois | Artefatos raros em baús, usados nos espaços do Curios. Pede Cloth Config; sem ele o servidor não sobe |
 | Macaw's Bridges, Roofs, Doors, Furniture, Windows, Fences and Walls | Modrinth | os dois | Blocos de construção e decoração |
 | Bygone Nether (1.3.2) | Modrinth | os dois | Estruturas e monstros próprios de cada bioma do Nether. Só aparecem em chunks novos |
@@ -77,5 +78,25 @@ O pack é gerenciado pelo **packwiz** em `pack/`. Cada mod é um `mods/<slug>.pw
 Ajustes em mods que já estavam no pack:
 
 - **Curios:** 10 espaços de anel (`server/kubejs/data/frxworld/curios/slots/ring.json`).
+- **JourneyMap:** os marcadores de waypoint não aparecem mais flutuando no jogo, só no mapa (`showInGameBeacons false` em `server/journeymap/server/6.0/journeymap.server.global.config`).
+- **The Graveyard:** névoa desligada (`fogParticles.enabled false` em `server/config/graveyard/graveyard.json5`; o AutoModpack envia o arquivo aos clientes).
 - **Ice and Fire:** dragões não quebram blocos (`"Dragon Griefing" = 2` em `server/config/iceandfire-common.toml`).
 - **Waystones:** qualquer jogador cria waystone global (`globalWaystoneSetupRequiresCreativeMode = false`), e a config é distribuída pelo AutoModpack.
+
+## Ferramenta de admin fora do pack: Forgematica
+
+- **Forgematica 0.1.13-mc1.20.1** (porte do Litematica para Forge) + biblioteca **MaFgLib 0.1.14-mc1.20.1**, do Modrinth. Mostra o "fantasma" de uma construção no mundo e, para quem é admin ou está no criativo, cola a construção inteira.
+- É só do lado do jogador e **não entra no pack**: fica instalado à mão na pasta `mods` do jogo de quem é admin. No PC do Flavio o jogo roda em `cliente\jogo`, então os dois arquivos estão em `cliente\jogo\mods` (instalados em 18/11; há uma cópia sem uso em `%APPDATA%\.minecraft\mods`). Os outros jogadores não recebem.
+- As construções ficam na pasta `schematics` do jogo (no PC do Flavio, `cliente\jogo\schematics`).
+
+## Mods de 18/11 (versão 1.1.2)
+
+| Mod | Arquivo | Lado | Observações |
+|---|---|---|---|
+| Samurai Dynasty | `samurai_dynasty-0.0.51-1.20.1-forge.jar` | os dois | Katanas, odachi, wakizashi, naginata e armaduras. **Exige AzureLib 3.0+**, que a página do Modrinth não declara: sem ela o servidor não sobe |
+| AzureLib | `azurelib-neo-1.20.1-3.2.9.jar` | os dois | Biblioteca do Samurai Dynasty |
+| Enhanced Celestials | `Enhanced-Celestials-forge-1.20.1-5.0.3.3.jar` | os dois | Lua de sangue, azul e da colheita. Trouxe CorgiLib e Data Anchor |
+
+**The Man From The Fog e Tense Ambience**: removidos em 19/11 (versão 1.1.6), a pedido dos jogadores. O `.pw.toml` ficou guardado em `logs/removidos/`; a config `server/config/man_config.toml` e a tradução `assets/man/lang/pt_br.json` continuam no projeto, sem efeito.
+
+**FallingTree** (só servidor, desde 1.1.8): árvore inteira cai ao cortar um tronco com machado; agachado quebra só um bloco. Ajustes nossos em `server/config/fallingtree.json` (original em `logs/fallingtree.original.json`): `minimumLeavesAroundRequired = 3` e `includePersistentLeavesInRequiredCount = false` (folha colocada por jogador não conta), para não confundir construção de tora com árvore; `maxSize = 100` com `ABORT` (árvore maior que isso não cai de uma vez).

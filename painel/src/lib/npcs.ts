@@ -19,6 +19,8 @@ export const PAPEIS = [
   { id: "leiloeiro", nome: "Leiloeiro (mercado)", icone: "🔨" },
   { id: "discos", nome: "Mercador de Discos", icone: "💿" },
   { id: "escravos", nome: "Mercador de Escravos (aldeões)", icone: "⛓️" },
+  { id: "costureira", nome: "Costureira (bolsos na calça)", icone: "🧵" },
+  { id: "dragoes", nome: "Criador de Dragões (ovos)", icone: "🐉" },
   { id: "guarda", nome: "Guarda", icone: "⚔️" },
   { id: "morador", nome: "Moradores", icone: "🏘️" },
   { id: "craque", nome: "Ronaldinho (evento raro)", icone: "⚽" },

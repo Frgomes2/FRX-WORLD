@@ -56,6 +56,8 @@ try {
   # 2. vigia: nos primeiros 15 minutos, a cada segundo, anotando processos que nascem e morrem; depois, a cada 3 s, so os dois
   $hist = New-Object System.Collections.ArrayList
   $antes = @{}
+  $pais = @{}     # processo -> pai (fica guardado mesmo depois que o processo morre)
+  $nomes = @{}    # processo -> nome
   $morteNode = ''
   $morteJava = ''
   while ($true) {
@@ -66,6 +68,8 @@ try {
       foreach ($p in (Get-CimInstance Win32_Process)) {
         $id = [int]$p.ProcessId
         $agora[$id] = $p.Name
+        $pais[$id] = [int]$p.ParentProcessId
+        $nomes[$id] = $p.Name
         if ($antes.Count -gt 0 -and -not $antes.ContainsKey($id)) {
           $cmd = "$($p.CommandLine)"
           if ($cmd.Length -gt 200) { $cmd = $cmd.Substring(0, 200) }
@@ -74,7 +78,7 @@ try {
       }
       if ($antes.Count -gt 0) {
         foreach ($id in @($antes.Keys)) {
-          if (-not $agora.ContainsKey($id)) { [void]$hist.Add("$(Hora) MORREU $id $($antes[$id])") }
+          if (-not $agora.ContainsKey($id)) { [void]$hist.Add("$(Hora) MORREU $id $($antes[$id]) (pai $($pais[$id]) $($nomes[[int]$pais[$id]]))") }
         }
       }
       $antes = $agora
@@ -100,6 +104,22 @@ try {
         "minecraft (java, processo $java): morreu as '$morteJava' (vazio = ainda vivo)"
         "== processos que nasceram e morreram (so nos primeiros 15 min depois de ligar)"
         $hist
+        "== familia do servidor: de quem cada um era filho, subindo ate a raiz (so vale se a queda foi nos primeiros 15 min)"
+        foreach ($raizId in @($java, $node)) {
+          $linha = ''
+          $atual = [int]$raizId
+          for ($i = 0; $i -lt 8 -and $atual -gt 0; $i++) {
+            $estado = 'morto'
+            if (Vivo $atual) { $estado = 'vivo' }
+            $linha = $linha + "$atual $($nomes[$atual]) [$estado]"
+            if (-not $pais.ContainsKey($atual)) { break }
+            $atual = [int]$pais[$atual]
+            $linha = $linha + ' <- '
+          }
+          $linha
+        }
+        "== sessoes do Windows agora (quser)"
+        (quser 2>&1 | Out-String)
         "== processos agora"
         Get-CimInstance Win32_Process | Where-Object { $_.Name -match '^(node|java|javaw|cmd|powershell|pwsh|conhost|taskkill|playit|packwiz|cloudflared|docker|wsl|schtasks|wscript|cscript)' } |
           Select-Object ProcessId, ParentProcessId, Name, CreationDate, @{n='Comando';e={ if ($_.CommandLine) { $_.CommandLine.Substring(0, [Math]::Min(130, $_.CommandLine.Length)) } }} |
@@ -112,6 +132,11 @@ try {
         Get-WinEvent -FilterHashtable @{ LogName = 'System', 'Application'; StartTime = $desde } -MaxEvents 300 | Sort-Object TimeCreated | ForEach-Object {
           $m = ("$($_.Message)" -replace '\s+', ' ')
           "{0:HH:mm:ss} [{1}] {2} #{3}: {4}" -f $_.TimeCreated, $_.LevelDisplayName, $_.ProviderName, $_.Id, $m.Substring(0, [Math]::Min(240, $m.Length))
+        }
+        "== sessao do Windows (conectar, desconectar, bloquear, sair), ultimos 10 min"
+        Get-WinEvent -FilterHashtable @{ LogName = 'Microsoft-Windows-TerminalServices-LocalSessionManager/Operational'; StartTime = $desde } -MaxEvents 50 | Sort-Object TimeCreated | ForEach-Object {
+          $m = ("$($_.Message)" -replace '\s+', ' ')
+          "{0:HH:mm:ss} #{1}: {2}" -f $_.TimeCreated, $_.Id, $m.Substring(0, [Math]::Min(200, $m.Length))
         }
         "== Windows Defender, ultimos 10 min"
         Get-WinEvent -FilterHashtable @{ LogName = 'Microsoft-Windows-Windows Defender/Operational'; StartTime = $desde } -MaxEvents 50 | Sort-Object TimeCreated | ForEach-Object {

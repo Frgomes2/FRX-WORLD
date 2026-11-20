@@ -39,7 +39,7 @@ Chefes e monstros próprios do servidor, criados no painel. Os 14 chefes que exi
 
 ## Bestiário no site
 
-O site público tem a seção **Bestiário** com as criaturas ativas. Enquanto "Derrotado" está em zero, o cartão mostra só "? ? ?", o tipo, a faixa de rank e onde aparece; depois da primeira derrota entram nome, história, golpes, contagem e a skin (rota `/api/publico/criatura-skin`, que só responde para criaturas já derrotadas).
+O site público tem a seção **Bestiário** com as criaturas ativas. Enquanto "Derrotado" está em zero, o cartão mostra só "? ? ?", o tipo, a faixa de rank e onde aparece; depois da primeira derrota entram nome, história, golpes, contagem e a skin (rota `/api/publico/criatura-skin`, que só responde para criaturas já derrotadas). O cartão mostra também **quem derrotou primeiro** e quando (`CriaturaCodex.primeiroNome` e `primeiroEm`, gravados pelo mod na primeira derrota); criaturas vencidas antes desse registro aparecem como "sem registro".
 
 ## Banco
 

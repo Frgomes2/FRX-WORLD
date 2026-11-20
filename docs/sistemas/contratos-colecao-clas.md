@@ -43,4 +43,4 @@ Para quem está registrado na Guilda: **3 contratos por dia** e **1 por semana**
 - Nível e dinheiro de quem está fora do jogo vêm do resumo guardado no mesmo arquivo, atualizado a cada minuto.
 - O painel lê `frx_clas.json` (`lib/clas.ts`).
 - Site público, seção **Clãs**: ranking por poder (soma dos níveis) ou riqueza (cofre + bolsa e banco de todos), com líder, nível médio, conquistas e membros clicáveis. A ficha do jogador mostra todos os clãs dele e o cargo em cada um.
-- O grupo do inventário (`grupos/Grupos.java`) continua sendo a equipe temporária da sessão (XP dividido, Torre, portal); o clã é o vínculo fixo. O FTB Teams continua instalado só para o livro de missões.
+- **XP dividido:** membros do mesmo clã que estão na mesma dimensão, a até 48 blocos (no máximo 6), dividem a experiência e o progresso das campanhas (`grupos/Grupos.java`, `Clas.mesmoCla`). O grupo do inventário e os comandos `/grupo` e `/g` foram desligados; a aba Grupo saiu da tela de status. O FTB Teams continua instalado só para o livro de missões.

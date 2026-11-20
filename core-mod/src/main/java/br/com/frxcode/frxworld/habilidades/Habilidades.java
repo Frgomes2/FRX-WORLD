@@ -77,10 +77,10 @@ import java.util.concurrent.ThreadLocalRandom;
  * custo, recarga e nível da habilidade que sobe com o uso. Os números vêm da aba Habilidades do painel.
  */
 public class Habilidades {
-    public static final List<String> CLASSES = List.of("GUERREIRO", "ARQUEIRO", "MAGO", "CLERIGO", "LADINO", "ASSASSINO", "INVOCADOR", "PALADINO", "BARDO", "MONGE", "DRUIDA");
+    public static final List<String> CLASSES = List.of("GUERREIRO", "ARQUEIRO", "MAGO", "CLERIGO", "LADINO", "ASSASSINO", "INVOCADOR", "PALADINO", "BARDO", "MONGE", "DRUIDA", "SAMURAI", "CARTOMANTE");
     private static final Map<String, String> NOMES = Map.ofEntries(Map.entry("GUERREIRO", "Guerreiro"), Map.entry("ARQUEIRO", "Arqueiro"), Map.entry("MAGO", "Mago"),
             Map.entry("CLERIGO", "Clérigo"), Map.entry("LADINO", "Ladino"), Map.entry("ASSASSINO", "Assassino"), Map.entry("INVOCADOR", "Invocador"),
-            Map.entry("PALADINO", "Paladino"), Map.entry("BARDO", "Bardo"), Map.entry("MONGE", "Monge"), Map.entry("DRUIDA", "Druida"));
+            Map.entry("PALADINO", "Paladino"), Map.entry("BARDO", "Bardo"), Map.entry("MONGE", "Monge"), Map.entry("DRUIDA", "Druida"), Map.entry("SAMURAI", "Samurai"), Map.entry("CARTOMANTE", "Cartomante"));
     public static final String TAG_INVOCADO = "frx_invocado";
     private static final long COMBATE_MS = 5000;
 
@@ -127,7 +127,7 @@ public class Habilidades {
         return switch (classe) {
             case "" -> "";
             case "GUERREIRO" -> "FURIA";
-            case "ARQUEIRO", "LADINO", "ASSASSINO" -> "ENERGIA";
+            case "ARQUEIRO", "LADINO", "ASSASSINO", "SAMURAI" -> "ENERGIA";
             case "MONGE" -> "CHI";
             default -> "MANA";
         };
@@ -159,7 +159,7 @@ public class Habilidades {
                             (float) h.recarga(), h.nivelReq(), h.ultimate(), h.porItem(), r != null, r != null ? r.nivel : 0, r != null ? r.usos : 0));
                 });
         Rede.CANAL.send(net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> p),
-                new SyncHabilidades(d.classe(), recursoDa(d.classe()), lista, List.of(d.barra())));
+                new SyncHabilidades(d.classe(), recursoDa(d.classe()), lista, List.of(d.barra()), espacosExtras(p)));
         enviarRecurso(p, true);
         long agora = System.currentTimeMillis();
         recargas.getOrDefault(p.getUUID(), Map.of()).forEach((cod, fim) -> {
@@ -218,6 +218,7 @@ public class Habilidades {
             p.connection.send(new ClientboundSetSubtitleTextPacket(Component.literal("Sua jornada começa. Teclas R, G, V, C e X.").withStyle(ChatFormatting.YELLOW)));
             p.level().playSound(null, p.blockPosition(), SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.PLAYERS, 1f, 1f);
         }
+        if ("SAMURAI".equals(classe)) Bushido.katanaDeAprendiz(p);
         aprenderPorNivel(p);
         Progressao.enviarAoPainel(p, false);
         if (!classe.isEmpty()) br.com.frxcode.frxworld.acesso.Abertura.aposClasse(p);
@@ -244,7 +245,9 @@ public class Habilidades {
         if (h.ultimate()) {
             if (barra[4].isEmpty()) barra[4] = h.codigo();
         } else {
-            for (int i = 0; i < 4; i++) if (barra[i].isEmpty()) { barra[i] = h.codigo(); break; }
+            boolean pos = false;
+            for (int i = 0; i < 4 && !pos; i++) if (barra[i].isEmpty()) { barra[i] = h.codigo(); pos = true; }
+            for (int i = 5; i < 5 + espacosExtras(p) && !pos; i++) if (barra[i].isEmpty()) { barra[i] = h.codigo(); pos = true; }
         }
         p.sendSystemMessage(Component.literal("Nova habilidade: ").withStyle(ChatFormatting.LIGHT_PURPLE)
                 .append(Component.literal(h.nome()).withStyle(ChatFormatting.WHITE, ChatFormatting.BOLD))
@@ -284,8 +287,20 @@ public class Habilidades {
         return true;
     }
 
+    /** Espaços extras da barra (além dos 4 e da ultimate) liberados pelo rank da Guilda: E 1, D 2, C 3, B em diante 4. */
+    public static int espacosExtras(ServerPlayer p) {
+        return br.com.frxcode.frxworld.progressao.Guilda.registrado(p) ? Math.max(0, Math.min(4, br.com.frxcode.frxworld.progressao.Guilda.indice(p))) : 0;
+    }
+
+    /** Espaço extra (5 a 8) que o rank ainda não liberou: avisa e devolve true. */
+    private static boolean trancado(ServerPlayer p, int espaco) {
+        if (espaco < 5 || espaco - 5 < espacosExtras(p)) return false;
+        avisar(p, "Este espaço libera no Rank " + br.com.frxcode.frxworld.progressao.ConfigJogo.nomeRank(espaco - 4) + " da Guilda.", ChatFormatting.YELLOW);
+        return true;
+    }
+
     public static void definirEspaco(ServerPlayer p, int espaco, String codigo) {
-        if (!Progressao.temDados(p) || espaco < 0 || espaco > 4) return;
+        if (!Progressao.temDados(p) || espaco < 0 || espaco > 8 || trancado(p, espaco)) return;
         DadosJogador d = Progressao.dados(p);
         String[] barra = d.barra();
         if (!codigo.isEmpty()) {
@@ -304,7 +319,7 @@ public class Habilidades {
     // ------------------------------------------------------------------ uso
 
     public static void usar(ServerPlayer p, int espaco) {
-        if (!Progressao.temDados(p) || espaco < 0 || espaco > 4 || p.isSpectator()) return;
+        if (!Progressao.temDados(p) || espaco < 0 || espaco > 8 || p.isSpectator() || trancado(p, espaco)) return;
         DadosJogador d = Progressao.dados(p);
         if (d.classe().isEmpty()) { avisar(p, "Escolha sua classe primeiro (tecla K).", ChatFormatting.YELLOW); return; }
         String cod = d.barra()[espaco];
@@ -324,15 +339,18 @@ public class Habilidades {
         if (d.recurso() < custo) { avisar(p, nomeRecurso(recursoDa(d.classe())) + " insuficiente (" + Math.round(custo) + ")", ChatFormatting.RED); return; }
 
         boolean ok;
+        Cartas.antes(p, h);   // Cartomante: separa a carta da vez
         try {
             ok = executar(p, h, reg.nivel);
         } catch (Exception ex) {
             FrxWorld.LOG.warn("Habilidade {} falhou: {}", h.codigo(), ex.toString());
             ok = false;
         }
+        Cartas.depois(p, h, ok);
         if (!ok) return;
 
         d.definirRecurso(d.recurso() - custo);
+        Cartas.aposCusto(p, custo);   // Ouros e Coringa devolvem parte da mana
         Despertar.gastouRecurso(p, custo);
         int totalMs = (int) Math.max(250, h.recarga() * 1000 * (1 - 0.03 * (reg.nivel - 1)) * Math.max(0.4, 1 - Talentos.bonus(p, Talentos.Atributo.RECARGA)));
         if (Especiais.consumirReembolso(p)) totalMs = Math.min(totalMs, 1000);
@@ -374,9 +392,10 @@ public class Habilidades {
         LivingEntity alvo = mirar(p, alcance, 0.35, false);
         Vec3 olho = p.getEyePosition();
         Vec3 fim = alvo != null ? alvo.getBoundingBox().getCenter() : pontoBloco(p, alcance);
-        linha(p.serverLevel(), olho.add(p.getLookAngle().scale(0.8)), fim, particula(h.elemento()));
+        Efeitos.conjurar(p, h.elemento());
+        Efeitos.projetil(p.serverLevel(), olho.add(p.getLookAngle().scale(0.8)), fim, h.elemento());
         som(p, h.elemento());
-        if (alvo != null) ferir(p, alvo, h.dano() * mult, h);
+        if (alvo != null) { ferir(p, alvo, h.dano() * mult, h); Efeitos.somImpacto(p.serverLevel(), fim, h.elemento(), false); }
         return true;
     }
 
@@ -386,7 +405,8 @@ public class Habilidades {
             LivingEntity aliado = mirar(p, alcance, 0.9, true);
             LivingEntity quem = aliado != null ? aliado : p;
             curar(quem, -h.dano() * mult * Talentos.fator(p, Talentos.Atributo.CURA));
-            if (aliado != null) linha(p.serverLevel(), p.getEyePosition(), aliado.getBoundingBox().getCenter(), ParticleTypes.END_ROD);
+            if (aliado != null) Efeitos.projetil(p.serverLevel(), p.getEyePosition(), aliado.getBoundingBox().getCenter(), "SAGRADO");
+            Efeitos.aura(quem, h.elemento().isBlank() ? "SAGRADO" : h.elemento());
             p.level().playSound(null, quem.blockPosition(), SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.PLAYERS, 1f, 1.4f);
             aplicarEfeito(quem, h);
             return true;
@@ -411,8 +431,10 @@ public class Habilidades {
             if (costas || ferido)
                 avisar(p, costas && ferido ? "Execução pelas costas!" : costas ? "Pelas costas!" : "Execução!", ChatFormatting.DARK_RED);
         }
-        linha(p.serverLevel(), p.getEyePosition(), alvo.getBoundingBox().getCenter(), particula(h.elemento()));
+        Efeitos.conjurar(p, h.elemento());
+        Efeitos.golpe(alvo, h.elemento());
         som(p, h.elemento());
+        Efeitos.somImpacto(p.serverLevel(), alvo.position(), h.elemento(), false);
         ferir(p, alvo, dano, h);
         return true;
     }
@@ -427,12 +449,9 @@ public class Habilidades {
             centro = p.position();
         }
         double raio = Math.max(1, h.raio());
-        ParticleOptions part = particula(h.elemento());
-        for (int i = 0; i < 40; i++) {
-            double ang = Math.PI * 2 * i / 40;
-            nivel.sendParticles(part, centro.x + Math.cos(ang) * raio, centro.y + 0.2, centro.z + Math.sin(ang) * raio, 1, 0, 0.1, 0, 0.01);
-        }
-        nivel.sendParticles(part, centro.x, centro.y + 1, centro.z, 30, raio / 2, 0.6, raio / 2, 0.05);
+        Efeitos.conjurar(p, h.elemento());
+        Efeitos.area(nivel, centro, raio, h.elemento(), h.dano() < 0);
+        if (h.dano() >= 0) Efeitos.somImpacto(nivel, centro, h.elemento(), raio >= 4);
         if (h.alcance() > 0 && "FOGO".equals(h.elemento())) {
             nivel.sendParticles(ParticleTypes.EXPLOSION, centro.x, centro.y + 0.5, centro.z, 3, 1, 0.3, 1, 0);
             nivel.playSound(null, BlockPos.containing(centro), SoundEvents.GENERIC_EXPLODE, SoundSource.PLAYERS, 1f, 1f);
@@ -470,7 +489,7 @@ public class Habilidades {
             nivel.sendParticles(ParticleTypes.PORTAL, inicio.x, inicio.y + 1, inicio.z, 40, 0.4, 0.8, 0.4, 0.2);
             p.teleportTo(destino.getX() + 0.5, destino.getY(), destino.getZ() + 0.5);
             p.fallDistance = 0;
-            nivel.sendParticles(particula(h.elemento()), destino.getX() + 0.5, destino.getY() + 1, destino.getZ() + 0.5, 30, 0.4, 0.8, 0.4, 0.05);
+            Efeitos.rastro(nivel, inicio, new Vec3(destino.getX() + 0.5, destino.getY(), destino.getZ() + 0.5), h.elemento());
             nivel.playSound(null, destino, SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 1f, 1.2f);
             return true;
         }
@@ -481,7 +500,7 @@ public class Habilidades {
         p.setDeltaMovement(dir.x * forca, 0.35, dir.z * forca);
         p.hurtMarked = true;
         p.fallDistance = 0;
-        nivel.sendParticles(ParticleTypes.CLOUD, inicio.x, inicio.y + 0.2, inicio.z, 12, 0.3, 0.1, 0.3, 0.02);
+        Efeitos.rastro(nivel, inicio, inicio.add(dir.scale(Math.max(2, Math.abs(h.alcance()) * 0.8))), h.elemento());
         nivel.playSound(null, p.blockPosition(), SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.PLAYERS, 1f, 0.8f);
         if (h.dano() > 0 && h.alcance() > 0) {
             Vec3 fim = inicio.add(dir.scale(h.alcance()));
@@ -502,7 +521,7 @@ public class Habilidades {
         if (h.raio() > 0) alvos.addAll(p.serverLevel().getEntitiesOfClass(Player.class, p.getBoundingBox().inflate(h.raio()), e -> e != p && e.isAlive()));
         for (LivingEntity e : alvos) {
             e.addEffect(new MobEffectInstance(ef, (int) Math.max(20, h.duracao() * 20), Math.max(0, h.potencia() - 1)));
-            p.serverLevel().sendParticles(particula(h.elemento()), e.getX(), e.getY() + 1, e.getZ(), 20, 0.4, 0.6, 0.4, 0.05);
+            Efeitos.aura(e, h.elemento());
         }
         p.level().playSound(null, p.blockPosition(), SoundEvents.BEACON_POWER_SELECT, SoundSource.PLAYERS, 1f, 1.3f);
         return true;
@@ -538,13 +557,15 @@ public class Habilidades {
             }
             if (e instanceof TamableAnimal t) t.tame(p);
             if (e instanceof IronGolem g) g.setPlayerCreated(true);
+            // quem não é bicho domável (golem, por exemplo) ficava parado onde nasceu: agora segue o dono como as sombras
+            if (e instanceof Mob seguidor && !(e instanceof TamableAnimal)) seguidor.goalSelector.addGoal(1, new Sombras.SeguirDono(seguidor, p.getUUID()));
             e.addTag(TAG_INVOCADO);
             e.getPersistentData().putLong("frx_expira", expira);
             e.getPersistentData().putUUID("frx_dono", p.getUUID());
             e.setCustomName(Component.literal("Invocação de " + p.getGameProfile().getName() + " · Nv " + nh).withStyle(ChatFormatting.LIGHT_PURPLE));
             nivel.addFreshEntity(e);
             invocados.computeIfAbsent(p.getUUID(), k -> ConcurrentHashMap.newKeySet()).add(e.getUUID());
-            nivel.sendParticles(ParticleTypes.WITCH, pos.x, pos.y + 0.5, pos.z, 20, 0.4, 0.6, 0.4, 0.05);
+            Efeitos.invocacao(nivel, pos, h.elemento().isBlank() ? "ARCANO" : h.elemento());
             criados++;
         }
         if (criados == 0) return false;
@@ -587,8 +608,9 @@ public class Habilidades {
     }
 
     static void ferir(ServerPlayer p, LivingEntity alvo, double dano, HabilidadeDef h) {
-        float v = (float) dano;
+        float v = (float) (dano * Cartas.fatorDano(p));
         if ("SAGRADO".equals(h.elemento()) && alvo.getMobType() == MobType.UNDEAD) v *= 2;
+        Cartas.aoFerir(p, alvo, v);
         DamageSource fonte = "FISICO".equals(h.elemento()) ? p.damageSources().playerAttack(p) : p.damageSources().indirectMagic(p, p);
         alvo.invulnerableTime = 0;
         emHabilidade = true;
@@ -747,6 +769,27 @@ public class Habilidades {
         Entity e = evento.getEntity();
         if (evento.getLevel().isClientSide() || !e.getTags().contains(TAG_INVOCADO)) return;
         if (evento.getLevel().getGameTime() >= e.getPersistentData().getLong("frx_expira")) evento.setCanceled(true);
+    }
+
+    /**
+     * Invocações (golem, lobos, sombras...) nunca escolhem como alvo jogadores, aldeões, moradores, bichos domados
+     * nem outras invocações. Sem isto o golem de ferro do Invocador atacava as próprias sombras, que são monstros.
+     * Única exceção: o alvo que o dono marcou (pode ser um jogador).
+     */
+    @SubscribeEvent
+    public void alvoDeInvocacao(net.minecraftforge.event.entity.living.LivingChangeTargetEvent evento) {
+        if (!evento.getEntity().getTags().contains(TAG_INVOCADO)) return;
+        LivingEntity alvo = evento.getNewTarget();
+        if (alvo == null) return;
+        if (focoEm(evento.getEntity(), alvo)) return;   // jogador (ou criatura) que o dono marcou de propósito
+        if (alvo instanceof Player || alvo instanceof AbstractVillager || alvo.getTags().contains(TAG_INVOCADO)
+                || alvo.getTags().contains("frx_npc") || alvo.getTags().contains("frx_cidadao") || (alvo instanceof TamableAnimal t && t.isTame()))
+            evento.setCanceled(true);
+    }
+
+    /** A invocação tem este alvo marcado pelo dono (tecla de marcar alvo do Invocador)? Só assim ela pode atacar um jogador. */
+    static boolean focoEm(LivingEntity invocacao, LivingEntity alvo) {
+        return invocacao.getPersistentData().hasUUID("frx_foco") && invocacao.getPersistentData().getUUID("frx_foco").equals(alvo.getUUID());
     }
 
     @SubscribeEvent

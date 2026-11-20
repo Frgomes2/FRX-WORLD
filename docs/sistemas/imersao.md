@@ -35,7 +35,7 @@ No primeiro login: falas do Sistema, escolha de raça, escolha de classe, desper
 ## Guilda de Aventureiros
 
 - A **recepcionista** registra o jogador e entrega o **Cartão de Aventureiro**.
-- O rank (F, E, D, C, B, A, S) só sobe com a **prova de promoção**: derrotar o Examinador em 3 minutos, sem morrer. Falhou, espera 10 minutos.
+- O rank (F, E, D, C, B, A, S) só sobe com a **prova de promoção**: derrotar o Examinador em 3 minutos, sem morrer. Falhou, espera 10 minutos. A partir da prova para o rank D o Examinador fica mais forte a cada degrau: +50% de vida, +2 de ataque e +5 níveis por rank acima de E, além de mais velocidade e resistência a empurrão.
 - A prova exige o nível mínimo do rank, definido no painel (Progressão).
 - O título em uso e o rank aparecem acima da cabeça do jogador.
 - **Classes de equipamento** (`progressao/ClassesEquip.java`): cada arma e armadura tem uma classe de F a S, inclusive as dos outros mods, e só quem tem aquele rank da Guilda usa. O item pode ficar na mochila ou em baús à vontade.
@@ -46,7 +46,6 @@ No primeiro login: falas do Sistema, escolha de raça, escolha de classe, desper
   - Na primeira entrada depois da regra, toda a armadura do jogador é guardada na mochila.
   - Exceções em `server/config/frx_classes.txt` ou por `/frx classe definir <F..S|livre|automatica>` com o item na mão; `/frx classe` mostra a classe calculada.
 - **Benefícios do rank** (por degrau acima de F): +10% de XP e moedas nas missões e 2% de desconto nas lojas e na forja (soma com a reputação, teto de 50%). O cartão mostra o que o próximo rank dá. O soldo diário foi desligado em 16/11.
-- **Grupos:** o dano entre aliados está ligado (decisão de 13/11/2026); membros do mesmo grupo podem se ferir.
 
 ### Missões de rank
 
@@ -79,6 +78,18 @@ No primeiro login: falas do Sistema, escolha de raça, escolha de classe, desper
 | Filho do Vento | Deus do Vento | Avanço e Velocidade III por 10 s | 45 s |
 | Segunda Chance | Fênix Eterna | Cura toda a vida e limpa efeitos ruins | 180 s |
 | Instinto do Caçador | Predador Ápice | Marca o inimigo mais forte: +40% de dano nele por 12 s | 75 s |
+| Sangue de Titã | Colosso Primordial | Corações extras e Resistência II por 10 s | 90 s |
+| Pele de Espinhos | Rei dos Espinhos | Fere e deixa lentos os inimigos a 8 blocos | 75 s |
+| Olho por Olho | Juiz Implacável | Força III por 8 s | 90 s |
+| Estrela da Sorte | Favorito do Destino | Muita sorte por 60 s | 180 s |
+| Toque Gélido | Senhor do Inverno | Fere e prende no gelo por 5 s os inimigos a 8 blocos | 75 s |
+| Coração de Brasa | Coração do Vulcão | Fere e incendeia a 8 blocos; imune a fogo por 20 s | 75 s |
+| Sede de Batalha | Deus da Guerra | Força II, Velocidade II e Pressa II por 12 s | 90 s |
+| Sangue de Troll | Fonte da Vida | Regeneração forte por 8 s em você e nos jogadores a 8 blocos | 90 s |
+| Golpe em Eco | Mil Ecos | Pressa III e Força I por 10 s | 90 s |
+| Escudo do Guardião | Guardião Eterno | Quase nenhum dano passa por 4 s | 120 s |
+
+Desde 18/11 são 20 habilidades, e o sorteio escolhe entre as que menos personagens têm (`Unica.menosUsada`, registro em `<mundo>/frx_unicas.json`), para o servidor ficar variado. Quem já tinha uma habilidade continua com ela.
 
 Admin: `/frx unica sortear`, `/frx unica <id>`, `/frx suprema nivel5`, `/frx suprema dar`, `/frx suprema tirar`.
 

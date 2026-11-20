@@ -41,6 +41,14 @@ public final class ClienteMenus {
             if (mc.screen instanceof TelaClas t) t.atualizar(msg.dados()); else mc.setScreen(new TelaClas(msg.dados()));
         } else if (msg.tipo().equals("escravos")) {
             if (mc.screen instanceof TelaEscravos t) t.atualizar(msg.dados()); else mc.setScreen(new TelaEscravos(msg.dados()));
+        } else if (msg.tipo().equals("dragoes")) {
+            if (mc.screen instanceof TelaDragoes t) t.atualizar(msg.dados()); else mc.setScreen(new TelaDragoes(msg.dados()));
+        } else if (msg.tipo().equals("codigosite")) {
+            if (mc.screen instanceof TelaCodigoSite t) t.atualizar(msg.dados()); else mc.setScreen(new TelaCodigoSite(msg.dados()));
+        } else if (msg.tipo().equals("bolsosdados")) {
+            BolsosCliente.receber(msg.dados());
+        } else if (msg.tipo().equals("costureira")) {
+            if (mc.screen instanceof TelaCostureira t) t.atualizar(msg.dados()); else mc.setScreen(new TelaCostureira(msg.dados()));
         } else if (msg.tipo().equals("contratos")) {
             if (mc.screen instanceof TelaContratos t) t.atualizar(msg.dados()); else mc.setScreen(new TelaContratos(msg.dados()));
         } else if (msg.tipo().equals("terrenos")) {
