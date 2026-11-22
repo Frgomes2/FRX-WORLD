@@ -101,6 +101,37 @@ public class Runas {
         return s;
     }
 
+    /** Runas encaixadas no item: tipo → nível, na ordem em que estão. */
+    public static Map<String, Integer> doItem(ItemStack s) {
+        Map<String, Integer> m = new LinkedHashMap<>();
+        if (s.isEmpty() || !s.hasTag() || !s.getTag().contains(NO_ITEM)) return m;
+        CompoundTag r = s.getTag().getCompound(NO_ITEM);
+        for (String k : r.getAllKeys()) if (TIPOS.containsKey(k)) m.put(k, Math.max(1, Math.min(NIVEL_MAX, r.getInt(k))));
+        return m;
+    }
+
+    public static String nomeRuna(String tipo, int nivel) {
+        Tipo t = TIPOS.get(tipo);
+        return t == null ? tipo : "Runa " + t.nome() + " " + ROMANOS[Math.max(1, Math.min(NIVEL_MAX, nivel))];
+    }
+
+    public static int corRuna(String tipo) {
+        Tipo t = TIPOS.get(tipo);
+        Integer c = t == null ? null : t.cor().getColor();
+        return 0xFF000000 | (c == null ? 0x555555 : c);
+    }
+
+    /** Tira a runa do item (que fica sem ela) e devolve a pedra da runa, inteira. */
+    public static ItemStack tirar(ItemStack s, String tipo) {
+        int nv = nivel(s, tipo);
+        if (nv <= 0) return ItemStack.EMPTY;
+        CompoundTag r = s.getTag().getCompound(NO_ITEM);
+        r.remove(tipo);
+        if (r.isEmpty()) s.getTag().remove(NO_ITEM);
+        reescreverLore(s);
+        return criar(tipo, nv);
+    }
+
     /** Runa de tipo sorteado, no nível pedido. */
     public static ItemStack criarAleatoriaNivel(int nivel) {
         String[] ids = TIPOS.keySet().toArray(new String[0]);

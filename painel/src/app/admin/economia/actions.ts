@@ -64,6 +64,47 @@ export async function salvarComprador(c: unknown): Promise<{ ok: boolean; mensag
   return { ok: true, mensagem: "Salvo. O servidor aplica em até 1 minuto (ou use /frx recarregar)." };
 }
 
+export async function salvarPortais(c: unknown): Promise<{ ok: boolean; mensagem: string }> {
+  if (!(await auth())?.user) return { ok: false, mensagem: "Sessão expirada. Entre de novo." };
+  const atual = await lerConfig();
+  const { masmorras, ...portais } = (c ?? {}) as Record<string, unknown> & { masmorras?: unknown };
+  const dados = configSchema.safeParse({ ...atual, portais, ...(masmorras ? { masmorras } : {}) });
+  if (!dados.success) {
+    const p = dados.error.issues[0];
+    return { ok: false, mensagem: `${p.path.slice(1).join(".")}: ${p.message}` };
+  }
+  await salvarConfig(dados.data);
+  revalidatePath("/admin/economia");
+  return { ok: true, mensagem: "Salvo. O servidor aplica em até 1 minuto (ou use /frx recarregar)." };
+}
+
+export async function salvarDesencanto(c: unknown): Promise<{ ok: boolean; mensagem: string }> {
+  if (!(await auth())?.user) return { ok: false, mensagem: "Sessão expirada. Entre de novo." };
+  const atual = await lerConfig();
+  const dados = configSchema.safeParse({ ...atual, desencanto: c });
+  if (!dados.success) {
+    const p = dados.error.issues[0];
+    return { ok: false, mensagem: `${p.path.slice(1).join(".")}: ${p.message}` };
+  }
+  await salvarConfig(dados.data);
+  revalidatePath("/admin/economia");
+  return { ok: true, mensagem: "Salvo. O servidor aplica em até 1 minuto (ou use /frx recarregar)." };
+}
+
+export async function salvarBanco(c: unknown): Promise<{ ok: boolean; mensagem: string }> {
+  if (!(await auth())?.user) return { ok: false, mensagem: "Sessão expirada. Entre de novo." };
+  const atual = await lerConfig();
+  const dados = configSchema.safeParse({ ...atual, banco: c });
+  if (!dados.success) {
+    const p = dados.error.issues[0];
+    return { ok: false, mensagem: `${p.path.slice(1).join(".")}: ${p.message}` };
+  }
+  if (dados.data.banco.taxaMax < dados.data.banco.taxaInicial) return { ok: false, mensagem: "A taxa máxima não pode ser menor que a inicial." };
+  await salvarConfig(dados.data);
+  revalidatePath("/admin/economia");
+  return { ok: true, mensagem: "Salvo. O servidor aplica em até 1 minuto (ou use /frx recarregar)." };
+}
+
 export type ItemLojaDados = { item: string; qtd: number; preco: number; ativo: boolean; nivelMin: number };
 
 /** Salva a lista inteira de uma loja (a ordem é a posição na lista). */

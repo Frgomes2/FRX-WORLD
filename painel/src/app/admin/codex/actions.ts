@@ -48,16 +48,17 @@ export async function salvarArma(_e: Estado, f: FormData): Promise<Estado> {
     if (!/^[a-z0-9_.-]+:[a-z0-9_./-]+(\*\d{1,2})?$/.test(e)) return { erro: `Encantamento inválido: "${e}". Use minecraft:sharpness*3.` };
   const evolui = f.get("evolui") === "on";
   if (evolui && d.data.danoPorNivel <= 0) return { erro: "Arma que evolui precisa de um dano por nível maior que zero." };
+  if (evolui && f.get("nivelUso") === "on") return { erro: "Escolha só um jeito de evoluir: pelo nível do jogador ou pelo uso." };
   const ferreiro = f.get("ferreiro") === "on";
   if (ferreiro && d.data.preco <= 0) return { erro: "Para vender no ferreiro, defina um preço." };
   const { codigo: digitado, ...resto } = d.data;
-  const valores = { ...resto, textura, evolui, ferreiro, umaPorJogador: f.get("umaPorJogador") === "on", ativa: f.get("ativa") === "on" };
+  const valores = { ...resto, textura, evolui, ferreiro, umaPorJogador: f.get("umaPorJogador") === "on", inquebravel: f.get("inquebravel") === "on", nivelUso: f.get("nivelUso") === "on", ativa: f.get("ativa") === "on" };
   try {
-    if (id) await prisma.armaCodex.update({ where: { id }, data: valores });   // o código não muda: as armas já entregues apontam para ele
+    if (id) await prisma.armaCodex.update({ where: { id }, data: valores as typeof valores & Record<string, unknown> as never });   // o código não muda: as armas já entregues apontam para ele
     else {
       const codigo = slug(digitado || d.data.nome);
       if (codigo.length < 2) return { erro: "Não consegui criar um código a partir do nome. Digite um código só com letras e números." };
-      await prisma.armaCodex.create({ data: { ...valores, codigo } });
+      await prisma.armaCodex.create({ data: { ...valores, codigo } as never });
     }
   } catch {
     return { erro: "Já existe uma arma com esse código." };

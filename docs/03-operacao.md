@@ -149,7 +149,7 @@ Ficam em `server/FRX-WORLD/` e valem só para aquele mundo (mundo novo começa s
 | `frx_banco_pendente.txt` | Saldos de banco definidos pelo painel para quem estava offline |
 | `frx_repor.txt` | Moradores e guardas das capitais à espera de voltar |
 | `frx_ciclo.txt` | Duração do dia e da noite |
-| `frx_ronaldinho.txt` · `frx_ladrao.txt` | Chance das visitas raras (por mil, por minuto) |
+| `frx_ronaldinho.txt` · `frx_ladrao.txt` · `frx_noel.txt` | Chance das visitas raras (por mil, por minuto) |
 
 ## Conferir a compilação antes de reiniciar
 

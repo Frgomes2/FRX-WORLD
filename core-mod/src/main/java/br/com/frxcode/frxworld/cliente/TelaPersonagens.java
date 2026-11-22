@@ -94,6 +94,13 @@ public class TelaPersonagens extends Screen {
         }
     }
 
+    /** Fechou a tela da entrada: o servidor tira a proteção de quem estava escolhendo. */
+    @Override
+    public void removed() {
+        if (d.getBoolean("entrada")) Rede.CANAL.sendToServer(new AcaoMenu("personagens", 0, Personagens.FECHAR, 0));
+        super.removed();
+    }
+
     @Override
     public boolean keyPressed(int tecla, int codigo, int mods) {
         if (campo != null && campo.isFocused() && (tecla == 257 || tecla == 335)) { confirmarNome(); return true; }   // Enter

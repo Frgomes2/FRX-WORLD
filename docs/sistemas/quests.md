@@ -21,11 +21,11 @@
 | Prólogo | Escolher classe e raça, primeiros níveis, primeira taverna |
 | Os Oito Reinos | Visitar as capitais, ficar Honrado, campanhas dos reis |
 | Floresta do Crepúsculo | Nv 10–25 |
-| Nether | Nv 15–35 |
+| Nether | Nv 55–80 |
 | Undergarden | Nv 20–35 |
 | Everbright | Nv 25–40 |
 | Aether | Nv 30–45 |
-| O Fim | Nv 30–50 |
+| O Fim | Nv 75–100 |
 | Everdawn | Nv 35–50 |
 | O Outro Lado | Nv 45–60 |
 | Lendas | Raças lendárias, chefe mundial, Campeões, nível 100 |

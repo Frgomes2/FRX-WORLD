@@ -59,15 +59,27 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class Portais {
     public static final String TAG = "frx_portal";
-    private static final long ABERTO_MS = 20 * 60_000L, LUTA_MS = 8 * 60_000L, INTERVALO_MS = 40 * 60_000L;
-    private static final int CHANCE = 50, ONDAS = 3;
+    private static final long ABERTO_MS = 20 * 60_000L, LUTA_MS = 8 * 60_000L;
+    private static final int ONDAS = 3;
+
+    /** Tempo entre tentativas de abrir portal (painel: Economia → Portais; padrão 15 min). */
+    private static long intervaloMs() {
+        try { JsonObject o = ConfigJogo.secaoCrua("portais"); if (o != null && o.has("intervaloMinutos")) return Math.max(1, o.get("intervaloMinutos").getAsLong()) * 60_000L; } catch (Exception ignorado) { }
+        return 15 * 60_000L;
+    }
+
+    /** Chance (%) de cada tentativa abrir um portal (padrão 80). */
+    private static int chance() {
+        try { JsonObject o = ConfigJogo.secaoCrua("portais"); if (o != null && o.has("chance")) return Math.max(0, Math.min(100, o.get("chance").getAsInt())); } catch (Exception ignorado) { }
+        return 80;
+    }
 
     private enum Fase { NADA, ABERTO, LUTA }
     private static Fase fase = Fase.NADA;
     private static Reino reino;
     private static BlockPos pos;
     private static int rank, onda;
-    private static long limite, proximaTentativa = System.currentTimeMillis() + 15 * 60_000L;
+    private static long limite, proximaTentativa = System.currentTimeMillis() + 5 * 60_000L;
     private static final Set<UUID> vivos = new HashSet<>();
     private static final Map<UUID, Integer> entrando = new java.util.HashMap<>();
     private static final Map<BlockPos, BlockState> salvos = new LinkedHashMap<>();
@@ -252,7 +264,7 @@ public class Portais {
         for (ServerPlayer jogador : s.getPlayerList().getPlayers()) marcarNoMapa(jogador, true);
         fase = Fase.NADA;
         pontoGlobal(true);
-        proximaTentativa = System.currentTimeMillis() + INTERVALO_MS;
+        proximaTentativa = System.currentTimeMillis() + intervaloMs();
     }
 
     private static List<ServerPlayer> perto(MinecraftServer s, double raio) {
@@ -270,11 +282,24 @@ public class Portais {
     }
 
     /** Um grupo derrotou o chefão da dungeon aberta por um portal: paga a recompensa e fecha o portal, se ainda for o mesmo. */
+    /** Moedas (cobre) para cada jogador que derrota o chefão, pelo rank do portal. Painel: Economia → Recompensa dos portais. */
+    private static final long[] MOEDAS_PADRAO = {100, 200, 400, 800, 1500, 2500, 4000};
+
+    static long moedasDoRank(int rank) {
+        int r = Math.max(0, Math.min(MOEDAS_PADRAO.length - 1, rank));
+        try {
+            JsonObject o = ConfigJogo.secaoCrua("portais");
+            if (o != null && o.has("moedasPorRank") && o.getAsJsonArray("moedasPorRank").size() > r) return Math.max(0, o.getAsJsonArray("moedasPorRank").get(r).getAsLong());
+        } catch (Exception ignorado) { }
+        return MOEDAS_PADRAO[r];
+    }
+
     public static void aoVencerDungeon(MinecraftServer s, List<ServerPlayer> quem, int rankDungeon, int nivel, BlockPos portal) {
-        long xp = 300L * Math.max(1, nivel);
+        long xp = 300L * Math.max(1, nivel), moedas = moedasDoRank(rankDungeon);
         StringBuilder nomes = new StringBuilder();
         for (ServerPlayer p : quem) {
             Progressao.ganharXp(p, xp);
+            if (moedas > 0) Moedas.dar(p, moedas);
             br.com.frxcode.frxworld.progressao.Conquistas.somar(p, "portais", 1);
             br.com.frxcode.frxworld.progressao.Conquistas.somar(p, "chefes", 1);
             br.com.frxcode.frxworld.aventura.Tesouros.talvezDar(p, 20);
@@ -288,7 +313,7 @@ public class Portais {
         }
         String r = ConfigJogo.nomeRank(rankDungeon);
         if (fase != Fase.NADA && pos != null && pos.equals(portal)) fechar(s);
-        todos(s, "Portal Rank " + r + " fechado", (nomes.length() > 0 ? nomes + " derrotou o chefão da dungeon. " : "") + "Recompensa: " + xp + " XP para cada um, com chance de runa, tomo e mapa do tesouro.",
+        todos(s, "Portal Rank " + r + " fechado", (nomes.length() > 0 ? nomes + " derrotou o chefão da dungeon. " : "") + "Recompensa: " + xp + " XP" + (moedas > 0 ? " e " + Moedas.texto(moedas) : "") + " para cada um, com chance de runa, tomo e mapa do tesouro.",
                 Sistema.OURO, ChatFormatting.GOLD);
     }
 
@@ -366,21 +391,25 @@ public class Portais {
         long agora = System.currentTimeMillis();
         if (fase == Fase.NADA) {
             if (agora < proximaTentativa) return;
-            proximaTentativa = agora + INTERVALO_MS;
+            proximaTentativa = agora + intervaloMs();
             List<ServerPlayer> online = s.overworld().players();
-            if (online.isEmpty() || ThreadLocalRandom.current().nextInt(100) >= CHANCE) return;
-            // capital mais próxima de algum jogador (até 800 blocos) e rank pelo jogador mais forte por ali
-            Reino melhor = null; int menor = 800, nivelMax = 0;
-            for (ServerPlayer p : online) {
-                for (Reino r : Reinos.todos()) {
-                    int d = r.distancia(p.getBlockX(), p.getBlockZ());
-                    if (d < menor) { menor = d; melhor = r; }
-                }
-                nivelMax = Math.max(nivelMax, br.com.frxcode.frxworld.progressao.Guilda.indice(p));   // maior rank da Guilda online
+            if (online.isEmpty() || ThreadLocalRandom.current().nextInt(100) >= chance()) return;
+            // Um jogador ao acaso (dos que estão a até 800 blocos de uma capital) vira a referência: o portal abre perto
+            // da capital mais próxima dele, com rank em volta do rank dele na Guilda. Assim cada um vê portais do seu nível,
+            // e ainda saem portais acima como desafio: 25% um abaixo, 45% o mesmo, 20% um acima, 10% dois acima.
+            List<ServerPlayer> perto = new java.util.ArrayList<>();
+            for (ServerPlayer p : online) for (Reino r : Reinos.todos()) if (r.distancia(p.getBlockX(), p.getBlockZ()) < 800) { perto.add(p); break; }
+            if (perto.isEmpty()) return;
+            ServerPlayer alvo = perto.get(ThreadLocalRandom.current().nextInt(perto.size()));
+            Reino melhor = null; int menor = Integer.MAX_VALUE;
+            for (Reino r : Reinos.todos()) {
+                int d = r.distancia(alvo.getBlockX(), alvo.getBlockZ());
+                if (d < menor) { menor = d; melhor = r; }
             }
             if (melhor == null) return;
-            int r = nivelMax - ThreadLocalRandom.current().nextInt(2);
-            abrir(s, melhor, null, Math.max(0, r));
+            int base = br.com.frxcode.frxworld.progressao.Guilda.indice(alvo), sorte = ThreadLocalRandom.current().nextInt(100);
+            int r = sorte < 25 ? base - 1 : sorte < 70 ? base : sorte < 90 ? base + 1 : base + 2;
+            abrir(s, melhor, null, Math.max(0, Math.min(ConfigJogo.totalRanks() - 1, r)));
             return;
         }
         ServerLevel nivel = s.overworld();

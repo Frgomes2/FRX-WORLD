@@ -87,9 +87,13 @@ public class SkinsNpc {
         if (tags.contains("frx_npc")) {
             String papel = e.getPersistentData().getString("frx_papel");
             String reino = e.getPersistentData().getString("frx_reino");
+            // de noite quem atende é o aprendiz (skin própria); o mestre de folga na taverna usa a skin do mestre
+            if (e.getPersistentData().contains("frx_nome_dia")) papel = "aprendiz_" + papel;
+            else if (papel.startsWith("folga_")) papel = papel.substring(6);
             return papel.isEmpty() ? null : new String[]{papel, reino};
         }
         if (tags.contains("frx_craque")) return new String[]{"craque", ""};
+        if (tags.contains("frx_noel") && !"".equals(e.getPersistentData().getString("frx_papel"))) return new String[]{"noel", ""};
         if (tags.contains("frx_ladrao")) return new String[]{"ladrao", ""};
         if (tags.contains("frx_cidadao")) {
             String reino = "";

@@ -100,3 +100,16 @@ Ajustes em mods que já estavam no pack:
 **The Man From The Fog e Tense Ambience**: removidos em 19/11 (versão 1.1.6), a pedido dos jogadores. O `.pw.toml` ficou guardado em `logs/removidos/`; a config `server/config/man_config.toml` e a tradução `assets/man/lang/pt_br.json` continuam no projeto, sem efeito.
 
 **FallingTree** (só servidor, desde 1.1.8): árvore inteira cai ao cortar um tronco com machado; agachado quebra só um bloco. Ajustes nossos em `server/config/fallingtree.json` (original em `logs/fallingtree.original.json`): `minimumLeavesAroundRequired = 3` e `includePersistentLeavesInRequiredCount = false` (folha colocada por jogador não conta), para não confundir construção de tora com árvore; `maxSize = 100` com `ABORT` (árvore maior que isso não cai de uma vez).
+
+## Adicionados em 20/11 (versão 1.2.3)
+
+| Mod | Origem | Lado | Observação |
+|---|---|---|---|
+| Farmer's Delight 1.3.4 | Modrinth (`farmers-delight`) | os dois | Cozinha e plantações |
+| Aquaculture 2 2.5.7 | Modrinth (`aquaculture`) | os dois | Pesca; conferir se o equipamento de Neptúnio entra na classificação por rank |
+| Serene Seasons 9.1.0.3 + GlitchCore | Modrinth (`serene-seasons`) | os dois | Estações; ajustar neve/gelo e plantações na configuração depois do primeiro início |
+| Better Archeology 1.2.1 + SuperMartijn642's Config Lib | Modrinth (`better-archeology`) | os dois | Estruturas só em chunks novos |
+| Sound Physics Remastered 1.5.1 | Modrinth (`sound-physics-remastered`) | os dois | Efeito só no cliente |
+| AmbientSounds 6.3.11 + CreativeCore | Modrinth (`ambientsounds`) | cliente | Sons de natureza |
+
+Mods do CurseForge com download automático bloqueado (Storage Finder, SmartChest) não podem ir para `pack/pendentes.txt`: travam a atualização dos mods do servidor. Só entram com o `.jar` posto à mão em `pack/mods`.

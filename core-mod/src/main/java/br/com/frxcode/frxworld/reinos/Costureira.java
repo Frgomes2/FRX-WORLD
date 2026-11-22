@@ -34,7 +34,9 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.network.PacketDistributor;
 
 /**
- * Costureira (NPC de papel "costureira"): costura bolsos na calça do jogador, um espaço por vez, até 12 por calça.
+ * Costureira (NPC de papel "costureira"): mesa de costura (MenuCostura) com cinco serviços: costurar bolsos na calça (até 12),
+ * passar os bolsos de uma calça para outra, remendar armaduras e élitros, bordar (acabamento de armadura e nome colorido)
+ * e o manto de disfarce (30 min sem os guardas reconhecerem quem é Hostil; não vale para Inimigo).
  * A calça guarda só QUANTOS bolsos tem (marca frx_bolsos). O que está dentro dos bolsos fica guardado no personagem:
  * vale enquanto ele veste uma calça com bolsos; tirando a calça (ou vestindo uma com menos bolsos), o que não cabe volta para a mochila.
  */
@@ -66,47 +68,238 @@ public class Costureira {
         return calca(v) ? v : ItemStack.EMPTY;
     }
 
-    // ------------------------------------------------------------------ a tela da Costureira
+    // ------------------------------------------------------------------ a mesa de costura (MenuCostura + cliente/TelaCostura)
 
-    public static void abrir(ServerPlayer p, Entity npc) { enviar(p, npc.getId(), "", true); }
+    /** Ações da mesa (AcaoMenu "costureira"). O nome bordado vem por AcaoHabilidade.BORDAR_NOME (precisa de texto). */
+    public static final int PASSAR = 1, REMENDAR = 2, ACABAMENTO = 3, DISFARCE = 5;
+    private static final long PRECO_PASSAR = 50, PRECO_ACABAMENTO = 1500, PRECO_TIRAR = 100, PRECO_NOME = 500, PRECO_DISFARCE = 3000;
+    private static final long DISFARCE_MS = 30 * 60_000L, DISFARCE_MAX_MS = 60 * 60_000L;
+    private static final String DISFARCE_ATE = "frx_disfarce_ate";
+    /** Cores do nome bordado, na ordem da tela. */
+    public static final ChatFormatting[] CORES = {ChatFormatting.WHITE, ChatFormatting.GOLD, ChatFormatting.YELLOW, ChatFormatting.GREEN, ChatFormatting.DARK_GREEN,
+            ChatFormatting.AQUA, ChatFormatting.DARK_AQUA, ChatFormatting.BLUE, ChatFormatting.LIGHT_PURPLE, ChatFormatting.DARK_PURPLE, ChatFormatting.RED,
+            ChatFormatting.DARK_RED, ChatFormatting.GRAY};
 
-    private static void enviar(ServerPlayer p, int npcId, String msg, boolean ok) {
-        CompoundTag d = new CompoundTag();
-        Entity npc = p.level().getEntity(npcId);
-        ItemStack c = alvo(p);
-        d.putInt("npc", npcId);
-        d.putString("nome", npc != null && npc.getCustomName() != null ? npc.getCustomName().getString() : "Costureira");
-        d.putString("msg", msg); d.putBoolean("ok", ok);
-        d.putLong("bolsa", Moedas.contar(p));
-        d.putLong("preco", PRECO);
-        d.putInt("maximo", MAXIMO);
-        d.putBoolean("temCalca", !c.isEmpty());
-        d.putBoolean("naMao", !c.isEmpty() && c == p.getMainHandItem());
-        d.putInt("bolsos", bolsos(c));
-        if (!c.isEmpty()) d.put("item", c.save(new CompoundTag()));
-        Rede.CANAL.send(PacketDistributor.PLAYER.with(() -> p), new AbrirMenu("costureira", d));
+    /** Remendo: cobre por ponto de durabilidade, pelo material (a tela faz a mesma conta). */
+    public static double fatorRemendo(ItemStack s) {
+        if (s.getItem() instanceof net.minecraft.world.item.ElytraItem) return 3.0;
+        if (s.getItem() instanceof net.minecraft.world.item.ArmorItem a)
+            return 0.4 + 0.2 * a.getMaterial().getDefenseForType(net.minecraft.world.item.ArmorItem.Type.CHESTPLATE) + 0.3 * a.getMaterial().getToughness();
+        return 0;
     }
 
-    /** A tela manda COSTURAR com valor = quantos bolsos costurar de uma vez. */
+    public static long custoRemendo(ItemStack s) {
+        double f = fatorRemendo(s);
+        return f <= 0 || !s.isDamaged() ? 0 : Math.max(10, (long) Math.ceil(s.getDamageValue() * f));
+    }
+
+    private static boolean reliquia(ItemStack s) { return s.hasTag() && s.getTag().contains("frx_codex"); }
+
+    // ---- disfarce
+
+    public static boolean disfarcado(Player p) { return pers(p).getLong(DISFARCE_ATE) > System.currentTimeMillis(); }
+
+    private static void rasgarDisfarce(ServerPlayer p, String motivo) {
+        if (!disfarcado(p)) return;
+        pers(p).remove(DISFARCE_ATE);
+        p.sendSystemMessage(Component.literal("✂ Seu manto de disfarce rasgou: " + motivo).withStyle(ChatFormatting.RED));
+    }
+
+    // ---- pagamento (bolsa e, se faltar, banco)
+
+    private static boolean pagar(ServerPlayer p, long valor) {
+        long bolsa = Moedas.contar(p), banco = br.com.frxcode.frxworld.moedas.Banco.saldo(p);
+        if (bolsa + banco < valor) return false;
+        long daBolsa = Math.min(bolsa, valor);
+        if (daBolsa > 0 && !Moedas.cobrar(p, daBolsa)) return false;
+        if (valor - daBolsa > 0) br.com.frxcode.frxworld.moedas.Banco.definirSaldo(p, banco - (valor - daBolsa));
+        return true;
+    }
+
+    private static long dinheiro(ServerPlayer p) { return Moedas.contar(p) + br.com.frxcode.frxworld.moedas.Banco.saldo(p); }
+
+    // ---- abrir e responder
+
+    private static CompoundTag info(ServerPlayer p, Entity npc, String msg, boolean ok) {
+        CompoundTag d = new CompoundTag();
+        d.putInt("npc", npc.getId());
+        d.putString("nome", npc.getCustomName() != null ? npc.getCustomName().getString() : "Costureira");
+        d.putLong("dinheiro", dinheiro(p));
+        d.putLong("precoBolso", PRECO); d.putLong("precoPassar", PRECO_PASSAR); d.putLong("precoAcabamento", PRECO_ACABAMENTO);
+        d.putLong("precoTirar", PRECO_TIRAR); d.putLong("precoNome", PRECO_NOME); d.putLong("precoDisfarce", PRECO_DISFARCE);
+        d.putInt("maximo", MAXIMO);
+        d.putLong("disfarceMs", Math.max(0, pers(p).getLong(DISFARCE_ATE) - System.currentTimeMillis()));
+        String reino = npc.getPersistentData().getString("frx_reino");
+        d.putBoolean("inimigo", !reino.isEmpty() && Reputacao.hostilidade(p, reino) >= 3);
+        // acabamentos que o servidor conhece (padrões e materiais), com o nome já pronto para mostrar
+        var ra = p.server.registryAccess();
+        net.minecraft.nbt.ListTag pads = new net.minecraft.nbt.ListTag(), mats = new net.minecraft.nbt.ListTag();
+        var regP = ra.registryOrThrow(net.minecraft.core.registries.Registries.TRIM_PATTERN);
+        for (var k : regP.keySet().stream().sorted().toList()) {
+            CompoundTag t = new CompoundTag();
+            t.putString("id", k.toString());
+            t.putString("nome", Component.Serializer.toJson(regP.get(k).description()));
+            pads.add(t);
+        }
+        var regM = ra.registryOrThrow(net.minecraft.core.registries.Registries.TRIM_MATERIAL);
+        for (var k : regM.keySet().stream().sorted().toList()) {
+            CompoundTag t = new CompoundTag();
+            t.putString("id", k.toString());
+            t.putString("nome", Component.Serializer.toJson(regM.get(k).description()));
+            mats.add(t);
+        }
+        d.put("padroes", pads);
+        d.put("materiais", mats);
+        d.putString("msg", msg);
+        d.putBoolean("ok", ok);
+        return d;
+    }
+
+    public static void abrir(ServerPlayer p, Entity npc) {
+        CompoundTag d = info(p, npc, "", true);
+        net.minecraftforge.network.NetworkHooks.openScreen(p, new SimpleMenuProvider((id, inv, jog) -> new MenuCostura(id, inv, npc.getId(), d),
+                Component.literal(d.getString("nome"))), buf -> { buf.writeInt(npc.getId()); buf.writeNbt(d); });
+    }
+
+    private static void responder(ServerPlayer p, Entity npc, String msg, boolean ok) {
+        p.playNotifySound(ok ? SoundEvents.ARMOR_EQUIP_LEATHER : SoundEvents.VILLAGER_NO, SoundSource.PLAYERS, 0.8f, ok ? 1.2f : 1f);
+        Rede.CANAL.send(PacketDistributor.PLAYER.with(() -> p), new AbrirMenu("costureira", info(p, npc, msg, ok)));
+    }
+
+    private static Entity npcValido(ServerPlayer p, int id) {
+        Entity npc = p.level().getEntity(id);
+        if (npc == null || npc.distanceToSqr(p) > 144 || !"costureira".equals(npc.getPersistentData().getString("frx_papel"))) return null;
+        return p.containerMenu instanceof MenuCostura m && m.npc == id ? npc : null;
+    }
+
     public static void acao(ServerPlayer p, AcaoMenu a) {
-        Entity npc = p.level().getEntity(a.npc());
-        if (npc == null || npc.distanceToSqr(p) > 144 || !"costureira".equals(npc.getPersistentData().getString("frx_papel")) || a.acao() != COSTURAR) return;
-        ItemStack c = alvo(p);
+        Entity npc = npcValido(p, a.npc());
+        if (npc == null) return;
+        MenuCostura m = (MenuCostura) p.containerMenu;
+        ItemStack peca = m.caixa.getItem(MenuCostura.PECA), segunda = m.caixa.getItem(MenuCostura.SEGUNDA);
         String msg;
         boolean ok = false;
-        int tem = bolsos(c);
-        long qtd = Math.min(a.valor(), MAXIMO - tem);
-        if (c.isEmpty()) msg = "Traga a calça na mão, ou venha vestindo uma.";
-        else if (tem >= MAXIMO) msg = "Essa calça já tem os " + MAXIMO + " bolsos. Não cabe mais nenhum.";
-        else if (qtd < 1) return;
-        else if (!Moedas.cobrar(p, qtd * PRECO)) msg = "Faltam moedas: " + (qtd == 1 ? "o bolso custa " : "os " + qtd + " bolsos custam ") + Moedas.texto(qtd * PRECO) + ".";
-        else {
-            c.getOrCreateTag().putInt(TAG, tem + (int) qtd);
-            msg = (qtd == 1 ? "Bolso costurado." : qtd + " bolsos costurados.") + " A calça agora tem " + (tem + qtd) + " de " + MAXIMO + ".";
-            ok = true;
+        switch (a.acao()) {
+            case COSTURAR -> {
+                int tem = bolsos(peca);
+                long qtd = Math.min(a.valor(), MAXIMO - tem);
+                if (!calca(peca)) msg = "Coloque uma calça no espaço da peça.";
+                else if (tem >= MAXIMO) msg = "Essa calça já tem os " + MAXIMO + " bolsos. Não cabe mais nenhum.";
+                else if (qtd < 1) return;
+                else if (!pagar(p, qtd * PRECO)) msg = "Faltam moedas: " + (qtd == 1 ? "o bolso custa " : "os " + qtd + " bolsos custam ") + Moedas.texto(qtd * PRECO) + ".";
+                else {
+                    peca.getOrCreateTag().putInt(TAG, tem + (int) qtd);
+                    msg = (qtd == 1 ? "Bolso costurado." : qtd + " bolsos costurados.") + " A calça agora tem " + (tem + qtd) + " de " + MAXIMO + ".";
+                    ok = true;
+                }
+            }
+            case PASSAR -> {
+                int de = bolsos(peca), para = bolsos(segunda), qtd = Math.min(de, MAXIMO - para);
+                if (!calca(peca) || !calca(segunda)) msg = "Coloque a calça velha no espaço da peça e a nova no da segunda calça.";
+                else if (de == 0) msg = "A calça velha não tem bolsos para passar.";
+                else if (qtd == 0) msg = "A calça nova já tem os " + MAXIMO + " bolsos.";
+                else if (!pagar(p, qtd * PRECO_PASSAR)) msg = "Faltam moedas: passar " + qtd + " bolsos custa " + Moedas.texto(qtd * PRECO_PASSAR) + ".";
+                else {
+                    peca.getOrCreateTag().putInt(TAG, de - qtd);
+                    if (de - qtd == 0) peca.getTag().remove(TAG);
+                    segunda.getOrCreateTag().putInt(TAG, para + qtd);
+                    msg = qtd + (qtd == 1 ? " bolso passou" : " bolsos passaram") + " para a calça nova (" + (para + qtd) + " de " + MAXIMO + ").";
+                    ok = true;
+                }
+            }
+            case REMENDAR -> {
+                long custo = custoRemendo(peca);
+                if (peca.isEmpty()) msg = "Coloque a armadura ou os élitros no espaço da peça.";
+                else if (fatorRemendo(peca) <= 0) msg = "Eu remendo armaduras e élitros. Armas, com o ferreiro.";
+                else if (!peca.isDamaged()) msg = "Essa peça está inteira. Nada para remendar.";
+                else if (!pagar(p, custo)) msg = "Faltam moedas: o remendo custa " + Moedas.texto(custo) + ".";
+                else { peca.setDamageValue(0); msg = "Remendado. Ficou como nova."; ok = true; }
+            }
+            case ACABAMENTO -> {
+                var ra = p.server.registryAccess();
+                var regP = ra.registryOrThrow(net.minecraft.core.registries.Registries.TRIM_PATTERN);
+                var regM = ra.registryOrThrow(net.minecraft.core.registries.Registries.TRIM_MATERIAL);
+                var lp = regP.keySet().stream().sorted().toList();
+                var lm = regM.keySet().stream().sorted().toList();
+                if (peca.isEmpty() || !peca.is(net.minecraft.tags.ItemTags.TRIMMABLE_ARMOR)) msg = "Coloque uma peça de armadura que aceite acabamento.";
+                else if (reliquia(peca)) msg = "Relíquias do Códex já têm a aparência delas.";
+                else if (a.valor() < 0) {
+                    if (!peca.hasTag() || !peca.getTag().contains("Trim")) msg = "Essa peça não tem acabamento.";
+                    else if (!pagar(p, PRECO_TIRAR)) msg = "Faltam moedas: tirar o acabamento custa " + Moedas.texto(PRECO_TIRAR) + ".";
+                    else { peca.getTag().remove("Trim"); msg = "Acabamento descosturado."; ok = true; }
+                } else {
+                    int ip = (int) (a.valor() / 1000), im = (int) (a.valor() % 1000);
+                    if (ip >= lp.size() || im >= lm.size()) return;
+                    if (!pagar(p, PRECO_ACABAMENTO)) msg = "Faltam moedas: o acabamento custa " + Moedas.texto(PRECO_ACABAMENTO) + ".";
+                    else {
+                        var hp = regP.getHolderOrThrow(net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.TRIM_PATTERN, lp.get(ip)));
+                        var hm = regM.getHolderOrThrow(net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.TRIM_MATERIAL, lm.get(im)));
+                        net.minecraft.world.item.armortrim.ArmorTrim.setTrim(ra, peca, new net.minecraft.world.item.armortrim.ArmorTrim(hm, hp));
+                        msg = "Acabamento bordado. Ficou uma beleza.";
+                        ok = true;
+                    }
+                }
+            }
+            case DISFARCE -> {
+                String reino = npc.getPersistentData().getString("frx_reino");
+                long ate = pers(p).getLong(DISFARCE_ATE), agora = System.currentTimeMillis();
+                if (!reino.isEmpty() && Reputacao.hostilidade(p, reino) >= 3) msg = "Para inimigos deste reino, nenhum manto basta. Eu não te vi aqui.";
+                else if (ate - agora > DISFARCE_MAX_MS - DISFARCE_MS) msg = "Você já está bem coberto. Volte quando o manto estiver gasto.";
+                else if (!pagar(p, PRECO_DISFARCE)) msg = "Faltam moedas: o manto custa " + Moedas.texto(PRECO_DISFARCE) + ".";
+                else {
+                    pers(p).putLong(DISFARCE_ATE, Math.max(ate, agora) + DISFARCE_MS);
+                    for (net.minecraft.world.entity.Mob g : p.level().getEntitiesOfClass(net.minecraft.world.entity.Mob.class, p.getBoundingBox().inflate(32), Hostilidade::guarda))
+                        if (g.getTarget() == p) g.setTarget(null);
+                    msg = "Pronto. Com esse manto, os guardas não vão te reconhecer por 30 minutos.";
+                    ok = true;
+                }
+            }
+            default -> { return; }
         }
-        p.playNotifySound(ok ? SoundEvents.ARMOR_EQUIP_LEATHER : SoundEvents.VILLAGER_NO, SoundSource.PLAYERS, 0.8f, ok ? 1.2f : 1f);
-        enviar(p, a.npc(), msg, ok);
+        m.caixa.setChanged();
+        m.broadcastChanges();
+        responder(p, npc, msg, ok);
+    }
+
+    /** Nome bordado (AcaoHabilidade.BORDAR_NOME): numero = cor, texto = o nome. */
+    public static void bordarNome(ServerPlayer p, int cor, String texto) {
+        if (!(p.containerMenu instanceof MenuCostura m)) return;
+        Entity npc = npcValido(p, m.npc);
+        if (npc == null) return;
+        ItemStack peca = m.caixa.getItem(MenuCostura.PECA);
+        String nome = texto == null ? "" : texto.replace("§", "").trim().replaceAll("\\s+", " ");
+        String msg;
+        boolean ok = false;
+        if (peca.isEmpty()) msg = "Coloque a peça no espaço da peça.";
+        else if (reliquia(peca)) msg = "Relíquias do Códex já têm nome próprio.";
+        else if (nome.length() < 2 || nome.length() > 30) msg = "O nome precisa ter de 2 a 30 letras.";
+        else if (!pagar(p, PRECO_NOME)) msg = "Faltam moedas: bordar o nome custa " + Moedas.texto(PRECO_NOME) + ".";
+        else {
+            ChatFormatting c = CORES[Math.max(0, Math.min(CORES.length - 1, cor))];
+            peca.setHoverName(Component.literal(nome).withStyle(st -> st.withColor(c).withItalic(false)));
+            msg = "Nome bordado: " + nome + ".";
+            ok = true;
+            m.caixa.setChanged();
+            m.broadcastChanges();
+        }
+        responder(p, npc, msg, ok);
+    }
+
+    /** Disfarçado que ataca alguém dentro de uma capital rasga o manto; o manto também acaba sozinho. */
+    @SubscribeEvent
+    public void aoAtacarDisfarcado(net.minecraftforge.event.entity.living.LivingAttackEvent ev) {
+        if (ev.getSource().getEntity() instanceof ServerPlayer p && disfarcado(p) && NpcsReino.reinoDe(p) != null && ev.getEntity() != p)
+            rasgarDisfarce(p, "você atacou alguém dentro da cidade.");
+    }
+
+    @SubscribeEvent
+    public void fimDoDisfarce(TickEvent.PlayerTickEvent ev) {
+        if (ev.phase != TickEvent.Phase.END || !(ev.player instanceof ServerPlayer p) || p.tickCount % 100 != 7) return;
+        long ate = pers(p).getLong(DISFARCE_ATE);
+        if (ate > 0 && ate <= System.currentTimeMillis()) {
+            pers(p).remove(DISFARCE_ATE);
+            p.sendSystemMessage(Component.literal("✂ Seu manto de disfarce se desfez. Os guardas voltam a te reconhecer.").withStyle(ChatFormatting.YELLOW));
+        }
     }
 
     // ------------------------------------------------------------------ o que está nos bolsos (guardado no personagem)

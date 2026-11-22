@@ -90,6 +90,7 @@ public class DetalheJogador {
         o.addProperty("nivelVanilla", p.experienceLevel);
         o.addProperty("moedasCobre", Moedas.contar(p));
         o.addProperty("bancoCobre", Banco.saldo(p));
+        o.addProperty("bancoRende", Banco.resumoRendimento(p));
         o.addProperty("tempoJogoMin", p.getStats().getValue(Stats.CUSTOM.get(Stats.PLAY_TIME)) / 20 / 60);
         o.addProperty("mobsMortos", p.getStats().getValue(Stats.CUSTOM.get(Stats.MOB_KILLS)));
         o.addProperty("mortesVanilla", p.getStats().getValue(Stats.CUSTOM.get(Stats.DEATHS)));
@@ -261,7 +262,7 @@ public class DetalheJogador {
                                     String reino = StringArgumentType.getString(ctx, "reino");
                                     int alvo = IntegerArgumentType.getInteger(ctx, "pontos");
                                     int atual = Progressao.temDados(p) ? Progressao.dados(p).reputacao().getOrDefault(reino, 0) : 0;
-                                    Reputacao.ganhar(p, reino, alvo - atual, true);
+                                    Reputacao.ganhar(p, reino, alvo - atual, true, false);
                                     ok(ctx.getSource(), p, "reputação de " + p.getGameProfile().getName() + " em " + reino + " = " + alvo);
                                     return 1;
                                 }))))
@@ -283,7 +284,7 @@ public class DetalheJogador {
                                 .then(Commands.literal("esquecer").then(Commands.argument("codigo", StringArgumentType.word())
                                         .executes(ctx -> habilidade(ctx.getSource(), EntityArgument.getPlayer(ctx, "jogador"), StringArgumentType.getString(ctx, "codigo"), 0))))
                                 .then(Commands.literal("nivel").then(Commands.argument("codigo", StringArgumentType.word())
-                                        .then(Commands.argument("nivel", IntegerArgumentType.integer(1, 10))
+                                        .then(Commands.argument("nivel", IntegerArgumentType.integer(1, br.com.frxcode.frxworld.habilidades.Habilidades.NIVEL_MAX))
                                                 .executes(ctx -> habilidade(ctx.getSource(), EntityArgument.getPlayer(ctx, "jogador"),
                                                         StringArgumentType.getString(ctx, "codigo"), IntegerArgumentType.getInteger(ctx, "nivel"))))))
                                 .then(Commands.literal("todas").executes(ctx -> {

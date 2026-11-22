@@ -19,6 +19,8 @@
 | `/levantese` | Atalho de "erguer" as sombras | Classes |
 | `/saldo` | Mostra suas moedas | [Economia](sistemas/economia.md) |
 | `/banco` · `/banco sacar <v>` · `/banco depositar <v>\|tudo` | Banco | Economia |
+| `/frx colecao chefe <jogador> <nome>` | Admin: registra um chefão derrotado na coleção do jogador | Progressão |
+| `/enigma` | Abre o Diário do Enigma (e entrega um novo a quem não tem) | Aventura |
 | `/reputacao` | Reputação com cada reino | [Reinos](sistemas/reinos.md) |
 | `/titulo usar <título>` | Escolhe o título exibido | Reinos |
 | `/rei` | Fala com o rei do reino atual | Reinos |
@@ -54,7 +56,7 @@
 | `/terreno` (jogadores) | Abre o painel de terrenos (reserva para quem não usa o mapa) |
 | `/ping` | Todos: o seu ping até o servidor e o TPS |
 | `/frx ping` | Admin: ping de todos os jogadores online |
-| `/frx ajustar <nick> nivel <n>` · `rank <F..S>` · `torre` | Define nível, rank da Guilda ou zera a Torre do jogador; offline, entra no próximo login |
+| `/frx ajustar <nick> nivel <n>` · `rank <F..S>` · `torre` · `moedas <cobre>` · `item <id> <qtd>` · `chefe <nome>` · `aviso <texto>` | Define nível, rank da Guilda, zera a Torre, entrega moedas ou itens, registra um chefão na coleção ou deixa um recado; offline, entra no próximo login (`frx_ajustes.txt`; moedas pendentes se somam) |
 | `/frx admin <j> habilidade aprender\|esquecer\|nivel\|todas` | Habilidades do jogador |
 | `/frx moedas <j> <cobre>` | Dá moedas (em cobre) |
 | `/frx reputacao ...` | Ajusta reputação |
@@ -114,6 +116,7 @@
 | `/frx runa <tipo> [nível]` | Dá uma runa |
 | `/frx ladrao [jogador]` · `chance <0-1000>` | Solta o ladrão · ajusta a chance |
 | `/frx ronaldinho [jogador]` · `chance <0-1000>` | Chama o Ronaldinho · ajusta a chance |
+| `/frx noel [treno\|perdido\|jogador]` · `chance <0-1000>` | Chama o Papai Noel (trenó ou perdido) · ajusta a chance |
 
 ## Mundo e cidades (15/11)
 
@@ -126,4 +129,7 @@
 | `/frx masmorra entradas [refazer [id]]` | Lista ou refaz as entradas das masmorras |
 | `/frx npc aqui pedreiro` | Coloca o Mestre de Obras (loja de blocos) |
 | `/frx npc aqui clas` · `leiloeiro` · `discos` · `escravos` · `costureira` · `dragoes` | Coloca o Mestre dos Clãs, o Leiloeiro, o Mercador de Discos, o Mercador de Escravos e a Costureira |
+| `/frx encontro viajante` · `mercador` · `estrela` · `bau` · `carta` | Força um encontro ao lado do admin, para testar |
+| `/frx npc recriar <reino>` | Recria os NPCs de um reino sem precisar estar nele (funciona pelo console) |
+| `/frx npc aqui contrabandista` | Coloca o Contrabandista. Só funciona fora das capitais |
 | `/frx populacao refazer` | Remove os moradores carregados e povoa de novo |

@@ -28,7 +28,8 @@ public class TelaClas extends Screen {
     private boolean sacando;
     private final long[] qtd = new long[3];
     private String confirmar = "";
-    private EditBox nome;
+    private EditBox nome, nomeNovo;
+    private String nomeDigitado = "";
 
     public TelaClas(CompoundTag d) {
         super(Component.literal("Mestre dos Clãs"));
@@ -99,7 +100,14 @@ public class TelaClas extends Screen {
             final int idx = i;
             addRenderableWidget(Button.builder(Component.literal("Abrir"), b -> enviar(Clas.ABRIR_CLA, idx)).bounds(x0 + LARG - 70, y0 + 62 + i * 46, 56, 18).build());
         }
-        Button fundar = perigoso("fundar", "Fundar um clã novo", x0 + 10, y0 + ALT - 26, 150, 16, () -> enviar(Clas.FUNDAR, 0));
+        nomeNovo = new EditBox(font, x0 + 11, y0 + ALT - 25, 148, 14, Component.literal("Nome do clã novo"));
+        nomeNovo.setMaxLength(24);
+        nomeNovo.setHint(Component.literal("Nome do clã novo"));
+        nomeNovo.setValue(nomeDigitado);
+        nomeNovo.setResponder(t -> nomeDigitado = t);
+        addRenderableWidget(nomeNovo);
+        Button fundar = perigoso("fundar", "Fundar o clã", x0 + 166, y0 + ALT - 26, 110, 16,
+                () -> Rede.CANAL.sendToServer(new AcaoHabilidade(AcaoHabilidade.FUNDAR_CLA, 0, nomeDigitado)));
         fundar.active = d.getInt("meusQtd") < d.getInt("max");
         addRenderableWidget(fundar);
     }
@@ -225,7 +233,7 @@ public class TelaClas extends Screen {
             faixa(g, c, x0 + 10, y, LARG - 20, 42);
             if (c.getInt("pedidos") > 0) g.drawString(font, c.getInt("pedidos") + " pedido(s)", x0 + LARG - 150, y + 29, VERDE, false);
         }
-        g.drawString(font, "Você pode participar de até " + d.getInt("max") + " clãs.", x0 + 170, y0 + ALT - 22, CINZA, false);
+        g.drawString(font, "máx. " + d.getInt("max") + " clãs", x0 + 284, y0 + ALT - 22, CINZA, false);
     }
 
     private void renderTodos(GuiGraphics g) {

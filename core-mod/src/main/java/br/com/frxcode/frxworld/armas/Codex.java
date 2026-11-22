@@ -60,7 +60,8 @@ public class Codex {
     private static final UUID MOD_DANO = UUID.fromString("2f6c1d7a-9b3e-4f55-8a21-6c0d4e9b7a11");
 
     public record Def(String codigo, String nome, String descricao, String itemBase, int rank, int raridade, double dano, int limite,
-                      boolean ferreiro, int preco, int nivelMin, boolean evolui, double danoPorNivel, boolean umaPorJogador, List<String> encantos, int modelo) { }
+                      boolean ferreiro, int preco, int nivelMin, boolean evolui, double danoPorNivel, boolean umaPorJogador, List<String> encantos, int modelo,
+                      boolean inquebravel, boolean nivelUso) { }
 
     private static volatile Map<String, Def> DEFS = Map.of();
     private static JsonObject estoque = new JsonObject();
@@ -83,7 +84,9 @@ public class Codex {
                             o.get("rank").getAsInt(), o.get("raridade").getAsInt(), o.get("dano").getAsDouble(), o.get("limite").getAsInt(),
                             o.get("ferreiro").getAsBoolean(), o.get("preco").getAsInt(), o.get("nivelMin").getAsInt(),
                             o.get("evolui").getAsBoolean(), o.get("danoPorNivel").getAsDouble(), o.get("umaPorJogador").getAsBoolean(), enc,
-                            o.has("modelo") ? o.get("modelo").getAsInt() : 0);
+                            o.has("modelo") ? o.get("modelo").getAsInt() : 0,
+                            o.has("inquebravel") && o.get("inquebravel").getAsBoolean(),
+                            o.has("nivelUso") && o.get("nivelUso").getAsBoolean());
                     novo.put(d.codigo(), d);
                 } catch (Exception e) { FrxWorld.LOG.warn("Códex: arma inválida vinda do painel: {}", e.toString()); }
             }
@@ -145,7 +148,26 @@ public class Codex {
         avisarPainel();
     }
 
+    /** Maior nível de uso já alcançado por uma unidade deste item (vai para o site, em Armas Únicas). */
+    static void registrarNivelUso(String codigo, int nivel) {
+        if (codigo == null) return;
+        JsonObject l = linha(codigo);
+        if (l.has("nivelUso") && l.get("nivelUso").getAsInt() >= nivel) return;
+        l.addProperty("nivelUso", nivel);
+        gravar();
+    }
+
     private static void avisarPainel() {
+        // armas entregues antes de existir o registro do primeiro dono: vale o primeiro da lista, sem data
+        for (var en : estoque.entrySet()) {
+            if (!en.getValue().isJsonObject()) continue;
+            JsonObject l = en.getValue().getAsJsonObject();
+            if (l.has("primeiro") || !l.has("donos") || l.getAsJsonObject("donos").size() == 0) continue;
+            JsonObject pr = new JsonObject();
+            pr.addProperty("nome", l.getAsJsonObject("donos").entrySet().iterator().next().getValue().getAsString());
+            pr.addProperty("quando", 0);
+            l.add("primeiro", pr);
+        }
         JsonObject corpo = new JsonObject();
         corpo.add("estoque", estoque);
         PainelApi.enviarCodex(corpo);
@@ -164,7 +186,7 @@ public class Codex {
 
     // ------------------------------------------------------------------ o item
 
-    private static void linhaLore(ListTag lore, String texto, ChatFormatting cor) {
+    static void linhaLore(ListTag lore, String texto, ChatFormatting cor) {
         lore.add(StringTag.valueOf(Component.Serializer.toJson(Component.literal(texto).withStyle(st -> st.withItalic(false).withColor(cor)))));
     }
 
@@ -185,8 +207,11 @@ public class Codex {
         if (atual.length() > 0) linhaLore(lore, atual.toString().trim(), ChatFormatting.GRAY);
         double dano = t.getDouble(DANO);
         if (dano > 0) linhaLore(lore, "+" + String.format(java.util.Locale.ROOT, "%.1f", dano) + (s.getItem() instanceof ArmorItem ? " de armadura" : " de dano"), ChatFormatting.RED);
-        if (t.getDouble(POR_NIVEL) > 0)
-            linhaLore(lore, "Evolui com você: +" + String.format(java.util.Locale.ROOT, "%.2f", t.getDouble(POR_NIVEL)) + " por nível (nível " + Math.max(1, t.getInt(NV)) + ")", ChatFormatting.LIGHT_PURPLE);
+        if (t.getDouble(POR_NIVEL) > 0) {
+            linhaLore(lore, "Evolui com o dono: +" + String.format(java.util.Locale.ROOT, "%.2f", t.getDouble(POR_NIVEL)) + (s.getItem() instanceof ArmorItem ? " de armadura" : " de dano"), ChatFormatting.LIGHT_PURPLE);
+            linhaLore(lore, "por nível do personagem (agora " + Math.max(1, t.getInt(NV)) + ")", ChatFormatting.LIGHT_PURPLE);
+        }
+        NivelUso.descrever(s, lore);   // nível do próprio item, que sobe com o uso
         if (t.hasUUID(DONO)) linhaLore(lore, "Vinculada a " + t.getString(DONO_NOME) + ": só ele empunha", ChatFormatting.DARK_PURPLE);
         int num = t.getInt(NUM), total = t.getInt(TOTAL);
         linhaLore(lore, num > 0 ? (total > 0 ? "Arma única · nº " + num + " de " + total : "Arma única · nº " + num) : (total > 0 ? "Arma única · só " + total + " no mundo" : "Arma única"), ChatFormatting.GOLD);
@@ -206,6 +231,8 @@ public class Codex {
         t.putString(DESC, d.descricao());
         if (d.modelo() > 0) t.putInt("CustomModelData", d.modelo());   // aparência desenhada no painel
         t.putDouble(BASE, d.dano());
+        if (d.inquebravel()) t.putBoolean("Unbreakable", true);
+        if (d.nivelUso() && !d.evolui()) t.putBoolean(NivelUso.LIGADO, true);
         int nivel = dono != null && Progressao.temDados(dono) ? Progressao.dados(dono).nivel() : 1;
         if (d.evolui()) {
             t.putDouble(POR_NIVEL, d.danoPorNivel());
@@ -238,6 +265,12 @@ public class Codex {
         if (s.isEmpty()) return s;
         l.addProperty("emitidas", numero);
         l.getAsJsonObject("donos").addProperty(p.getUUID().toString(), p.getGameProfile().getName());
+        if (!l.has("primeiro")) {   // primeiro dono: vai para o mural de armas do site
+            JsonObject pr = new JsonObject();
+            pr.addProperty("nome", br.com.frxcode.frxworld.acesso.Personagens.nome(p));
+            pr.addProperty("quando", System.currentTimeMillis());
+            l.add("primeiro", pr);
+        }
         gravar();
         FrxWorld.LOG.info("Códex: {} nº {} entregue a {}", d.codigo(), numero, p.getGameProfile().getName());
         return s;
@@ -286,7 +319,10 @@ public class Codex {
         }
     }
 
-    /** A cada 2 s: armas que evoluem acompanham o nível do dono. */
+    /**
+     * A cada 2 s: armas que evoluem acompanham o nível do dono, e toda arma do Códex já entregue acompanha o que
+     * está no painel (dano extra e dano por nível): mudar a arma no painel muda também as que já têm dono.
+     */
     @SubscribeEvent
     public void evoluir(TickEvent.PlayerTickEvent ev) {
         if (ev.phase != TickEvent.Phase.END || !(ev.player instanceof ServerPlayer p) || p.tickCount % 40 != 11 || !Progressao.temDados(p)) return;
@@ -295,7 +331,43 @@ public class Codex {
             ItemStack s = p.getInventory().getItem(i);
             if (s.isEmpty() || !s.hasTag()) continue;
             CompoundTag t = s.getTag();
-            if (!t.contains(TAG) || t.getDouble(POR_NIVEL) <= 0 || !t.hasUUID(DONO) || !t.getUUID(DONO).equals(p.getUUID()) || t.getInt(NV) == nivel) continue;
+            if (!t.contains(TAG)) continue;
+            Def d = DEFS.get(t.getString(TAG));
+            boolean mudouPainel = d != null && (Math.abs(t.getDouble(BASE) - d.dano()) > 1e-6 || (t.contains(POR_NIVEL) && Math.abs(t.getDouble(POR_NIVEL) - d.danoPorNivel()) > 1e-6));
+            if (d != null && t.getBoolean("Unbreakable") != d.inquebravel()) {
+                if (d.inquebravel()) { t.putBoolean("Unbreakable", true); s.setDamageValue(0); }
+                else t.remove("Unbreakable");
+                if (d.inquebravel()) p.sendSystemMessage(Component.literal("⚔ ").withStyle(ChatFormatting.GOLD).append(s.getHoverName())
+                        .append(Component.literal(" agora é inquebrável: nunca mais se desgasta.").withStyle(ChatFormatting.GOLD)));
+            }
+            // modo de evoluir trocado no painel: "com o jogador" liga ou desliga também nos itens que já têm dono
+            if (d != null && !d.evolui() && t.contains(POR_NIVEL)) {
+                t.remove(POR_NIVEL); t.remove(NV); t.remove(DONO); t.remove(DONO_NOME);
+                t.putDouble(DANO, t.getDouble(BASE));
+                t.putBoolean(NivelUso.MUDOU, true);
+            } else if (d != null && d.evolui() && !t.contains(POR_NIVEL)) {
+                t.putDouble(POR_NIVEL, d.danoPorNivel());
+                t.putInt(NV, nivel);
+                t.putUUID(DONO, p.getUUID());
+                t.putString(DONO_NOME, p.getGameProfile().getName());
+                t.putDouble(DANO, t.getDouble(BASE) + d.danoPorNivel() * nivel);
+                t.putBoolean(NivelUso.MUDOU, true);
+            }
+            if (d != null && t.getBoolean(NivelUso.LIGADO) != (d.nivelUso() && !d.evolui())) {   // opção ligada ou desligada no painel
+                if (d.nivelUso() && !d.evolui()) t.putBoolean(NivelUso.LIGADO, true); else t.remove(NivelUso.LIGADO);
+                t.putBoolean(NivelUso.MUDOU, true);
+            }
+            if (t.getBoolean(NivelUso.MUDOU)) { t.remove(NivelUso.MUDOU); descrever(s); }
+            if (mudouPainel) {
+                t.putDouble(BASE, d.dano());
+                if (t.contains(POR_NIVEL)) t.putDouble(POR_NIVEL, d.danoPorNivel());
+                double novo = d.dano() + (t.contains(POR_NIVEL) ? t.getDouble(POR_NIVEL) * Math.max(1, t.getInt(NV)) : 0);
+                t.putDouble(DANO, novo);
+                descrever(s);
+                p.sendSystemMessage(Component.literal("⚔ ").withStyle(ChatFormatting.GOLD).append(s.getHoverName())
+                        .append(Component.literal(" foi reforjada: agora dá +" + String.format(java.util.Locale.ROOT, "%.1f", novo) + " de dano.").withStyle(ChatFormatting.GOLD)));
+            }
+            if (t.getDouble(POR_NIVEL) <= 0 || !t.hasUUID(DONO) || !t.getUUID(DONO).equals(p.getUUID()) || t.getInt(NV) == nivel) continue;
             boolean subiu = nivel > t.getInt(NV);
             t.putInt(NV, nivel);
             t.putDouble(DANO, t.getDouble(BASE) + t.getDouble(POR_NIVEL) * nivel);

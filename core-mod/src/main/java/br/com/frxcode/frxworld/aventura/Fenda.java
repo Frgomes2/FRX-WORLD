@@ -205,8 +205,21 @@ public class Fenda {
         insts.remove(i.vaga);
     }
 
+    /** Leva o jogador ao centro da sala, em pé no chão (nova câmara ou queda para fora da sala). */
+    private static void aoCentro(ServerPlayer p, Inst i) {
+        BlockPos o = i.centro();
+        p.teleportTo(p.serverLevel(), o.getX() + 0.5, Y + 1, o.getZ() + 0.5, p.getYRot(), 0);
+        p.fallDistance = 0;
+    }
+
     private static void tickInst(MinecraftServer s, ServerLevel n, Inst i, long agora) {
         AABB caixa = i.caixa();
+        // quem caiu para fora da sala (o chão de uma câmara menor sumiu, por exemplo) volta ao centro em vez de ser expulso
+        for (ServerPlayer p : membros(s, i)) {
+            if (!p.isAlive() || p.level() != n) continue;
+            boolean emCima = p.getX() >= caixa.minX - 4 && p.getX() <= caixa.maxX + 4 && p.getZ() >= caixa.minZ - 4 && p.getZ() <= caixa.maxZ + 4;
+            if (emCima && p.getY() < Y - 1) aoCentro(p, i);
+        }
         i.membros.removeIf(u -> {
             ServerPlayer p = s.getPlayerList().getPlayer(u);
             return p == null || !p.isAlive() || p.level() != n || !caixa.inflate(4).contains(p.position());
@@ -234,6 +247,7 @@ public class Fenda {
         i.etapa++;
         i.fase = Fase.PAUSA;
         i.ate = agora + 6000;
+        for (ServerPlayer p : gente) aoCentro(p, i);   // a câmara nova pode ser menor: ninguém fica sem chão
         montar(n, i);
         for (ServerPlayer p : gente) {
             p.heal(p.getMaxHealth() * 0.25f);

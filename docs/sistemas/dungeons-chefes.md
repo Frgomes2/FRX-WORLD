@@ -47,7 +47,7 @@
 ## Chefes e estruturas de mods (`dungeon/Externos.java`)
 
 - Cadastro no painel (menu **Chefes de mods**, modelos `ChefeExterno` e `EstruturaExterna`).
-- Chefe de outro mod morto paga XP e loot do FRX a quem estava perto (com recarga por jogador) e conta para missões. Recebe rank `[Chefe]`.
+- Chefe de outro mod morto paga a quem estava perto e conta para missões. Prêmio **uma vez por recarga** por jogador (moedas, XP e loot). **Moedas pela dificuldade** (`Recompensa.chefaoExterno`): nível < 40 = 20 cobre por nível (Aptrgangr 30 = 6 ouro); 40 a 54 = 50 por nível (Frostmaw 40 = 20 ouro); 55 ou mais, os especiais = 3 × nível² (Ignis 60 = 108 ouro, Tremorzilla 80 = 192 ouro). Catacumbas: `masmorras.moedasPorNivel` (padrão 40 cobre) × nível do chefão; a XP cresce com o nível de quem lutou: XP do painel × (1 + nível/50). Recebe rank `[Chefe]`.
 - Ao entrar numa estrutura cadastrada, o jogador vê o nome e o nível recomendado.
 
 ## Chefe mundial (`eventos/ChefeMundial.java`)

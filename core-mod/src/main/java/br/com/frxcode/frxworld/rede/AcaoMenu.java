@@ -33,6 +33,8 @@ public record AcaoMenu(String tipo, int npc, int acao, long valor) {
         else if (tipo.equals("personagens")) br.com.frxcode.frxworld.acesso.Personagens.acao(p, this);
         else if (tipo.equals("escravos")) br.com.frxcode.frxworld.reinos.Escravos.acao(p, this);
         else if (tipo.equals("costureira")) br.com.frxcode.frxworld.reinos.Costureira.acao(p, this);
+        else if (tipo.equals("contrabando")) br.com.frxcode.frxworld.reinos.Contrabando.acao(p, this);
+        else if (tipo.equals("desencanto")) br.com.frxcode.frxworld.reinos.Desencanto.acao(p, this);
         else if (tipo.equals("dragoes")) br.com.frxcode.frxworld.reinos.Dragoes.acao(p, this);
         else if (tipo.equals("codigosite")) br.com.frxcode.frxworld.acesso.CodigoSite.abrir(p);
         else if (tipo.equals("bolsos")) br.com.frxcode.frxworld.reinos.Costureira.abrirBolsos(p);

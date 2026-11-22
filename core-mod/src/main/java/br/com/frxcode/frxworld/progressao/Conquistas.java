@@ -52,7 +52,7 @@ public class Conquistas {
         c("aranhas", "Aracnofóbico", "Derrote 50 aranhas", "c:aranhas", 50, "", "minecraft:spider", "minecraft:cave_spider");
         c("creepers", "Desarmador", "Derrote 50 creepers", "c:creepers", 50, "Desarmador", "minecraft:creeper");
         c("endermen", "Olhar Firme", "Derrote 50 endermen", "c:endermen", 50, "", "minecraft:enderman");
-        c("dragao_end", "Matador de Dragões", "Derrote o Dragão do Fim", "c:dragao_end", 1, "Matador de Dragões", "minecraft:ender_dragon");
+        c("dragao_end", "Matador de Dragões", "Ajude a derrotar o Dragão do Fim", "c:dragao_end", 1, "Matador de Dragões", "minecraft:ender_dragon");
         c("wither", "Ruína do Wither", "Derrote o Wither", "c:wither", 1, "Ruína do Wither", "minecraft:wither");
         c("dragoes", "Domador de Dragões", "Derrote um dragão de Ice and Fire", "c:dragoes", 1, "Domador de Dragões",
                 "iceandfire:fire_dragon", "iceandfire:ice_dragon", "iceandfire:lightning_dragon");

@@ -191,7 +191,7 @@ function Clas({ clas, abrir }: { clas: DadosPublicos["clas"]; abrir: (n: string)
 
 /** Atalhos do cabeçalho: os principais ficam à vista; os outros, na lista "Mais". */
 const NAV_PRINCIPAL = [["#aventureiros", "Aventureiros"], ["#rankings", "Rankings"], ["#mural", "Mural"], ["#clas", "Clãs"], ["#mapa", "Mapa"], ["#biblioteca", "Biblioteca"]] as const;
-const NAV_MAIS = [["#agora", "Agora no servidor", "🟢"], ["#bestiario", "Bestiário", "🐉"], ["#mundo", "O mundo", "🌍"], ["#mods", "Mods", "🧩"], ["#cronicas", "Crônicas", "📜"], ["#novidades", "Novidades", "📰"], ["#entrar", "Como entrar", "🚪"]] as const;
+const NAV_MAIS = [["#armas", "Armas Únicas", "⚔️"], ["#agora", "Agora no servidor", "🟢"], ["#bestiario", "Bestiário", "🐉"], ["#mundo", "O mundo", "🌍"], ["#mods", "Mods", "🧩"], ["#cronicas", "Crônicas", "📜"], ["#novidades", "Novidades", "📰"], ["#entrar", "Como entrar", "🚪"]] as const;
 
 export function SitePublico({ inicial, mods, mapa, notas, livros, bestiario }: { inicial: DadosPublicos | null; mods: ModPublico[]; mapa: MapaDados; notas: NotaAtualizacao[]; livros: Livro[]; bestiario: CriaturaPublica[] }) {
   const [todasNotas, setTodasNotas] = useState(false);
@@ -312,7 +312,7 @@ export function SitePublico({ inicial, mods, mapa, notas, livros, bestiario }: {
           </p>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-pergaminho/80">{momento[2]}</p>
           <a href="#entrar" className="mt-6 inline-block rounded-lg bg-gradient-to-b from-ouro to-ouro-escuro px-7 py-3 font-titulo text-lg uppercase tracking-[0.15em] text-pedra-950 shadow-lg shadow-black/50 transition hover:-translate-y-0.5 hover:brightness-110">Entrar no mundo</a>
-          <div className="mx-auto mt-8 grid max-w-3xl grid-cols-2 gap-3 md:grid-cols-4">
+          <div className="mx-auto mt-8 grid max-w-3xl grid-cols-2 gap-3 md:grid-cols-3">
             <button type="button" onClick={() => setVerOnline((v) => !v)} aria-expanded={verOnline}
               className={`rounded-xl border bg-pedra-900/80 px-3 py-4 transition hover:-translate-y-0.5 hover:border-ouro ${verOnline ? "border-ouro" : "border-pedra-700"}`}>
               <p className="font-titulo text-3xl text-ouro">{online ? `${d?.onlineAgora.length ?? 0}/${s?.maxJogadores ?? "?"}` : "—"}</p>
@@ -327,6 +327,19 @@ export function SitePublico({ inicial, mods, mapa, notas, livros, bestiario }: {
                 <p className="font-titulo text-3xl text-ouro"><Subindo valor={n} /></p>
                 <p className="text-xs text-pedra-500">{r}</p>
               </a>
+            ))}
+            {([
+              ["memória do servidor", online && s && s.memMaxMb > 0 ? Math.round((s.memUsadaMb / s.memMaxMb) * 100) : null,
+                online && s && s.memMaxMb > 0 ? `${(s.memUsadaMb / 1024).toFixed(1).replace(".", ",")} de ${(s.memMaxMb / 1024).toFixed(1).replace(".", ",")} GB` : ""],
+              ["processador do servidor", online && s ? s.cpu : null, ""],
+            ] as [string, number | null, string][]).map(([r, pct, detalhe]) => (
+              <div key={r} title={detalhe || undefined} className="rounded-xl border border-pedra-700 bg-pedra-900/80 px-3 py-4">
+                <p className={`font-titulo text-3xl ${pct !== null && pct >= 90 ? "text-red-400" : "text-ouro"}`}>{pct === null ? "—" : `${pct}%`}</p>
+                <div className="mx-auto mt-1 h-1 w-3/4 overflow-hidden rounded-full bg-pedra-800">
+                  <div className={`h-full rounded-full transition-all duration-700 ${pct !== null && pct >= 90 ? "bg-red-400" : "bg-ouro"}`} style={{ width: `${pct ?? 0}%` }} />
+                </div>
+                <p className="mt-1 text-xs text-pedra-500">{r}{detalhe ? ` · ${detalhe}` : ""}</p>
+              </div>
             ))}
           </div>
           {verOnline && (
@@ -456,6 +469,43 @@ export function SitePublico({ inicial, mods, mapa, notas, livros, bestiario }: {
               );
             })}
           </div>
+        </div>
+
+        <div id="armas" className="scroll-mt-20">
+          <h2 className="font-titulo text-3xl">Armas Únicas</h2>
+          <p className="mb-4 text-sm text-pedra-500">As armas do Códex existem em número limitado no mundo inteiro. Aqui fica gravado quem pôs as mãos na primeira de cada uma.</p>
+          {!(d?.armas ?? []).length ? (
+            <p className="rounded-xl border border-dashed border-pedra-700 bg-pedra-900/60 px-4 py-6 text-center text-sm text-pedra-500">Nenhuma arma única tem dono ainda. A primeira lenda está esperando alguém.</p>
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {(d?.armas ?? []).map((a) => {
+                const cor = ["#cfc6b4", "#4ade80", "#60a5fa", "#c084fc", "#f5b041"][Math.max(0, Math.min(4, a.raridade))];
+                const raridade = ["Comum", "Incomum", "Raro", "Épico", "Lendário"][Math.max(0, Math.min(4, a.raridade))];
+                return (
+                  <div key={a.codigo} className="flex gap-3 rounded-xl border bg-gradient-to-br from-pedra-800 to-pedra-900 p-4" style={{ borderColor: cor }}>
+                    <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg border border-pedra-700 bg-pedra-950" style={{ boxShadow: `0 0 18px ${cor}55` }}>
+                      {a.textura
+                        // eslint-disable-next-line @next/next/no-img-element
+                        ? <img src={a.textura} alt="" width={48} height={48} style={{ imageRendering: "pixelated" }} />
+                        : <span className="text-3xl" aria-hidden="true">⚔️</span>}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-xs uppercase tracking-wider" style={{ color: cor }}>{raridade}{a.limite > 0 ? ` · ${a.emitidas} de ${a.limite} no mundo` : ""}</span>
+                      <span className="block truncate font-titulo text-lg" style={{ color: cor }}>{a.nome}</span>
+                      {a.nivel >= 0 && <span className="block text-xs text-ouro" title="Nível do item: sobe com o uso">Nível {a.nivel} <span className="tracking-tighter">{"★".repeat(a.nivel)}<span className="text-pedra-600">{"☆".repeat(Math.max(0, 10 - a.nivel))}</span></span></span>}
+                      {a.descricao && <span className="line-clamp-2 block text-xs text-pedra-500">{a.descricao}</span>}
+                      <span className="mt-1 flex items-center gap-2 text-sm">
+                        <span className="text-pedra-500">1º dono:</span>
+                        {a.conta && <Skin nick={a.conta} tam={18} />}
+                        <button type="button" onClick={() => abrir(a.conta ? `${a.conta}#${a.vaga}` : a.primeiro)} className="truncate font-semibold hover:text-ouro">{a.primeiro}</button>
+                        {a.quando && <span className="shrink-0 text-xs text-pedra-500">{new Date(a.quando).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })}</span>}
+                      </span>
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         <div id="rankings" className="scroll-mt-20">

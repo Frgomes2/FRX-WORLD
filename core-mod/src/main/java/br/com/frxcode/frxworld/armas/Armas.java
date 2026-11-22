@@ -50,7 +50,7 @@ public class Armas {
     // ------------------------------------------------------------------ dados do item
 
     public static boolean forjavel(ItemStack s) {
-        if (s.isEmpty() || s.getMaxStackSize() != 1 || !s.isDamageableItem()) return false;
+        if (s.isEmpty() || s.getMaxStackSize() != 1 || s.getMaxDamage() <= 0) return false;
         if (s.getItem() instanceof ArmorItem || s.getItem() instanceof ProjectileWeaponItem || s.getItem() instanceof ShieldItem) return true;
         return !s.getItem().getDefaultAttributeModifiers(EquipmentSlot.MAINHAND).get(Attributes.ATTACK_DAMAGE).isEmpty();
     }

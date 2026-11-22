@@ -367,7 +367,7 @@ public class TelaStatus extends Screen {
     }
 
     private void renderReinos(GuiGraphics g) {
-        cabecalho(g, "REINOS  ·  reputação com cada capital");
+        cabecalho(g, "REINOS  ·  reputação: ajudar um reino desagrada o rival");
         JsonArray rs = arr(d(), "reinos");
         int y = y0 + 30 - rolagem, h = 26;
         maxRolagem = Math.max(0, rs.size() * h - (alt - 40));
@@ -375,13 +375,18 @@ public class TelaStatus extends Screen {
         for (JsonElement e : rs) {
             JsonObject r = e.getAsJsonObject();
             int pts = (int) n(r, "pontos"), min = (int) n(r, "minimo"), prox = (int) n(r, "proximo"), idx = (int) n(r, "indice");
-            int cor = new int[]{CINZA, VERDE, 0xFF5FC8E0, 0xFF6C8CFF, ROXO, OURO}[Math.max(0, Math.min(5, idx))];
+            int hostil = (int) n(r, "hostil");
+            int cor = hostil > 0 ? new int[]{CINZA, 0xFFE0B040, 0xFFE0523F, 0xFFA01818}[Math.min(3, hostil)]
+                    : new int[]{CINZA, VERDE, 0xFF5FC8E0, 0xFF6C8CFF, ROXO, OURO}[Math.max(0, Math.min(5, idx))];
             g.drawString(font, s(r, "nome"), x0 + 10, y, TEXTO, false);
-            String nv = s(r, "nivel") + ((int) n(r, "desconto") > 0 ? "  (−" + (int) n(r, "desconto") + "% nas lojas)" : "");
+            if (!s(r, "rival").isEmpty()) g.drawString(font, "⚔ rival de " + s(r, "rival"), x0 + 16 + font.width(s(r, "nome")), y, CINZA, false);
+            String nv = s(r, "nivel") + ((int) n(r, "desconto") > 0 ? "  (−" + (int) n(r, "desconto") + "% nas lojas)"
+                    : (int) n(r, "acrescimo") > 0 ? "  (+" + (int) n(r, "acrescimo") + "% nas lojas)" : "");
             g.drawString(font, nv, x0 + larg - 10 - font.width(nv), y, cor, false);
-            double frac = prox < 0 ? 1 : (pts - min) / (double) Math.max(1, prox - min);
+            boolean topo = b(r, "topo");
+            double frac = topo ? 1 : (pts - min) / (double) Math.max(1, prox - min);
             barra(g, x0 + 10, y + 11, larg - 20, 7, frac, cor, null);
-            String txt = prox < 0 ? pts + " pts (máximo)" : pts + " / " + prox + " pts";
+            String txt = topo ? pts + " pts (máximo)" : pts + " / " + prox + " pts";
             g.drawString(font, txt, x0 + larg - 12 - font.width(txt), y + 11, TEXTO, false);
             y += h;
         }

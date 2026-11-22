@@ -21,9 +21,14 @@ export const PAPEIS = [
   { id: "escravos", nome: "Mercador de Escravos (aldeões)", icone: "⛓️" },
   { id: "costureira", nome: "Costureira (bolsos na calça)", icone: "🧵" },
   { id: "dragoes", nome: "Criador de Dragões (ovos)", icone: "🐉" },
+  { id: "aprendiz_ferreiro", nome: "Aprendiz do Ferreiro (à noite)", icone: "🔨" },
+  { id: "aprendiz_armeiro", nome: "Aprendiz do Armeiro (à noite)", icone: "🪖" },
+  { id: "aprendiz_mercador", nome: "Aprendiz do Mercador (à noite)", icone: "🧺" },
+  { id: "contrabandista", nome: "Contrabandista (fora das capitais)", icone: "☠️" },
   { id: "guarda", nome: "Guarda", icone: "⚔️" },
   { id: "morador", nome: "Moradores", icone: "🏘️" },
   { id: "craque", nome: "Ronaldinho (evento raro)", icone: "⚽" },
+  { id: "noel", nome: "Papai Noel (evento raro)", icone: "🎅" },
   { id: "ladrao", nome: "Ladrão (evento raro)", icone: "🪙" },
 ] as const;
 
@@ -49,4 +54,4 @@ export const NOMES_NPC: Record<string, Partial<Record<Papel, string>>> = {
 
 export const chavePadrao = (papel: string) => `papel:${papel}`;
 export const chaveReino = (reino: string, papel: string) => `reino:${reino}:${papel}`;
-export const CHAVE_VALIDA = /^(papel:[a-z]+|reino:[a-z-]+:[a-z]+)$/;
+export const CHAVE_VALIDA = /^(papel:[a-z_]+|reino:[a-z-]+:[a-z_]+)$/;

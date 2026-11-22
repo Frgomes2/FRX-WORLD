@@ -128,6 +128,13 @@ public class TelaSombras extends Screen {
         Button recolher = Button.builder(Component.literal("Recolher todas"), b -> enviar(AcaoSombra.GUARDAR_TODAS, 0, "")).bounds(x0 + 122, by, 110, 18).build();
         recolher.active = ClienteSombras.ativas > 0;
         addRenderableWidget(recolher);
+        Button pvp = Button.builder(ClienteSombras.pvp ? Component.literal("⚔ Dano em jogadores: ligado").withStyle(ChatFormatting.RED)
+                : Component.literal("☮ Dano em jogadores: desligado").withStyle(ChatFormatting.GREEN), b -> enviar(AcaoSombra.ALTERNAR_PVP, 0, ""))
+                .bounds(x0 + 236, by, LARG - 244, 18).build();
+        pvp.setTooltip(Tooltip.create(Component.literal(ClienteSombras.pvp
+                ? "Ligado: suas invocações ferem jogadores e jogadores podem ferir suas invocações. Clique para desligar."
+                : "Desligado: suas invocações não ferem jogadores e ninguém fere suas invocações (bom para dungeons em grupo). Clique para ligar.")));
+        addRenderableWidget(pvp);
 
         // teclas rápidas: clique e aperte a tecla nova
         int tx = x0 + 52, ty = y0 + ALT - 20;

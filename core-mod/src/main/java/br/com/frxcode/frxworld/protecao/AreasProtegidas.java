@@ -111,7 +111,24 @@ public class AreasProtegidas {
      * Quem está no criativo, de espectador ou é operador não conta (conhece o caminho ou chegou voando).
      */
     private static void chegou(ServerLevel nivel, String area, net.minecraft.server.level.ServerPlayer p) {
-        if (!p.isAlive() || p.isCreative() || p.isSpectator() || p.hasPermissions(2)) return;
+        if (p.hasPermissions(2)) return;
+        Boolean primeiro = registrar(nivel, area, p);
+        if (primeiro == null) return;
+        if (primeiro) {
+            nivel.getServer().getPlayerList().broadcastSystemMessage(Component.literal("✦ " + br.com.frxcode.frxworld.acesso.Personagens.nome(p) + " foi o primeiro a chegar ao coração do Labirinto do Dragão! ✦").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD), false);
+            nivel.playSound(null, p.blockPosition(), net.minecraft.sounds.SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, net.minecraft.sounds.SoundSource.PLAYERS, 1f, 1f);
+        } else {
+            p.displayClientMessage(Component.literal("Você chegou ao coração do labirinto. Aqui dentro nenhum monstro entra.").withStyle(ChatFormatting.GOLD), false);
+        }
+    }
+
+    /**
+     * Registra a primeira chegada do personagem a um marco (área de refúgio, enigma...) em frx_chegadas.json.
+     * Devolve true se foi o primeiro do servidor, false se não, null se já estava registrado ou não conta
+     * (criativo, espectador, morto). Quem chama decide se operadores contam.
+     */
+    public static Boolean registrar(ServerLevel nivel, String area, net.minecraft.server.level.ServerPlayer p) {
+        if (!p.isAlive() || p.isCreative() || p.isSpectator()) return null;
         if (chegadas == null) {
             chegadas = new com.google.gson.JsonObject();
             try {
@@ -124,7 +141,7 @@ public class AreasProtegidas {
         if (!a.has("todos")) a.add("todos", new com.google.gson.JsonObject());
         com.google.gson.JsonObject todos = a.getAsJsonObject("todos");
         String id = br.com.frxcode.frxworld.acesso.Personagens.id(p).toString();
-        if (todos.has(id)) return;
+        if (todos.has(id)) return null;
         String nome = br.com.frxcode.frxworld.acesso.Personagens.nome(p);
         com.google.gson.JsonObject eu = new com.google.gson.JsonObject();
         eu.addProperty("nome", nome);
@@ -134,13 +151,8 @@ public class AreasProtegidas {
         if (primeiro) a.add("primeiro", eu.deepCopy());
         try { Files.writeString(arquivoChegadas(nivel), chegadas.toString(), StandardCharsets.UTF_8); }
         catch (Exception e) { FrxWorld.LOG.warn("Chegadas: não gravei frx_chegadas.json: {}", e.toString()); }
-        FrxWorld.LOG.info("Chegadas: {} chegou ao refúgio de {}{}.", nome, area, primeiro ? " (primeiro do servidor)" : "");
-        if (primeiro) {
-            nivel.getServer().getPlayerList().broadcastSystemMessage(Component.literal("✦ " + nome + " foi o primeiro a chegar ao coração do Labirinto do Dragão! ✦").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD), false);
-            nivel.playSound(null, p.blockPosition(), net.minecraft.sounds.SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, net.minecraft.sounds.SoundSource.PLAYERS, 1f, 1f);
-        } else {
-            p.displayClientMessage(Component.literal("Você chegou ao coração do labirinto. Aqui dentro nenhum monstro entra.").withStyle(ChatFormatting.GOLD), false);
-        }
+        FrxWorld.LOG.info("Chegadas: {} chegou a {}{}.", nome, area, primeiro ? " (primeiro do servidor)" : "");
+        return primeiro;
     }
 
     /** A cada segundo tira os monstros que entraram num refúgio. */

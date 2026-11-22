@@ -352,14 +352,14 @@ public class Habilidades {
         d.definirRecurso(d.recurso() - custo);
         Cartas.aposCusto(p, custo);   // Ouros e Coringa devolvem parte da mana
         Despertar.gastouRecurso(p, custo);
-        int totalMs = (int) Math.max(250, h.recarga() * 1000 * (1 - 0.03 * (reg.nivel - 1)) * Math.max(0.4, 1 - Talentos.bonus(p, Talentos.Atributo.RECARGA)));
+        int totalMs = (int) Math.max(250, h.recarga() * 1000 * (1 - ganho(reg.nivel, 0.03, 0.01)) * Math.max(0.4, 1 - Talentos.bonus(p, Talentos.Atributo.RECARGA)));
         if (Especiais.consumirReembolso(p)) totalMs = Math.min(totalMs, 1000);
         rc.put(cod, agora + totalMs);
         enviar(p, new SyncRecarga(cod, totalMs, totalMs));
         enviarRecurso(p, true);
 
         reg.usos++;
-        int novo = Math.min(10, 1 + (int) Math.sqrt(reg.usos / 5.0));
+        int novo = Math.min(NIVEL_MAX, 1 + (int) Math.sqrt(reg.usos / 5.0));
         if (novo > reg.nivel) {
             reg.nivel = novo;
             p.sendSystemMessage(Component.literal(h.nome() + " subiu para o nível " + novo + "!").withStyle(ChatFormatting.LIGHT_PURPLE));
@@ -368,8 +368,20 @@ public class Habilidades {
         }
     }
 
+    /** Nível máximo de cada habilidade. Nível n pede 5 × (n − 1)² usos (10 = 405, 20 = 1805, 30 = 4205). */
+    public static final int NIVEL_MAX = 30;
+
+    /**
+     * Ganho acumulado do nível da habilidade: "ate10" por nível do 2 ao 10 (igual ao que sempre foi) e "depois"
+     * por nível do 11 ao 30, menor, para o nível 30 não virar recarga zero nem dano triplicado.
+     */
+    static double ganho(int nivel, double ate10, double depois) {
+        int n = Math.max(1, Math.min(NIVEL_MAX, nivel));
+        return ate10 * (Math.min(n, 10) - 1) + depois * Math.max(0, n - 10);
+    }
+
     private static boolean executar(ServerPlayer p, HabilidadeDef h, int nivelHab) {
-        double mult = (1 + 0.03 * (Progressao.dados(p).nivel() - 1)) * (1 + 0.08 * (nivelHab - 1)) * Talentos.fator(p, Talentos.Atributo.DANO_HAB);
+        double mult = (1 + 0.03 * (Progressao.dados(p).nivel() - 1)) * (1 + ganho(nivelHab, 0.08, 0.03)) * Talentos.fator(p, Talentos.Atributo.DANO_HAB);
         if (h.efeito().startsWith("frx:")) {
             Boolean especial = Especiais.executar(p, h, mult);
             if (especial != null) return especial;
@@ -534,8 +546,8 @@ public class Habilidades {
         ServerLevel nivel = p.serverLevel();
         double talento = Talentos.fator(p, Talentos.Atributo.INVOCACAO);
         int nh = Math.max(1, nivelHab), nj = Progressao.temDados(p) ? Math.max(1, Progressao.dados(p).nivel()) : 1;
-        double forca = talento * (1 + 0.10 * (nh - 1)) * (1 + 0.04 * (nj - 1));
-        long expira = nivel.getGameTime() + (long) Math.max(100, h.duracao() * 20 * talento * (1 + 0.05 * (nh - 1)));
+        double forca = talento * (1 + ganho(nh, 0.10, 0.04)) * (1 + 0.04 * (nj - 1));
+        long expira = nivel.getGameTime() + (long) Math.max(100, h.duracao() * 20 * talento * (1 + ganho(nh, 0.05, 0.02)));
         int qtd = Math.max(1, h.potencia());
         int criados = 0;
         for (int i = 0; i < qtd; i++) {

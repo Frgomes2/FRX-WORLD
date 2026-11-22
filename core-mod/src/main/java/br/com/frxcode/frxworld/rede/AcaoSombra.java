@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 /** Cliente → servidor: comandos do exército de sombras pela tela ou pelas teclas rápidas. */
 public record AcaoSombra(int acao, int numero, String id) {
     public static final int PEDIR = 0, INVOCAR = 1, GUARDAR = 2, INVOCAR_TODAS = 3, GUARDAR_TODAS = 4, LIBERTAR = 5,
-            DEFINIR_ATALHO = 6, USAR_ATALHO = 7, MARCAR_ALVO = 8;
+            DEFINIR_ATALHO = 6, USAR_ATALHO = 7, MARCAR_ALVO = 8, ALTERNAR_PVP = 9;
 
     public void codificar(FriendlyByteBuf b) { b.writeVarInt(acao); b.writeVarInt(numero); b.writeUtf(id, 16); }
 

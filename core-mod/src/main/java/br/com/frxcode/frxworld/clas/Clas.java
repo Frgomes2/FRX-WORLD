@@ -258,6 +258,8 @@ public class Clas {
         String tela = "meus";
         UUID cla;
         int aba;
+        /** Nome digitado na tela para o clã que está sendo fundado (null = "Clã de Fulano"). */
+        String nomeNovo;
         List<UUID> clas = new ArrayList<>();
         List<UUID> membros = new ArrayList<>();
         List<UUID> pedidos = new ArrayList<>();
@@ -415,7 +417,8 @@ public class Clas {
                 else if (sozinho != null) { msg = "Você já tem um clã só seu (" + sozinho.nome + "). Chame alguém antes de fundar outro."; ok = false; }
                 else {
                     Cla novo = new Cla();
-                    novo.nome = limparNome("Clã de " + nick);
+                    novo.nome = s.nomeNovo != null ? s.nomeNovo : limparNome("Clã de " + nick);
+                    s.nomeNovo = null;
                     novo.cor = java.util.concurrent.ThreadLocalRandom.current().nextInt(CORES.length);
                     novo.lider = eu;
                     novo.membros.put(eu, "lider");
@@ -534,6 +537,23 @@ public class Clas {
         }
         if (!msg.isEmpty()) som(p, ok);
         enviar(p, s, msg, ok);
+    }
+
+    /** Fundar um clã com o nome digitado na tela (vazio = "Clã de Fulano"). Chega por AcaoHabilidade, que leva texto. */
+    public static void fundar(ServerPlayer p, String texto) {
+        Sessao s = SESSOES.get(p.getUUID());
+        if (s == null || sessao(p, s.npc) == null) return;
+        String novo = texto == null ? "" : texto.replaceAll("[\\p{Cntrl}§]", "").trim();
+        s.nomeNovo = null;
+        if (!novo.isEmpty()) {
+            String erro = null;
+            if (novo.length() < 3 || novo.length() > 24) erro = "O nome do clã precisa ter de 3 a 24 letras.";
+            else for (Cla o : CLAS.values()) if (o.nome.equalsIgnoreCase(novo)) erro = "Já existe um clã com esse nome.";
+            if (erro != null) { som(p, false); enviar(p, s, erro, false); return; }
+            s.nomeNovo = novo;
+        }
+        acao(p, new br.com.frxcode.frxworld.rede.AcaoMenu("clas", s.npc, FUNDAR, 0));
+        s.nomeNovo = null;
     }
 
     /** O líder digitou um nome novo na tela (chega por AcaoHabilidade, que leva texto). */

@@ -117,6 +117,8 @@ public class Procurados {
     }
 
     private static void anunciar(ServerPlayer p) {
+        boolean jogadores = br.com.frxcode.frxworld.reinos.Hostilidade.listar(p);
+        if (alvo == null && jogadores) return;
         if (alvo == null) { p.sendSystemMessage(Component.literal("O mural da Guilda está vazio no momento.").withStyle(ChatFormatting.GRAY)); return; }
         long resta = Math.max(0, (limite - System.currentTimeMillis()) / 60_000);
         p.sendSystemMessage(Component.literal("☠ PROCURADO: " + nome + " (nível " + nivel + ") — recompensa " + xp() + " XP, runa e mapa. Restam " + resta + " min.")

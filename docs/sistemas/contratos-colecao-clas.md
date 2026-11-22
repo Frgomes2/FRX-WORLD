@@ -35,9 +35,9 @@ Para quem está registrado na Guilda: **3 contratos por dia** e **1 por semana**
 - Os clãs são do próprio mod (`clas/Clas.java`) e ficam em `<mundo>/frx_clas.json`. O FTB Teams só aceita um time por jogador, por isso deixou de ser a base; os times que existiam nele são importados uma única vez (`clas/FtbTeams.java`, por reflexão), com membros e cofre.
 - Um jogador participa de **até 3 clãs** ao mesmo tempo; cada clã tem até 30 membros.
 - **Mestre dos Clãs** (NPC de papel `clas`; o admin coloca com `/frx npc aqui clas` dentro de uma capital). Tudo em janelas:
-  - **Balcão:** os clãs do jogador, a lista de todos (do mais forte ao mais fraco, com líder, membros, poder, riqueza e cofre; clicar pede entrada ou cancela o pedido) e **fundar** o "Clã de Fulano".
+  - **Balcão:** os clãs do jogador, a lista de todos (do mais forte ao mais fraco, com líder, membros, poder, riqueza e cofre; clicar pede entrada ou cancela o pedido) e **fundar** um clã com o nome digitado no campo ao lado do botão (3 a 24 letras, sem repetir nome; em branco vira "Clã de Fulano").
   - **Página do clã:** ficha, **cofre**, **membros**, **pedidos** (líder e oficiais aceitam ou recusam; quem é aceito entra na hora, mesmo fora do jogo) e **sair** (Shift + clique).
-  - **Líder:** muda o **nome** segurando uma etiqueta renomeada na bigorna (3 a 24 letras; a etiqueta é gasta), troca a **cor**, torna membros **oficiais**, **expulsa** (Shift + clique) e **passa a liderança** clicando no membro com um bloco de ouro na mão.
+  - **Líder:** muda o **nome** na aba **Gerir** (campo de texto e botão "Mudar o nome"; 3 a 24 letras, sem repetir nome), troca a **cor**, torna membros **oficiais**, **expulsa** (Shift + clique) e **passa a liderança** clicando no membro com um bloco de ouro na mão.
   - O líder só sai depois de passar a liderança, a não ser que esteja sozinho. O último a sair leva o que restou no cofre, e o clã deixa de existir.
 - **Cofre do clã:** moedas separadas do banco de cada um. Qualquer membro deposita (1 prata, 1 ouro, 10 ouro, 100 ouro ou tudo). O saque é de qualquer membro por padrão; o líder pode restringir a líder e oficiais. Os 8 últimos movimentos ficam registrados e todo saque avisa os membros online.
 - Nível e dinheiro de quem está fora do jogo vêm do resumo guardado no mesmo arquivo, atualizado a cada minuto.

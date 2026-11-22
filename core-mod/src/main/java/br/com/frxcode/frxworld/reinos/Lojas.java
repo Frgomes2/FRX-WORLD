@@ -244,6 +244,7 @@ public final class Lojas {
         if (n >= 3) {
             l.add(venda(new ItemStack(Items.ELYTRA), 3000));
             l.add(venda(new ItemStack(Items.SHULKER_BOX), 800));
+            l.add(venda(montaria(nome, reino), 4000));
         }
         if (n >= 4) l.add(venda(armaDoReino(Items.NETHERITE_SWORD, "Lâmina " + nome, 3, 2), 5000));
         if (n >= 5) {
@@ -251,6 +252,29 @@ public final class Lojas {
             l.add(venda(armaDoReino(Items.NETHERITE_CHESTPLATE, "Couraça Real " + nome, 4, 5), 10000));
         }
         return l;
+    }
+
+    /** Montaria do reino (Reverenciado): ovo que solta um cavalo domado, selado, rápido e resistente. */
+    private static ItemStack montaria(String nome, String reino) {
+        ItemStack s = new ItemStack(Items.HORSE_SPAWN_EGG);
+        net.minecraft.nbt.CompoundTag e = new net.minecraft.nbt.CompoundTag();
+        e.putBoolean("Tame", true);
+        e.putInt("Variant", Math.floorMod(reino == null ? 0 : reino.hashCode(), 7));
+        e.put("SaddleItem", new ItemStack(Items.SADDLE).save(new net.minecraft.nbt.CompoundTag()));
+        net.minecraft.nbt.ListTag atributos = new net.minecraft.nbt.ListTag();
+        String[] nomes = {"minecraft:generic.movement_speed", "minecraft:generic.max_health", "minecraft:horse.jump_strength"};
+        double[] valores = {0.30, 30, 0.85};
+        for (int i = 0; i < nomes.length; i++) {
+            net.minecraft.nbt.CompoundTag a = new net.minecraft.nbt.CompoundTag();
+            a.putString("Name", nomes[i]);
+            a.putDouble("Base", valores[i]);
+            atributos.add(a);
+        }
+        e.put("Attributes", atributos);
+        e.putFloat("Health", 30f);
+        s.getOrCreateTag().put("EntityTag", e);
+        s.setHoverName(net.minecraft.network.chat.Component.literal("Corcel " + nome));
+        return s;
     }
 
     private static ItemStack armaDoReino(Item item, String nome, int raridade, int nivel) {

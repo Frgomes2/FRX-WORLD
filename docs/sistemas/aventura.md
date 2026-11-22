@@ -75,6 +75,8 @@
 - Ainda não dá para remover uma runa de um item.
 - Comandos: `/runas` (lista e explica); admin `/frx runa <tipo> [nível]`.
 
+- **Tirar runa:** no sábio das capitais, aba **Runas** da bancada (`reinos/Desencanto.TIRAR_RUNA`, `Runas.tirar`): o jogador põe a arma ou armadura no espaço do item, escolhe a runa e ela sai inteira para a mochila. Preço por nível: I 10 ouro, II 25, III 50 (`desencanto.runa1..3` no painel, Economia → Sábio). Pago com bolsa e, se faltar, banco.
+
 ## Chefões (`Chefes.java`)
 
 - 14 chefões com nome, barra de vida e golpes anunciados na tela, sorteados pelo rank (F a S): do Rei Goblin e da Aranha Rainha (ranks baixos) ao Colosso de Guerra e ao Arauto do Vazio (ranks altos).
@@ -84,10 +86,47 @@
 
 ## Dungeon de portal (`Fenda.java`)
 
-- O portal (`reinos/Portais.java`) abre com um rank tirado do maior rank da Guilda online. **Só entra quem tem aquele rank ou maior**; os outros são repelidos.
+- **Frequência:** uma tentativa a cada `portais.intervaloMinutos` (15) com `portais.chance` % (80) de abrir; só um portal por vez.
+- **Recompensa ao derrotar o chefão:** para cada jogador, `300 × nível` de XP e moedas pelo rank do portal (padrão: F 1 ouro, E 2, D 4, C 8, B 15, A 25, S 40; painel **Economia → Recompensa dos portais**, seção `portais`), mais as chances de mapa do tesouro, runa e tomo.
+- O portal (`reinos/Portais.java`) abre perto da capital mais próxima de um jogador sorteado entre os que estão a até 800 blocos de uma capital, com rank em volta do rank da Guilda dele: 25% um abaixo, 45% o mesmo, 20% um acima, 10% dois acima (até 1.3.2 era o maior rank online ou um abaixo). **Só entra quem tem aquele rank ou maior**; os outros são repelidos.
 - Encostar 2 s no portal leva o jogador à área temporária do portal (em 24000, 200, 24128). Todos que atravessam o mesmo portal caem na mesma dungeon. Lotação por rank: F 2, E 3, D 3, C 4, B 4, A 5, S 6 (`Fenda.LOTACAO`); quem já entrou conta na lotação mesmo depois de morrer ou sair, e pode voltar.
 - Três câmaras de monstros com temas sorteados e, na quarta, um chefão sorteado pelo rank. Limite de 18 minutos; barra no topo da tela.
 - **Vitória:** 300 × nível de XP, chance de runa (40%), tomo e mapa do tesouro; o portal fecha. Sem moedas.
 - **Morte:** o jogador é levado para o portal antes de cair, e a lápide com os itens fica do lado de fora. Pode entrar de novo enquanto o portal estiver aberto.
 - Se ninguém vencer até o portal expirar (20 min, segurado enquanto houver grupo lá dentro), ele se rompe e vira invasão, como antes.
 - `/portal sair` desiste.
+
+## Encontros (`eventos/Encontros.java`)
+
+Acontecimentos raros e pequenos, sem combate obrigatório. Só na superfície do mundo normal, a mais de 64 blocos das capitais e fora de terrenos e áreas protegidas.
+
+- **Quando:** a cada minuto, o jogador que andou pelo menos 40 blocos tem 10% de chance. Um encontro por jogador de cada vez e no máximo um a cada 40 minutos. O tipo é sorteado.
+- **Viajante ferido:** pede uma poção de cura ou de regeneração (clicar nele com a poção na mão). Paga com um Mapa do Tesouro e +20 de reputação com o reino dele. Fica 5 minutos.
+- **Mercador perdido:** vende um único item raro, uma única vez, em moedas (totem, maçã encantada, pérolas, netherite, coração do mar, élitros a partir do nível 20, Lâmina do Viajante a partir do 15). Some depois da venda ou em 5 minutos.
+- **Estrela caída:** cai a 60–120 blocos, com coluna de luz e coordenada clicável, por 10 minutos. O primeiro que chegar a 4 blocos leva moedas, XP e um item (5% de chance de Estrela do Nether). O chat avisa quem alcançou.
+- **Baú fujão:** aparece perto e pula 6 a 9 blocos para longe sempre que o jogador chega a 3 blocos, de 4 a 6 vezes. Depois cansa, enche de loot e fica 3 minutos. O chat avisa quem alcançou.
+- **Mensageiro apressado:** entrega uma Carta Lacrada para o taverneiro de um reino sorteado. Entregar (clicar no taverneiro certo com a carta na mão): moedas, XP e +60 de reputação; vale mesmo para quem é Hostil no reino. Abrir (clicar com a carta olhando para o céu): 30% Mapa do Tesouro, 45% moedas, 25% nada.
+- NPCs de encontro que sobram de uma queda do servidor somem ao carregar. Teste: `/frx encontro <tipo>`.
+
+## Enigma (`aventura/Enigma.java`) e Conjuntos (`aventura/Conjuntos.java`)
+
+Corridas de pistas pelo mundo. Em cada enigma, só o primeiro personagem a chegar ao fim leva o prêmio, um item do Códex; quem chega depois não encontra nada. Vários enigmas podem correr ao mesmo tempo.
+
+- **Conteúdo fora do código:** pistas, lugares, falas e prêmios ficam em JSON Base64 na pasta do mundo, fora do git (para ninguém estragar a surpresa lendo o projeto): `<mundo>/frx_enigma.dat` (o primeiro enigma) e `<mundo>/frx_enigmas/<id>.dat` (os demais).
+- **Campos:** `nome`, `premio` (código no Códex), `abertura` (primeira pista), `etapas` e, opcionais, `inicio` (epoch em ms), `grupo`, `conjunto` e `conjuntoNome`. Cada etapa tem `tipo` (`lugar`, `npc` ou `final`), `fala` (dita ao cumprir) e `pista` (a próxima); `lugar`/`final` usam `dim`, `x`, `z`, `raio` e, opcional, `y`; `npc` usa `papel`, `reino` e, opcional, `item` e `qtd` (consumidos); qualquer etapa aceita `quando` (`dia`, `noite`, `meianoite`). Uma etapa `final` com `chefe` (índice do rank, 0 = F … 6 = S; opcional `chefeNivel`) tem guardião.
+- **Começo:** sem `inicio`, até 1 minuto depois de o prêmio existir no Códex. Com `inicio`, o enigma fica **anunciado** antes da hora: o Diário já mostra a primeira pista e a contagem, os NPCs da primeira etapa respondem "volte no dia marcado", e ninguém avança. Na hora (e com o prêmio criado no Códex) começa sozinho, com aviso para todos. Se o prêmio não existir na hora, o enigma espera e o log avisa.
+- **Avisos do evento:** antes do início, o chat avisa de hora em hora; na última hora, a cada 10 minutos (e a 5 e a 1 minuto). Quem entra no servidor recebe o aviso com o dia, a hora e quanto falta.
+- **Diário do Enigma:** um livro só para todos os enigmas, entregue a quem estiver online ou entrar enquanto houver enigma anunciado ou em andamento (`<mundo>/frx_enigmas/diarios.json`). Clicar com ele na mão abre a tela de livro (`cliente/TelaDiarioEnigma.java`): na página da esquerda, um marcador de fita colorida por enigma, com o estado (aguardando com contagem, em andamento, guardião à espera, desvendado por X, não responde mais a você) e seis contas de progresso; na da direita, o enigma escolhido, com as pistas já descobertas (a atual em destaque, rolagem com a roda do mouse). O servidor só manda ao cliente as pistas que o jogador já descobriu.
+- **`/enigma`:** abre o Diário; se o jogador não tem o livro na mochila nem no baú de Ender, recebe um novo (só enquanto houver enigma anunciado ou em andamento).
+- **Andamento:** por personagem, no arquivo de estado de cada enigma (`frx_enigma_estado.json` ou `frx_enigmas/<id>.estado.json`). Cada etapa só vale para quem cumpriu a anterior. Criativo e espectador não contam; operador conta (o admin pode jogar).
+- **Grupo:** quem vence um enigma do grupo não avança nem vence os outros do mesmo grupo (uma peça por pessoa). Os prêmios continuam negociáveis.
+- **Ao avançar:** a pessoa recebe a fala e a próxima pista; os outros recebem só "alguém desvendou o passo N do <enigma>".
+- **Guardião:** ao chegar ao ponto final de um enigma com `chefe`, surge um chefão do rank indicado (os mesmos chefões das dungeons, com golpes e barra de vida) chamado "Guardião do <enigma>". Só um por enigma de cada vez; todos sabem que alguém o despertou. Quando ele cai, vence quem deu o golpe final, se estiver no último passo; se não, quem estiver no último passo mais perto (até 40 blocos). Sem ninguém no último passo a menos de 48 blocos por 60 segundos, ele volta a dormir e pode ser despertado de novo. Guardiões não sobrevivem a um reinício.
+- **Fim:** surge um baú (no ponto final, ou onde o guardião caiu) com o prêmio (emitido pelo Códex, contando no limite) e uma Estrela do Nether; anúncio para todos e Mural dos Primeiros (`chegada:enigma` para o primeiro, `chegada:enigma_<id>` para os demais, gravados em `frx_chegadas.json`). Quando não sobra enigma anunciado nem em andamento, o Diário do Enigma some da mochila e do baú de Ender de cada um.
+- **Prêmio:** crie no painel (Códex) o item com o código indicado em `premio`, limite 1 e sem venda no ferreiro/armeiro.
+- **Conjuntos:** os prêmios com o mesmo `conjunto` formam um conjunto. Quem veste todas as peças ao mesmo tempo recupera vida sozinho enquanto estiver com elas: a cada segundo, `0,5 + 9,5 × (nível/100)²` % da vida máxima (nível 1: 0,5%; 50: ~2,9%; 100 ou mais: 10%, vida cheia em ~10 s). Nos 2 segundos depois de levar dano, a cura cai pela metade. Aviso ao completar, com o ritmo no nível do jogador.
+
+
+## Moedas dos chefões de masmorra (`dungeon/Recompensa.java`)
+
+O chefão das catacumbas (`Dungeons`) e os chefes de estruturas de outros mods (`Externos`) pagam, a cada jogador perto, `masmorras.moedasPorNivel` (padrão 150 cobre) × nível do chefão, junto com o XP e o loot do painel e dentro da mesma recarga. O guardião de cada andar das catacumbas paga 20% disso por andar, junto com a Chave da Camada. Painel: **Economia → Portais e masmorras**.

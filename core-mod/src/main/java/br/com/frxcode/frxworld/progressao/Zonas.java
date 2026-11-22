@@ -33,7 +33,7 @@ import java.util.UUID;
 
 /**
  * Zonas de perigo: quanto mais longe do spawn, maior o nível dos monstros (vida, dano, armadura),
- * mais XP (a XP segue a vida máxima) e mais moedas. Nether começa no nível 15 e o End no 30.
+ * mais XP (a XP segue a vida máxima) e mais moedas. Nether (55–80) vem depois da superfície inteira (1–60) e o End (75–100) depois do Nether.
  * Valores na aba Progressão do painel (seção "zonas").
  */
 public class Zonas {
@@ -50,11 +50,11 @@ public class Zonas {
      */
     private static final Map<String, int[]> FAIXAS_PADRAO = Map.of(
             "twilightforest:twilight_forest", new int[]{14, 30},
-            "minecraft:the_nether", new int[]{22, 40},
+            "minecraft:the_nether", new int[]{55, 80},
             "undergarden:undergarden", new int[]{20, 35},
             "blue_skies:everbright", new int[]{25, 40},
             "aether:the_aether", new int[]{30, 45},
-            "minecraft:the_end", new int[]{30, 50},
+            "minecraft:the_end", new int[]{75, 100},
             "blue_skies:everdawn", new int[]{35, 50},
             "deeperdarker:otherside", new int[]{45, 60});
 
@@ -107,6 +107,9 @@ public class Zonas {
 
     public static int nivelDo(LivingEntity e) { return e.getPersistentData().getInt(CHAVE); }
 
+    /** Grava um nível fixo sem aplicar os bônus da zona (quem chama cuida dos atributos; ex.: aventura/DragaoFim). */
+    public static void marcarNivel(Mob m, int n) { m.getPersistentData().putInt(CHAVE, n); }
+
     private static boolean chefe(LivingEntity e) { return e.getType().is(Tags.EntityTypes.BOSSES); }
 
     private static void modificar(LivingEntity e, Attribute a, UUID id, double valor, AttributeModifier.Operation op) {
@@ -125,7 +128,8 @@ public class Zonas {
 
     /** Dureza extra da dimensão: vida e dano a mais para todo monstro de lá (fração: 0.8 = +80%). */
     private static final Map<String, double[]> DUREZA_PADRAO = Map.of("twilightforest:twilight_forest", new double[]{0.8, 0.5},
-            "minecraft:the_nether", new double[]{1.5, 1.0});   // Nether: +150% de vida e +100% de dano
+            "minecraft:the_nether", new double[]{1.5, 1.0},    // Nether: +150% de vida e +100% de dano
+            "minecraft:the_end", new double[]{2.5, 1.5});      // End: +250% de vida e +150% de dano
 
     /** [vida, dano] extras da dimensão. O painel pode trocar em zonas.dureza = { "dimensao": [vida, dano] }. */
     public static double[] dureza(Level nivel) {
@@ -214,8 +218,8 @@ public class Zonas {
         }
     }
 
-    /** Rank mínimo da Guilda para entrar na dimensão (índice: 0 = F ... 6 = S). Nether (monstros 22–40) pede Rank D; End (30–50) pede Rank C. */
-    private static final Map<String, Integer> RANK_DIM_PADRAO = Map.of("minecraft:the_nether", 2, "minecraft:the_end", 3);
+    /** Rank mínimo da Guilda para entrar na dimensão (índice: 0 = F ... 6 = S). Nether (monstros 55–80) pede Rank C (entra quem quiser arriscar); End (75–100) pede Rank A. */
+    private static final Map<String, Integer> RANK_DIM_PADRAO = Map.of("minecraft:the_nether", 3, "minecraft:the_end", 5);
     private static final Map<UUID, Long> AVISO_DIM = new HashMap<>();
 
     /** O painel pode trocar em zonas.rankMinimo = { "dimensao": "D" } ("livre" ou "F" libera). */

@@ -5,7 +5,7 @@ import path from "path";
 import zlib from "zlib";
 import { prisma } from "@/lib/prisma";
 import { servidorMc } from "@/lib/servidor-mc";
-import { statusAtual } from "@/lib/status-servidor";
+import { statusAtual, usoCpu } from "@/lib/status-servidor";
 import { contarMods, feed, mapaExplorado, type EventoFeed } from "@/lib/mapa-mundo";
 import { reinosDoServidor } from "@/lib/reinos-servidor";
 import { CLASSES } from "@/lib/habilidades";
@@ -13,6 +13,7 @@ import { lerClas } from "@/lib/clas";
 import { conferirMural, type FeitoPublico } from "@/lib/feitos";
 import { evolucao, historicoDe, registrarMarcos, ultimasCronicas, type CronicaPublica, type Marco } from "@/lib/cronicas";
 import { GOLPES, LOCAIS, pngDaSkin } from "@/lib/criaturas-codex";
+import { pngDaTextura } from "@/lib/codex";
 
 /**
  * Tudo o que o site público (/) mostra. Regra: nada de e-mail, UUID, IP, endereço do servidor,
@@ -27,6 +28,8 @@ export type DadosPublicos = {
   status: {
     tps: number; maxJogadores: number; dia: number; hora: number; clima: "limpo" | "chuva" | "tempestade";
     versaoMod: string; chefe: { fase: "aviso" | "ativo"; nome: string } | null;
+    /** Memória do servidor do jogo, em MB, e uso do processador da máquina (0 a 100; null enquanto mede). */
+    memUsadaMb: number; memMaxMb: number; cpu: number | null;
   } | null;
   onlineAgora: { nick: string; nivel: number; classe: string; reino: string }[];
   totais: { jogadores: number; mortes: number; conquistas: number; nivelMedio: number; chunks: number; mundoMb: number; mods: number };
@@ -43,6 +46,14 @@ export type DadosPublicos = {
   mural: FeitoPublico[];
   /** Crônicas: acontecimentos guardados pelo painel (os 60 mais recentes). */
   cronicas: CronicaPublica[];
+  /** Mural das armas únicas do Códex: quem recebeu a primeira de cada uma. */
+  armas: ArmaPublica[];
+};
+export type ArmaPublica = {
+  codigo: string; nome: string; descricao: string; raridade: number; limite: number; emitidas: number;
+  textura: string | null; primeiro: string; conta: string; vaga: number; quando: number | null;
+  /** Nível de uso (0 = item sem nível ou ainda no 0; -1 = item que não ganha nível). */
+  nivel: number;
 };
 /** Clã (do Mestre dos Clãs). riqueza = cofre do clã + bolsa e banco de todos; poder = soma dos níveis. */
 export type ClaPublico = {
@@ -214,6 +225,23 @@ export async function dadosPublicos(): Promise<DadosPublicos> {
       marcos.push({ chave: `codex:${c.codigo}`, tipo: "descoberta", icone: "☠", texto: `Nova descoberta no bestiário: ${c.nome} foi derrotado pela primeira vez`, destaque: true });
     }
   } catch { /* */ }
+  const armas: ArmaPublica[] = [];
+  try {
+    type Linha = { codigo: string; nome: string; descricao: string; raridade: number; limite: number; emitidas: number; textura: string; primeiroNome?: string | null; primeiroEm?: Date | null; nivelUso?: boolean; nivelUsoMax?: number };
+    const linhas = (await prisma.armaCodex.findMany({ where: { emitidas: { gt: 0 } } })) as unknown as Linha[];
+    for (const a of linhas) {
+      if (!a.primeiroNome) continue;
+      const dono = porNivel.find((j) => j.nick.toLowerCase() === a.primeiroNome!.toLowerCase());
+      armas.push({
+        codigo: a.codigo, nome: a.nome, descricao: a.descricao, raridade: a.raridade, limite: a.limite, emitidas: a.emitidas,
+        textura: pngDaTextura(a.textura) ? `data:image/png;base64,${a.textura.replace(/^data:image\/png;base64,/, "")}` : null,
+        primeiro: a.primeiroNome, conta: dono?.conta ?? "", vaga: dono?.vaga ?? 0, quando: a.primeiroEm ? a.primeiroEm.getTime() : null,
+        nivel: a.nivelUso ? a.nivelUsoMax ?? 0 : -1,
+      });
+      marcos.push({ chave: `arma:${a.codigo}`, tipo: "primeiro", icone: "⚔️", texto: `conquistou a primeira ${a.nome}`, nome: a.primeiroNome, conta: dono?.conta ?? "", vaga: dono?.vaga ?? 0, destaque: a.raridade >= 3 });
+    }
+    armas.sort((x, y) => y.raridade - x.raridade || (y.quando ?? 0) - (x.quando ?? 0));
+  } catch { /* tabela ainda sem as colunas novas */ }
   await registrarMarcos(marcos);
   const evo = await evolucao(porNivel.map((j) => ({ conta: j.conta, vaga: j.vaga, nivel: j.nivel })));
 
@@ -223,6 +251,7 @@ export async function dadosPublicos(): Promise<DadosPublicos> {
     status: st ? {
       tps: st.tps, maxJogadores: st.maxJogadores, dia: st.dia, hora: st.hora, clima: st.clima, versaoMod: st.versaoMod,
       chefe: st.chefe ? { fase: st.chefe.fase, nome: st.chefe.nome } : null,
+      memUsadaMb: Math.round(st.memUsadaMb ?? 0), memMaxMb: Math.round(st.memMaxMb ?? 0), cpu: usoCpu(),
     } : null,
     onlineAgora: (st?.jogadores ?? []).map((j) => ({ nick: j.nick, nivel: j.nivel ?? 0, classe: nomeClasse(j.classe ?? ""), reino: j.reino ?? "" })),
     totais: {
@@ -241,7 +270,7 @@ export async function dadosPublicos(): Promise<DadosPublicos> {
     },
     guilda, classes, torre, temporada, reinos, feed: eventos,
     aventureiros: porNivel.map((j) => ({ nick: j.nick, conta: j.conta, vaga: j.vaga, nivel: j.nivel, rank: j.rank, classe: nomeClasse(j.classe), titulo: j.titulo, online: j.emUso && noJogo.has(j.conta.toLowerCase()) })),
-    clas, mural, cronicas: await ultimasCronicas(),
+    clas, mural, cronicas: await ultimasCronicas(), armas,
   };
   g.__frxPublico = { em: Date.now(), dados };
   return dados;

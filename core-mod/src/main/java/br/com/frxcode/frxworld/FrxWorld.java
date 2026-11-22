@@ -37,6 +37,10 @@ public class FrxWorld {
         Blocos.registrar(modBus);
         br.com.frxcode.frxworld.moedas.Moedas.registrar(modBus);
         br.com.frxcode.frxworld.armas.Armas.registrar(modBus);
+        br.com.frxcode.frxworld.armas.Reliquias.registrar(modBus);
+        br.com.frxcode.frxworld.reinos.MenuDesencanto.registrar(modBus);
+        br.com.frxcode.frxworld.reinos.MenuCostura.registrar(modBus);
+        br.com.frxcode.frxworld.eventos.ItensNatal.registrar(modBus);
         br.com.frxcode.frxworld.dungeon.EstruturaGrande.registrar(modBus);
         br.com.frxcode.frxworld.reinos.Reinos.registrar(modBus);
         br.com.frxcode.frxworld.reinos.Racas.registrar(modBus);
@@ -52,9 +56,14 @@ public class FrxWorld {
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.dungeon.Dungeons());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.dungeon.Externos());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.eventos.EventosEstrada());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.eventos.Encontros());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.aventura.Enigma());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.aventura.Conjuntos());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.habilidades.Habilidades());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.habilidades.MarcaInvocacao());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.habilidades.Especiais());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.eventos.Craque());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.eventos.Noel());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.eventos.Ladrao());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.aventura.Temporadas());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.aventura.Tesouros());
@@ -66,10 +75,13 @@ public class FrxWorld {
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.aventura.Chefes());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.aventura.Fenda());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.aventura.Inferno());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.aventura.DragaoFim());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.progressao.Elitros());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.progressao.AjustesAdmin());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.protecao.Trancas());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.progressao.Ping());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.armas.Codex());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.armas.NivelUso());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.aventura.Criaturas());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.missoes.Contratos());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.progressao.Colecao());
@@ -107,6 +119,8 @@ public class FrxWorld {
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.grupos.Grupos());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.eventos.ChefeMundial());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.reinos.Reputacao());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.reinos.Hostilidade());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.reinos.VidaNpc());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.reinos.Invasoes());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.reinos.Campanhas());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.progressao.Conquistas());
@@ -138,6 +152,7 @@ public class FrxWorld {
     }
 
     private void setup(FMLCommonSetupEvent evento) {
+        evento.enqueueWork(br.com.frxcode.frxworld.progressao.TetoAtributos::aplicar);   // armadura até 100 (antes 30)
         evento.enqueueWork(Rede::registrar);
     }
 }

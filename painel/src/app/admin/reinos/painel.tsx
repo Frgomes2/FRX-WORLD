@@ -13,7 +13,7 @@ type Servidor = { reinos: ReinoSrv[]; spawn: [number, number] | null; masmorras:
 type Masm = { id: string; nome: string; x: number; z: number; colocada: boolean };
 type JogVivo = { nick: string; uuid: string; x: number; z: number; dim: string; reino?: string };
 
-const COR_NIVEL: Record<string, string> = { Neutro: "#6b6257", "Amigável": "#4ade80", Honrado: "#67e8f9", Reverenciado: "#60a5fa", Exaltado: "#d8b4fe", "Herói": "#d4a93a" };
+const COR_NIVEL: Record<string, string> = { Inimigo: "#991b1b", Hostil: "#f87171", Malvisto: "#facc15", Neutro: "#6b6257", "Amigável": "#4ade80", Honrado: "#67e8f9", Reverenciado: "#60a5fa", Exaltado: "#d8b4fe", "Herói": "#d4a93a" };
 const fmt = (n: number) => n.toLocaleString("pt-BR");
 
 /** Rosto 8×8 (+ chapéu) de uma skin qualquer pela URL. */
@@ -265,7 +265,7 @@ export function PainelReinos({ jogadores, servidor, skins, masmorras }: { jogado
           <h2 className="font-titulo text-lg text-ouro">📊 Todos os aventureiros × reinos</h2>
           <div className="ml-auto flex flex-wrap gap-2 text-[11px]">
             {NIVEIS_REPUTACAO.map((n) => (
-              <span key={n.nome} className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-sm" style={{ background: COR_NIVEL[n.nome] }} />{n.nome} {fmt(n.minimo)}+{n.desconto ? ` (−${n.desconto}%)` : ""}</span>
+              <span key={n.nome} className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-sm" style={{ background: COR_NIVEL[n.nome] }} />{n.nome} {n.minimo <= -100000 ? "até −1.500" : `${fmt(n.minimo)}+`}{n.desconto > 0 ? ` (−${n.desconto}%)` : n.desconto < 0 ? ` (+${-n.desconto}%)` : ""}</span>
             ))}
           </div>
         </div>

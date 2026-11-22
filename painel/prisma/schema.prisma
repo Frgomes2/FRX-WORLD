@@ -265,6 +265,11 @@ model ArmaCodex {
   modelo        Int      @unique @default(autoincrement()) // número do CustomModelData no pacote de recursos
   emitidas      Int      @default(0) // quantas já existem (enviado pelo servidor)
   donos         Json     @default("{}") // uuid → nick (enviado pelo servidor)
+  inquebravel   Boolean  @default(false) // nunca perde durabilidade
+  nivelUso      Boolean  @default(false) // ganha nível com o uso (dano em monstros; armadura: dano recebido)
+  nivelUsoMax   Int      @default(0) // maior nível de uso já alcançado por uma unidade (enviado pelo servidor)
+  primeiroNome  String?  // personagem que recebeu a primeira unidade (mural de armas do site)
+  primeiroEm    DateTime?
   ativa         Boolean  @default(true)
   criadoEm      DateTime @default(now())
   atualizadoEm  DateTime @updatedAt

@@ -213,6 +213,8 @@ public class Terrenos {
         return null;
     }
 
+    /** Há terreno de alguém (ou terra do reino) neste ponto? */
+    public static boolean temLote(int x, int z) { return loteEm(x, z) != null; }
     private static UUID donoDe(BlockPos pos) { Lote l = loteEm(pos.getX(), pos.getZ()); return l == null ? null : l.dono; }
 
     /** Terras do reino: a capital inteira, a Torre, o ponto de partida, as salas da Torre e das masmorras (longe, em X/Z ≥ 20000) e o que o admin marcou. */

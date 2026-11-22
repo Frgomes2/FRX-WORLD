@@ -35,6 +35,18 @@ export const ABERTURA_PADRAO = {
   ],
 };
 
+/** Rendimento do cofre (banco): % ao dia, sobe a cada N dias sem sacar; teto em cobre. */
+export const BANCO_PADRAO = { ativo: true, taxaInicial: 0.5, aumento: 0.1, aCadaDias: 7, taxaMax: 1, teto: 50000, diasOffline: 7 };
+
+/** Sábio: extrair encantamento para livro. moedas = moedasPorNivel × peso da raridade × nível (cobre). */
+export const DESENCANTO_PADRAO = { ativo: true, moedasPorNivel: 2000, multComum: 1, multIncomum: 1.5, multRaro: 2.5, multMuitoRaro: 4, multTesouro: 1.5, xpBase: 5, xpPorNivel: 3, xpMax: 30, chance4: 85, chance5: 70, runa1: 1000, runa2: 2500, runa3: 5000 };
+
+/** Recompensa em moedas (cobre) para cada jogador que derrota o chefão do portal, por rank F, E, D, C, B, A, S. */
+export const PORTAIS_PADRAO = { moedasPorRank: [100, 200, 400, 800, 1500, 2500, 4000], intervaloMinutos: 15, chance: 80 };
+
+/** Chefões de masmorra (catacumbas e estruturas de outros mods): cobre por nível do chefão, para cada jogador. */
+export const MASMORRAS_PADRAO = { moedasPorNivel: 40 };
+
 export const COMPRADOR_PADRAO = {
   precoComum: 2, precoIncomum: 10, precoRaro: 40, precoEpico: 150,
   fracaoVenda: 0.3, bonusEncanto: 0.15, multiplicador: 1,
@@ -168,6 +180,36 @@ export const configSchema = z.object({
       limitePorNivelOuro: z.number().min(0).max(10000),
     })
     .default(COMPRADOR_PADRAO),
+  banco: z
+    .object({
+      ativo: z.boolean(),
+      taxaInicial: z.number().min(0).max(10),       // % ao dia
+      aumento: z.number().min(0).max(10),           // % a mais a cada aCadaDias sem sacar
+      aCadaDias: z.number().int().min(1).max(365),
+      taxaMax: z.number().min(0).max(20),
+      teto: z.number().int().min(0).max(100_000_000),   // cobre: acima disso não rende
+      diasOffline: z.number().int().min(1).max(365),    // dias de ausência que ainda rendem
+    })
+    .default(BANCO_PADRAO),
+  desencanto: z
+    .object({
+      ativo: z.boolean(),
+      moedasPorNivel: z.number().int().min(0).max(10_000_000),
+      multComum: z.number().min(0).max(100), multIncomum: z.number().min(0).max(100), multRaro: z.number().min(0).max(100),
+      multMuitoRaro: z.number().min(0).max(100), multTesouro: z.number().min(0).max(100),
+      xpBase: z.number().int().min(0).max(100), xpPorNivel: z.number().min(0).max(100), xpMax: z.number().int().min(0).max(100),
+      chance4: z.number().int().min(1).max(100), chance5: z.number().int().min(1).max(100),
+      runa1: z.number().int().min(0).max(10_000_000).default(1000), runa2: z.number().int().min(0).max(10_000_000).default(2500), runa3: z.number().int().min(0).max(10_000_000).default(5000),
+    })
+    .default(DESENCANTO_PADRAO),
+  portais: z
+    .object({
+      moedasPorRank: z.array(z.number().int().min(0).max(10_000_000)).length(7),
+      intervaloMinutos: z.number().int().min(1).max(1440).default(15),   // entre tentativas de abrir portal
+      chance: z.number().int().min(0).max(100).default(80),              // % de cada tentativa abrir
+    })
+    .default(PORTAIS_PADRAO),
+  masmorras: z.object({ moedasPorNivel: z.number().int().min(0).max(1_000_000) }).default(MASMORRAS_PADRAO),
   dialogos: z.record(z.string(), z.array(z.string().trim().min(1).max(200)).max(12)).default(DIALOGOS_PADRAO),
   urgentes: z
     .object({
@@ -214,6 +256,10 @@ export const CONFIG_PADRAO: ConfigJogo = {
     eliteChance: 5, eliteNivelMin: 3, campeaoChance: 0.5, campeaoNivelMin: 10, dimensoes: DIMENSOES_PADRAO },
   abertura: ABERTURA_PADRAO,
   comprador: COMPRADOR_PADRAO,
+  banco: BANCO_PADRAO,
+  desencanto: DESENCANTO_PADRAO,
+  portais: PORTAIS_PADRAO,
+  masmorras: MASMORRAS_PADRAO,
   dialogos: DIALOGOS_PADRAO,
   urgentes: URGENTES_PADRAO,
   taverna: {

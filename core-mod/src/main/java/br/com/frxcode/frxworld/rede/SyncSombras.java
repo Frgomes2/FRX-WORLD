@@ -8,7 +8,8 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /** Servidor → cliente: o exército de sombras do Invocador (tela de Habilidades → Exército). */
-public record SyncSombras(int vagas, int ativas, int ativasMax, List<Info> lista, List<String> atalhos) {
+/** pvp = as invocações ferem jogadores e podem ser feridas por eles (escolha do dono). */
+public record SyncSombras(int vagas, int ativas, int ativasMax, List<Info> lista, List<String> atalhos, boolean pvp) {
     /** estado: 0 = guardada, 1 = ao seu lado, 2 = se recompondo (descansa = segundos). */
     public record Info(String id, String tipo, String nome, int nivel, int abates, int forca, boolean chefe,
                        int estado, int descansa, int custo, float vida, float vidaMax) {}
@@ -23,6 +24,7 @@ public record SyncSombras(int vagas, int ativas, int ativasMax, List<Info> lista
         }
         b.writeVarInt(atalhos.size());
         for (String a : atalhos) b.writeUtf(a, 16);
+        b.writeBoolean(pvp);
     }
 
     public static SyncSombras decodificar(FriendlyByteBuf b) {
@@ -35,7 +37,7 @@ public record SyncSombras(int vagas, int ativas, int ativasMax, List<Info> lista
         int na = b.readVarInt();
         List<String> at = new ArrayList<>();
         for (int k = 0; k < na; k++) at.add(b.readUtf(16));
-        return new SyncSombras(vagas, ativas, max, l, at);
+        return new SyncSombras(vagas, ativas, max, l, at, b.readBoolean());
     }
 
     public void tratar(Supplier<NetworkEvent.Context> ctx) {

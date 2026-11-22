@@ -19,6 +19,7 @@ export const LOCAIS: { id: string; nome: string; chefe: string; monstro: string 
   { id: "portal", nome: "Masmorras de portal", chefe: "chefe da última câmara", monstro: "nas câmaras" },
   { id: "torre", nome: "Torre Infinita", chefe: "andares 10, 30, 50, 70 e 90", monstro: "nos andares comuns" },
   { id: "nether", nome: "Emboscadas do Nether", chefe: "o campeão (1 em cada 4 emboscadas)", monstro: "na horda" },
+  { id: "fim", nome: "Ilha do Dragão (End)", chefe: "o Guardião do Dragão (às vezes, durante a luta)", monstro: "os reforços que atrapalham a luta" },
 ];
 
 export const RANKS = ["F", "E", "D", "C", "B", "A", "S"];

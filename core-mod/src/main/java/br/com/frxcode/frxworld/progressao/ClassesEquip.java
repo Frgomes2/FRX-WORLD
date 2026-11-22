@@ -113,13 +113,27 @@ public class ClassesEquip {
             return switch (s.getItem().getRarity(new ItemStack(s.getItem()))) { case COMMON -> 2; case UNCOMMON -> 3; case RARE -> 4; default -> 5; };
         }
         if (s.getItem() instanceof TridentItem) return 2;
-        boolean ferramenta = s.getItem() instanceof DiggerItem && !(s.getItem() instanceof AxeItem);
-        if (ferramenta) return -1;
-        if (s.getItem() instanceof TieredItem t && (s.getItem() instanceof SwordItem || s.getItem() instanceof AxeItem || danoDe(s) >= 4))
-            return Math.min(6, porLimites(t.getTier().getAttackDamageBonus(), 1.5, 2.5, 3.5, 4.5, 6.5, 9.5));
+        if (s.getItem() instanceof net.minecraft.world.item.ElytraItem) return 5;   // élitros: Rank A
         double dano = danoDe(s);
-        if (dano < 5) return -1;
-        return Math.min(6, porLimites(dano, 6, 7, 8.5, 10, 13, 17));
+        int peloDano = dano >= 3 ? Math.min(6, porLimites(dano, 6, 7, 8.5, 10, 13, 17)) : -1;
+        boolean ferramenta = s.getItem() instanceof DiggerItem && !(s.getItem() instanceof AxeItem);
+        if (ferramenta && s.getItem() instanceof TieredItem t) {
+            // picareta, pá e enxada: pelo material (madeira/pedra/ouro F, ferro E, diamante D, netherite C, acima disso B);
+            // se o reforjamento deu dano de arma, vale o maior dos dois
+            int nivelMat = t.getTier().getLevel();
+            int peloMaterial = nivelMat <= 1 ? 0 : nivelMat == 2 ? 1 : nivelMat == 3 ? 2 : nivelMat == 4 ? 3 : 4;
+            return Math.max(peloMaterial, peloDano);
+        }
+        if (s.getItem() instanceof TieredItem t && (s.getItem() instanceof SwordItem || s.getItem() instanceof AxeItem || dano >= 4))
+            return Math.max(Math.min(6, porLimites(t.getTier().getAttackDamageBonus(), 1.5, 2.5, 3.5, 4.5, 6.5, 9.5)), peloDano);
+        if (s.getItem() instanceof net.minecraft.world.item.ShieldItem) return Math.min(6, porLimites(s.getMaxDamage(), 400, 700, 1000, 1500, 2500, 4000));
+        // peças de outros mods que dão armadura sem ser ArmorItem
+        double armadura = 0;
+        for (EquipmentSlot sl : new EquipmentSlot[]{EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET})
+            for (AttributeModifier m : s.getAttributeModifiers(sl).get(Attributes.ARMOR))
+                if (m.getOperation() == AttributeModifier.Operation.ADDITION) armadura = Math.max(armadura, m.getAmount());
+        if (armadura > 0) return Math.max(peloDano, Math.min(6, porLimites(armadura * 8.0 / 6, 4.5, 8, 10.5, 11.5, 13.5, 17)));
+        return peloDano;
     }
 
     private static double danoDe(ItemStack s) {
@@ -196,6 +210,29 @@ public class ClassesEquip {
             avisado.remove(p.getUUID());
             avisar(p, fora, c);
         }
+    }
+
+    /** Ferramenta acima do rank não minera (só no servidor: o cliente não sabe o rank). */
+    @SubscribeEvent
+    public void aoMinerar(net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed ev) {
+        if (!(ev.getEntity() instanceof ServerPlayer p) || livre(p)) return;
+        ItemStack s = p.getMainHandItem();
+        if (!(s.getItem() instanceof DiggerItem)) return;
+        int c = classe(s);
+        if (c <= Guilda.indice(p)) return;
+        ev.setCanceled(true);
+        avisar(p, s, c);
+    }
+
+    @SubscribeEvent
+    public void aoQuebrar(net.minecraftforge.event.level.BlockEvent.BreakEvent ev) {
+        if (!(ev.getPlayer() instanceof ServerPlayer p) || livre(p)) return;
+        ItemStack s = p.getMainHandItem();
+        if (!(s.getItem() instanceof DiggerItem)) return;
+        int c = classe(s);
+        if (c <= Guilda.indice(p)) return;
+        ev.setCanceled(true);
+        avisar(p, s, c);
     }
 
     /** Arma acima do rank não acerta ninguém. */

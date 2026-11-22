@@ -85,7 +85,8 @@ public class NpcsReino {
             new Papel("discos", "nitwit", -10, 10, new String[]{"Música boa é a que fica na cabeça depois da batalha.", "Tenho discos que você não acha em masmorra nenhuma.", "Uma jukebox e um bom disco: isso é lar."}),
             new Papel("escravos", "nitwit", 10, 10, new String[]{"Mão de obra boa e barata. Só para quem a Guilda respeita.", "Sem profissão, sem vício: você ensina o que quiser.", "Rank D para cima. Abaixo disso, nem conversa."}),
             new Papel("costureira", "shepherd", -10, -10, new String[]{"Calça sem bolso é calça pela metade.", "Traga a calça que eu costuro: um bolso de cada vez, até doze.", "Linha boa, ponto firme. Bolso meu não rasga."}),
-            new Papel("dragoes", "cleric", -10, -14, new String[]{"Um ovo destes vale mais que a sua casa. E a casa do vizinho.", "Dragão não se compra: se conquista. Mas o ovo, esse eu vendo.", "Volte quando a bolsa pesar. Muito."})
+            new Papel("dragoes", "cleric", -10, -14, new String[]{"Um ovo destes vale mais que a sua casa. E a casa do vizinho.", "Dragão não se compra: se conquista. Mas o ovo, esse eu vendo.", "Volte quando a bolsa pesar. Muito."}),
+            new Papel("contrabandista", "nitwit", 14, -14, new String[]{"Fale baixo.", "Você nunca me viu."})
     );
     private static final int GUARDAS = 6;
 
@@ -121,7 +122,7 @@ public class NpcsReino {
         return m;
     }
 
-    private static String nome(Reino r, String papel) {
+    static String nome(Reino r, String papel) {
         Map<String, String> m = NOMES.get(r.id());
         if (m != null && m.containsKey(papel)) return m.get(papel);
         return switch (papel) {
@@ -133,6 +134,7 @@ public class NpcsReino {
             case "discos" -> "Mercador de Discos";
             case "escravos" -> "Mercador de Escravos";
             case "dragoes" -> "Criador de Dragões";
+            case "contrabandista" -> "Contrabandista";
             default -> Character.toUpperCase(papel.charAt(0)) + papel.substring(1);
         };
     }
@@ -187,6 +189,29 @@ public class NpcsReino {
         } catch (Exception e) {
             return new JsonObject();
         }
+    }
+
+    private static java.util.Map<String, Set<String>> semCache;
+    private static long semLido;
+
+    /**
+     * Papéis que não existem numa capital: posicoes.json → { "<reino>": { "sem": ["cambista"] } }.
+     * O NPC desse papel não nasce ali e, se já existir, some ao carregar. Lido de novo a cada minuto.
+     */
+    static boolean semPapel(String reino, String papel) {
+        if (semCache == null || System.currentTimeMillis() - semLido > 60_000) {
+            java.util.Map<String, Set<String>> m = new java.util.HashMap<>();
+            JsonObject pos = posicoesJson();
+            for (String k : pos.keySet()) {
+                if (!pos.get(k).isJsonObject() || !pos.getAsJsonObject(k).has("sem")) continue;
+                Set<String> s = new java.util.HashSet<>();
+                for (com.google.gson.JsonElement el : pos.getAsJsonObject(k).getAsJsonArray("sem")) s.add(el.getAsString());
+                m.put(k, s);
+            }
+            semCache = m;
+            semLido = System.currentTimeMillis();
+        }
+        return semCache.getOrDefault(reino, Set.of()).contains(papel);
     }
 
     private static BlockPos centro(ServerLevel nivel, Reino r) {
@@ -248,6 +273,40 @@ public class NpcsReino {
         return centro(nivel, r);
     }
 
+    /**
+     * NPCs sem casinha (clãs, leiloeiro, discos, costureira, escravos...) e sem posição fixa no posicoes.json: ficam num
+     * anel de fora (raio 21, depois 25), longe das ruas, das casinhas e uns dos outros. Antes usavam um deslocamento fixo
+     * que caía em cima de algumas casinhas (ex.: costureira na do sábio).
+     */
+    private static Map<String, BlockPos> lugaresSoltos(ServerLevel nivel, Reino r, JsonObject sobre, BlockPos c, Map<String, BlockPos> casas) {
+        Map<String, BlockPos> soltos = new LinkedHashMap<>();
+        List<BlockPos> outros = new ArrayList<>();
+        if (sobre != null) for (String k : sobre.keySet()) {
+            JsonArray a = sobre.getAsJsonArray(k);
+            outros.add(new BlockPos(a.get(0).getAsInt(), a.get(1).getAsInt(), a.get(2).getAsInt()));
+        }
+        for (Papel p : PAPEIS) {
+            String id = p.id();
+            if (id.equals("rei") || casas.containsKey(id) || id.equals("contrabandista") || id.equals("dragoes") || (sobre != null && sobre.has(id))) continue;
+            BlockPos achado = null;
+            for (int raio : new int[]{21, 25, 29}) {
+                for (int ang = 0; ang < 360 && achado == null; ang += 6) {
+                    int resto = ang % 90;
+                    if (resto < 14 || resto > 76) continue;   // longe das 4 ruas que saem da praça
+                    int x = c.getX() + (int) Math.round(Math.cos(Math.toRadians(ang)) * raio), z = c.getZ() + (int) Math.round(Math.sin(Math.toRadians(ang)) * raio);
+                    boolean ok = true;
+                    for (BlockPos u : casas.values()) if (Math.abs(x - u.getX()) < 4 && Math.abs(z - u.getZ()) < 4) { ok = false; break; }
+                    for (BlockPos u : soltos.values()) if (ok && Math.abs(x - u.getX()) < 3 && Math.abs(z - u.getZ()) < 3) ok = false;
+                    for (BlockPos u : outros) if (ok && Math.abs(x - u.getX()) < 3 && Math.abs(z - u.getZ()) < 3) ok = false;
+                    if (ok) achado = chao(nivel, x, z, c.getY(), r.subterraneo());
+                }
+                if (achado != null) break;
+            }
+            if (achado != null) soltos.put(id, achado);
+        }
+        return soltos;
+    }
+
     private static boolean livre(BlockPos b, List<BlockPos> usados, BlockPos centro) {
         if (Math.abs(b.getX() - centro.getX()) < 6 && Math.abs(b.getZ() - centro.getZ()) < 6) return false;   // fonte/trono do meio
         for (BlockPos u : usados) if (Math.abs(b.getX() - u.getX()) < 6 && Math.abs(b.getZ() - u.getZ()) < 6) return false;
@@ -297,8 +356,11 @@ public class NpcsReino {
         int n = 0;
         BlockPos centroCasas = centroDasCasas(nivel, r, sobre);
         Map<String, BlockPos> casas = lugaresDasCasas(nivel, r, sobre, centroCasas);
+        Map<String, BlockPos> soltos = lugaresSoltos(nivel, r, sobre, centroCasas, casas);
         for (Papel p : PAPEIS) {
             if (soPapel != null && !soPapel.equals(p.id())) continue;
+            // só existem fora das capitais: Contrabandista (/frx npc aqui contrabandista) e Criador de Dragões (no Labirinto)
+            if (p.id().equals("contrabandista") || p.id().equals("dragoes") || semPapel(r.id(), p.id())) continue;
             BlockPos casa = casas.get(p.id());
             BlockPos b;
             float yaw;
@@ -308,6 +370,9 @@ public class NpcsReino {
                 Oficios.construir(nivel, r, p.id(), casa, frente);
                 b = casa;
                 yaw = frente.toYRot();
+            } else if (soltos.containsKey(p.id())) {
+                b = soltos.get(p.id());
+                yaw = Oficios.paraCentro(b, centroCasas).toYRot();
             } else {
                 b = posicao(nivel, r, p.id(), p.dx(), p.dz(), sobre);
                 yaw = p.id().equals("rei") ? 0f : ThreadLocalRandom.current().nextFloat() * 360f;
@@ -444,9 +509,30 @@ public class NpcsReino {
             return;
         }
         String papel = e.getPersistentData().getString("frx_papel");
+        if (evento.getEntity() instanceof ServerPlayer decifrador && br.com.frxcode.frxworld.aventura.Enigma.aoFalar(decifrador, e)) {
+            evento.setCanceled(true);
+            evento.setCancellationResult(InteractionResult.SUCCESS);
+            return;
+        }
+        if (evento.getEntity() instanceof ServerPlayer carteiro && br.com.frxcode.frxworld.eventos.Encontros.entregarCarta(carteiro, e, papel)) {
+            evento.setCanceled(true);
+            evento.setCancellationResult(InteractionResult.SUCCESS);
+            return;
+        }
+        if (evento.getEntity() instanceof ServerPlayer hostil && Hostilidade.recusa(hostil, e, papel)) {
+            evento.setCanceled(true);
+            evento.setCancellationResult(InteractionResult.SUCCESS);
+            return;
+        }
+        if (papel.equals("contrabandista")) {
+            if (evento.getEntity() instanceof ServerPlayer jogador) Contrabando.abrir(jogador, e);
+            evento.setCanceled(true);
+            evento.setCancellationResult(InteractionResult.SUCCESS);
+            return;
+        }
         // ferreiro/armeiro: clique abre o menu (forja + loja); agachado abre a troca clássica do aldeão
         if ((papel.equals("ferreiro") || papel.equals("armeiro") || papel.equals("cozinheiro") || papel.equals("pedreiro")) && !evento.getEntity().isShiftKeyDown()) {
-            if (evento.getEntity() instanceof ServerPlayer jogador) MenusNpc.abrirForja(jogador, e, "", true);
+            if (evento.getEntity() instanceof ServerPlayer jogador) MenusNpc.abrirForja(jogador, e, VidaNpc.saudacao(jogador, e), true);
             evento.setCanceled(true);
             evento.setCancellationResult(InteractionResult.SUCCESS);
             return;
@@ -508,7 +594,7 @@ public class NpcsReino {
         }
         // mercador: mesma loja do ferreiro (estoque do dia pelo nivel)
         if (papel.equals("mercador") && !evento.getEntity().isShiftKeyDown()) {
-            if (evento.getEntity() instanceof ServerPlayer jogador) MenusNpc.abrirForja(jogador, e, "", true);
+            if (evento.getEntity() instanceof ServerPlayer jogador) MenusNpc.abrirForja(jogador, e, VidaNpc.saudacao(jogador, e), true);
             evento.setCanceled(true);
             evento.setCancellationResult(InteractionResult.SUCCESS);
             return;
@@ -565,6 +651,23 @@ public class NpcsReino {
         if (papel.equals("rei") || papel.equals("guarda") || armado(evento.getEntity()) && evento.getEntity().isShiftKeyDown()) {
             evento.setCanceled(true);
             evento.setCancellationResult(InteractionResult.SUCCESS);
+        }
+    }
+
+    /** Criador de Dragões e Contrabandista só existem fora das capitais: os que um "recriar" antigo pôs numa capital somem ao carregar. */
+    @SubscribeEvent
+    public void foraDeLugar(net.minecraftforge.event.entity.EntityJoinLevelEvent ev) {
+        Entity e = ev.getEntity();
+        if (ev.getLevel().isClientSide() || !e.getTags().contains(TAG) || e.getPersistentData().getString("frx_reino").isEmpty()) return;
+        String papel = e.getPersistentData().getString("frx_papel");
+        if (semPapel(e.getPersistentData().getString("frx_reino"), papel)) {
+            ev.setCanceled(true);
+            br.com.frxcode.frxworld.FrxWorld.LOG.info("NPCs: {} retirado de {} (essa capital não tem esse papel).", papel, e.getPersistentData().getString("frx_reino"));
+            return;
+        }
+        if (papel.equals("dragoes") || papel.equals("contrabandista")) {
+            ev.setCanceled(true);
+            br.com.frxcode.frxworld.FrxWorld.LOG.info("NPCs: {} retirado de {} (só existe fora das capitais).", papel, e.getPersistentData().getString("frx_reino"));
         }
     }
 
@@ -637,6 +740,19 @@ public class NpcsReino {
                             ctx.getSource().sendSuccess(() -> Component.literal(r.nome() + ": " + tirados + " removidos, " + criados + " criados."), true);
                             return criados;
                         }))
+                        .then(Commands.literal("recriar").then(Commands.argument("reino", StringArgumentType.word())
+                                .suggests((c, b) -> SharedSuggestionProvider.suggest(Reinos.todos().stream().map(Reino::id), b))
+                                .executes(ctx -> {   // pelo console: recria os NPCs de um reino sem precisar estar nele
+                                    String id = StringArgumentType.getString(ctx, "reino");
+                                    Reino r = Reinos.todos().stream().filter(x -> x.id().equals(id)).findFirst().orElse(null);
+                                    if (r == null) { ctx.getSource().sendFailure(Component.literal("Reino desconhecido: " + id)); return 0; }
+                                    ServerLevel nivel = ctx.getSource().getServer().overworld();
+                                    int tirados = remover(nivel, r, null);
+                                    int criados = povoar(nivel, r, null);
+                                    registrar(nivel, r);
+                                    ctx.getSource().sendSuccess(() -> Component.literal(r.nome() + ": " + tirados + " removidos, " + criados + " criados."), true);
+                                    return criados;
+                                })))
                         .then(Commands.literal("remover").executes(ctx -> removerSolto(ctx.getSource(), ctx.getSource().getPlayerOrException())))
                         .then(Commands.literal("aqui").then(Commands.argument("papel", StringArgumentType.word())
                                 .suggests((c, b) -> SharedSuggestionProvider.suggest(papeis, b))
@@ -646,6 +762,7 @@ public class NpcsReino {
                                     Reino r = reinoDe(p);
                                     if (!papeis.contains(papel)) { ctx.getSource().sendFailure(Component.literal("Papel inválido.")); return 0; }
                                     if (r == null) return soltar(ctx.getSource(), p, papel);
+                                    if (papel.equals("contrabandista") || papel.equals("dragoes")) { ctx.getSource().sendFailure(Component.literal("Esse NPC só fica fora das capitais.")); return 0; }
                                     salvarPosicao(r, papel, p.blockPosition());
                                     String base = papel.startsWith("guarda") ? "guarda" : papel;
                                     if (!base.equals("guarda")) {

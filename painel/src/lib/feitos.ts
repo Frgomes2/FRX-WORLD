@@ -7,7 +7,7 @@ import { prisma } from "@/lib/prisma";
  * Na primeira conferência (mural recém-criado), um marco que só um personagem tem vai para ele, sem data;
  * um marco que vários já tinham fica registrado como "antes do mural", sem nome, porque não dá para saber quem foi primeiro.
  */
-export type MarcoMural = { chave: string; titulo: string; icone: string; grupo: "Guilda" | "Nível" | "Torre" | "Labirinto" };
+export type MarcoMural = { chave: string; titulo: string; icone: string; grupo: "Guilda" | "Nível" | "Torre" | "Labirinto" | "Enigma" };
 export type FeitoPublico = MarcoMural & { feito: boolean; nome: string; conta: string; vaga: number; quando: number | null };
 export type Candidato = { nome: string; conta: string; vaga: number; nivel: number; rank: string; conquistas: number };
 
@@ -17,6 +17,11 @@ export const MARCOS: MarcoMural[] = [
   ...[10, 25, 50, 75, 100].map((n) => ({ chave: `nivel:${n}`, titulo: `Primeiro nível ${n}`, icone: n === 100 ? "🌟" : "⚔️", grupo: "Nível" as const })),
   ...[10, 25, 50, 100].map((n) => ({ chave: `torre:${n}`, titulo: n === 100 ? "Primeiro a zerar a Torre" : `Primeiro no andar ${n} da Torre`, icone: "🗼", grupo: "Torre" as const })),
   { chave: "chegada:labirinto", titulo: "Primeiro a chegar ao coração do Labirinto do Dragão", icone: "🐉", grupo: "Labirinto" },
+  { chave: "chegada:enigma", titulo: "Desvendou o Primeiro Enigma", icone: "🗝️", grupo: "Enigma" },
+  { chave: "chegada:enigma_elmo", titulo: "Desvendou o Enigma do Elmo", icone: "🪖", grupo: "Enigma" },
+  { chave: "chegada:enigma_peitoral", titulo: "Desvendou o Enigma do Peitoral", icone: "🛡️", grupo: "Enigma" },
+  { chave: "chegada:enigma_perneiras", titulo: "Desvendou o Enigma das Perneiras", icone: "👖", grupo: "Enigma" },
+  { chave: "chegada:enigma_botas", titulo: "Desvendou o Enigma das Botas", icone: "🥾", grupo: "Enigma" },
 ];
 
 type Linha = { chave: string; nome: string; conta: string; vaga: number; antigo: boolean; quando: Date };

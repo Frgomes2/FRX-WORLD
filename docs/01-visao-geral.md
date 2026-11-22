@@ -38,11 +38,11 @@ Raças → Classes → Atributos → Talentos → Forja → Equipamentos
 |---|---|
 | Superfície (Overworld) | 1–60, sobe com a distância do spawn (250 blocos por nível) |
 | Floresta do Crepúsculo (Twilight Forest) | 10–25 |
-| Nether | 15–35 |
+| Nether | 55–80 (Rank C) |
 | Undergarden | 20–35 |
 | Everbright (Blue Skies) | 25–40 |
 | Aether | 30–45 |
-| O Fim (End) | 30–50 |
+| O Fim (End) | 75–100 (Rank A) |
 | Everdawn (Blue Skies) | 35–50 |
 | O Outro Lado (Deeper and Darker) | 45–60 |
 

@@ -1,0 +1,14 @@
+{
+  "enchantment.fallingtree.chopper": "Lenhador",
+  "enchantment.fallingtree.chopper.desc": "A ferramenta derruba a árvore inteira de uma vez, no modo padrão",
+  "enchantment.fallingtree.chopper_instantaneous": "Lenhador (instantâneo)",
+  "enchantment.fallingtree.chopper_instantaneous.desc": "A ferramenta derruba a árvore inteira de uma vez, no modo instantâneo",
+  "enchantment.fallingtree.chopper_fall_block": "Lenhador (bloco cai)",
+  "enchantment.fallingtree.chopper_fall_block.desc": "A ferramenta derruba a árvore inteira de uma vez, com os blocos caindo",
+  "enchantment.fallingtree.chopper_fall_all_block": "Lenhador (todos os blocos caem)",
+  "enchantment.fallingtree.chopper_fall_all_block.desc": "A ferramenta derruba a árvore inteira de uma vez, com todos os blocos caindo",
+  "enchantment.fallingtree.chopper_fall_item": "Lenhador (item cai)",
+  "enchantment.fallingtree.chopper_fall_item.desc": "A ferramenta derruba a árvore inteira de uma vez, soltando os itens",
+  "enchantment.fallingtree.chopper_shift_down": "Lenhador (desce a árvore)",
+  "enchantment.fallingtree.chopper_shift_down.desc": "A ferramenta corta a árvore fazendo o tronco descer a cada bloco quebrado"
+}

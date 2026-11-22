@@ -55,8 +55,8 @@ import java.util.UUID;
  */
 public class Personagens {
     public static final int MAX = 3;
-    /** Ações da tela (AcaoMenu de tipo "personagens"): ABRIR; JOGAR com valor = vaga. */
-    public static final int ABRIR = 0, JOGAR = 1;
+    /** Ações da tela (AcaoMenu de tipo "personagens"): ABRIR; JOGAR com valor = vaga; FECHAR = a tela da entrada foi fechada. */
+    public static final int ABRIR = 0, JOGAR = 1, FECHAR = 2;
     /** Operações com nome (AcaoHabilidade.PERSONAGEM): numero = vaga × 10 + operação. */
     public static final int CRIAR = 1, RENOMEAR = 2;
     private static final String SELO = "frx_slot", BANCO = "frx_banco";
@@ -66,6 +66,13 @@ public class Personagens {
     private static final Map<UUID, JsonObject> INDICES = new HashMap<>();
     private static final Map<UUID, Integer> VAGA_DA_CONTA = new HashMap<>();   // vaga em uso de cada conta (vale também logo depois de sair)
     private static final Map<UUID, Integer> ABRIR_EM = new HashMap<>();     // tick em que a tela de escolha abre para quem acabou de entrar
+    /**
+     * Quem acabou de entrar e ainda está escolhendo o personagem: não toma dano e os monstros não o escolhem como alvo.
+     * Vale da entrada até fechar a tela da entrada (ou trocar de personagem). Por segurança, acaba também se ele andar
+     * (a tela já fechou e o aviso se perdeu), atacar algo ou passar 5 minutos.
+     */
+    private static final Map<UUID, Escolha> ESCOLHENDO = new HashMap<>();
+    private record Escolha(double x, double z, int ate) {}
 
     public Personagens() {}
 
@@ -217,13 +224,34 @@ public class Personagens {
         p.refreshTabListName();
         boolean pronto = Abertura.etapa(p) >= Abertura.FIM || (RacasJogador.escolheu(p) && !Progressao.dados(p).classe().isEmpty());
         // a escolha aparece 3 s depois de entrar, para não ser atropelada pela tela de carregamento nem pelo pedido do pacote de recursos
-        if (pronto && !SEM_TELA.remove(p.getUUID())) ABRIR_EM.put(p.getUUID(), p.server.getTickCount() + 60);
+        if (pronto && !SEM_TELA.remove(p.getUUID())) {
+            ABRIR_EM.put(p.getUUID(), p.server.getTickCount() + 60);
+            ESCOLHENDO.put(p.getUUID(), new Escolha(p.getX(), p.getZ(), p.server.getTickCount() + 20 * 60 * 5));
+        }
         else SEM_TELA.remove(p.getUUID());
     }
 
     @SubscribeEvent
     public void aoSair(PlayerEvent.PlayerLoggedOutEvent ev) {
-        if (ev.getEntity() instanceof ServerPlayer p) resumir(p);
+        if (ev.getEntity() instanceof ServerPlayer p) { resumir(p); ESCOLHENDO.remove(p.getUUID()); }
+    }
+
+    /** Está na tela de escolha da entrada (protegido). */
+    public static boolean escolhendo(Player p) { return ESCOLHENDO.containsKey(p.getUUID()); }
+
+    @SubscribeEvent
+    public void protegerNaEscolha(net.minecraftforge.event.entity.living.LivingAttackEvent ev) {
+        if (ev.getEntity() instanceof ServerPlayer p && escolhendo(p) && !ev.getSource().is(net.minecraft.world.damagesource.DamageTypes.FELL_OUT_OF_WORLD)) ev.setCanceled(true);
+    }
+
+    @SubscribeEvent
+    public void semAlvoNaEscolha(net.minecraftforge.event.entity.living.LivingChangeTargetEvent ev) {
+        if (ev.getNewTarget() instanceof ServerPlayer p && escolhendo(p)) ev.setCanceled(true);
+    }
+
+    @SubscribeEvent
+    public void atacouNaEscolha(net.minecraftforge.event.entity.player.AttackEntityEvent ev) {
+        if (ev.getEntity() instanceof ServerPlayer p) ESCOLHENDO.remove(p.getUUID());
     }
 
     // ------------------------------------------------------------------ tela
@@ -278,6 +306,7 @@ public class Personagens {
     /** Cliques da tela. */
     public static void acao(ServerPlayer p, AcaoMenu a) {
         if (a.acao() == ABRIR) { enviar(p, false, "", true); return; }
+        if (a.acao() == FECHAR) { ESCOLHENDO.remove(p.getUUID()); return; }
         if (a.acao() != JOGAR) return;
         int alvo = (int) a.valor();
         if (alvo < 1 || alvo > MAX || alvo == vagaDe(p)) return;
@@ -371,8 +400,14 @@ public class Personagens {
 
     @SubscribeEvent
     public void aCadaTick(TickEvent.ServerTickEvent ev) {
-        if (ev.phase != TickEvent.Phase.END || (TROCAS.isEmpty() && ABRIR_EM.isEmpty())) return;
+        if (ev.phase != TickEvent.Phase.END || (TROCAS.isEmpty() && ABRIR_EM.isEmpty() && ESCOLHENDO.isEmpty())) return;
         MinecraftServer s = ev.getServer();
+        for (UUID conta : Set.copyOf(ESCOLHENDO.keySet())) {
+            Escolha e = ESCOLHENDO.get(conta);
+            ServerPlayer p = s.getPlayerList().getPlayer(conta);
+            double dx = p == null ? 0 : p.getX() - e.x(), dz = p == null ? 0 : p.getZ() - e.z();
+            if (p == null || s.getTickCount() > e.ate() || dx * dx + dz * dz > 2.25) ESCOLHENDO.remove(conta);
+        }
         for (UUID conta : Set.copyOf(ABRIR_EM.keySet())) {
             if (s.getTickCount() < ABRIR_EM.get(conta)) continue;
             ABRIR_EM.remove(conta);

@@ -12,7 +12,7 @@ type Talento = { id: string; nome: string; atual: number; max: number; liberado:
 type Ficha = {
   nome: string; uuid: string; online: boolean; nivel: number; nivelMax: number; rank: string; xp: number; xpProximo: number;
   classe: string; classeId?: string; raca?: { principal: string; secundaria: string; nivel: string; descricao?: string; bonus: string[] }; unica?: { nome: string; descricao: string; nivel: number; efeito: string; abates: number }; recurso?: string; recursoAtual?: number; recursoMax?: number;
-  moedas: string; banco: string; moedasCobre?: number; bancoCobre?: number; titulo: string; titulos: string[]; zona: number;
+  moedas: string; banco: string; moedasCobre?: number; bancoCobre?: number; bancoRende?: string; titulo: string; titulos: string[]; zona: number;
   x: number; y: number; z: number; dim: string; modo: string; fome: number; nivelVanilla: number;
   tempoJogoMin?: number; mobsMortos?: number; mortesVanilla?: number; blocosAndados?: number;
   atributos: Record<string, number>;
@@ -157,6 +157,7 @@ export function FichaJogador({ base, inicial, inicialEm, inicialOnline, inicialO
         <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-1 text-sm">
           <span>💰 Bolsa: <b className="text-ouro">{f?.moedas ?? `${base.moedas} cobre`}</b></span>
           <span>🏦 Banco: <b className="text-ouro">{f?.banco ?? `${base.banco} cobre`}</b></span>
+          {f?.bancoRende && <span className="text-xs text-green-400">📈 {f.bancoRende}</span>}
           <span>🏆 {base.conquistas} conquistas</span>
           <span>💀 {base.mortes} mortes</span>
           {f && <span>📍 {f.x}, {f.y}, {f.z} <span className="text-pedra-500">({f.dim.replace("minecraft:", "")} · zona Nv {f.zona})</span></span>}
@@ -275,7 +276,7 @@ export function FichaJogador({ base, inicial, inicialEm, inicialOnline, inicialO
                                 <>
                                   <select disabled={leitura || !online || enviando} value={h.nivel} onChange={(e) => acao("habNivel", e.target.value, h.codigo)}
                                     className="rounded border border-pedra-700 bg-pedra-950 px-1 py-0.5 text-xs">
-                                    {Array.from({ length: 10 }, (_, i) => <option key={i + 1} value={i + 1}>Nv {i + 1}</option>)}
+                                    {Array.from({ length: 30 }, (_, i) => <option key={i + 1} value={i + 1}>Nv {i + 1}</option>)}
                                   </select>
                                   <button style={leitura ? { display: "none" } : undefined} disabled={!online || enviando} onClick={() => acao("habEsquecer", undefined, h.codigo)} className="text-xs text-red-400 hover:underline disabled:opacity-40">esquecer</button>
                                 </>

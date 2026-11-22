@@ -112,6 +112,8 @@ public class Externos {
         p.connection.send(new ClientboundSetTitleTextPacket(Component.literal(c.nome() + " derrotado").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD)));
         p.connection.send(new ClientboundSetSubtitleTextPacket(Component.literal("Chefe de nível " + c.nivel()).withStyle(ChatFormatting.YELLOW)));
 
+        // prêmio (moedas, XP e itens) uma vez por recarga; moedas pela dificuldade do chefe, XP cresce com o nível de quem lutou
+        int nivelJogador = Progressao.dados(p).nivel();
         Map<String, Long> marcas = Progressao.dados(p).dungeons();
         Long quando = marcas.get(chave);
         long resta = quando == null ? 0 : Math.max(0, c.recargaHoras() * 3_600_000L - (System.currentTimeMillis() - quando));
@@ -121,7 +123,10 @@ public class Externos {
                     + (h > 0 ? h + "h " : "") + m + "min.").withStyle(ChatFormatting.YELLOW));
             return;
         }
-        StringBuilder ganhou = new StringBuilder("+" + c.xp() + " XP");
+        long moedas = Recompensa.chefaoExterno(c.nivel());
+        if (moedas > 0) br.com.frxcode.frxworld.moedas.Moedas.dar(p, moedas);
+        long xp = Math.round(c.xp() * (1 + nivelJogador / 50.0));
+        StringBuilder ganhou = new StringBuilder("+" + xp + " XP" + (moedas > 0 ? " · " + br.com.frxcode.frxworld.moedas.Moedas.texto(moedas) : ""));
         for (DungeonDef.Loot l : c.loot()) {
             if (ThreadLocalRandom.current().nextDouble(100) >= l.chance()) continue;
             Item item = ForgeRegistries.ITEMS.getValue(ResourceLocation.tryParse(l.item()));
@@ -136,7 +141,7 @@ public class Externos {
             ganhou.append(" · ").append(l.qtd()).append("× ").append(new ItemStack(item).getHoverName().getString());
         }
         if (c.recargaHoras() > 0) marcas.put(chave, System.currentTimeMillis());
-        if (c.xp() > 0) Progressao.ganharXp(p, c.xp());
+        if (xp > 0) Progressao.ganharXp(p, xp);
         p.sendSystemMessage(Component.literal("Prêmio de " + c.nome() + ": ").withStyle(ChatFormatting.GOLD)
                 .append(Component.literal(ganhou.toString()).withStyle(ChatFormatting.WHITE)));
         p.level().playSound(null, p.blockPosition(), SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.PLAYERS, 1f, 1f);

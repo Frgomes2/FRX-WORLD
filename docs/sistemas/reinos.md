@@ -44,6 +44,7 @@
   - A barraca antiga fica no lugar; retire em criativo.
 
 - **Papéis:** rei, ferreiro, armeiro, mercador, banqueiro, sacerdote, sábio e guardas.
+- **Papel ausente numa capital:** em `server/frxworld/reinos/posicoes.json`, `"<reino>": { "sem": ["papel", ...] }` faz o NPC desse papel não nascer ali e sumir se já existir (relido a cada minuto, vale ao carregar o NPC). Hoje: Lubelius sem cambista (a costureira ocupa o lugar dele).
 - Os NPCs nascem quando o jogador entra na caixa do reino.
 - `/rei` mostra o nome, as coordenadas e a direção do rei mais próximo.
 - **Ferreiro e armeiro:** agachar + clicar com o item na mão. Veja [atributos-forja.md](atributos-forja.md).
@@ -62,6 +63,16 @@
 - Cada reino tem uma mistura com pesos. Tempest é o mais variado, Dwargon quase só anões, Sarion elfos.
 - `cliente/RenderRacas` desenha esses moradores com corpo de jogador e skin `textures/entity/raca/<raca>_<0-4>.png`. Escalas: anão 0,78, halfling 0,68, gigante 1,18, oni 1,04.
 
+### Vida dos moradores (`VidaNpc.java`)
+
+- **Memória:** ferreiro, armeiro, mercador, cozinheiro e pedreiro lembram a última compra do jogador e quantas vezes ele comprou ali; a frase aparece ao abrir a loja. O taverneiro comenta a última missão entregue e a má fama do jogador; o rei reconhece quem é Reverenciado.
+- **Freguês:** 10 compras no mesmo lojista dão 3% de desconto; 30 dão 5%. Soma com a reputação (teto de 50%).
+- **Skin do aprendiz:** no painel (NPCs) há os tipos "Aprendiz do Ferreiro", "do Armeiro" e "do Mercador", com skin padrão ou por reino. Sem skin definida, o aprendiz aparece com a skin da raça do reino. O mestre de folga na taverna usa a skin do mestre.
+- **Rotina:** de noite (13000 a 23000 no relógio do jogo) ferreiro, armeiro e mercador viram "Aprendiz do ..." e cobram 10% a mais. Os mestres aparecem ao lado do taverneiro, parados, e somem ao amanhecer ou quando o servidor para. Eles são criados quando há jogador na capital.
+- **Na taverna, à noite:** os mestres só conversam (boatos) e é ali que ferreiro e armeiro pedem favores. O taverneiro também conta boatos em "Alguma novidade?".
+- **Rixa ferreiro × armeiro:** os dois disputam a encomenda do rei. Um favor por noite do jogo em cada capital. Ferreiro pede 16 lingotes de ferro e 16 carvões; armeiro pede 12 couros e 8 lingotes de ferro. Entregar dá +1 de estima com ele, −1 com o outro, +15 de reputação e XP. Estima 3 = 5% de desconto na loja dele, 6 = 8%; −3 ou menos = 5% mais caro.
+- Tudo fica guardado no jogador (`frx_vida`).
+
 ## Reputação (`Reputacao.java`)
 
 | Nível | Pontos | Desconto |
@@ -73,7 +84,31 @@
 | Exaltado | 4000 | 15% |
 | Herói | 10000 | 20% |
 
-- Ganha-se com missões, campanhas e quests. Humanos ganham +10%.
+- Ganha-se com missões, campanhas, quests, abates perto da capital e defesa de invasões. Humanos ganham +10%.
+- **Favor Real:** a partir de Honrado, o rei oferece um serviço por dia (derrotar 15 a 40 monstros a até 200 blocos da capital, conforme o nível de reputação). Paga reputação, moedas e XP.
+- **Reverenciado** libera no mercador o **Corcel do reino** (cavalo domado, selado, veloz), além dos itens que já existiam.
+
+### Rivais e má fama (`Hostilidade.java`)
+
+- **Rivais:** Lubelius × Lordes Demônios, Oeste × Tempest, Leste × Sarion. Todo ganho de 5 pontos ou mais tira um quarto no rival. Dwargon e Sakura não têm rival.
+- **Lado negativo** (piso em −3000):
+
+| Nível | Pontos | O que acontece |
+|---|---|---|
+| Malvisto | −100 | Preços 15% mais caros |
+| Hostil | −500 | Preços 30% mais caros; lojistas não atendem; guardas atacam dentro da capital. Banco, câmbio, Guilda, clãs e o rei continuam atendendo |
+| Inimigo | −1500 | Além do anterior, recompensa pela cabeça |
+
+- **Recompensa:** com PvP ligado, quem derrota um Inimigo do reino recebe 3000 + 150 por nível do alvo (em cobre) e +100 de reputação com o reino; o alvo volta a −500. Não vale entre membros do mesmo clã. O chat avisa quando alguém vira procurado e, a cada 15 minutos, a região onde foi visto; `/procurados` lista.
+- **O que tira reputação:** ajudar o rival, os serviços do Contrabandista, bater em guarda sem ter sido atacado (primeiro um aviso, depois −10 por golpe) e matar guarda (−30).
+- **A volta:** multa ao rei (30 de cobre por ponto negativo; zera a reputação), missões e abates perto da capital, e +2 pontos a cada 5 minutos de jogo.
+- Títulos: "Fora da Lei" (Hostil com algum reino) e "Inimigo de <reino>".
+
+### Contrabandista (`Contrabando.java`, tela `TelaContrabando`)
+
+- NPC de papel `contrabandista`, só fora das capitais: `/frx npc aqui contrabandista`; para tirar, `/frx npc remover`.
+- **Três serviços por dia** (mudam à meia-noite), cada um contra um reino: **Carga desviada** (entregar itens; −40), **Olhos na capital** (chegar a até 30 blocos do centro da capital; −60) e **Patrulha a menos** (derrubar 2 guardas; −100). Pagam moedas e dão metade da perda em reputação com o rival do alvo.
+- **Mercadoria** por má fama com qualquer reino: Malvisto (pérolas, invisibilidade, queda lenta), Hostil (totem, maçã encantada, Adaga do Contrabandista Épica +3), Inimigo (élitros, Lâmina e Couraça do Renegado, Lendárias +5).
 - **Honrado** com um reino libera a raça especial ligada a ele. Veja [racas.md](racas.md).
 - `/reputacao` · `/titulo usar <título>` · admin `/frx reputacao` ou pelo painel (Reinos → ✏️).
 
@@ -92,6 +127,9 @@ Veja [quests.md](quests.md) para o papel das campanhas na estrutura de missões.
 Ataques periódicos aos reinos. `/invasao` mostra o estado · admin `/frx invasao parar`. A configuração fica no painel (Progressão).
 
 ## Waystones dos reinos (`WaystonesReino.java`)
+
+- **Indestrutíveis:** as 5 waystones de cada reino (centro e 4 portões) e o bloco de apoio embaixo de cada uma não quebram, não explodem e não são movidas por pistão. Só o admin, no criativo, consegue quebrar. As posições vêm de `<mundo>/frx_waystones.txt`.
+
 
 - Cada reino tem **5 waystones**: **Centro** (na praça) e **Portões Norte, Sul, Leste e Oeste**, 6 blocos fora do muro, com piso e 2 lanternas.
 - O material combina com o reino: ardósia em Dwargon (o centro fica no subterrâneo, perto da taverna, e os portões na superfície), pedra-negra nos Lordes Demônios, musgo em Sarion e Sakura.

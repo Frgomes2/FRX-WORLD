@@ -34,7 +34,7 @@ Pacote base: `br.com.frxcode.frxworld`. A entrada é `FrxWorld.java`, que regist
 | `dungeon` | Dungeons, DungeonDef, Construir, BlocoNucleo, BlocoPortao, Externos | Dungeons em camadas e estruturas externas |
 | `efeitos` | Efeitos, EfeitoFerido | Efeitos de poção próprios |
 | `aventura` | Historia, Temporadas, Procurados, Torre, Ceu, Tesouros, Runas, Chefes, Fenda, Inferno | História principal, placar mensal, procurados, Torre Infinita, eventos do céu, mapas do tesouro, runas, chefões com mecânicas, dungeon de portal e emboscadas do Nether |
-| `eventos` | ChefeMundial, EventosEstrada, Craque, Ladrao | Chefe mundial, eventos de estrada e as visitas raras (Ronaldinho e ladrão) |
+| `eventos` | ChefeMundial, EventosEstrada, Craque, Ladrao, Noel, ItensNatal | Chefe mundial, eventos de estrada e as visitas raras (Ronaldinho, ladrão e Papai Noel, com a Caixa de Presente e o Gorro) |
 | `grupos` | Grupos | Divisão de XP e progresso entre membros do mesmo clã que estão perto (os comandos de grupo foram desligados) |
 | `protecao` | AreasProtegidas, Reequipar, Limpeza, AneisUnicos | Áreas protegidas e refúgios, reequipar ao pegar o túmulo, limpeza do chão e anéis sem repetição |
 | `habilidades` | Habilidades, HabilidadeDef, Especiais, Efeitos, Cartas, Talentos, Despertar, Sombras, ItemTomo | Classes, habilidades, talentos e poderes especiais |

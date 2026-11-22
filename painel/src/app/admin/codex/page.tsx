@@ -20,7 +20,7 @@ export default async function CodexPage() {
         armas={armas.map((a) => ({
           id: a.id, codigo: a.codigo, nome: a.nome, descricao: a.descricao, itemBase: a.itemBase, rank: a.rank, raridade: a.raridade, dano: a.dano,
           limite: a.limite, ferreiro: a.ferreiro, preco: a.preco, nivelMin: a.nivelMin, evolui: a.evolui, danoPorNivel: a.danoPorNivel,
-          umaPorJogador: a.umaPorJogador, encantos: a.encantos, textura: a.textura, emitidas: a.emitidas, ativa: a.ativa,
+          umaPorJogador: a.umaPorJogador, inquebravel: (a as typeof a & { inquebravel?: boolean }).inquebravel ?? false, nivelUso: (a as typeof a & { nivelUso?: boolean }).nivelUso ?? false, encantos: a.encantos, textura: a.textura, emitidas: a.emitidas, ativa: a.ativa,
           donos: Object.values((a.donos ?? {}) as Record<string, string>),
         }))}
         armasNoPacote={pacote?.armas ?? 0}

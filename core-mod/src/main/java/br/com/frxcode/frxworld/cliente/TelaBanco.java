@@ -103,6 +103,7 @@ public class TelaBanco extends Screen {
         g.drawString(font, "No cofre", x0 + 16, y0 + 29, CINZA, false);
         g.drawString(font, "Na bolsa", x0 + 160, y0 + 29, CINZA, false);
         moedas(g, font, x0 + 16, y0 + 43, d.getLong("saldo"), TINTA);
+        if (!d.getString("taxa").isEmpty()) { String t = "+" + d.getString("taxa") + "/dia"; g.drawString(font, t, x0 + 140 - font.width(t), y0 + 29, VERDE, false); }
         moedas(g, font, x0 + 160, y0 + 43, d.getLong("bolsa"), TINTA);
 
         int y = y0 + 92;
@@ -124,6 +125,11 @@ public class TelaBanco extends Screen {
         String msg = d.getString("msg");
         int ym = y0 + ALT - (aba == 2 ? 18 : 44);
         if (!msg.isEmpty()) centro(g, msg, x0 + LARG / 2, ym, d.getBoolean("ok") ? VERDE : VERMELHO);
+        else if (aba < 2 && !d.getString("rende").isEmpty()) {
+            String r = d.getString("rende");
+            if (font.width(r) > LARG - 12) r = font.plainSubstrByWidth(r, LARG - 18) + "…";
+            centro(g, r, x0 + LARG / 2, ym, VERDE);
+        }
         else if (aba < 2) centro(g, "Moedas no cofre não se perdem na morte.", x0 + LARG / 2, ym, CINZA);
         super.render(g, mx, my, pt);
     }

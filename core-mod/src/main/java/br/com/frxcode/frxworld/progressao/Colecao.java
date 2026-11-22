@@ -100,7 +100,7 @@ public class Colecao {
         marco(p, MARCOS, n, "tipos de criatura derrotados");
     }
 
-    private static void registrarChefe(ServerPlayer p, String nome) {
+    public static void registrarChefe(ServerPlayer p, String nome) {
         ListTag l = lista(p, "chefes");
         if (nome.isEmpty() || tem(l, nome)) return;
         l.add(StringTag.valueOf(nome));
@@ -113,7 +113,10 @@ public class Colecao {
     public void aoMorrer(LivingDeathEvent e) {
         LivingEntity morto = e.getEntity();
         if (morto instanceof Player || !(morto.level() instanceof ServerLevel n)) return;
-        if (Chefes.ehChefao(morto)) {   // chefão: vale para todos que estavam na luta
+        // chefão: os do servidor, os marcados como chefe pelo jogo (forge:bosses) e qualquer criatura com 200+ de vida
+        // (chefes de outros mods, como o Ignis do Cataclysm). Vale para todos que estavam na luta.
+        boolean chefao = Chefes.ehChefao(morto) || morto.getType().is(net.minecraftforge.common.Tags.EntityTypes.BOSSES) || morto.getMaxHealth() >= 200;
+        if (chefao) {
             String nome = morto.getName().getString().replace("☠", "").trim();
             for (ServerPlayer p : n.players()) if (p.isAlive() && !p.isSpectator() && p.distanceTo(morto) <= 40 && Progressao.temDados(p)) {
                 registrarChefe(p, nome);
@@ -152,5 +155,22 @@ public class Colecao {
         for (int i = 0; i < l.size(); i++) ch.add(l.getString(i));
         o.add("chefes", ch);
         return o;
+    }
+
+    /** Admin: /frx colecao chefe <jogador> <nome>, para registrar um chefão derrotado antes de ele contar na coleção. */
+    @SubscribeEvent
+    public void comandos(net.minecraftforge.event.RegisterCommandsEvent ev) {
+        ev.getDispatcher().register(net.minecraft.commands.Commands.literal("frx").requires(c -> c.hasPermission(2))
+                .then(net.minecraft.commands.Commands.literal("colecao").then(net.minecraft.commands.Commands.literal("chefe")
+                        .then(net.minecraft.commands.Commands.argument("jogador", net.minecraft.commands.arguments.EntityArgument.player())
+                                .then(net.minecraft.commands.Commands.argument("nome", com.mojang.brigadier.arguments.StringArgumentType.greedyString())
+                                        .executes(ctx -> {
+                                            ServerPlayer alvo = net.minecraft.commands.arguments.EntityArgument.getPlayer(ctx, "jogador");
+                                            String nome = com.mojang.brigadier.arguments.StringArgumentType.getString(ctx, "nome").trim();
+                                            registrarChefe(alvo, nome);
+                                            Progressao.enviarAoPainel(alvo, false);
+                                            ctx.getSource().sendSuccess(() -> Component.literal("[coleção] " + nome + " registrado para " + alvo.getGameProfile().getName() + "."), true);
+                                            return 1;
+                                        }))))));
     }
 }

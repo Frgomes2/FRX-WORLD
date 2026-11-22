@@ -12,6 +12,8 @@ public final class ClienteSombras {
     public static String[] atalhos = {"", "", ""};
     public static int vagas = 0, ativas = 0, ativasMax = 0;
     public static boolean recebido = false;
+    /** As invocações ferem jogadores e podem ser feridas por eles. */
+    public static boolean pvp = false;
 
     private ClienteSombras() {}
 
@@ -21,6 +23,7 @@ public final class ClienteSombras {
         vagas = msg.vagas();
         ativas = msg.ativas();
         ativasMax = msg.ativasMax();
+        pvp = msg.pvp();
         recebido = true;
         if (Minecraft.getInstance().screen instanceof TelaSombras tela) tela.atualizar();
     }
@@ -41,5 +44,6 @@ public final class ClienteSombras {
         atalhos = new String[]{"", "", ""};
         vagas = ativas = ativasMax = 0;
         recebido = false;
+        pvp = false;
     }
 }

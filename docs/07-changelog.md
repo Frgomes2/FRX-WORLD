@@ -6,6 +6,142 @@ Formato: versão, depois o que entrou. A versão do mod fica em `core-mod/gradle
 
 > **Situação dos testes (10/11/2026):** a última versão compilada e testada no PC é a **0.33.0** (`pack/mods/frxworld-0.33.0.jar`). As versões **0.34 a 0.40** ainda não rodaram no jogo. O roteiro de teste está no checklist "FRX-WORLD — Checklist de testes".
 
+## 1.3.9 (22/11) — Ferramentas, escudos e élitros com classe
+
+- `progressao/ClassesEquip.java`: ferramentas (picareta, pá, enxada) ganham classe pelo nível do material (≤1 F, ferro E, diamante D, netherite C, acima B) ou pelo dano, o que for maior; acima do rank `BreakSpeed` e `BreakEvent` são cancelados no servidor. Espadas e machados também consideram o dano do item (reforja). Escudo pela durabilidade; élitros = A; item com armadura por atributo (sem ser ArmorItem) pela armadura; qualquer item com 3+ de dano pelo dano.
+- **Menos ouro fácil**: `portais.moedasPorRank` padrão 100/200/400/800/1500/2500/4000 cobre (antes 500 … 15000); `masmorras.moedasPorNivel` 40 (antes 150); migração `20261122010000_menos_ouro` grava os dois na configuração salva. `Externos`: prêmio inteiro (moedas, XP, loot) só fora da recarga; moedas por `Recompensa.chefaoExterno(nivel)` (< 40: 20×n; 40–54: 50×n; ≥ 55: 3×n²), sem somar o nível do jogador.
+- `habilidades/Sombras.java`: marcar como alvo um jogador do mesmo clã avisa que as invocações não atacam companheiros de clã (antes caía no "mandar para o ponto olhado").
+
+- `progressao/Elitros.java` (novo): quem planar com élitros abaixo do Rank A da Guilda tem o voo cortado (`stopFallFlying`) com aviso na barra; criativo e espectador passam.
+
+## 1.3.8 (21/11) — Correção na Torre Infinita
+
+- `aventura/Torre.java`: ao vencer um andar de chefe, a sala do andar seguro (tema novo, raio pode ser menor) é montada com o grupo já levado para perto do centro (3 blocos ao sul da obsidiana, para não disparar a subida); em `tickCorrida`, quem cair por baixo da sala (até 60 blocos, dentro da área da vaga) volta para dentro em vez de sair da corrida e ser posto na porta.
+
+## 1.3.7 (21/11) — Chefes de outros mods pagam melhor
+
+- `dungeon/Externos.java` + `Recompensa.chefaoExterno`: moedas em toda vitória = `masmorras.moedasPorNivel` × (nível do chefe + nível do jogador); XP = XP do painel × (1 + nível do jogador / 50); XP e loot continuam com a recarga por jogador.
+- `progressao/AjustesAdmin.java`: `/frx ajustar <nick>` ganhou `moedas <cobre>` (soma com o que já estava pendente), `item <id> <qtd>`, `chefe <nome>` (coleção) e `aviso <texto>`; offline, entram no próximo login.
+
+## 1.3.6 (21/11) — Papai Noel, Nether e End mais difíceis, chefões de outros mods na coleção
+
+- **Nether e End viram as fases depois da superfície** (`progressao/Zonas.java`): Nether 55–80 (antes 22–40) e Rank C (antes D); End 75–100 (antes 30–50), Rank A (antes C) e dureza nova +250% de vida e +150% de dano. Painel `lib/dimensoes.ts` com os novos padrões e migração `20261121200000_nether_end_dificil` gravando as faixas na configuração salva.
+- **Dragão do Fim de Rank A** (`aventura/DragaoFim.java`, novo): nível fixo 80 (`Zonas.marcarNivel`, sem os bônus da zona), 2500 de vida, +12 de armadura, dano ×2 contra jogadores; jogador abaixo do nível mínimo do Rank A causa 20% do dano. A cada 25 s, com o dragão vivo e jogadores a até 180 blocos do centro, 2–3 lacaios por jogador (Códex local `fim`, ou enderman/fantasma/vex/endermite), teto 4 por jogador e 16 no total, e 20% de chance de um chefão de Rank A nível 85. Quem causar dano fica anotado no próprio dragão (`frx_dragao_ajudantes`, sobrevive a reinícios); na morte, cada ajudante online ganha 5 000 000 cobre (50 mil ouro) no banco e a conquista `dragao_end` (descrição agora "Ajude a derrotar o Dragão do Fim"), aviso no chat e os lacaios somem.
+
+- **Papai Noel** (`eventos/Noel.java`, novo): evento raro igual ao Ronaldinho (4 em 1000 por minuto por jogador, `frx_noel.txt`). 70% **trenó**: Noel (guarda com papel de skin `noel`, tag `frx_noel`) num carrinho sem gravidade puxado por 4 renas (`twilightforest:deer`, cabra se faltar) passa voando, pousa, confere a "lista" (`Reputacao.piorHostilidade >= 2` → carvão, senão Caixa de Presente) e solta presentes na partida. 30% **perdido**: 3 renas brilhando a 15–35 blocos; tocar nas 3 (2,5 blocos) em 5 min dá 3 presentes + 2000 cobre; acaba se o jogador se afastar 90 blocos. `/frx noel [treno|perdido|<jogador>]` força; `/frx noel chance <0-1000>` ajusta.
+- `eventos/ItensNatal.java` (novo): `frxworld:presente` (abre com sorteio: 40% 5–30 ouro, 25% comida, 15% fogos, 10% frascos de XP, 10% raro: runa nível ≤ 2, Tomo Arcano, tesouro ou gorro) e `frxworld:gorro_natal` (capacete sem defesa, material `frxworld:natal`). Texturas e modelos próprios.
+- `npc/SkinsNpc.java`: tag `frx_noel` usa o papel `noel`; painel `lib/npcs.ts` ganhou o card "Papai Noel (evento raro)".
+
+- `progressao/Colecao.java`: conta como chefão também quem está na tag `forge:bosses` ou tem 200+ de vida máxima (antes só os chefões do servidor, `Chefes.ehChefao`). Comando de admin `/frx colecao chefe <jogador> <nome>` para registrar um chefão derrotado antes da correção.
+
+## 1.3.5 (21/11) — Correção na dungeon dos portais
+
+- `aventura/Fenda.java`: antes de montar cada câmara (o tema muda e a sala pode encolher), todos vão ao centro (`aoCentro`); quem estiver sobre a área da sala abaixo do piso volta ao centro em vez de sair da lista de membros (antes caía da altura 200, a dungeon acabava e a proteção da zona mandava o jogador ao spawn do mundo).
+
+## 1.3.4 (21/11) — Mais portais, chefões que pagam e runas que saem
+
+- `reinos/Portais.java`: tentativa a cada `portais.intervaloMinutos` (padrão 15, antes 40 fixo) com `portais.chance` % (padrão 80, antes 50); primeira tentativa 5 min depois de ligar.
+- `dungeon/Recompensa.java` (novo): moedas dos chefões de masmorra = `masmorras.moedasPorNivel` (padrão 150 cobre) × nível do chefão; guardião de andar = 20% disso por andar. Usado em `Dungeons` (chefão e guardiões) e `Externos`.
+- `progressao/TetoAtributos.java` (novo): o máximo do atributo armadura sobe de 30 para 100 (servidor e cliente), no setup comum. Com a fórmula do Apothic Attributes (`a / (a + armadura)`, a = 10 até 20 de dano), os pontos acima de 30 ainda contam, com retorno decrescente.
+- Sábio: aba Runas na bancada (`Desencanto.TIRAR_RUNA`, `Runas.doItem`/`tirar`/`nomeRuna`/`corRuna`); preços `desencanto.runa1..3` (10, 25 e 50 ouro).
+- Painel: card "Portais e masmorras" em Economia (intervalo, chance, moedas por rank do portal e moedas por nível de chefão).
+
+## 1.3.3 (21/11) — Mesa de costura e portais que pagam, no seu nível
+
+- `reinos/Costureira.java` + `reinos/MenuCostura.java` (menu `frxworld:costura`) + `cliente/TelaCostura.java` (novos): mesa de costura com abas Bolsos, Passar bolsos, Remendos, Bordados (acabamento de armadura e nome colorido, `AcaoHabilidade.BORDAR_NOME`) e Disfarce (`frx_disfarce_ate`, conferido em `Hostilidade`). `cliente/TelaCostureira.java` saiu (guardada em `logs/removidos/codigo`). `Hostilidade.guarda` ficou visível no pacote.
+- `reinos/Portais.java`: moedas para cada jogador que derrota o chefão (`moedasDoRank`, seção `portais.moedasPorRank` da configuração; padrão 5, 10, 20, 35, 60, 100 e 150 ouro de F a S). Painel: `admin/economia/portais.tsx`.
+- `reinos/Portais.java`: rank do portal pelo rank de um jogador sorteado (25% um abaixo, 45% o mesmo, 20% um acima, 10% dois acima), na capital mais próxima dele.
+
+## 1.3.2 (21/11) — Diário do Enigma em livro, /enigma e dano das invocações
+
+- `habilidades/Sombras.java`: escolha do dono `frx_invoc_pvp` (NBT persistente, desligada por padrão), ação `AcaoSombra.ALTERNAR_PVP` e campo `pvp` no `SyncSombras`. `cliente/TelaSombras.java`: botão "Dano em jogadores".
+- `aventura/Enigma.java`: o Diário abre a tela `cliente/TelaDiarioEnigma.java` (AbrirMenu "enigma"; só as pistas já descobertas vão ao cliente) em vez do texto no chat; comando `/enigma` (abre e entrega um Diário novo a quem não tem).
+- `reinos/NpcsReino.java`: papéis que uma capital não tem (`posicoes.json` → `"<reino>": { "sem": [...] }`): não nascem ali e somem ao carregar. Lubelius: `sem: ["cambista"]`, e a costureira foi para o antigo lugar dele (1802, 71, 1610).
+- `habilidades/MarcaInvocacao.java`: a proteção fixa virou a regra do dono, nos dois sentidos (invocação → jogador e jogador → invocação); o dono nunca fere as próprias invocações nem é ferido por elas; dono offline conta como desligado.
+
+## 1.3.1 (21/11) — Invocações com cara de sombra, sábio que extrai encantamentos e recuperação pelo nível
+
+- `aventura/Conjuntos.java`: a Regeneração II fixa virou cura por segundo proporcional ao nível do personagem (% da vida máxima = 0,5 + 9,5 × (nível/100)², até 10%/s no nível 100), pela metade nos 2 s depois de levar dano.
+- `habilidades/MarcaInvocacao.java` (novo): invocações no time `frx_invocacoes` (roxo), aura de partículas roxas e proteção contra dano de jogador. `cliente/SombraInvocacao.java` (novo): redesenha as invocações com as cores escurecidas e arroxeadas (menos o texto do nome).
+- `reinos/Desencanto.java`, `reinos/MenuDesencanto.java` (menu `frxworld:desencanto`, espaços do item e do livro) e `cliente/TelaDesencanto.java` + `cliente/RegistroTelas.java` (novos): bancada do sábio no jeito da bigorna; extrai um encantamento para livro (moedas da bolsa/banco, níveis, livro; chance no IV e V+; Códex e maldições bloqueados). Opção nova na conversa do sábio (`Dialogos`). Painel: seção `desencanto` e `admin/economia/desencanto.tsx`.
+
+## 1.3.0 (21/11) — Armadura de Cristal e nível de uso
+
+- `armas/NivelUso.java` (novo): nível de uso dos itens do Códex (experiência por dano em monstros ou dano recebido, golpe final, chefões ×5, spawner não conta, teto diário de 25.000, 10 níveis até 1,5 milhão; +2% de dano ou −1% de dano recebido por nível; brilho no 5 e faíscas no 10). Descrição do item explica o nível e como ele sobe.
+- `armas/Codex.java`: `Def.nivelUso`; descrição separa "Evolui com o dono" do nível do item; troca de modo no painel vale para itens já entregues; estoque leva o maior `nivelUso` para o painel.
+- Painel: "Como o item evolui" no Códex (não evolui / com o nível do jogador / com o uso), migração `20261121090000_arma_nivel_uso` (`nivelUso`, `nivelUsoMax`), nível em estrelas em Armas Únicas no site.
+- `armas/Reliquias.java` (novo): material `frxworld:alvorecer` (defesa 3/8/6/3, resistência 2,5, som de ametista) e quatro peças (`frxworld:alvorecer_elmo`, `_peitoral`, `_perneiras`, `_botas`), sem receita e fora das abas do criativo, para servir de item base de relíquias do Códex.
+- Texturas originais em cristal facetado: `textures/models/armor/alvorecer_layer_1.png`/`_layer_2.png` (vestida) e `textures/item/alvorecer_*.png` (ícones), com modelos e nomes em pt_br/en_us.
+
+## 1.2.9 (21/11) — Cofre que rende, poções traduzidas e entrada protegida
+
+- `assets/frxworld/traducoes_fixas.json`: +76 frases (nomes e descrições escritos direto nas tabelas de baú do Dungeons Arise, Incendium e Structory Towers).
+- `assets/minecraft/lang/pt_br.json` (novo): `potion.potency.6` a `.25` (VII a XXVI) e `enchantment.level.11` a `.20`, que o jogo não traduz.
+- `moedas/Banco.java`: rendimento diário do cofre (taxa inicial, aumento por período sem sacar, máxima, teto e dias offline vindos da seção `banco` da configuração). Estado da conta em `<mundo>/frx_banco_rendimento.json`. Sacar volta à taxa inicial. `MenusNpc.abrirBanco` manda `taxa` e `rende` para a `TelaBanco`; `DetalheJogador` manda `bancoRende` para a ficha.
+- Painel: `BANCO_PADRAO` e seção `banco` em `lib/config-jogo.ts`; `admin/economia/rendimento.tsx` (formulário com simulação) e `salvarBanco` em `actions.ts`; ficha do jogador mostra o rendimento.
+- `acesso/Personagens.java`: proteção na escolha da entrada (`ESCOLHENDO`). Da entrada até fechar a tela (`FECHAR`, enviado por `TelaPersonagens.removed()`), o jogador não toma dano (menos o do vazio) e os monstros não o escolhem como alvo. Acaba também se andar mais de 1,5 bloco, atacar algo, sair ou passar 5 minutos.
+
+## 1.2.8 (21/11) — Vários enigmas, evento com data e guardião
+
+- `aventura/Enigma.java` reescrito para vários enigmas ao mesmo tempo: o antigo `frx_enigma.dat` continua e os novos ficam em `<mundo>/frx_enigmas/<id>.dat`, cada um com o seu estado.
+- Campos novos: `inicio` (evento com data: primeira pista visível antes, ninguém avança antes da hora), `grupo` (uma vitória por pessoa no grupo), `conjunto`/`conjuntoNome`, e `chefe`/`chefeNivel` na etapa final (guardião que precisa cair para o baú surgir).
+- Avisos do evento no chat (de hora em hora, a cada 10 minutos na última hora, a 5 e a 1 minuto) e ao entrar.
+- Diário único para todos os enigmas (`frx_enigmas/diarios.json`); só some quando não sobra enigma anunciado nem em andamento.
+- `aventura/Conjuntos.java` (novo): conjunto completo vestido dá Regeneração II.
+- Painel `lib/feitos.ts`: marcos `chegada:enigma_elmo`, `_peitoral`, `_perneiras`, `_botas`.
+- Correção: `Armas.forjavel` usava `isDamageableItem()`, que é falso para itens inquebráveis; agora usa `getMaxDamage() > 0`, e o ferreiro volta a aprimorar e reforjar armas do Códex inquebráveis.
+
+## 1.2.7 (20/11) — Habilidades até o nível 30
+
+- `Habilidades.NIVEL_MAX = 30` (era 10). Nível n continua pedindo 5 × (n − 1)² usos; usos já feitos contam no próximo uso.
+- `Habilidades.ganho(nivel, ate10, depois)`: do 2 ao 10 os ganhos são os de antes (dano +8%, recarga −3%, invocação força +10% e duração +5% por nível); do 11 ao 30, dano +3%, recarga −1%, invocação força +4% e duração +2% por nível. Nível 30: dano ×2,32 e recarga −47%.
+- Tradução pt-BR de 324 textos de armas, armaduras e ferramentas (nomes e descrições) de 17 mods: Born in Chaos, Aether, Undergarden, Unusual End, Dungeon Now Loading, Mowzie's Mobs, Blue Skies, Alex's Caves, Deeper and Darker e outros. Arquivos em `core-mod/src/main/resources/assets/<mod>/lang/pt_br.json`.
+- Códex: opção **Inquebrável (nunca desgasta)** por arma (`ArmaCodex.inquebravel`, migração `20261120233000_arma_inquebravel`, que já marca a `enigma_premio`). O item recebe `Unbreakable`; as unidades já entregues são atualizadas e consertadas sozinhas.
+- Códex: mudar o dano extra ou o dano por nível de uma arma no painel passa a valer também para as unidades já entregues (o mod confere o inventário de quem está online a cada 2 s e avisa "foi reforjada").
+- Site: seção **Armas Únicas** (`#armas`): cada arma do Códex com dono mostra aparência, raridade, quantas existem e o primeiro dono com a data. `Codex.emitir` grava `primeiro` {nome do personagem, quando} em `frx_codex.json`; armas antigas usam o primeiro da lista de donos, sem data. Painel: colunas `ArmaCodex.primeiroNome` e `primeiroEm` (migração `20261120223000_arma_primeiro`). Crônicas ganham "conquistou a primeira <arma>".
+- Waystones dos reinos (centro e 4 portões de cada capital) protegidas contra quebra, explosão e pistão; só o admin no criativo quebra.
+- Enigma: depois que alguém vence, o Diário do Enigma some da mochila e do baú de Ender dos jogadores, com aviso de quem venceu.
+- NPCs sem casinha e sem posição fixa (clãs, leiloeiro, discos, costureira, escravos, pedreiro...) passam para um anel de fora (raio 21, depois 25 e 29), longe das ruas, das casinhas e uns dos outros: antes alguns caíam dentro da casinha de outro ofício (ex.: costureira na do sábio). Comando de console `/frx npc recriar <reino>`. Lordes Demônios recriados.
+- O Criador de Dragões deixou de ser criado nas capitais pelo `povoar`/`recriar` (só existe solto, no Labirinto). O que tinha aparecido nos Lordes Demônios foi removido.
+- Tela de habilidades mostra "/30"; ficha do jogador no painel e `/frx admin ... habilidade nivel` aceitam até 30.
+
+## 1.2.6 (20/11) — Teste de conexão no painel
+
+- Painel, Servidor → aba **Teste de conexão** (`admin/servidor/conexao.tsx`, rota `/api/painel/conexao`): ping de cada jogador (agora, média, melhor, pior e gráfico), saúde do servidor (TPS, tempo por tick, processador, memória) e um parecer: servidor pesado, rede ruim para todos (túnel ou internet do servidor) ou só para alguns. O botão mede por 1 minuto.
+- **Enigma** (`aventura/Enigma.java`, novo): corrida de pistas; só o primeiro personagem a chegar ao fim leva uma arma do Códex. Conteúdo em `<mundo>/frx_enigma.dat` (Base64, fora do git, para não estragar a surpresa), andamento em `<mundo>/frx_enigma_estado.json`. Começa sozinho quando a arma do prêmio existe no Códex. Diário do Enigma (livro) mostra as pistas descobertas. Etapas: `lugar` (com horário opcional), `npc` (com itens opcionais, gancho em `NpcsReino.aoInteragir`) e `final` (baú com a arma). Mural dos Primeiros: marco `chegada:enigma`; `AreasProtegidas.registrar` passou a ser público e reaproveitado.
+- `status-servidor.ts` guarda o ping de cada jogador a cada retrato do mod (10 s), por 30 minutos.
+
+## 1.2.5 (20/11) — Correção no envio de skin dos aprendizes
+
+- Painel: `CHAVE_VALIDA` (`src/lib/npcs.ts`) passou a aceitar sublinhado no papel; sem isso o envio de skin para `aprendiz_*` era recusado com "Tipo de NPC inválido".
+
+## 1.2.4 (20/11) — Skin própria para os aprendizes
+
+- `SkinsNpc.papelEReino`: o lojista em turno de aprendiz é marcado como `aprendiz_ferreiro`, `aprendiz_armeiro` ou `aprendiz_mercador`; o mestre de folga (`folga_*`) usa a chave do mestre. `VidaNpc` reenvia a marca a quem está vendo o NPC quando o turno muda.
+- Tradução pt-BR de 221 nomes e descrições de encantamentos de 14 mods (Dungeon Now Loading, Alex's Caves, Domestication Innovation, Unusual End, FallingTree, Better Archeology e outros), em `core-mod/src/main/resources/assets/<mod>/lang/pt_br.json`.
+- The Rings of Power: `pt_br.json` com as 74 chaves do mod. As descrições dos anéis e os avisos do chat estão escritos em inglês dentro do código do mod; `cliente/TraducaoFixa.java` troca essas frases na dica do item e no chat, a partir de `assets/frxworld/traducoes_fixas.json` (frase idêntica em inglês → português). Serve para outros mods com o mesmo problema.
+- Clãs: nome personalizado ao fundar (campo de texto na tela "Meus clãs"; `AcaoHabilidade.FUNDAR_CLA` → `Clas.fundar`). Em branco continua "Clã de Fulano".
+- Painel (NPCs): quatro tipos novos para skin: os três aprendizes e o Contrabandista.
+
+## 1.2.3 (20/11) — Seis mods novos
+
+- Adicionados pelo pack: Farmer's Delight 1.3.4, Aquaculture 2 2.5.7, Serene Seasons 9.1.0.3 (com GlitchCore), Better Archeology 1.2.1 (com SuperMartijn642's Config Lib), Sound Physics Remastered 1.5.1 e AmbientSounds 6.3.11 (só cliente, com CreativeCore).
+- Não entraram: MineColonies e dependências (sem versão 1.20.1 no Modrinth); Storage Finder e SmartChest (o CurseForge bloqueia o download automático; precisam do arquivo baixado à mão em `pack/mods`).
+- Um item do CurseForge com download bloqueado na fila faz o instalador do servidor cancelar a atualização inteira dos mods (`logs/mods-servidor.log`).
+
+## 1.2.2 (20/11) — Política dos reinos: rivais, má fama, procurados e Contrabandista
+
+- **Reputação com lado negativo** (`Reputacao.java`): Malvisto (−100), Hostil (−500), Inimigo (−1500), piso em −3000. Preços +15% (Malvisto) e +30% (Hostil e Inimigo).
+- **Rivais:** Lubelius × Lordes Demônios, Oeste × Tempest, Leste × Sarion. Ganho de 5 pontos ou mais tira um quarto no rival. Dwargon e Sakura são neutros.
+- **`Hostilidade.java` (novo):** lojistas recusam quem é Hostil; guardas atacam dentro da capital; aviso e depois perda de reputação por bater em guarda; recompensa pela cabeça de quem é Inimigo (PvP, fora do mesmo clã), listada em `/procurados`; multa paga ao rei zera a má fama; +2 pontos a cada 5 minutos de jogo enquanto negativa.
+- **`Contrabando.java` e `TelaContrabando` (novos):** NPC de papel `contrabandista`, só fora das capitais (`/frx npc aqui contrabandista`). Três serviços por dia e mercadoria por grau de má fama.
+- **`FavorReal.java` (novo):** serviço diário do rei para quem é Honrado ou mais.
+- **Corcel do reino:** montaria vendida pelo mercador a quem é Reverenciado.
+- Títulos "Fora da Lei" e "Inimigo de <reino>". Aba Reinos mostra o rival e a barra negativa. Painel (Reinos) mostra os níveis negativos.
+- O ajuste de reputação pelo painel e por `/frx reputacao` não mexe no rival.
+- **`eventos/Encontros.java` (novo):** cinco encontros raros na superfície (viajante ferido, mercador perdido, estrela caída, baú fujão, mensageiro com carta). Admin: `/frx encontro <tipo>`.
+- **`VidaNpc.java` (novo):** memória (última compra, número de compras, última missão), freguês (3% com 10 compras, 5% com 30), rotina de dia e noite (aprendiz na loja com +10% e mestres de folga na taverna) e a rixa ferreiro × armeiro (favor por noite, estima de −9 a 9).
+
 ## 1.2.1 (20/11) — Classe Cartomante e efeitos visuais das habilidades
 
 - **Cartomante** (13ª classe, mana; original): `habilidades/Cartas` guarda a mão de 3 cartas por jogador (em memória; some ao sair) e a carta da vez. `Habilidades.usar` chama `Cartas.antes/depois/aposCusto` e `ferir` aplica `fatorDano` (Espadas/Coringa ×1,4) e `aoFerir` (Copas cura 20% do dano, Paus dá Lentidão VII e Fraqueza II por 2 s); Ouros devolve 60% do custo. Coringa: 8% por carta (35% com Maré de Sorte, 100% no Despertar). Gasta carta toda habilidade da classe com `dano != 0` que não seja BUFF. A mão aparece na barra de ação a cada 2 s.

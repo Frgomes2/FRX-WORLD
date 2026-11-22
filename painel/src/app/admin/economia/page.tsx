@@ -2,6 +2,9 @@ import { prisma } from "@/lib/prisma";
 import { Lojas } from "./lojas";
 import { Riqueza } from "./riqueza";
 import { Comprador } from "./comprador";
+import { Rendimento } from "./rendimento";
+import { Desencanto } from "./desencanto";
+import { RecompensaPortais } from "./portais";
 import { lerConfig } from "@/lib/config-jogo";
 
 export default async function EconomiaPage() {
@@ -19,6 +22,9 @@ export default async function EconomiaPage() {
       <Riqueza jogadores={jogadores} />
       <Lojas mercador={lista("MERCADOR")} comprador={lista("COMPRADOR")} />
       <Comprador inicial={config.comprador} />
+      <Rendimento inicial={config.banco} />
+      <RecompensaPortais inicial={config.portais} masmorra={config.masmorras.moedasPorNivel} />
+      <Desencanto inicial={config.desencanto} />
     </>
   );
 }

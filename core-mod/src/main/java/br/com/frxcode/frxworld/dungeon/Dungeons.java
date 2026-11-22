@@ -145,7 +145,8 @@ public class Dungeons {
             return;
         }
         if (!despertar) {
-            StringBuilder premio = new StringBuilder(d.recompensaXp() + " XP");
+            long moedasPremio = Recompensa.chefao(d.nivelRecomendado());
+            StringBuilder premio = new StringBuilder(d.recompensaXp() + " XP" + (moedasPremio > 0 ? " · " + br.com.frxcode.frxworld.moedas.Moedas.texto(moedasPremio) : ""));
             for (DungeonDef.Loot l : d.loot()) {
                 premio.append(" · ").append(l.qtd()).append("× ").append(itemNome(l.item()));
                 if (l.chance() < 100) premio.append(" (").append((int) l.chance()).append("%)");
@@ -301,7 +302,9 @@ public class Dungeons {
                 p.sendSystemMessage(Component.literal("Você já recebeu o prêmio desta dungeon. Disponível de novo em " + tempo(resta) + ".").withStyle(ChatFormatting.YELLOW));
                 continue;
             }
-            StringBuilder ganhou = new StringBuilder("+" + d.recompensaXp() + " XP");
+            long moedas = Recompensa.chefao(d.nivelRecomendado());
+            if (moedas > 0) br.com.frxcode.frxworld.moedas.Moedas.dar(p, moedas);
+            StringBuilder ganhou = new StringBuilder("+" + d.recompensaXp() + " XP" + (moedas > 0 ? " · " + br.com.frxcode.frxworld.moedas.Moedas.texto(moedas) : ""));
             for (DungeonDef.Loot l : d.loot()) {
                 if (ThreadLocalRandom.current().nextDouble(100) >= l.chance()) continue;
                 Item item = ForgeRegistries.ITEMS.getValue(ResourceLocation.tryParse(l.item()));
@@ -338,6 +341,11 @@ public class Dungeons {
             chave.setHoverName(Component.literal("Chave da Camada " + a.andar).withStyle(ChatFormatting.GOLD));
             if (!p.getInventory().add(chave)) p.drop(chave, false);
             Progressao.ganharXp(p, xp);
+            long moedas = Recompensa.guardiao(a.def.nivelRecomendado(), a.andar);
+            if (moedas > 0) {
+                br.com.frxcode.frxworld.moedas.Moedas.dar(p, moedas);
+                p.sendSystemMessage(Component.literal("Guardião da Camada " + a.andar + " vencido: +" + xp + " XP · " + br.com.frxcode.frxworld.moedas.Moedas.texto(moedas)).withStyle(ChatFormatting.GOLD));
+            }
             p.connection.send(new ClientboundSetTitlesAnimationPacket(10, 50, 15));
             p.connection.send(new ClientboundSetTitleTextPacket(Component.literal("Chave da Camada " + a.andar).withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD)));
             p.connection.send(new ClientboundSetSubtitleTextPacket(Component.literal("O Portão Selado pode ser aberto").withStyle(ChatFormatting.YELLOW)));

@@ -967,6 +967,9 @@ public class Torre {
             limparSala(n, c);
             c.andar++;
             montarSala(n, c);
+            // o tema muda e a sala nova pode ser menor: quem estava perto da borda ficaria sem chão; todos vão para perto do centro
+            BlockPos o = c.centro();
+            for (ServerPlayer p : membros(s, c)) { p.teleportTo(n, o.getX() + 0.5, AY + 1, o.getZ() + 3.5, p.getYRot(), 0); p.fallDistance = 0; }
             for (int x = -1; x <= 1; x++) for (int z = -1; z <= 1; z++) n.setBlock(c.centro().offset(x, 0, z), Blocks.CRYING_OBSIDIAN.defaultBlockState(), 2);
             if ((c.andar - 1) % 50 == 0)
                 for (ServerPlayer p : membros(s, c)) s.getPlayerList().broadcastSystemMessage(Component.literal("🗼 " + p.getGameProfile().getName() + " chegou ao andar " + (c.andar - 1) + " da Torre Infinita!").withStyle(ChatFormatting.LIGHT_PURPLE), false);
@@ -1107,6 +1110,13 @@ public class Torre {
         AABB caixa = c.caixa();
         c.membros.removeIf(u -> {
             ServerPlayer p = s.getPlayerList().getPlayer(u);
+            if (p != null && p.isAlive() && p.level() == n && p.getY() < AY && p.getY() > AY - 60
+                    && Math.abs(p.getX() - (c.centro().getX() + 0.5)) <= RMAX + 6 && Math.abs(p.getZ() - (c.centro().getZ() + 0.5)) <= RMAX + 6) {
+                // caiu da sala (por baixo): volta para perto do centro em vez de ser expulso
+                p.teleportTo(n, c.centro().getX() + 0.5, AY + 1, c.centro().getZ() + 3.5, p.getYRot(), 0);
+                p.fallDistance = 0;
+                return false;
+            }
             return p == null || !p.isAlive() || p.level() != n || !caixa.inflate(4).contains(p.position());
         });
         if (c.membros.isEmpty()) { encerrar(s, c, false); return; }

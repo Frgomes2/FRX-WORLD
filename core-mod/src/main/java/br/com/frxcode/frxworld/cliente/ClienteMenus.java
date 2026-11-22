@@ -41,6 +41,12 @@ public final class ClienteMenus {
             if (mc.screen instanceof TelaClas t) t.atualizar(msg.dados()); else mc.setScreen(new TelaClas(msg.dados()));
         } else if (msg.tipo().equals("escravos")) {
             if (mc.screen instanceof TelaEscravos t) t.atualizar(msg.dados()); else mc.setScreen(new TelaEscravos(msg.dados()));
+        } else if (msg.tipo().equals("enigma")) {
+            mc.setScreen(new TelaDiarioEnigma(msg.dados()));
+        } else if (msg.tipo().equals("desencanto")) {
+            if (mc.screen instanceof TelaDesencanto t) t.atualizar(msg.dados());   // a bancada abre como menu; aqui só chega a resposta
+        } else if (msg.tipo().equals("contrabando")) {
+            if (mc.screen instanceof TelaContrabando t) t.atualizar(msg.dados()); else mc.setScreen(new TelaContrabando(msg.dados()));
         } else if (msg.tipo().equals("dragoes")) {
             if (mc.screen instanceof TelaDragoes t) t.atualizar(msg.dados()); else mc.setScreen(new TelaDragoes(msg.dados()));
         } else if (msg.tipo().equals("codigosite")) {
@@ -48,7 +54,7 @@ public final class ClienteMenus {
         } else if (msg.tipo().equals("bolsosdados")) {
             BolsosCliente.receber(msg.dados());
         } else if (msg.tipo().equals("costureira")) {
-            if (mc.screen instanceof TelaCostureira t) t.atualizar(msg.dados()); else mc.setScreen(new TelaCostureira(msg.dados()));
+            if (mc.screen instanceof TelaCostura t) t.atualizar(msg.dados());   // a mesa abre como menu; aqui só chega a resposta
         } else if (msg.tipo().equals("contratos")) {
             if (mc.screen instanceof TelaContratos t) t.atualizar(msg.dados()); else mc.setScreen(new TelaContratos(msg.dados()));
         } else if (msg.tipo().equals("terrenos")) {

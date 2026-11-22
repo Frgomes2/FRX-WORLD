@@ -29,5 +29,11 @@
   "key.frxworld.bolsos": "Open trouser pockets",
   "key.frxworld.site": "Website account code",
   "key.frxworld.sombras_todas": "Shadows: summon/recall all",
-  "key.frxworld.despertar": "Awakening (class power)"
+  "key.frxworld.despertar": "Awakening (class power)",
+  "item.frxworld.alvorecer_elmo": "Dawn Crystal Helmet",
+  "item.frxworld.alvorecer_peitoral": "Dawn Crystal Chestplate",
+  "item.frxworld.alvorecer_perneiras": "Dawn Crystal Leggings",
+  "item.frxworld.alvorecer_botas": "Dawn Crystal Boots",
+  "item.frxworld.presente": "Gift Box",
+  "item.frxworld.gorro_natal": "Christmas Hat"
 }

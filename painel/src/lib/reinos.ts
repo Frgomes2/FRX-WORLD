@@ -10,9 +10,15 @@ export const REINOS = [
   { id: "demonios", nome: "Lordes Demônios", campanha: "O Banquete dos Lordes" },
 ] as const;
 
-/** Mesmos limites de reinos/Reputacao.java. */
+/** Reinos rivais: ajudar um custa um quarto do ganho no outro (reinos/Reputacao.java). */
+export const RIVAIS: Record<string, string> = { lubelius: "demonios", demonios: "lubelius", oeste: "tempest", tempest: "oeste", leste: "sarion", sarion: "leste" };
+
+/** Mesmos limites de reinos/Reputacao.java. Desconto negativo = acréscimo no preço. */
 export const NIVEIS_REPUTACAO = [
-  { nome: "Neutro", minimo: 0, desconto: 0, cor: "text-pedra-500" },
+  { nome: "Inimigo", minimo: -100000, desconto: -30, cor: "text-red-700" },
+  { nome: "Hostil", minimo: -1499, desconto: -30, cor: "text-red-400" },
+  { nome: "Malvisto", minimo: -499, desconto: -15, cor: "text-yellow-400" },
+  { nome: "Neutro", minimo: -99, desconto: 0, cor: "text-pedra-500" },
   { nome: "Amigável", minimo: 100, desconto: 3, cor: "text-green-400" },
   { nome: "Honrado", minimo: 500, desconto: 6, cor: "text-cyan-300" },
   { nome: "Reverenciado", minimo: 1500, desconto: 10, cor: "text-blue-400" },

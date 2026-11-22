@@ -279,7 +279,7 @@ public class TelaHabilidades extends Screen {
             g.drawString(font, "Custo " + h.custo() + " · Recarga " + fmt(h.recarga()) + "s", dx, y, TEXTO, false);
             y += 11;
             if (h.aprendida()) {
-                g.drawString(font, "Nível " + h.nivel() + "/10 · usada " + h.usos() + "x", dx, y, 0xFF7CD67C, false);
+                g.drawString(font, "Nível " + h.nivel() + "/30 · usada " + h.usos() + "x", dx, y, 0xFF7CD67C, false);
             } else {
                 g.drawString(font, h.porItem() ? "Aprende com um Tomo Arcano (nível " + h.nivelReq() + "+)" : "Libera no nível " + h.nivelReq(),
                         dx, y, VERMELHO, false);

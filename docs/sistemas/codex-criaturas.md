@@ -24,7 +24,7 @@ Chefes e monstros próprios do servidor, criados no painel. Os 14 chefes que exi
 
 ## Como entra no jogo
 
-- **Chefes:** `Chefes.criar(..., local)` sorteia primeiro entre os chefes do Códex para o lugar e o rank (`Criaturas.sortearChefe`). Se não houver nenhum, usa a lista de fábrica (`Chefes.DEFS`). Lugares: último salão das masmorras de portal, andares 10, 30, 50, 70 e 90 da Torre, campeão das emboscadas do Nether. Os andares 20, 40, 60 e 80 da Torre continuam com os chefes épicos dos mods e o 100 com o Senhor da Torre.
+- **Chefes:** `Chefes.criar(..., local)` sorteia primeiro entre os chefes do Códex para o lugar e o rank (`Criaturas.sortearChefe`). Se não houver nenhum, usa a lista de fábrica (`Chefes.DEFS`). Lugares: último salão das masmorras de portal, andares 10, 30, 50, 70 e 90 da Torre, campeão das emboscadas do Nether, Guardião do Dragão na ilha do End (lugar `fim`, que também sorteia os lacaios do dragão). Os andares 20, 40, 60 e 80 da Torre continuam com os chefes épicos dos mods e o 100 com o Senhor da Torre.
 - **Monstros:** a cada monstro comum criado nas câmaras de portal, nos andares comuns da Torre e nas hordas do Nether, `Criaturas.sortearMonstro` pode trocá-lo por um do Códex. O monstro recebe o nível do lugar e depois os multiplicadores.
 - **Marcação:** a criatura leva a tag `frx_criatura` e o código em `frx_criatura` (dados persistentes).
 - **Skin:** as skins vão para o mod pela mesma rota das skins de NPC, com a chave `papel:bicho_<código>`. Ao entrar no campo de visão, o servidor manda `MarcaNpc(id, "bicho_<código>", "x<tamanho>")` e o cliente desenha um corpo de jogador com a skin (`RenderRacas`). Não precisa de pacote de recursos.

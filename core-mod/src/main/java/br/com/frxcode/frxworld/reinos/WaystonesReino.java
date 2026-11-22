@@ -48,6 +48,8 @@ public class WaystonesReino {
     private record Ponto(String chave, String nome, String reino, int x, int z, int yRef, boolean subterraneo, boolean centro) {}
 
     private final Set<String> feitas = new LinkedHashSet<>();
+    /** Blocos protegidos: a waystone (2 de altura) e o bloco de apoio embaixo, de cada waystone dos reinos. */
+    private static final Set<Long> PROTEGIDOS = java.util.concurrent.ConcurrentHashMap.newKeySet();
     private final List<Ponto> pendentes = new ArrayList<>();
     private int ticks;
     private boolean ativo;
@@ -63,7 +65,8 @@ public class WaystonesReino {
         feitas.clear();
         try {
             Path r = registro(ev.getServer());
-            if (Files.exists(r)) for (String l : Files.readAllLines(r)) if (!l.isBlank()) feitas.add(l.split(";")[0]);
+            PROTEGIDOS.clear();
+            if (Files.exists(r)) for (String l : Files.readAllLines(r)) if (!l.isBlank()) { feitas.add(l.split(";")[0]); proteger(l); }
         } catch (Exception ignorado) { }
         montarPendentes();
         FrxWorld.LOG.info("Waystones dos reinos: {} colocadas, {} esperando o chunk carregar", feitas.size(), pendentes.size());
@@ -109,8 +112,49 @@ public class WaystonesReino {
                 feitas.add(pt.chave());
                 it.remove();
                 gravar(ev.getServer(), pt.chave() + ";" + res);
+                proteger(pt.chave() + ";" + res);
             }
         }
+    }
+
+    /** Linha do registro "chave;x;y;z": protege a waystone (base e topo) e o bloco embaixo dela. */
+    private static void proteger(String linha) {
+        String[] p = linha.split(";");
+        if (p.length < 4) return;
+        try {
+            BlockPos b = new BlockPos(Integer.parseInt(p[1].trim()), Integer.parseInt(p[2].trim()), Integer.parseInt(p[3].trim()));
+            PROTEGIDOS.add(b.asLong());
+            PROTEGIDOS.add(b.above().asLong());
+            PROTEGIDOS.add(b.below().asLong());
+        } catch (NumberFormatException ignorado) { }
+    }
+
+    private static boolean protegido(Level n, BlockPos b) { return n.dimension() == Level.OVERWORLD && PROTEGIDOS.contains(b.asLong()); }
+
+    /** Ninguém quebra as waystones dos reinos (nem o bloco de apoio). O admin quebra no criativo. */
+    @SubscribeEvent(priority = net.minecraftforge.eventbus.api.EventPriority.HIGH)
+    public void aoQuebrar(net.minecraftforge.event.level.BlockEvent.BreakEvent ev) {
+        if (!(ev.getLevel() instanceof Level n) || !protegido(n, ev.getPos())) return;
+        if (ev.getPlayer() != null && ev.getPlayer().isCreative() && ev.getPlayer().hasPermissions(2)) return;
+        ev.setCanceled(true);
+        if (ev.getPlayer() != null)
+            ev.getPlayer().displayClientMessage(Component.literal("Esta waystone pertence ao reino e não pode ser quebrada.").withStyle(ChatFormatting.RED), true);
+    }
+
+    /** Explosões não levam as waystones dos reinos. */
+    @SubscribeEvent
+    public void aoExplodir(net.minecraftforge.event.level.ExplosionEvent.Detonate ev) {
+        ev.getAffectedBlocks().removeIf(b -> protegido(ev.getLevel(), b));
+    }
+
+    /** Pistões não empurram nem puxam as waystones dos reinos. */
+    @SubscribeEvent
+    public void aoEmpurrar(net.minecraftforge.event.level.PistonEvent.Pre ev) {
+        if (!(ev.getLevel() instanceof Level n)) return;
+        var estrutura = ev.getStructureHelper();
+        if (estrutura == null || !estrutura.resolve()) return;
+        for (BlockPos b : estrutura.getToPush()) if (protegido(n, b)) { ev.setCanceled(true); return; }
+        for (BlockPos b : estrutura.getToDestroy()) if (protegido(n, b)) { ev.setCanceled(true); return; }
     }
 
     private static void gravar(MinecraftServer s, String linha) {

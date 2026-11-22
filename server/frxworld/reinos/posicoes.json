@@ -212,9 +212,9 @@
         1612
       ],
       "sabio": [
-        1788,
+        1765,
         71,
-        1611
+        1608
       ],
       "cartografo": [
         1784,
@@ -292,16 +292,19 @@
         1604
       ],
       "costureira": [
-        1773,
+        1802,
         71,
-        1601
+        1610
       ],
       "escravos": [
         1762,
         71,
         1601
       ]
-    }
+    },
+    "sem": [
+      "cambista"
+    ]
   },
   "demonios": {
     "nome": "Territórios dos Lordes Demônios",

@@ -310,7 +310,13 @@ public class Sombras {
         if (alvo == null && p.server.isPvpAllowed()) {
             // nenhuma criatura na mira: vale marcar outro jogador (as invocações só atacam jogador assim, marcado de propósito)
             LivingEntity j = Habilidades.mirar(p, 40, 0.6, true);
-            if (j instanceof ServerPlayer outro && !outro.isCreative() && !outro.isSpectator() && !br.com.frxcode.frxworld.clas.Clas.mesmoCla(p, outro)) alvo = outro;
+            if (j instanceof ServerPlayer outro && !outro.isCreative() && !outro.isSpectator()) {
+                if (br.com.frxcode.frxworld.clas.Clas.mesmoCla(p, outro)) {
+                    avisar(p, "⚫ " + outro.getGameProfile().getName() + " é do seu clã: as suas invocações não atacam companheiros de clã.", ChatFormatting.YELLOW);
+                    return;
+                }
+                alvo = outro;
+            }
         }
         if (alvo == null || alvo.getTags().contains("frx_npc") || alvo.getTags().contains("frx_cidadao")) {
             // nada vivo na mira: olhando para um bloco, a tropa vai para lá e fica; olhando para o céu, volta a seguir o dono
@@ -592,6 +598,18 @@ public class Sombras {
 
     private static final int ATALHOS = 3;
 
+    /** O dono escolhe se as invocações dele ferem jogadores (e se jogadores podem feri-las). Desligado por padrão. */
+    public static boolean pvp(Player p) { return p.getPersistentData().getCompound(Player.PERSISTED_NBT_TAG).getBoolean("frx_invoc_pvp"); }
+
+    private static void alternarPvp(ServerPlayer p) {
+        CompoundTag pers = p.getPersistentData().getCompound(Player.PERSISTED_NBT_TAG);
+        boolean novo = !pers.getBoolean("frx_invoc_pvp");
+        pers.putBoolean("frx_invoc_pvp", novo);
+        p.getPersistentData().put(Player.PERSISTED_NBT_TAG, pers);
+        avisar(p, novo ? "⚔ Dano em jogadores LIGADO: suas invocações ferem jogadores, e jogadores podem ferir suas invocações."
+                : "☮ Dano em jogadores DESLIGADO: suas invocações não ferem jogadores, e ninguém fere suas invocações.", novo ? ChatFormatting.RED : ChatFormatting.GREEN);
+    }
+
     private static CompoundTag atalhos(Player p) {
         CompoundTag pers = p.getPersistentData().getCompound(Player.PERSISTED_NBT_TAG);
         if (!pers.contains("frx_sombras_atalhos")) pers.put("frx_sombras_atalhos", new CompoundTag());
@@ -618,7 +636,7 @@ public class Sombras {
         List<String> a = new ArrayList<>();
         for (int i = 0; i < ATALHOS; i++) a.add(at.getString("a" + i));
         br.com.frxcode.frxworld.rede.Rede.CANAL.send(net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> p),
-                new br.com.frxcode.frxworld.rede.SyncSombras(vagas(p), contarAtivas(p), ativasMax(p), l, a));
+                new br.com.frxcode.frxworld.rede.SyncSombras(vagas(p), contarAtivas(p), ativasMax(p), l, a, pvp(p)));
     }
 
     static void invocarTodas(ServerPlayer p) {
@@ -643,6 +661,7 @@ public class Sombras {
         if (acao != br.com.frxcode.frxworld.rede.AcaoSombra.PEDIR && !ehInvocador(p)) { avisar(p, "Só o Invocador comanda as sombras.", ChatFormatting.RED); return; }
         switch (acao) {
             case br.com.frxcode.frxworld.rede.AcaoSombra.MARCAR_ALVO -> marcarAlvo(p);
+            case br.com.frxcode.frxworld.rede.AcaoSombra.ALTERNAR_PVP -> alternarPvp(p);
             case br.com.frxcode.frxworld.rede.AcaoSombra.INVOCAR -> invocar(p, id);
             case br.com.frxcode.frxworld.rede.AcaoSombra.GUARDAR -> guardarAvisando(p, id);
             case br.com.frxcode.frxworld.rede.AcaoSombra.INVOCAR_TODAS -> invocarTodas(p);

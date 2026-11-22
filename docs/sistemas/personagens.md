@@ -12,6 +12,7 @@ Cada conta pode ter até 3 personagens.
 ## Como o jogador usa
 
 - Ao entrar no servidor aparece a tela de escolha, 3 segundos depois do login. A tecla F8 (configurável em Controles → FRX-WORLD) abre a mesma tela.
+- **Proteção na entrada:** do login até fechar essa tela, o jogador não toma dano (menos o de cair no vazio) e os monstros não o escolhem como alvo. A proteção acaba ao fechar a tela, trocar de personagem, andar mais de 1,5 bloco, atacar algo, sair ou depois de 5 minutos. Abrir a tela pelo F8 no meio do jogo não protege.
 - Vaga livre → **Criar personagem** → nome (3 a 16 letras ou números). O jogo entra de novo e a abertura (raça e classe) roda para ele.
 - **Jogar** troca para outro personagem; **Nome** renomeia.
 - A troca desconecta e o jogo conecta de novo sozinho em cerca de 2 segundos.

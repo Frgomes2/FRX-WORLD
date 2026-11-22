@@ -118,7 +118,7 @@ export async function livros(): Promise<Livro[]> {
         ] },
         { titulo: "Reinos", blocos: [
           p("O mundo tem oito reinos, cada um com rei, moradores, lojas, banqueiro, taverna e uma campanha própria. Alguns estão longe e ainda esperam ser encontrados."),
-          lista("Reputação: ajudar um reino melhora os preços e libera itens e raças especiais.", "Campanha do rei: cinco etapas. No fim, o rei faz uma cerimônia e concede um nome a você.", "Os moradores reagem a quem você é: rank, raça, título e nome mudam o jeito como falam."),
+          lista("Reputação: ajudar um reino melhora os preços e libera itens, raças especiais, o Favor Real (Honrado) e o Corcel do reino (Reverenciado).", "Rivais: Lubelius e Lordes Demônios, Farmus e Tempest, Império do Leste e Sarion. Ajudar um desagrada o outro. Dwargon e Sakura são neutros.", "Má fama: Malvisto paga mais caro, Hostil não é atendido e é atacado pelos guardas, Inimigo tem a cabeça a prêmio. O rei aceita uma multa para limpar o nome.", "Contrabandista: fora das capitais, dá serviços contra os reinos e vende mercadoria só para quem tem má fama.", "Moradores: os lojistas lembram das suas compras e dão desconto a freguês. À noite a loja fica com o aprendiz, mais cara, e os mestres vão para a taverna, onde contam boatos e pedem favores.", "Ferreiro e armeiro são rivais: ajudar um dá desconto na loja dele e encarece a do outro.", "Encontros: longe das capitais, às vezes aparece um viajante ferido, um mercador perdido, uma estrela caída, um baú que foge ou um mensageiro com uma carta. São raros e nenhum obriga a lutar.", "Campanha do rei: cinco etapas. No fim, o rei faz uma cerimônia e concede um nome a você.", "Os moradores reagem a quem você é: rank, raça, título e nome mudam o jeito como falam."),
         ] },
       ],
     },
@@ -134,7 +134,7 @@ export async function livros(): Promise<Livro[]> {
           nota("Passar na prova rende um prêmio em moedas, uma única vez por rank."),
         ] },
         { titulo: "O que cada rank dá", blocos: [
-          lista("Missões: +10% de experiência e moedas por rank acima do F.", "Lojas e forja: 2% de desconto por rank, somando com a reputação (até 50%).", "Portais: você entra nos portais do seu rank ou abaixo.", "Dimensões: o Nether pede Rank D e o End pede Rank C.", "Habilidades: cada rank até o B libera mais um espaço na barra (veja o livro Talentos e Poderes).", "Terrenos: quanto maior o rank, maior a área e a quantidade de terrenos.", "Mercador de Escravos: só vende a partir do Rank D, e o limite de aldeões cresce com o rank."),
+          lista("Missões: +10% de experiência e moedas por rank acima do F.", "Lojas e forja: 2% de desconto por rank, somando com a reputação (até 50%).", "Portais: você entra nos portais do seu rank ou abaixo.", "Dimensões: o Nether pede Rank C e o End pede Rank A.", "Élitros: só voam a partir do Rank A.", "Habilidades: cada rank até o B libera mais um espaço na barra (veja o livro Talentos e Poderes).", "Terrenos: quanto maior o rank, maior a área e a quantidade de terrenos.", "Mercador de Escravos: só vende a partir do Rank D, e o limite de aldeões cresce com o rank."),
           tabela(["Rank", "Lado do terreno", "Área somada", "Terrenos", "Aldeões comprados"], [
             ["F", "24", "512", "1", "não compra"], ["E", "34", "1.200", "2", "não compra"], ["D", "46", "2.200", "3", "4"], ["C", "58", "3.600", "4", "8"],
             ["B", "68", "5.600", "5", "16"], ["A", "92", "9.000", "6", "34"], ["S", "114", "14.000", "7", "68"],
@@ -149,10 +149,10 @@ export async function livros(): Promise<Livro[]> {
           lista("Marcas: 10, 25, 50, 100, 150 e 200 tipos diferentes.", "Chefes contam à parte: 3, 7 e 14 chefes diferentes.", "O resumo aparece na última linha do quadro de contratos e na sua ficha no site."),
         ] },
         { titulo: "Classes de equipamento", blocos: [
-          p("Toda arma e armadura tem uma classe, de F a S, mostrada na descrição do item. Só usa quem tem aquele rank. Guardar na mochila e nos baús é livre."),
+          p("Toda arma, armadura, ferramenta, escudo e élitro tem uma classe, de F a S, mostrada na descrição do item. Só usa quem tem aquele rank. Guardar na mochila e nos baús é livre."),
           nota("Anéis: você tem 10 espaços de anel, mas não pode usar dois anéis iguais ao mesmo tempo."),
           tabela(["Rank", "Pode usar até"], LETRAS.map((l, i) => [l, EQUIP[i]])),
-          nota("Armadura acima do seu rank sai do corpo e volta para a mochila. Arma acima do rank não acerta ninguém, e arco não dispara. As lojas só mostram o que o seu rank já pode usar."),
+          nota("Armadura acima do seu rank sai do corpo e volta para a mochila. Arma acima do rank não acerta ninguém, arco não dispara e ferramenta não minera. As lojas só mostram o que o seu rank já pode usar."),
         ] },
       ],
     },
@@ -199,6 +199,12 @@ export async function livros(): Promise<Livro[]> {
         { titulo: "O banco", blocos: [
           p("O banqueiro fica nas capitais. Moeda guardada no banco não cai na morte."),
           lista("Clique no banqueiro para ver o saldo, depositar e sacar.", "Compras caras tiram da bolsa e, se faltar, do banco.", "O banco é da conta: o saldo é o mesmo para os seus três personagens. A bolsa é de cada um."),
+          p("O cofre rende: todo dia, à meia-noite, o banco paga juros sobre o que está guardado. A taxa começa em 0,5% ao dia e sobe 0,1% a cada 7 dias sem sacar, até 1% ao dia. Sacar volta à taxa inicial; depositar não atrapalha."),
+          lista("Só rende sobre até 500 ouro guardados; o resto fica seguro, mas parado.", "Quem fica fora do jogo recebe ao voltar, contando no máximo os últimos 7 dias.", "A tela do banqueiro mostra a taxa atual, quanto rende amanhã e quando a taxa sobe."),
+        ] },
+        { titulo: "O sábio e os encantamentos", blocos: [
+          p("O sábio das capitais consegue tirar um encantamento de um item e guardá-lo num livro em branco. Depois, é só usar a bigorna para passar o livro para outro item."),
+          lista("Converse com o sábio e escolha \"Extrair um encantamento\". Na bancada, coloque o item de um lado e um livro em branco do outro, como na bigorna, e escolha qual encantamento vai para o livro.", "Custa caro: moedas (da bolsa e, se faltar, do banco), níveis de experiência e um livro. Afiação V, por exemplo, custa 100 ouro.", "Até o nível III sempre dá certo. No nível IV e acima pode falhar: o pagamento se perde, mas o item fica como estava.", "Relíquias do Códex e maldições não podem ter o encantamento extraído."),
         ] },
         { titulo: "Lojas", blocos: [
           lista("Ferreiro: armas e ferramentas. Armeiro: armaduras e escudo. Mercador: utilidades. Cozinheiro: comida. Pedreiro: blocos.", "O estoque muda com o seu nível e, em parte, todo dia.", "Só aparecem equipamentos que o seu rank da Guilda já pode usar.", "Desconto: reputação no reino mais 2% por rank da Guilda."),
@@ -250,7 +256,8 @@ export async function livros(): Promise<Livro[]> {
         ] },
         { titulo: "Costureira", blocos: [
           p("A Costureira costura bolsos na sua calça. Cada bolso é um espaço a mais para guardar itens, além da mochila."),
-          lista("Leve a calça na mão, ou vá vestindo uma. Serve qualquer calça, de couro a netherita.", "Cada bolso custa 2 de ouro. A calça aceita até 12 bolsos.", "Vestindo a calça, os bolsos aparecem dentro do próprio inventário, num painel à esquerda da mochila: é só clicar para guardar e pegar. Segurando Shift, o item volta direto para a mochila. A tecla O também abre os bolsos sem abrir o inventário.", "Caixas de shulker e outros itens que guardam itens não entram no bolso."),
+          p("Na mesa de costura dela há cinco serviços: costurar bolsos (2 ouro cada), passar os bolsos de uma calça velha para uma nova (50 cobre por bolso), remendar armaduras e élitros, bordar (acabamento de armadura por 15 ouro e nome colorido por 5 ouro) e o manto de disfarce: por 30 ouro, 30 minutos em que os guardas não reconhecem quem é Hostil ao reino. Não vale para Inimigo, e atacar alguém na cidade rasga o manto."),
+          lista("Na mesa, ponha a calça no espaço da peça. Serve qualquer calça, de couro a netherita.", "Cada bolso custa 2 de ouro. A calça aceita até 12 bolsos.", "Vestindo a calça, os bolsos aparecem dentro do próprio inventário, num painel à esquerda da mochila: é só clicar para guardar e pegar. Segurando Shift, o item volta direto para a mochila. A tecla O também abre os bolsos sem abrir o inventário.", "Caixas de shulker e outros itens que guardam itens não entram no bolso."),
           nota("Os bolsos ficam na calça, mas o que está dentro é do personagem. Se você tirar a calça ou vestir uma com menos bolsos, o que não couber volta para a mochila ou cai no chão. Ao morrer, o que está nos bolsos cai junto com a mochila."),
         ] },
         { titulo: "Criador de Dragões", blocos: [
@@ -310,8 +317,8 @@ export async function livros(): Promise<Livro[]> {
       paginas: [
         { titulo: "Níveis de cada dimensão", blocos: [
           tabela(["Dimensão", "Monstros", "Exige"], [
-            ["Superfície", "1 a 60", "—"], ["Floresta do Crepúsculo", "14 a 30", "—"], ["Undergarden", "20 a 35", "—"], ["Nether", "22 a 40", "Rank D"],
-            ["Everbright", "25 a 40", "—"], ["Aether", "30 a 45", "—"], ["O Fim", "30 a 50", "Rank C"], ["Everdawn", "35 a 50", "—"], ["O Outro Lado", "45 a 60", "—"],
+            ["Superfície", "1 a 60", "—"], ["Floresta do Crepúsculo", "14 a 30", "—"], ["Undergarden", "20 a 35", "—"], ["Nether", "55 a 80", "Rank C"],
+            ["Everbright", "25 a 40", "—"], ["Aether", "30 a 45", "—"], ["O Fim", "75 a 100", "Rank A"], ["Everdawn", "35 a 50", "—"], ["O Outro Lado", "45 a 60", "—"],
           ]),
           nota("Entrar abaixo do nível mínimo de uma dimensão faz os monstros baterem 50% mais forte."),
         ] },
@@ -370,7 +377,7 @@ export async function livros(): Promise<Livro[]> {
         ] },
         { titulo: "Habilidades", blocos: [
           p("As habilidades da classe são aprendidas sozinhas quando você chega ao nível de cada uma. Algumas vêm de um Tomo Arcano."),
-          lista("Cada habilidade sobe de nível com o uso, de 1 a 10.", "Nível 2 com 5 usos, 3 com 20, 5 com 80 e 10 com 405.", "Cada nível reduz a recarga em 3% e deixa a habilidade mais forte."),
+          lista("Cada habilidade sobe de nível com o uso, de 1 a 30.", "Nível 2 com 5 usos, 3 com 20, 5 com 80, 10 com 405, 20 com 1.805 e 30 com 4.205.", "Até o nível 10, cada nível reduz a recarga em 3% e aumenta o dano em 8%. Do 11 ao 30 o ganho é menor: 1% de recarga e 3% de dano por nível."),
         ] },
         { titulo: "A barra de habilidades", blocos: [
           p("Todo aventureiro tem 4 espaços de habilidade e 1 de ultimate. O rank da Guilda libera mais espaços, para você levar mais habilidades prontas para a luta."),
@@ -388,6 +395,7 @@ export async function livros(): Promise<Livro[]> {
           p("Runas se encaixam na bigorna: item à esquerda, runa à direita. Cada item aceita até 2 runas de tipos diferentes. Duas runas iguais do mesmo nível viram uma do nível seguinte."),
           tabela(["De arma", "Efeito"], [["Sangue", "Cura parte do dano causado"], ["Gelo", "Chance de congelar"], ["Fogo", "Dano extra e incendeia"], ["Trovão", "Chance de raio"], ["Fortuna", "Chance de experiência em dobro"], ["Execução", "Mais dano em alvos feridos"]]),
           tabela(["De armadura", "Efeito"], [["Pedra", "Reduz o dano recebido"], ["Espinhos", "Devolve parte do dano"], ["Vigor", "Mais corações"], ["Vento", "Mais velocidade"], ["Fênix", "Salva de um golpe fatal"]]),
+          nota("Quer tirar uma runa? O sábio das capitais tira, na aba Runas da bancada dele: a runa sai inteira e volta para você. Custa 10 ouro (nível I), 25 (II) ou 50 (III)."),
         ] },
       ],
     },
@@ -406,7 +414,7 @@ export async function livros(): Promise<Livro[]> {
           nota("Vêm de chefes, procurados, portais fechados e da Loja da Torre."),
         ] },
         { titulo: "Encontros estranhos", blocos: [
-          p("Dizem que um ladrão corre pelas estradas roubando uma moeda de quem passa, e que quem o alcança recebe dez de volta. Dizem também que, muito de vez em quando, um craque aparece do nada, dribla você e some."),
+          p("Dizem que um ladrão corre pelas estradas roubando uma moeda de quem passa, e que quem o alcança recebe dez de volta. Dizem também que, muito de vez em quando, um craque aparece do nada, dribla você e some. E há quem jure ter visto um velho de barba branca passar voando num trenó, distribuindo presentes."),
         ] },
       ],
     },

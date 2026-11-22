@@ -1,0 +1,13 @@
+{
+  "enchantment.deeperdarker.catalysis.desc": "Espalha sculk quando criaturas são mortas.",
+  "enchantment.deeperdarker.sculk_smite.desc": "Aumenta o dano contra criaturas do sculk, como os Estilhaçados e o Warden.",
+  "item.deeperdarker.resonarium_axe": "Machado de Ressonário",
+  "item.deeperdarker.resonarium_boots": "Botas de Ressonário",
+  "item.deeperdarker.resonarium_chestplate": "Peitoral de Ressonário",
+  "item.deeperdarker.resonarium_helmet": "Elmo de Ressonário",
+  "item.deeperdarker.resonarium_leggings": "Perneiras de Ressonário",
+  "item.deeperdarker.resonarium_pickaxe": "Picareta de Ressonário",
+  "item.deeperdarker.resonarium_sword": "Espada de Ressonário",
+  "advancements.deeperdarker.obtain_sonorous_staff.description": "Consiga um Cajado Sonoro",
+  "item.deeperdarker.sonorous_staff": "Cajado Sonoro"
+}

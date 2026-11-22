@@ -54,6 +54,8 @@ public final class MenusNpc {
         d.putInt("npc", npc.getId());
         d.putString("nome", nome(npc, "Banqueiro"));
         d.putLong("saldo", Banco.saldo(p));
+        d.putString("taxa", Banco.taxaTexto(p));
+        d.putString("rende", Banco.resumoRendimento(p));
         d.putLong("bolsa", Moedas.contar(p));
         d.putInt("ouro", contar(p, Moedas.OURO.get()));
         d.putInt("prata", contar(p, Moedas.PRATA.get()));
@@ -139,7 +141,7 @@ public final class MenusNpc {
     private static java.util.List<MerchantOffer> ofertasBrutas(ServerPlayer p, Entity npc) {
         String papel = npc.getPersistentData().getString("frx_papel"), reino = npc.getPersistentData().getString("frx_reino");
         int nivel = br.com.frxcode.frxworld.progressao.Progressao.dados(p).nivel();
-        double desc = Reputacao.desconto(p, reino);
+        double desc = VidaNpc.ajustar(Reputacao.desconto(p, reino), p, npc);
         if (papel.equals("cozinheiro")) return Lojas.comida(nivel, desc, p.server, reino + papel);
         if (papel.equals("pedreiro")) return Lojas.blocos(desc);
         if (papel.equals("mercador")) {
@@ -242,6 +244,7 @@ public final class MenusNpc {
                 String nomeItem = res.getHoverName().getString();
                 int qtd = res.getCount();
                 entregar(p, res);
+                VidaNpc.comprou(p, npc, nomeItem);
                 p.level().playSound(null, npc.blockPosition(), SoundEvents.VILLAGER_YES, SoundSource.NEUTRAL, 1f, 1f);
                 abrirForja(p, npc, "Comprado: " + (qtd > 1 ? qtd + "× " : "") + nomeItem + ".", true);
             }

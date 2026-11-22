@@ -29,10 +29,10 @@ Clicar num jogador abre a ficha pública: skin, nível, raça, Guilda, Torre, te
 | Servidor | `/admin/servidor` | Liga/desliga, console e logs |
 | Progressão | `/admin/progressao` | Curva de XP, zonas, **monstros com rank** (chances de Elite/Campeão), config geral |
 | Missões | `/admin/missoes` | Quadro de missões em cards por faixa de nível; editor com seletor de criatura, itens, moedas, XP sugerido e prévia em pergaminho |
-| Economia | `/admin/economia` | Lojas de cada reino (com aviso de arbitragem e ordenação) e ranking dos jogadores mais ricos |
+| Economia | `/admin/economia` | Lojas de cada reino (com aviso de arbitragem e ordenação), ranking dos jogadores mais ricos, comprador e rendimento do cofre (taxas, teto, dias offline e simulação) preços do sábio para extrair encantamento e moedas por rank da recompensa dos portais |
 | Dinheiro dos jogadores | `/admin/dinheiro` | Bolsa, banco e total de cada jogador; o botão Editar define ouro, prata e cobre da bolsa (só com o jogador online) e do banco (também offline) |
 | Reinos | `/admin/reinos` | Mapa com foco no reino, painel do rei, coordenadas, edição de reputação e matriz de reputação (heatmap) |
-| NPCs e skins | `/admin/npcs` | Skins dos NPCs por reino e raça; cards próprios para o Mestre de Obras e para as visitas raras (Ronaldinho e Ladrão) |
+| NPCs e skins | `/admin/npcs` | Skins dos NPCs por reino e raça; cards próprios para o Mestre de Obras e para as visitas raras (Ronaldinho, Ladrão e Papai Noel) |
 | Dungeons | `/admin/dungeons` | Anéis de distância (com aviso de buracos e sobreposição), cards das camadas; editor com abas por camada, criaturas, loot com chance e medidor de dificuldade |
 | Masmorras | `/admin/masmorras` | Masmorras dos reinos, com **nível fixo** opcional (campo `nivel`; 0 = pela distância) |
 | Chefes de mods | `/admin/externos` | Chefes e estruturas de outros mods |
@@ -83,3 +83,7 @@ A lista de Jogadores, o Dinheiro e os rankings da Visão geral mostram uma linha
 - Mostrar a raça na ficha do jogador.
 - Editor das faixas de nível por dimensão (`zonas.dimensoes`).
 - Redesenho das telas Masmorras e Chefes de mods.
+
+**Memória e processador no topo do site**: os quadros do topo mostram o uso de memória do servidor do jogo (o que o mod informa a cada 10 s: usada sobre o máximo da JVM) e o uso do processador da máquina (`usoCpu()` em `src/lib/status-servidor.ts`, medido pelo próprio painel entre uma consulta e a seguinte). Só aparecem com o servidor ligado.
+
+**Teste de conexão (`/admin/servidor`, aba Teste de conexão)**: para quando reclamarem de lag. Mostra o ping de cada jogador online, com média, melhor, pior e gráfico dos últimos 30 minutos, e a saúde do servidor. "Rodar teste" mede por 1 minuto e dá o parecer: se o TPS caiu, o problema é o servidor; se o servidor está leve e todos têm ping alto, é o túnel do playit ou a internet do PC; se só alguns têm ping alto, é a internet deles. O ping vem do próprio jogo (o mod manda a cada 10 s), sem precisar de comando.
