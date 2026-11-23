@@ -38,6 +38,10 @@ export type DadosPublicos = {
   classes: Record<string, number>;
   torre: { nome: string; recorde: number; abates: number }[];
   temporada: { mes: string; linhas: { nome: string; pts: number; abates: number; torre: number; historia: number }[] } | null;
+  /** Torneio de pesca da semana (frx_pesca.json): melhor peixe de cada um, pela porcentagem da faixa da espécie. */
+  pesca: { fim: number; linhas: { nome: string; especie: string; peso: number; pct: number; qtd: number }[]; campeao: { semana: string; nome: string; especie: string; peso: number } | null };
+  /** Pistas de corrida (frx_corridas.json) com os melhores tempos. */
+  corridas: { id: string; nome: string; tipo: string; pontos: number; voltas: number; feitas: number; recordes: { nome: string; ms: number }[]; voltaRapida: { nome: string; ms: number } | null }[];
   reinos: string[];
   feed: EventoFeed[];
   aventureiros: { nick: string; conta: string; vaga: number; nivel: number; rank: string; classe: string; titulo: string; online: boolean }[];
@@ -163,6 +167,20 @@ export async function dadosPublicos(): Promise<DadosPublicos> {
       .sort((a, b) => b.pts - a.pts).slice(0, 10),
   } : null;
 
+  const pe = lerJson<{ fim?: number; linhas?: Record<string, { nome?: string; especie?: string; peso?: number; pct?: number; qtd?: number }>; campeoes?: { semana: string; nome: string; especie: string; peso: number }[] }>(path.join(mundo, "frx_pesca.json"));
+  const pesca = {
+    fim: pe?.fim ?? 0,
+    linhas: Object.values(pe?.linhas ?? {}).map((l) => ({ nome: l.nome ?? "?", especie: l.especie ?? "?", peso: l.peso ?? 0, pct: l.pct ?? 0, qtd: l.qtd ?? 0 }))
+      .sort((a, b) => b.pct - a.pct).slice(0, 10),
+    campeao: pe?.campeoes?.length ? pe.campeoes[pe.campeoes.length - 1] : null,
+  };
+  const co = lerJson<{ pistas?: Record<string, { nome?: string; tipo?: string; pontos?: unknown[]; voltas?: number; feitas?: number; recordes?: { nome?: string; ms?: number }[]; voltaRapida?: { nome?: string; ms?: number } }> }>(path.join(mundo, "frx_corridas.json"));
+  const corridas = Object.entries(co?.pistas ?? {}).filter(([, p]) => (p.pontos?.length ?? 0) >= 2).map(([id, p]) => ({
+    id, nome: p.nome ?? id, tipo: p.tipo ?? "pe", pontos: Math.max(0, (p.pontos?.length ?? 1) - 1), voltas: p.voltas ?? 1, feitas: p.feitas ?? 0,
+    voltaRapida: p.voltaRapida?.ms ? { nome: p.voltaRapida.nome ?? "?", ms: p.voltaRapida.ms } : null,
+    recordes: (p.recordes ?? []).map((r) => ({ nome: r.nome ?? "?", ms: r.ms ?? 0 })).slice(0, 5),
+  }));
+
   let reinos: string[] = [];
   try { reinos = reinosDoServidor().reinos.map((r) => r.nome); } catch { /* */ }
   let eventos: EventoFeed[] = [];
@@ -268,7 +286,7 @@ export async function dadosPublicos(): Promise<DadosPublicos> {
       mortes: fichas.filter((j) => j.mortes > 0).sort((a, b) => b.mortes - a.mortes).slice(0, 10).map((j) => linha(j, j.mortes, perfil(j))),
       conquistas: fichas.filter((j) => j.conquistas > 0).sort((a, b) => b.conquistas - a.conquistas).slice(0, 10).map((j) => linha(j, j.conquistas, perfil(j))),
     },
-    guilda, classes, torre, temporada, reinos, feed: eventos,
+    guilda, classes, torre, temporada, pesca, corridas, reinos, feed: eventos,
     aventureiros: porNivel.map((j) => ({ nick: j.nick, conta: j.conta, vaga: j.vaga, nivel: j.nivel, rank: j.rank, classe: nomeClasse(j.classe), titulo: j.titulo, online: j.emUso && noJogo.has(j.conta.toLowerCase()) })),
     clas, mural, cronicas: await ultimasCronicas(), armas,
   };

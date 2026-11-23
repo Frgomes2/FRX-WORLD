@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:smithing_transform",
+  "template": {
+    "item": "frxworld:fragmento_celestial"
+  },
+  "base": {
+    "item": "frxworld:abissal_perneiras"
+  },
+  "addition": {
+    "item": "frxworld:fragmento_celestial"
+  },
+  "result": {
+    "item": "frxworld:celestial_perneiras"
+  }
+}

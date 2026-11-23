@@ -23,6 +23,8 @@ public final class ClienteHabilidades {
     public static String[] barra = {"", "", "", "", "", "", "", "", ""};
     /** Espaços extras (5 a 8) que o rank da Guilda já liberou. */
     public static int extras;
+    /** Habilidades ferem jogadores (botão da janela). */
+    public static boolean pvp;
     public static int recursoAtual = 0, recursoMax = 100;
     public static boolean recebido = false;
     /** Despertar: barra 0-100, poder ativo (ticks), duração, cargas extras, se já liberou (nível 10). */
@@ -40,6 +42,7 @@ public final class ClienteHabilidades {
         habilidades = msg.habilidades();
         for (int i = 0; i < barra.length; i++) barra[i] = i < msg.barra().size() ? msg.barra().get(i) : "";
         extras = Math.max(0, Math.min(4, msg.extras()));
+        pvp = msg.pvp();
         recebido = true;
         if (Minecraft.getInstance().screen instanceof TelaHabilidades tela) tela.atualizar();
     }

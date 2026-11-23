@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    {"id": "minecraft:turtle", "required": false},
+    {"id": "naturalist:tortoise", "required": false},
+    {"id": "alexsmobs:terrapin", "required": false}
+  ]
+}

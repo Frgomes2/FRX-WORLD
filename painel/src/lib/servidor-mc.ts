@@ -135,6 +135,8 @@ class GerenciadorServidor extends EventEmitter {
       const proc = spawn(
         java,
         ["-Dsun.stdout.encoding=UTF-8", "-Dsun.stderr.encoding=UTF-8", "@user_jvm_args.txt", ...argsForge(pasta), "nogui"],
+        // sem "detached": se o painel cair, o Minecraft cai junto e a sentinela religa os dois.
+        // (Separado, o jogo ficava órfão e o painel novo não conseguia mais mandar comandos nem desligar.)
         { cwd: pasta, windowsHide: true },
       );
       this.proc = proc;
@@ -194,6 +196,18 @@ class GerenciadorServidor extends EventEmitter {
     if (!cmd) return;
     this.log(`> ${cmd}`);
     this.proc.stdin.write(cmd + "\n");
+  }
+}
+
+// A janela do painel já recebeu Ctrl+C/Ctrl+Break que derrubava tudo junto (quedas "silenciosas" com o cmd vivo).
+// O painel ignora esses sinais e registra no log; para desligar de verdade use o desligar-frx.bat.
+const gs = globalThis as unknown as { frxSinais?: boolean };
+if (!gs.frxSinais) {
+  gs.frxSinais = true;
+  for (const sinal of ["SIGINT", "SIGBREAK", "SIGHUP"] as const) {
+    try {
+      process.on(sinal, () => console.log(`[painel] ${new Date().toLocaleString("pt-BR")} recebi ${sinal} na janela do painel: ignorado para não derrubar o servidor.`));
+    } catch { /* sinal não existe nesta plataforma */ }
   }
 }
 

@@ -150,8 +150,12 @@ public class TelaForja extends Screen {
                 g.drawString(font, t, x + 206 - font.width(t), y + 4, chance >= 80 ? VERDE : chance >= 50 ? OURO : VERMELHO, false);
                 if (chance < 100) g.drawString(font, "Se falhar, perde só o material.", x + 6, y + 74, CINZA, false);
             } else g.drawString(font, "Comum → Incomum → Raro → Épico → Lendário", x + 6, y + 74, CINZA, false);
+        } else if (estado.equals("rank")) {
+            g.drawString(font, "Esse item já está em +10.", x + 6, y + 24, VERDE, false);
+            g.drawString(font, "De +11 a +15, só para quem é", x + 6, y + 38, TINTA, false);
+            g.drawString(font, "Rank A ou S da Guilda.", x + 6, y + 50, OURO, false);
         } else if (estado.equals("max")) {
-            g.drawString(font, reforjar() ? "Esse item já é Lendário." : "Esse item já está em +10.", x + 6, y + 30, VERDE, false);
+            g.drawString(font, reforjar() ? "Esse item já é Lendário." : "Esse item já está em +" + br.com.frxcode.frxworld.armas.Armas.NIVEL_MAX + ".", x + 6, y + 30, VERDE, false);
             g.drawString(font, "Não há mais o que melhorar nele aqui.", x + 6, y + 44, CINZA, false);
         } else {
             g.drawString(font, "Escolha na sua barra (abaixo) a arma,", x + 6, y + 24, TINTA, false);

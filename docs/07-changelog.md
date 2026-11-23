@@ -6,6 +6,60 @@ Formato: versão, depois o que entrou. A versão do mod fica em `core-mod/gradle
 
 > **Situação dos testes (10/11/2026):** a última versão compilada e testada no PC é a **0.33.0** (`pack/mods/frxworld-0.33.0.jar`). As versões **0.34 a 0.40** ainda não rodaram no jogo. O roteiro de teste está no checklist "FRX-WORLD — Checklist de testes".
 
+## 1.4.5 (22/11) — Mariposas e estabilidade do painel
+
+- Alex's Caves, Cavernas Desoladas (`alexscaves:forlorn_hollows`): biome modifiers do core mod `data/frxworld/forge/biome_modifier/forlorn_menos_morcegos.json` (tira o morcego, que vinha com peso 10 em bando de 8 e enchia o limite de ambiente) e `forlorn_spawns_ajustados.json` (morcego peso 4 em 1–2; Gloomoth +25 de peso em 4–6, somando ao 20 original).
+
+- Quedas: em 22/11 16:33 o painel (node) travou com WerFault e o Minecraft, que estava `detached`, ficou órfão (rodando sem painel; comandos davam 409). A causa das quedas é o node travar, não Ctrl+C. Voltou o spawn sem `detached` (se o painel cai, o jogo cai junto e a sentinela religa os dois).
+- `iniciar-frx.bat` sobe o painel com `NODE_OPTIONS=--report-on-fatalerror --report-uncaught-exception --report-directory=logs\node`, para o próximo travamento deixar um relatório com a causa.
+
+## 1.4.4 (22/11) — NPCs com espaço próprio
+
+- `reinos/NpcsReino.espaco` (a cada 100 ticks, NPCs a até 48 blocos de algum jogador, menos guardas): NPC a menos de 1 bloco (horizontal) de outro anda para o bloco livre mais próximo (`blocoLivre`, raio 1 a 3, chão firme, pés e cabeça sem colisão, sem líquido, longe de outros NPCs) e o log registra a troca.
+- Distrito Sakura (`leste-sakura`): Leiloeiro, Mercador de Escravos, Costureira e Mercador de Discos estavam no mesmo bloco de Cozinheiro, Cambista, Mestre do Jardim e Armeiro Samurai; movidos pelo console.
+- Gaiola do Supplementaries: tag `data/supplementaries/tags/entity_types/cage_catchable.json` no core mod (tartaruga, `naturalist:tortoise`, `alexsmobs:terrapin`) e `cage_allow_all_babies = true` em `server/config/supplementaries-common.toml`.
+- Tradução nova: `assets/petcapturetool/lang/pt_br.json` (Esfera Portátil de Pets).
+- Labirinto do Dragão: geradores enfraquecidos pelo console (ver `docs/sistemas/protecao-labirinto.md`).
+
+## 1.4.3 (22/11) — Invocações no PvP e quedas pelo painel
+
+- `Habilidades.inimigo(p, e)`: invocação de outro jogador vale como alvo quando o dono dela tem `Sombras.pvp` ligado e o PvP do servidor está ativo; `Despertar.inimigo(p, e)`/`hostil` seguem a mesma regra. Antes as magias passavam direto pelas invocações.
+- `Sombras.SeguirDono`: com alvo marcado (`frx_foco`) e alvo atual, a sombra não volta para o dono enquanto estiver a menos de 48 blocos dele.
+- Painel (`lib/servidor-mc.ts`): o Java sobe com `detached: true` (grupo de processos próprio) e o painel ignora SIGINT/SIGBREAK/SIGHUP, registrando no log. As quedas "silenciosas" eram Ctrl+C/Ctrl+Break na janela do painel: morria tudo abaixo do `cmd /k`, que ficava vivo.
+- `aventura/Enigma.bloqueado` sempre falso: vencer um enigma do grupo não impede mais os outros (o progresso de quem estava bloqueado continua de onde parou).
+- Tradução: `assets/artifacts/lang/pt_br.json` do core mod ganhou 44 chaves do Artifacts 9.5.19 que faltavam no pt_br do próprio mod (5 itens, dicas, teclas, conquista e níveis de ferramenta). Regras de jogo e tela de configuração ficaram em inglês (só admin vê).
+
+## 1.4.2 (22/11) — Armaduras lendárias, forja até +15, corrida em grupo e mais runas por rank
+
+- `habilidades/Sombras.marcarAlvo`: marcar um jogador agora depende só de `pvp(p)` ("Dano em jogadores" do Exército). Ligado, a tropa ataca o marcado mesmo sendo do mesmo clã (saiu o bloqueio `Clas.mesmoCla`); desligado, avisa para ligar a opção.
+- **Habilidades em jogadores**: `Habilidades.pvp(p)` (NBT persistente `frx_hab_pvp`, desligado por padrão) e `alternarPvp`, pela ação `AcaoHabilidade.PVP` e botão "Dano em jogadores" na `TelaHabilidades` (`SyncHabilidades` ganhou o campo `pvp`). `Habilidades.inimigo(p, e)` passa a aceitar jogador quando o dono ligou e `isPvpAllowed()`, sem olhar clã; o Despertar usa `Despertar.inimigo(p, e)`/`hostil` (Chuva de Luz, Explosão, Estandarte e Cúpula). O roubo do Ladino segue só em criaturas.
+
+- **Armaduras lendárias** (`armas/Lendarias.java`, `aventura/ConjuntosLendarios.java`, novos): Draconiana (B), Abissal (A) e Celestial (S) pela mesa de ferraria a partir do netherite; materiais Escama Draconiana, Essência Abissal e Fragmento Celestial (dragões do Ice and Fire, `Externos`, chefes da Torre, Dragão do Fim); bônus de conjunto; texturas próprias.
+- **Forja +11 a +15** (`Armas.NIVEL_MAX` 15, `Forja`): só Rank A/S, custos fixos com Essência/Fragmento; tela da forja mostra o aviso de rank.
+- Livro "Depois do Netherite" (`livros.ts`) e falas novas do armeiro.
+
+- `aventura/Runas.java`: vagas de runa por item pelo rank de quem encaixa na bigorna (`vagas`: 2 até D, 3 C, 4 B, 5 A/S; antes 2 fixo), com aviso quando não cabe.
+
+- `aventura/Corridas.java`: ao clicar em Iniciar, todos os jogadores do jeito certo a até `raio + 1` da largada (e fora de outra corrida) largam juntos (`Grupo`); na chegada, colocação para o grupo, 5 ouro para o 1º de uma largada com 2 ou mais e, quando o último chega ou desiste, o resultado vai para o chat. Placar gigante mostra todos que estão correndo.
+- Volta mais rápida (pistas de 2+ voltas): cada volta é cronometrada; a melhor fica em `voltaRapida` da pista (aviso no chat ao bater), em destaque no placar gigante e no cartão Corridas do site. Zerar recordes, mudar o traçado ou as voltas apaga a volta mais rápida.
+
+## 1.4.1 (22/11) — Corridas com largada, fogos e placar gigante
+
+- `aventura/Corridas.java`: na largada, do jeito certo, aparece no chat o botão [Iniciar corrida] (`/corrida iniciar <id>`); contagem de 5 s com a montaria travada (lentidão e volta à posição) e fogos no "Vai!" e na chegada; uma corrida por vez por pista (aviso de pista ocupada); limite por pista (`/frx corrida limite <id> <min>`, padrão 15); placar gigante em texto flutuante (`/frx corrida placar <id> [tamanho]`) com os 10 melhores tempos e quem está correndo, refeito a cada largada, chegada e cancelamento. Pista de voltas fecha na largada: depois do último ponto, o alvo é a linha (a menos que o último ponto já esteja sobre ela).
+
+## 1.4.0 (22/11) — Torneio de pesca, corridas, cidades mais seguras e livro vazio no sábio
+
+- **Torneio de pesca** (`eventos/Pesca.java`, novo): peso e estrelas em cada peixe, placar semanal pela porcentagem da faixa da espécie, prêmios 30/15/8 ouro no domingo à meia-noite, recordes por espécie, Peixe-Rei Dourado (0,4% à noite/chuva). `/pesca`, `/frx pesca encerrar`. `<mundo>/frx_pesca.json`.
+- **Corridas** (`aventura/Corridas.java`, novo): pistas a pé, a cavalo, de barco ou de élitro, largada parada no anel de fogo, pontos com coluna de luz, 10 melhores tempos, prêmio diário e de recorde. `/corridas`, `/frx corrida criar|ponto|desfazer|raio|zerar|remover`. `<mundo>/frx_corridas.json`.
+- Conquistas novas: Pescador, Mestre Pescador, Rei da Pesca, Na Pista, Piloto, Recordista. `AjustesAdmin.pendente` (entrega a offline usada pelo torneio) e ação `contador`.
+- `protecao/AreasProtegidas`: refúgio também impede monstros de nascer (exceto comando e ovo); o anúncio de primeira chegada só vale para áreas `labirinto*`. Linhas terminadas em `;livre` liberam construir (só explosões e monstros barrados). Área nova `hipodromo` (livre) em `frx_protegidas.txt`.
+- Site: cartões "Torneio de pesca" e "Corridas" na seção Rankings (`lib/publico.ts` lê os dois arquivos do mundo).
+
+- `reinos/Populacao.limparCidade`: a cada 10 s, fora de invasão (`Invasoes.emAndamento`), monstros comuns dentro da capital (perto de jogadores) são removidos; ficam chefes, nomeados, persistentes e os com tag `frx_`.
+- `reinos/Invasoes.java`: padrão `intervaloMinutos` 60 e `chance` 25 (antes 30 e 35); a mesma capital só depois de 3 h (antes 1 h); migração `20261122090000_menos_invasoes` grava na configuração salva.
+
+- `reinos/MenuDesencanto.livroBranco`: o espaço do livro da bancada aceita livro em branco ou livro encantado sem nenhum encantamento guardado (colocar, shift-clique, checagem do servidor e botões da tela).
+
 ## 1.3.9 (22/11) — Ferramentas, escudos e élitros com classe
 
 - `progressao/ClassesEquip.java`: ferramentas (picareta, pá, enxada) ganham classe pelo nível do material (≤1 F, ferro E, diamante D, netherite C, acima B) ou pelo dano, o que for maior; acima do rank `BreakSpeed` e `BreakEvent` são cancelados no servidor. Espadas e machados também consideram o dano do item (reforja). Escudo pela durabilidade; élitros = A; item com armadura por atributo (sem ser ArmorItem) pela armadura; qualquer item com 3+ de dano pelo dano.

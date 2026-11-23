@@ -159,7 +159,7 @@ public class Habilidades {
                             (float) h.recarga(), h.nivelReq(), h.ultimate(), h.porItem(), r != null, r != null ? r.nivel : 0, r != null ? r.usos : 0));
                 });
         Rede.CANAL.send(net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> p),
-                new SyncHabilidades(d.classe(), recursoDa(d.classe()), lista, List.of(d.barra()), espacosExtras(p)));
+                new SyncHabilidades(d.classe(), recursoDa(d.classe()), lista, List.of(d.barra()), espacosExtras(p), pvp(p)));
         enviarRecurso(p, true);
         long agora = System.currentTimeMillis();
         recargas.getOrDefault(p.getUUID(), Map.of()).forEach((cod, fim) -> {
@@ -587,10 +587,19 @@ public class Habilidades {
 
     // ------------------------------------------------------------------ utilidades
 
-    /** Quem a habilidade pode ferir: tudo vivo menos jogadores, aldeões, invocações, bichos domados e golens de jogador. */
+    /**
+     * Quem a habilidade pode ferir: tudo vivo menos aldeões, invocações, bichos domados e golens de jogador.
+     * Jogadores só com "Dano em jogadores" ligado por quem usa a habilidade (vale até para o mesmo clã) e PvP do servidor ativo.
+     */
     static boolean inimigo(ServerPlayer p, LivingEntity e) {
-        if (e instanceof Player || e instanceof AbstractVillager || e instanceof ArmorStand) return false;
-        if (e.getTags().contains(TAG_INVOCADO)) return false;
+        if (e instanceof Player outro)
+            return p != null && outro != p && pvp(p) && p.server.isPvpAllowed() && !outro.isCreative() && !outro.isSpectator();
+        if (e instanceof AbstractVillager || e instanceof ArmorStand) return false;
+        if (e.getTags().contains(TAG_INVOCADO)) {
+            // invocação de outro jogador: vale acertar quando o dono dela ligou "Dano em jogadores" no Exército
+            ServerPlayer dono = e.getPersistentData().hasUUID("frx_dono") && p != null ? p.server.getPlayerList().getPlayer(e.getPersistentData().getUUID("frx_dono")) : null;
+            return dono != null && dono != p && Sombras.pvp(dono) && p.server.isPvpAllowed();
+        }
         if (e instanceof TamableAnimal t && t.isTame()) return false;
         return !(e instanceof IronGolem g && g.isPlayerCreated());
     }
@@ -695,6 +704,23 @@ public class Habilidades {
             Vec3 ponto = de.add(d.scale(passos == 0 ? 0 : (double) i / passos));
             nivel.sendParticles(part, ponto.x, ponto.y, ponto.z, 1, 0.02, 0.02, 0.02, 0);
         }
+    }
+
+    /** O jogador escolheu que as habilidades dele ferem outros jogadores (botão na janela de Habilidades). Desligado por padrão. */
+    public static boolean pvp(Player p) { return p.getPersistentData().getCompound(Player.PERSISTED_NBT_TAG).getBoolean("frx_hab_pvp"); }
+
+    public static void alternarPvp(ServerPlayer p) {
+        net.minecraft.nbt.CompoundTag pers = p.getPersistentData().getCompound(Player.PERSISTED_NBT_TAG);
+        boolean novo = !pers.getBoolean("frx_hab_pvp");
+        pers.putBoolean("frx_hab_pvp", novo);
+        p.getPersistentData().put(Player.PERSISTED_NBT_TAG, pers);
+        p.sendSystemMessage(net.minecraft.network.chat.Component.literal(novo
+                ? "⚔ Habilidades em jogadores LIGADO: seus golpes e magias ferem jogadores, inclusive do seu clã."
+                : "☮ Habilidades em jogadores DESLIGADO: seus golpes e magias não ferem jogadores.")
+                .withStyle(novo ? net.minecraft.ChatFormatting.RED : net.minecraft.ChatFormatting.GREEN));
+        if (novo && !p.server.isPvpAllowed())
+            p.sendSystemMessage(net.minecraft.network.chat.Component.literal("O PvP do servidor está desligado, então ainda não vale.").withStyle(net.minecraft.ChatFormatting.GRAY));
+        sincronizar(p);
     }
 
     /** Verdadeiro enquanto o dano em curso vem de uma habilidade (o soco do Monge não soma em cima). */

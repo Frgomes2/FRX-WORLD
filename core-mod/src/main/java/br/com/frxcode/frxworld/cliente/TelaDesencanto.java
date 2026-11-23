@@ -85,7 +85,7 @@ public class TelaDesencanto extends AbstractContainerScreen<MenuDesencanto> {
     }
 
     private boolean pode(Enc e) {
-        return d.getBoolean("ativo") && !reliquia() && !e.e().isCurse() && menu.getSlot(MenuDesencanto.LIVRO).getItem().is(Items.BOOK)
+        return d.getBoolean("ativo") && !reliquia() && !e.e().isCurse() && MenuDesencanto.livroBranco(menu.getSlot(MenuDesencanto.LIVRO).getItem())
                 && (d.getBoolean("criativo") || d.getInt("xp") >= e.xp()) && d.getLong("bolsa") + d.getLong("banco") >= e.moedas();
     }
 
@@ -220,7 +220,7 @@ public class TelaDesencanto extends AbstractContainerScreen<MenuDesencanto> {
             moedas(g, font, x0 + 8 + font.width("Custo: "), y + 1, e.moedas(), total >= e.moedas() ? PERG : VERMELHO_OK);
             String xp = e.xp() + " níveis (você tem " + d.getInt("xp") + ")";
             g.drawString(font, xp, x0 + 8, y + 12, d.getBoolean("criativo") || d.getInt("xp") >= e.xp() ? VERDE_OK : VERMELHO_OK, false);
-            boolean livro = menu.getSlot(MenuDesencanto.LIVRO).getItem().is(Items.BOOK);
+            boolean livro = MenuDesencanto.livroBranco(menu.getSlot(MenuDesencanto.LIVRO).getItem());
             g.drawString(font, livro ? "+ 1 livro" : "falta o livro", x0 + 14 + font.width(xp), y + 12, livro ? VERDE_OK : VERMELHO_OK, false);
         } else {
             g.drawString(font, "Escolha o encantamento que vai para o livro.", x0 + 8, y + 1, PERG, false);

@@ -80,6 +80,12 @@ public class Conquistas {
         c("colchefe3", "Caça-Chefes", "Derrote 3 chefões diferentes", "colecao_chefes", 3, "");
         c("colchefe7", "Terror dos Chefes", "Derrote 7 chefões diferentes", "colecao_chefes", 7, "Terror dos Chefes");
         c("colchefe14", "Senhor dos Chefes", "Derrote 14 chefões diferentes", "colecao_chefes", 14, "Senhor dos Chefes");
+        c("pesca100", "Pescador", "Pesque 100 peixes", "pesca_peixes", 100, "");
+        c("pesca1000", "Mestre Pescador", "Pesque 1.000 peixes", "pesca_peixes", 1000, "Mestre Pescador");
+        c("pesca_rei", "Rei da Pesca", "Vença um torneio semanal de pesca", "pesca_vitorias", 1, "Rei da Pesca");
+        c("corrida1", "Na Pista", "Complete uma corrida", "corridas", 1, "");
+        c("corrida50", "Piloto", "Complete 50 corridas", "corridas", 50, "Piloto");
+        c("corrida_recorde", "Recordista", "Bata o recorde de uma pista", "corrida_recordes", 1, "Recordista");
     }
 
     // ------------------------------------------------------------------ contadores

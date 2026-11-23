@@ -311,8 +311,9 @@ public class Sombras {
             // nenhuma criatura na mira: vale marcar outro jogador (as invocações só atacam jogador assim, marcado de propósito)
             LivingEntity j = Habilidades.mirar(p, 40, 0.6, true);
             if (j instanceof ServerPlayer outro && !outro.isCreative() && !outro.isSpectator()) {
-                if (br.com.frxcode.frxworld.clas.Clas.mesmoCla(p, outro)) {
-                    avisar(p, "⚫ " + outro.getGameProfile().getName() + " é do seu clã: as suas invocações não atacam companheiros de clã.", ChatFormatting.YELLOW);
+                // jogador marcado de propósito: com "Dano em jogadores" ligado vale para qualquer um, inclusive do mesmo clã
+                if (!pvp(p)) {
+                    avisar(p, "⚫ Para suas invocações atacarem " + outro.getGameProfile().getName() + ", ligue \"Dano em jogadores\" no menu do Exército.", ChatFormatting.YELLOW);
                     return;
                 }
                 alvo = outro;
@@ -732,13 +733,17 @@ public class Sombras {
             if (p == null) return false;
             if (m.getPersistentData().contains(POSTO)) return false;   // mandada para um lugar: fica lá em vez de seguir
             double d = m.distanceToSqr(p);
+            if (m.getPersistentData().hasUUID(FOCO) && m.getTarget() != null && d < 48 * 48) return false;   // com alvo marcado, persegue até 48 blocos do dono
             return d > (m.getTarget() == null ? 36 : 400);
         }
 
         @Override
         public boolean canContinueToUse() {
             ServerPlayer p = dono();
-            return p != null && !m.getPersistentData().contains(POSTO) && m.distanceToSqr(p) > 9 && (m.getTarget() == null || m.distanceToSqr(p) > 400);
+            if (p == null || m.getPersistentData().contains(POSTO)) return false;
+            double d = m.distanceToSqr(p);
+            if (m.getPersistentData().hasUUID(FOCO) && m.getTarget() != null && d < 48 * 48) return false;
+            return d > 9 && (m.getTarget() == null || d > 400);
         }
 
         @Override

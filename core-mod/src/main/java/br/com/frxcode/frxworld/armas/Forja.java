@@ -1,5 +1,6 @@
 package br.com.frxcode.frxworld.armas;
 
+import br.com.frxcode.frxworld.armas.Lendarias;
 import br.com.frxcode.frxworld.moedas.Moedas;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -26,7 +27,11 @@ public final class Forja {
     private record Pendente(String acao, int slot, long quando) {}
     private static final Map<UUID, Pendente> PENDENTES = new HashMap<>();
 
-    private static final int[] SUCESSO = {100, 100, 100, 100, 90, 80, 70, 55, 45, 35, 25};
+    private static final int[] SUCESSO = {100, 100, 100, 100, 90, 80, 70, 55, 45, 35, 25, 30, 25, 20, 15, 10};
+    /** Além de +10: só Rank A (índice 5) ou S. */
+    private static final int RANK_ALEM_DE_10 = 5;
+
+    private static boolean podeAlemDe10(ServerPlayer p) { return br.com.frxcode.frxworld.progressao.Guilda.indice(p) >= RANK_ALEM_DE_10; }
 
     private record Custo(long moedas, Item material, int qtd) {}
 
@@ -48,6 +53,7 @@ public final class Forja {
     }
 
     private static int chance(int alvo) {
+        if (alvo > 10) return SUCESSO[Math.min(SUCESSO.length - 1, alvo)];
         com.google.gson.JsonObject l = linha(alvo);
         try { if (l != null) return Math.max(0, Math.min(100, l.get("chance").getAsInt())); } catch (Exception ignorado) {}
         return SUCESSO[alvo];
@@ -58,6 +64,12 @@ public final class Forja {
     }
 
     private static Custo custoAprimorar(int alvo) {
+        // +11 a +15: materiais das armaduras lendárias (Essência Abissal até +13, Fragmento Celestial no +14 e +15)
+        if (alvo > 10) {
+            long[] moedas = {2500, 3500, 5000, 7000, 10000};
+            int i = Math.min(4, alvo - 11);
+            return alvo <= 13 ? new Custo(moedas[i], Lendarias.ESSENCIA.get(), alvo - 9) : new Custo(moedas[i], Lendarias.FRAGMENTO.get(), alvo - 12);
+        }
         com.google.gson.JsonObject l = linha(alvo);
         if (l != null) {
             try {
@@ -141,6 +153,7 @@ public final class Forja {
         int n = Armas.nivel(item);
         if (n >= Armas.NIVEL_MAX) { dizer(p, npc, "Isso já está no máximo, +" + Armas.NIVEL_MAX + ".", ChatFormatting.WHITE); return; }
         int alvo = n + 1;
+        if (alvo > 10 && !podeAlemDe10(p)) { dizer(p, npc, "Passar de +10 é trabalho de lenda: só aceito de quem é Rank A ou S da Guilda.", ChatFormatting.WHITE); return; }
         Custo c = comDesconto(p, npc, custoAprimorar(alvo));
         int chance = chance(alvo);
         if (!confirmou) {
@@ -185,6 +198,7 @@ public final class Forja {
             d.putInt("chance", 100);
         } else {
             if (n >= Armas.NIVEL_MAX) { d.putString("estado", "max"); return d; }
+            if (n + 1 > 10 && !podeAlemDe10(p)) { d.putString("estado", "rank"); return d; }
             c = comDesconto(p, npc, custoAprimorar(n + 1));
             d.putString("linha", "+" + n + " → +" + (n + 1));
             d.putInt("chance", chance(n + 1));
@@ -203,6 +217,7 @@ public final class Forja {
         if (!Armas.forjavel(item)) return new String[]{"0", "Escolha uma arma, ferramenta ou armadura."};
         int r = Armas.raridade(item), n = Armas.nivel(item);
         if (reforjar ? r >= 4 : n >= Armas.NIVEL_MAX) return new String[]{"0", "Esse item já está no máximo."};
+        if (!reforjar && n + 1 > 10 && !podeAlemDe10(p)) return new String[]{"0", "Além de +10, só para Rank A ou S da Guilda."};
         Custo c = comDesconto(p, npc, reforjar ? custoReforjar(r) : custoAprimorar(n + 1));
         if (contar(p, c.material()) < c.qtd())
             return new String[]{"0", "Faltam " + (c.qtd() - contar(p, c.material())) + "× " + new ItemStack(c.material()).getHoverName().getString() + "."};

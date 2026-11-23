@@ -116,6 +116,15 @@
 | `/frx runa <tipo> [nível]` | Dá uma runa |
 | `/frx ladrao [jogador]` · `chance <0-1000>` | Solta o ladrão · ajusta a chance |
 | `/frx ronaldinho [jogador]` · `chance <0-1000>` | Chama o Ronaldinho · ajusta a chance |
+| `/pesca` | Placar do torneio de pesca da semana (todos) |
+| `/frx pesca encerrar` | Encerra o torneio agora e paga os prêmios |
+| `/corridas` | Lista as pistas, recordes e onde fica cada largada (todos) |
+| `/frx corrida criar <id> <pe\|cavalo\|barco\|elitro> <nome>` | Cria uma pista |
+| `/frx corrida ponto <id> [x y z]` | Marca o próximo ponto onde você está (ou nas coordenadas): o 1º é a largada, o último a chegada; zera os recordes da pista |
+| `/corrida iniciar <id>` | Começa a corrida (é o botão que aparece no chat na largada) |
+| `/frx corrida placar <id> [tamanho]` · `limite <id> <min>` | Placar gigante onde você está, virado para trás de você (tamanho 1–12, padrão 3) · tempo máximo da corrida (padrão 15) |
+| `/frx corrida voltas <id> <n>` | Pista de várias voltas: vira circuito e a chegada é a linha de largada, depois do último ponto |
+| `/frx corrida desfazer\|zerar\|remover <id>` · `raio <id> <blocos>` | Tira o último ponto · zera os recordes · apaga a pista · muda o tamanho dos pontos (padrão 5; élitro 10) |
 | `/frx noel [treno\|perdido\|jogador]` · `chance <0-1000>` | Chama o Papai Noel (trenó ou perdido) · ajusta a chance |
 
 ## Mundo e cidades (15/11)

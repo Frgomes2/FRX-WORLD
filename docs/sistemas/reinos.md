@@ -52,10 +52,13 @@
 - O banqueiro não vira guarda ao ser clicado com espada (bloqueado em `aoInteragir`).
 - `/frx npc recriar` · `/frx npc aqui`.
 
+- **Espaço entre NPCs:** dois moradores nunca ficam no mesmo bloco. A cada 5 s, perto dos jogadores, quem estiver a menos de 1 bloco de outro NPC anda sozinho para o bloco livre mais próximo (até 3 blocos, chão firme e espaço para pés e cabeça). Guardas ficam de fora da regra.
+
 ### População e raças dos NPCs
 
 - `Populacao.java` povoa os reinos com moradores. Não entram dragões do Ice and Fire. `/frx populacao refazer`.
 - **Proteção:** morador das ruas só leva dano de jogador (e do vazio); monstro, dragão, parede e invasão não matam. Guardas continuam podendo morrer.
+- **Cidade limpa:** monstros não nascem naturalmente dentro das capitais e, a cada 10 s, fora de invasão, monstro comum que entrou andando (até 96 blocos de um jogador dentro da capital) some com uma nuvem. Ficam chefes, monstros com nome ou persistentes e os que têm tag `frx_` (invasores, eventos, invocações).
 - **Reposição:** morador ou guarda que morre volta em 10 minutos, perto de onde caiu, quando houver jogador na região. A fila fica em `frx_repor.txt`, na pasta do mundo (`x;y;z;morador|guarda;quando`).
 - `reinos/Racas.java` define os `VillagerType` por raça:
   - originais: humano, anão, elfo, hobgoblin, oriental, sagrado, demônio;
@@ -125,6 +128,8 @@ Veja [quests.md](quests.md) para o papel das campanhas na estrutura de missões.
 ## Invasões (`Invasoes.java`)
 
 Ataques periódicos aos reinos. `/invasao` mostra o estado · admin `/frx invasao parar`. A configuração fica no painel (Progressão).
+
+- Frequência: uma tentativa a cada `invasoes.intervaloMinutos` (padrão 60) com `invasoes.chance` % (padrão 25); a capital é a de um jogador sorteado que esteja dentro de uma, e **a mesma capital só sofre outra invasão depois de 3 horas**.
 
 ## Waystones dos reinos (`WaystonesReino.java`)
 

@@ -8,7 +8,7 @@ O painel abre sozinho pelo atalho **FRX-WORLD**, em `http://localhost:3000`. Par
 
 Desde 16/11/2026 o endereço se divide em dois:
 
-- **`/` é o site público** (sem login), feito para os jogadores: status ligado/desligado, quem está jogando, acontecimentos, rankings (mais fortes, começando agora, mais ricos, conquistas, mortes), ranks da Guilda, classes, placar da Torre e da temporada, mapa explorado, sistemas do servidor, lista de mods com link e como entrar. Atualiza sozinho a cada 15 s.
+- **`/` é o site público** (sem login), feito para os jogadores: status ligado/desligado, quem está jogando, acontecimentos, rankings (mais fortes, começando agora, mais ricos, conquistas, mortes), ranks da Guilda, classes, placar da Torre e da temporada, torneio de pesca da semana, recordes das corridas, mapa explorado, sistemas do servidor, lista de mods com link e como entrar. Atualiza sozinho a cada 15 s.
 - **`/admin` é o painel** (tudo o que antes ficava na raiz: `/admin/servidor`, `/admin/missoes`...). O login continua em `/login` e leva para `/admin`.
 
 Arquivos: `src/app/page.tsx`, `src/components/publico/` (`site.tsx`, `mapa.tsx`, `jogadores.tsx`), `src/lib/publico.ts`, `src/lib/notas.ts` (notas de atualização, em linguagem de jogador) e `src/app/api/publico/` (`dados`, `mapa-tile`, `jogador`, `skin`), as únicas rotas de API sem login.

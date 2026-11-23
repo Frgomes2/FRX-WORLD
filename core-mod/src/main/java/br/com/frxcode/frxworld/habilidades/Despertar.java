@@ -168,6 +168,13 @@ public class Despertar {
                 && !(e instanceof net.minecraft.world.entity.animal.IronGolem g && g.isPlayerCreated());
     }
 
+    /** Inimigo para o poder de quem usou: os de sempre, mais jogadores se ele ligou "Dano em jogadores". */
+    static boolean inimigo(ServerPlayer p, LivingEntity e) {
+        return inimigo(e) || (p != null && (e instanceof Player || e.getTags().contains(Habilidades.TAG_INVOCADO)) && Habilidades.inimigo(p, e));
+    }
+
+    private static boolean hostil(ServerPlayer p, LivingEntity e) { return (e instanceof Player || e.getTags().contains(Habilidades.TAG_INVOCADO)) && Habilidades.inimigo(p, e); }
+
     private static boolean chefe(LivingEntity e) { return e.getType().is(Tags.EntityTypes.BOSSES); }
 
     @SubscribeEvent(priority = EventPriority.LOW)
@@ -178,7 +185,7 @@ public class Despertar {
 
         // quem bateu
         Entity fonte = ev.getSource().getEntity();
-        if (fonte instanceof ServerPlayer p && p != vitima && !aliado(vitima)) {
+        if (fonte instanceof ServerPlayer p && p != vitima && (!aliado(vitima) || hostil(p, vitima))) {
             Estado e = est(p);
             boolean flecha = ev.getSource().getDirectEntity() instanceof AbstractArrow;
             boolean corpo = ev.getSource().getDirectEntity() == p;
@@ -250,7 +257,7 @@ public class Despertar {
 
     @SubscribeEvent
     public void aoMorrer(LivingDeathEvent ev) {
-        if (ev.getSource().getEntity() instanceof ServerPlayer p && !aliado(ev.getEntity())) {
+        if (ev.getSource().getEntity() instanceof ServerPlayer p && (!aliado(ev.getEntity()) || hostil(p, ev.getEntity()))) {
             switch (classe(p)) {
                 case "LADINO" -> carregar(p, 8);
                 case "ASSASSINO" -> carregar(p, 10);
@@ -265,7 +272,7 @@ public class Despertar {
         if (!ev.getProjectile().getTags().contains(TAG_LUZ)) return;
         HitResult r = ev.getRayTraceResult();
         if (r instanceof EntityHitResult eh) {
-            if (!(eh.getEntity() instanceof LivingEntity le) || !inimigo(le)) ev.setImpactResult(ProjectileImpactEvent.ImpactResult.SKIP_ENTITY);
+            if (!(eh.getEntity() instanceof LivingEntity le) || !inimigo(ev.getProjectile().getOwner() instanceof ServerPlayer dono ? dono : null, le)) ev.setImpactResult(ProjectileImpactEvent.ImpactResult.SKIP_ENTITY);
         } else if (r.getType() == HitResult.Type.BLOCK) {
             Entity f = ev.getProjectile();
             if (f.level() instanceof ServerLevel nv) nv.sendParticles(ParticleTypes.END_ROD, f.getX(), f.getY(), f.getZ(), 3, 0.1, 0.1, 0.1, 0.02);
@@ -343,9 +350,9 @@ public class Despertar {
         return r.getType() == HitResult.Type.MISS ? fim : r.getLocation();
     }
 
-    private static List<LivingEntity> inimigosEm(ServerLevel nv, Vec3 centro, double raio, int max) {
+    private static List<LivingEntity> inimigosEm(ServerLevel nv, ServerPlayer p, Vec3 centro, double raio, int max) {
         List<LivingEntity> l = nv.getEntitiesOfClass(LivingEntity.class, new AABB(centro, centro).inflate(raio),
-                x -> inimigo(x) && x.position().distanceTo(centro) <= raio);
+                x -> inimigo(p, x) && x.position().distanceTo(centro) <= raio);
         l.sort((a, b) -> Double.compare(a.position().distanceTo(centro), b.position().distanceTo(centro)));
         return l.size() > max ? l.subList(0, max) : l;
     }
@@ -404,7 +411,7 @@ public class Despertar {
         }
         if (e.ativo % 12 != 0) return;
         double base = 2.0 + nivel(p) * 0.08;
-        for (LivingEntity alvo : inimigosEm(nv, e.ponto, 9, 12)) {
+        for (LivingEntity alvo : inimigosEm(nv, p, e.ponto, 9, 12)) {
             Arrow a = new Arrow(nv, p);
             a.setPos(alvo.getX() + r.nextDouble(-0.3, 0.3), alvo.getY() + alvo.getBbHeight() + 7, alvo.getZ() + r.nextDouble(-0.3, 0.3));
             a.setDeltaMovement(0, -2.4, 0);
@@ -458,7 +465,7 @@ public class Despertar {
         nv.playSound(null, e.ponto.x, e.ponto.y, e.ponto.z, SoundEvents.GENERIC_EXPLODE, SoundSource.PLAYERS, 6f, 0.6f);
         nv.playSound(null, e.ponto.x, e.ponto.y, e.ponto.z, SoundEvents.LIGHTNING_BOLT_THUNDER, SoundSource.PLAYERS, 3f, 0.5f);
         int atingidos = 0;
-        for (LivingEntity alvo : inimigosEm(nv, e.ponto, 7, 40)) {
+        for (LivingEntity alvo : inimigosEm(nv, p, e.ponto, 7, 40)) {
             double d = alvo.position().distanceTo(e.ponto);
             alvo.invulnerableTime = 0;
             alvo.hurt(p.damageSources().indirectMagic(p, p), (float) (danoMax * (1 - 0.5 * d / 7)));
@@ -500,11 +507,11 @@ public class Despertar {
         if (e.ativo % 20 != 0) return;
         int lvl = nivel(p);
         for (LivingEntity x : nv.getEntitiesOfClass(LivingEntity.class, new AABB(c, c).inflate(7.5), x -> x.isAlive() && x.position().distanceTo(c) <= 7.5)) {
-            if (aliado(x)) {
+            if (aliado(x) && !hostil(p, x)) {
                 x.heal((float) (1.5 + lvl * 0.06));
                 x.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 40, 0, true, true));
                 nv.sendParticles(ParticleTypes.HEART, x.getX(), x.getY() + x.getBbHeight() + 0.3, x.getZ(), 1, 0.2, 0.1, 0.2, 0);
-            } else if (inimigo(x)) {
+            } else if (inimigo(p, x)) {
                 x.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 40, 0));
                 x.addEffect(new MobEffectInstance(MobEffects.GLOWING, 40, 0));
                 if (x.getMobType() == MobType.UNDEAD) {
@@ -541,15 +548,15 @@ public class Despertar {
             }
         }
         if (e.ativo % 20 == 0) {
-            for (LivingEntity x : nv.getEntitiesOfClass(LivingEntity.class, new AABB(c, c).inflate(6.5), x -> x.isAlive() && x.distanceTo(p) <= 6.5 && aliado(x)))
+            for (LivingEntity x : nv.getEntitiesOfClass(LivingEntity.class, new AABB(c, c).inflate(6.5), x -> x.isAlive() && x.distanceTo(p) <= 6.5 && aliado(x) && !hostil(p, x)))
                 x.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 40, 0, true, true));
         }
         if (e.ativo != 1) return;
         // clarão final: tudo o que a cúpula barrou, mais um tanto pelo nível
         float dano = (float) Math.min(40 + nivel(p), 6 + nivel(p) * 0.3 + e.guardado * 1.5);
         for (LivingEntity x : nv.getEntitiesOfClass(LivingEntity.class, new AABB(c, c).inflate(8), x -> x.isAlive() && x.distanceTo(p) <= 8)) {
-            if (aliado(x)) { x.heal((float) Math.min(20, 2 + e.guardado * 0.2)); continue; }
-            if (!inimigo(x)) continue;
+            if (aliado(x) && !hostil(p, x)) { x.heal((float) Math.min(20, 2 + e.guardado * 0.2)); continue; }
+            if (!inimigo(p, x)) continue;
             x.invulnerableTime = 0;
             x.hurt(p.damageSources().indirectMagic(p, p), x.getMobType() == MobType.UNDEAD ? dano * 2 : dano);
             Vec3 fora = x.position().subtract(c).multiply(1, 0, 1);
@@ -690,7 +697,7 @@ public class Despertar {
         ThreadLocalRandom r = ThreadLocalRandom.current();
         int alvos = 0, itens = 0, cobre = 0, armas = 0;
         boolean sorte = false;
-        for (LivingEntity alvo : inimigosEm(nv, p.position(), 8, 10)) {
+        for (LivingEntity alvo : inimigosEm(nv, null, p.position(), 8, 10)) {
             alvos++;
             if (r.nextDouble() >= chance) {
                 nv.sendParticles(ParticleTypes.SMOKE, alvo.getX(), alvo.getY() + 1, alvo.getZ(), 8, 0.3, 0.4, 0.3, 0.02);

@@ -18,6 +18,15 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0controle\registrar-est
 echo [1/4] Parando o servidor Minecraft (salvando o mundo)...
 curl -s -m 110 -X POST -H "x-servidor-token: %TOKEN%" http://localhost:3000/api/servidor/desligar >nul 2>&1
 echo       ok
+rem Minecraft orfao (painel caiu e o jogo ficou sem dono): espera ate 30 s a porta 25565 fechar; se nao fechar, encerra
+for /l %%N in (1,1,6) do (
+  netstat -ano | findstr /r /c:":25565 .*LISTENING" >nul || goto :mc_fechado
+  ping -n 6 127.0.0.1 >nul
+)
+echo       [aviso] O Minecraft nao fechou pelo painel; encerrando o processo.
+for /f "tokens=5" %%P in ('netstat -ano ^| findstr /r /c:":25565 .*LISTENING"') do taskkill /pid %%P /t /f >nul 2>&1
+ping -n 4 127.0.0.1 >nul
+:mc_fechado
 
 echo [2/4] Backup do mundo e do painel...
 for /f %%D in ('powershell -NoProfile -Command "Get-Date -Format yyyyMMdd-HHmm"') do set "QUANDO=%%D"

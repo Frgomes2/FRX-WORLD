@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:smithing_transform",
+  "template": {
+    "item": "frxworld:essencia_abissal"
+  },
+  "base": {
+    "item": "frxworld:draconiana_botas"
+  },
+  "addition": {
+    "item": "frxworld:essencia_abissal"
+  },
+  "result": {
+    "item": "frxworld:abissal_botas"
+  }
+}

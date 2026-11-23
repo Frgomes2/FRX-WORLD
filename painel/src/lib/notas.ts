@@ -16,6 +16,71 @@ export type NotaAtualizacao = { versao: string; data: string; hora?: string; tit
 
 export const NOTAS: NotaAtualizacao[] = [
   {
+    versao: "1.4.5", data: "22/11/2026", hora: "20:48:45", titulo: "Mais mariposas nas Cavernas Desoladas",
+    itens: [
+      "Cavernas Desoladas (Alex's Caves): bem menos morcegos e mais Mariposas Sombrias. Dica: acenda tochas, elas se juntam em volta da luz.",
+      "Estabilidade: o painel volta a derrubar e religar o jogo junto quando trava, e passa a guardar um relatório do travamento para acharmos a causa das quedas.",
+    ],
+  },
+  {
+    versao: "1.4.4", data: "22/11/2026", hora: "16:29:39", titulo: "NPCs não ficam mais um dentro do outro",
+    itens: [
+      "Regra nova: dois NPCs nunca ficam no mesmo bloco. Se acontecer, um deles anda sozinho para o bloco livre mais perto.",
+      "Distrito Sakura (Império do Leste): Leiloeiro, Mercador de Escravos, Costureira e Mercador de Discos saíram de cima dos vizinhos.",
+      "Esfera Portátil de Pets traduzida (guarda bichos domados no item e solta onde você quiser).",
+      "Gaiola (Supplementaries): agora guarda tartarugas, cágados e qualquer filhote, para levar bichos para a sua base.",
+      "Labirinto do Dragão mais fácil: monstros dos geradores com metade da vida e da armadura, menos dano e nascendo em menor quantidade.",
+    ],
+  },
+  {
+    versao: "1.4.3", data: "22/11/2026", hora: "14:52:35", titulo: "Invocações no PvP e servidor mais estável",
+    itens: [
+      "Com \"Dano em jogadores\" ligado no Exército, suas invocações agora também podem ser atingidas pelas habilidades e magias de outros jogadores (antes só o ataque corpo a corpo pegava).",
+      "Invocações com alvo marcado não largam mais a perseguição para voltar até você: seguem o alvo até 48 blocos de distância do dono.",
+      "Correção de quedas: o servidor do jogo não cai mais junto quando a janela do painel recebe um Ctrl+C.",
+      "Enigmas: quem desvenda um enigma agora pode continuar e desvendar os outros do mesmo evento (antes ficava bloqueado depois do primeiro).",
+      "Artefatos traduzidos: Totem do Coro, Chapéu de Pescador, Chapéu de Caubói, Anel de Cebola, Raquetes de Neve e as descrições que ainda estavam em inglês.",
+    ],
+  },
+  {
+    versao: "1.4.2", data: "22/11/2026", hora: "12:53:00", titulo: "Armaduras lendárias, forja até +15 e corrida em grupo",
+    itens: [
+      "Corrida em grupo: quando alguém clica em [Iniciar corrida], todos que estão na linha de largada, do jeito certo, largam juntos.",
+      "Cada um que cruza a chegada vê a sua colocação (1º, 2º, 3º...), e no fim sai o resultado no chat. Quem vence uma largada com dois ou mais leva 5 ouro.",
+      "Os tempos de todos continuam valendo para o placar de recordes da pista.",
+      "Invocador: com \"Dano em jogadores\" ligado no menu do Exército, marcar um jogador faz as invocações atacarem ele, mesmo que seja do seu clã. Com a opção desligada, aparece o aviso para ligar.",
+      "Novo botão \"Dano em jogadores\" na janela de Habilidades (canto de baixo, à esquerda): ligado, suas habilidades e o Despertar ferem outros jogadores, inclusive do seu clã. Desligado por padrão; precisa do PvP do servidor ativo.",
+      "Armaduras depois do netherite, feitas na mesa de ferraria: Draconiana (Rank B), Abissal (Rank A) e Celestial (Rank S), cada uma com bônus de conjunto. Os materiais vêm de dragões, chefes especiais, da Torre e do Dragão do Fim.",
+      "Forja além do +10: quem é Rank A ou S pode aprimorar até +15 com Essências Abissais e Fragmentos Celestiais.",
+      "Livro novo na biblioteca: Depois do Netherite, com todos os caminhos de armadura para os mais fortes.",
+      "Mais runas por item conforme o rank da Guilda: 2 até o Rank D, 3 no C, 4 no B e 5 no A e no S.",
+      "Volta mais rápida: em pistas de várias voltas, quem faz a volta mais rápida fica em destaque no placar gigante e no site, e o servidor é avisado quando ela é batida.",
+    ],
+  },
+  {
+    versao: "1.4.1", data: "22/11/2026", hora: "10:40:59", titulo: "Corridas com largada, fogos e placar gigante",
+    itens: [
+      "Na largada da corrida aparece o botão [Iniciar corrida] no chat. Clicando, começa uma contagem de 5 segundos com a montaria travada, e no \"Vai!\" estouram fogos de artifício.",
+      "Na chegada, mais fogos, o tempo aparece na tela e, se for recorde, o servidor inteiro fica sabendo.",
+      "Pista de voltas termina na linha de chegada (a mesma da largada), depois de passar por todos os pontos, e não no último ponto.",
+      "Só uma corrida por vez em cada pista: quem chega na largada durante uma corrida vê que a pista está ocupada.",
+      "Cada pista tem um tempo máximo: se não terminar a tempo, a corrida é cancelada.",
+      "Placar gigante na pista com os 10 melhores tempos e quem está correndo agora.",
+    ],
+  },
+  {
+    versao: "1.4.0", data: "22/11/2026", hora: "10:01:00", titulo: "Torneio de pesca, corridas e cidades mais seguras",
+    itens: [
+      "Torneio de pesca: todo peixe agora tem peso e estrelas. Vale o maior peixe para a espécie, e domingo à meia-noite os três primeiros da semana ganham 30, 15 e 8 ouro. Placar no site e em /pesca.",
+      "À noite ou com chuva, o lendário Peixe-Rei Dourado pode morder (25 ouro na hora).",
+      "Hipódromo perto de Lubelius: explosão não estraga nada e monstro não nasce nem fica lá dentro.",
+      "Corridas: pistas a pé, a cavalo, de barco e de élitro. Fique no anel de fogo da largada e siga a coluna de luz. Recordes no site e em /corridas; a primeira do dia em cada pista paga 2 ouro e o recorde, 10.",
+      "As capitais ficam limpas: fora das invasões, monstro comum que entra andando na cidade some (os guardas expulsam).",
+      "Invasões menos frequentes: uma tentativa por hora, com 25% de chance, e a mesma capital só é atacada de novo depois de 3 horas.",
+      "O livro encantado vazio (sem nenhum encantamento) agora serve na bancada do sábio no lugar do livro em branco, para guardar o encantamento extraído.",
+    ],
+  },
+  {
     versao: "1.3.9", data: "22/11/2026", hora: "02:56:07", titulo: "Ferramentas, escudos e élitros com classe",
     itens: [
       "Agora tudo tem classe: picaretas, pás e enxadas seguem o material (pedra e ouro F, ferro E, diamante D, netherite C). Acima do seu rank, a ferramenta não quebra blocos.",

@@ -38,6 +38,7 @@ public class FrxWorld {
         br.com.frxcode.frxworld.moedas.Moedas.registrar(modBus);
         br.com.frxcode.frxworld.armas.Armas.registrar(modBus);
         br.com.frxcode.frxworld.armas.Reliquias.registrar(modBus);
+        br.com.frxcode.frxworld.armas.Lendarias.registrar(modBus);
         br.com.frxcode.frxworld.reinos.MenuDesencanto.registrar(modBus);
         br.com.frxcode.frxworld.reinos.MenuCostura.registrar(modBus);
         br.com.frxcode.frxworld.eventos.ItensNatal.registrar(modBus);
@@ -77,6 +78,9 @@ public class FrxWorld {
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.aventura.Inferno());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.aventura.DragaoFim());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.progressao.Elitros());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.eventos.Pesca());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.aventura.Corridas());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.aventura.ConjuntosLendarios());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.progressao.AjustesAdmin());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.protecao.Trancas());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.progressao.Ping());

@@ -19,7 +19,7 @@ Vale para armas, ferramentas e armaduras.
 
 ## Aprimoramento +N (Ferreiro)
 
-- **Ferreiro** (agachar + clicar): aprimora de **+1 até +10**, cobrando moedas e minério.
+- **Ferreiro** (agachar + clicar): aprimora de **+1 até +10**, cobrando moedas e minério. **De +11 a +15 só para Rank A ou S** da Guilda, com os materiais das armaduras lendárias: +11 25 ouro + 2 Essências Abissais (30%), +12 35 ouro + 3 (25%), +13 50 ouro + 4 (20%), +14 70 ouro + 2 Fragmentos Celestiais (15%), +15 100 ouro + 3 (10%). Esses níveis não vêm do painel (`Forja.custoAprimorar`); na tela da forja, quem não tem o rank vê o aviso.
 - Cada nível dá **+6% de dano** (armas) ou **+0,3 de armadura** (por peça).
 - Chance de sucesso por nível alvo: +1 a +4 = 100% · +5 90% · +6 80% · +7 70% · +8 55% · +9 45% · +10 25%. Os valores podem mudar no painel.
 - Se falhar, perde o material, mas o item **não quebra**.
@@ -59,3 +59,17 @@ Raças → Classes → Atributos → Talentos → Forja → Equipamentos → ...
 ```
 
 Raça e classe dão a base, os talentos ajustam e a forja/raridade escala com o equipamento. O nível das dimensões cobra tudo isso. Veja [progressao-zonas.md](progressao-zonas.md).
+
+## Armaduras lendárias (`armas/Lendarias.java`, `aventura/ConjuntosLendarios.java`)
+
+- Três conjuntos depois do netherite, feitos na **mesa de ferraria** (o material vai no espaço do molde e no do acréscimo: 2 por peça; mantém encantamentos, forja e runas). Receitas em `data/frxworld/recipes/<conjunto>_<peça>.json`.
+
+| Conjunto | Vem de | Defesa (elmo/peitoral/perneiras/botas) | Resistência | Classe | Bônus com as 4 peças |
+|---|---|---|---|---|---|
+| Draconiana | netherite + Escama Draconiana | 3/8/6/3 | 4 | B | imune a fogo; quem bate pega fogo 4 s |
+| Abissal | Draconiana + Essência Abissal | 4/9/7/4 | 5 | A | +4 corações; 12% de esquiva |
+| Celestial | Abissal + Fragmento Celestial | 5/11/9/5 | 6 | S | sem dano de queda; efeitos ruins somem; Regeneração II |
+
+- **Materiais:** Escama — dragões do Ice and Fire com 100+ de vida (2–4 para cada um a até 48 blocos), chefes de outros mods de nível 40–54 (1–2, no prêmio) e chefes da Torre dos andares 30–49 (2, primeira vez). Essência — chefes de outros mods de nível 55+ (2) e chefes da Torre dos andares 50–79 (1; 2 a partir do 70). Fragmento — Dragão do Fim (4 por ajudante) e chefes da Torre do andar 80+ (1).
+- A classe sai da regra de `ClassesEquip` (defesa + resistência). Descrição dos itens mostra o bônus e de onde vem cada material. Livro "Depois do Netherite" na biblioteca; o armeiro comenta o caminho.
+

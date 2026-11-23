@@ -126,7 +126,9 @@ if /i "%BUILD%"=="SIM" (
 popd
 rem guarda o log do painel anterior: se o painel cair sozinho, a causa fica em painel-anterior.log
 if exist "%~dp0logs\painel.log" copy /y "%~dp0logs\painel.log" "%~dp0logs\painel-anterior.log" >nul
-start "FRX-WORLD Painel" /min cmd /k "cd /d "%~dp0painel" && npm run start > "%~dp0logs\painel.log" 2>&1"
+if not exist "%~dp0logs\node" mkdir "%~dp0logs\node"
+rem relatorio do node se o painel travar (causa das quedas): fica em logs\node
+start "FRX-WORLD Painel" /min cmd /k "cd /d "%~dp0painel" && set NODE_OPTIONS=--report-on-fatalerror --report-uncaught-exception --report-directory=%~dp0logs\node&& npm run start > "%~dp0logs\painel.log" 2>&1"
 
 set /a TENTATIVAS=0
 :esperaPainel

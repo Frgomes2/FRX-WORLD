@@ -106,7 +106,7 @@ Código: `habilidades/Sombras.java` · Pacotes `SyncSombras` e `AcaoSombra` · T
   - As sombras seguem o dono e atacam o que ele ataca.
   - Uma sombra que morre leva 60 s para se recompor.
   - Ao sair ou morrer, as sombras fora são recolhidas.
-  - **Marcar:** aponta para uma criatura e a tropa ataca; com PvP ligado, vale para outro jogador (menos membros do mesmo clã), que recebe um aviso. Apontando para um bloco a até 40 blocos, a tropa vai até lá e fica de **posto**; o posto se desfaz se o dono se afastar mais de 48 blocos, e apontar para o céu libera a tropa.
+  - **Marcar:** aponta para uma criatura e a tropa ataca; com "Dano em jogadores" ligado no Exército (e PvP do servidor ativo), vale para qualquer outro jogador, inclusive do mesmo clã, que recebe um aviso; com a opção desligada, o dono é avisado para ligá-la. Apontando para um bloco a até 40 blocos, a tropa vai até lá e fica de **posto**; o posto se desfaz se o dono se afastar mais de 48 blocos, e apontar para o céu libera a tropa.
   - Invocações (sombras, golem e as demais) não atacam jogadores, aldeões, NPCs, animais domados nem outras invocações, a não ser o alvo marcado.
 - **Identificação (`habilidades/MarcaInvocacao.java`, `cliente/SombraInvocacao.java`):** toda invocação entra no time `frx_invocacoes` (roxo) ao entrar no mundo e sai ao sair (o placar não acumula). No jogo de todos, ela aparece escurecida e puxada para o roxo, como uma sombra (o nome flutuante continua legível), com uma aura de fumaça e faíscas roxas. O dano entre invocações e jogadores segue o botão **"Dano em jogadores"** do menu do Exército (NBT `frx_invoc_pvp`, desligado por padrão): desligado, as invocações não ferem jogadores e nenhum jogador fere as invocações (bom para dungeons em grupo); ligado, vale nos dois sentidos. O dono nunca fere as próprias invocações nem é ferido por elas; com o dono offline, vale desligado.
 - **Comandos:** `/sombra erguer|invocar|todas|guardar|libertar` e `/levantese`.
@@ -153,3 +153,7 @@ A barra tem 4 espaços comuns e 1 de ultimate para todos. O rank da Guilda liber
 ## Teto de armadura (`progressao/TetoAtributos.java`)
 
 O Minecraft limita a armadura a 30; o mod sobe o limite para **100** (servidor e cliente). O dano vem da fórmula do Apothic Attributes (`config/attributeslib.cfg`): dano que passa = `a / (a + armadura)`, com `a = 10` em golpes até 20 de dano (`10 + (dano − 20)/2` acima disso). Exemplos para golpes comuns: 20 de armadura → 33%; 30 → 25%; 40 → 20%; 60 → 14%; 100 → 9%. A resistência (toughness) não entra nessa fórmula padrão. A Proteção dos encantamentos reduz à parte (`1 − min(0,025 × pontos, 0,85)`).
+
+## Dano em jogadores (habilidades)
+
+Na janela de Habilidades, o botão **Dano em jogadores** (canto inferior esquerdo) liga ou desliga, por jogador, se as habilidades e o Despertar dele ferem outros jogadores. Desligado por padrão. Ligado, vale para qualquer jogador, inclusive do mesmo clã, desde que o PvP do servidor esteja ativo. O roubo do Ladino continua só em criaturas. As invocações têm o botão próprio no menu do Exército.

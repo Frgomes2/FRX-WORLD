@@ -125,6 +125,9 @@ public class Externos {
         }
         long moedas = Recompensa.chefaoExterno(c.nivel());
         if (moedas > 0) br.com.frxcode.frxworld.moedas.Moedas.dar(p, moedas);
+        // materiais das armaduras lendárias: chefes de nível 40 a 54 dão Escama Draconiana; 55 ou mais, Essência Abissal
+        if (c.nivel() >= 55) br.com.frxcode.frxworld.aventura.ConjuntosLendarios.darMaterial(p, br.com.frxcode.frxworld.armas.Lendarias.ESSENCIA.get(), 2);
+        else if (c.nivel() >= 40) br.com.frxcode.frxworld.aventura.ConjuntosLendarios.darMaterial(p, br.com.frxcode.frxworld.armas.Lendarias.ESCAMA.get(), 1 + ThreadLocalRandom.current().nextInt(2));
         long xp = Math.round(c.xp() * (1 + nivelJogador / 50.0));
         StringBuilder ganhou = new StringBuilder("+" + xp + " XP" + (moedas > 0 ? " · " + br.com.frxcode.frxworld.moedas.Moedas.texto(moedas) : ""));
         for (DungeonDef.Loot l : c.loot()) {

@@ -302,6 +302,31 @@ public class Populacao {
         }
     }
 
+    /**
+     * Limpeza da cidade: fora das invasões, monstro comum que entrou andando na capital (nasceu lá fora, à noite) some,
+     * como se os guardas o tivessem expulsado. Ficam chefes, monstros com nome, os de evento e invocações (tags frx_).
+     */
+    @SubscribeEvent
+    public void limparCidade(net.minecraftforge.event.TickEvent.ServerTickEvent ev) {
+        if (ev.phase != net.minecraftforge.event.TickEvent.Phase.END || ev.getServer().getTickCount() % 200 != 37) return;
+        ServerLevel nivel = ev.getServer().overworld();
+        java.util.Set<java.util.UUID> vistos = new java.util.HashSet<>();
+        for (net.minecraft.server.level.ServerPlayer p : nivel.players()) {
+            Reino r = null;
+            for (Reino x : Reinos.todos()) if (x.distancia(p.getBlockX(), p.getBlockZ()) == 0) { r = x; break; }
+            if (r == null || Invasoes.emAndamento(r)) continue;
+            final Reino reino = r;
+            for (net.minecraft.world.entity.Mob m : nivel.getEntitiesOfClass(net.minecraft.world.entity.Mob.class, p.getBoundingBox().inflate(96, 48, 96), m -> m.isAlive()
+                    && (m instanceof net.minecraft.world.entity.monster.Enemy || m.getType().getCategory() == MobCategory.MONSTER))) {
+                if (!vistos.add(m.getUUID()) || reino.distancia(m.getBlockX(), m.getBlockZ()) != 0) continue;
+                if (m.hasCustomName() || m.isPersistenceRequired() || m.getType().is(net.minecraftforge.common.Tags.EntityTypes.BOSSES)
+                        || br.com.frxcode.frxworld.aventura.Chefes.ehChefao(m) || m.getTags().stream().anyMatch(t -> t.startsWith("frx_"))) continue;
+                nivel.sendParticles(net.minecraft.core.particles.ParticleTypes.POOF, m.getX(), m.getY() + m.getBbHeight() / 2, m.getZ(), 8, 0.3, 0.4, 0.3, 0.02);
+                m.discard();
+            }
+        }
+    }
+
     /** Dragões e outras feras do Ice and Fire (ninhos e cavernas geradas no mundo) não ficam dentro das capitais. */
     @SubscribeEvent
     public void semDragoes(net.minecraftforge.event.entity.EntityJoinLevelEvent evento) {

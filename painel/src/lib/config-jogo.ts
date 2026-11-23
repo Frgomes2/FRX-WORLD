@@ -108,7 +108,7 @@ export const configSchema = z.object({
       monstros3: z.array(z.string().min(3).max(80)).min(1).max(30),
       chefe: z.string().min(3).max(80),
     })
-    .default({ ativo: true, intervaloMinutos: 30, chance: 35, ondas: 3, monstrosBase: 6, monstrosPorJogador: 3, moedasPorJogador: 150, moedasPorAbate: 5, repVitoria: 100, repPorAbate: 5, monstros1: ["minecraft:zombie", "minecraft:skeleton", "minecraft:spider", "minecraft:husk"], monstros2: ["minecraft:zombie", "minecraft:skeleton", "minecraft:vindicator", "minecraft:pillager", "minecraft:witch"], monstros3: ["minecraft:vindicator", "minecraft:pillager", "minecraft:evoker", "minecraft:wither_skeleton"], chefe: "minecraft:ravager" }),
+    .default({ ativo: true, intervaloMinutos: 60, chance: 25, ondas: 3, monstrosBase: 6, monstrosPorJogador: 3, moedasPorJogador: 150, moedasPorAbate: 5, repVitoria: 100, repPorAbate: 5, monstros1: ["minecraft:zombie", "minecraft:skeleton", "minecraft:spider", "minecraft:husk"], monstros2: ["minecraft:zombie", "minecraft:skeleton", "minecraft:vindicator", "minecraft:pillager", "minecraft:witch"], monstros3: ["minecraft:vindicator", "minecraft:pillager", "minecraft:evoker", "minecraft:wither_skeleton"], chefe: "minecraft:ravager" }),
   chefeMundial: z
     .object({
       ativo: z.boolean(),
@@ -248,7 +248,7 @@ export const CONFIG_PADRAO: ConfigJogo = {
     { ate: 1000, xpPct: 20, podePerderNivel: true, durabilidadePct: 20, feridoMin: 15 },
   ],
   ferido: { vidaPct: 20, danoPct: 20 },
-  invasoes: { ativo: true, intervaloMinutos: 30, chance: 35, ondas: 3, monstrosBase: 6, monstrosPorJogador: 3, moedasPorJogador: 150, moedasPorAbate: 5, repVitoria: 100, repPorAbate: 5, monstros1: ["minecraft:zombie", "minecraft:skeleton", "minecraft:spider", "minecraft:husk"], monstros2: ["minecraft:zombie", "minecraft:skeleton", "minecraft:vindicator", "minecraft:pillager", "minecraft:witch"], monstros3: ["minecraft:vindicator", "minecraft:pillager", "minecraft:evoker", "minecraft:wither_skeleton"], chefe: "minecraft:ravager" },
+  invasoes: { ativo: true, intervaloMinutos: 60, chance: 25, ondas: 3, monstrosBase: 6, monstrosPorJogador: 3, moedasPorJogador: 150, moedasPorAbate: 5, repVitoria: 100, repPorAbate: 5, monstros1: ["minecraft:zombie", "minecraft:skeleton", "minecraft:spider", "minecraft:husk"], monstros2: ["minecraft:zombie", "minecraft:skeleton", "minecraft:vindicator", "minecraft:pillager", "minecraft:witch"], monstros3: ["minecraft:vindicator", "minecraft:pillager", "minecraft:evoker", "minecraft:wither_skeleton"], chefe: "minecraft:ravager" },
   chefeMundial: { ativo: true, horarios: ["SAB 20:00"], chefes: ["mowziesmobs:frostmaw", "mowziesmobs:ferrous_wroughtnaut", "cataclysm:netherite_monstrosity", "cataclysm:ignis", "minecraft:wither"], vidaMult: 4, danoMult: 1.5, moedas: 3000, avisoMinutos: 10, duracaoMinutos: 60, distanciaMin: 400, distanciaMax: 1500 },
   forja: FORJA_PADRAO,
   floresta: FLORESTA_PADRAO,

@@ -53,12 +53,18 @@ import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Runas: pedras (fragmento de eco com a marca frx_runa) que se encaixam em armas e armaduras na bigorna.
- * Cada item aceita até 2 runas de tipos diferentes; duas runas iguais na bigorna viram uma de nível maior (I a III).
+ * Cada item aceita runas de tipos diferentes conforme o rank de quem encaixa (2 até D, 3 C, 4 B, 5 A e S); duas runas iguais na bigorna viram uma de nível maior (I a III).
  * As de arma agem ao bater; as de armadura somam os níveis de todas as peças vestidas.
  */
 public class Runas {
     private static final String CHAVE = "frx_runa", NO_ITEM = "frx_runas", MARCA = "◆ Runa ";
-    private static final int VAGAS = 2, NIVEL_MAX = 3;
+    private static final int NIVEL_MAX = 3;
+
+    /** Vagas de runa por item conforme o rank da Guilda de quem encaixa: até D 2, C 3, B 4, A e S 5. */
+    public static int vagas(net.minecraft.world.entity.player.Player p) {
+        int rank = p == null ? 0 : br.com.frxcode.frxworld.progressao.Guilda.indice(p);
+        return rank >= 5 ? 5 : rank == 4 ? 4 : rank == 3 ? 3 : 2;
+    }
     private static final String[] ROMANOS = {"", "I", "II", "III"};
 
     private record Tipo(String id, String nome, boolean arma, ChatFormatting cor, String efeito) { }
@@ -95,7 +101,7 @@ public class Runas {
         s.getOrCreateTag().put("Enchantments", brilho);
         s.setHoverName(Component.literal("Runa " + t.nome() + " " + ROMANOS[nivel]).withStyle(st -> st.withColor(t.cor()).withItalic(false)));
         ListTag lore = new ListTag();
-        for (String l : new String[]{t.efeito() + ".", t.arma() ? "Encaixa em armas." : "Encaixa em armaduras.", "Use na bigorna: item à esquerda, runa à direita.", "Duas runas iguais na bigorna sobem de nível."})
+        for (String l : new String[]{t.efeito() + ".", t.arma() ? "Encaixa em armas." : "Encaixa em armaduras.", "Use na bigorna: item à esquerda, runa à direita.", "Duas runas iguais na bigorna sobem de nível.", "Vagas por item: 2 (até Rank D), 3 (C), 4 (B), 5 (A e S)."})
             lore.add(StringTag.valueOf(Component.Serializer.toJson(Component.literal(l).withStyle(st -> st.withColor(ChatFormatting.GRAY).withItalic(false)))));
         s.getOrCreateTagElement("display").put("Lore", lore);
         return s;
@@ -212,7 +218,13 @@ public class Runas {
         if (!(t.arma() ? ehArma(esq) : ehArmadura(esq)) || esq.getCount() != 1) { ev.setCanceled(true); return; }
         CompoundTag atuais = esq.hasTag() && esq.getTag().contains(NO_ITEM) ? esq.getTag().getCompound(NO_ITEM) : new CompoundTag();
         boolean troca = atuais.contains(t.id());                       // mesma runa de nível maior substitui
-        if (troca ? atuais.getInt(t.id()) >= nv : atuais.size() >= VAGAS) { ev.setCanceled(true); return; }
+        if (troca ? atuais.getInt(t.id()) >= nv : atuais.size() >= vagas(ev.getPlayer())) {
+            if (!troca && ev.getPlayer() instanceof net.minecraft.server.level.ServerPlayer sp)
+                sp.displayClientMessage(Component.literal("Este item já tem " + atuais.size() + " runa(s): no seu rank cabem " + vagas(sp)
+                        + " (C 3, B 4, A e S 5). Tire uma no sábio para trocar.").withStyle(ChatFormatting.RED), true);
+            ev.setCanceled(true);
+            return;
+        }
         ItemStack saida = esq.copy();
         CompoundTag novas = atuais.copy();
         novas.putInt(t.id(), nv);
@@ -337,7 +349,7 @@ public class Runas {
     public void comandos(RegisterCommandsEvent ev) {
         ev.getDispatcher().register(Commands.literal("runas").executes(c -> {
             ServerPlayer p = c.getSource().getPlayerOrException();
-            p.sendSystemMessage(Component.literal("◆ Runas — encaixe na bigorna: item à esquerda, runa à direita. Até " + VAGAS + " por item, de tipos diferentes. Duas iguais viram uma de nível maior (até III).").withStyle(ChatFormatting.LIGHT_PURPLE));
+            p.sendSystemMessage(Component.literal("◆ Runas — encaixe na bigorna: item à esquerda, runa à direita. Por item: 2 até o Rank D, 3 no C, 4 no B, 5 no A e S (você: " + vagas(p) + "), de tipos diferentes. Duas iguais viram uma de nível maior (até III).").withStyle(ChatFormatting.LIGHT_PURPLE));
             p.sendSystemMessage(Component.literal("   Caem de chefes, procurados, chefes da Torre e baús de tesouro; a Loja da Torre vende.").withStyle(ChatFormatting.GRAY));
             for (Tipo t : TIPOS.values())
                 p.sendSystemMessage(Component.literal("   Runa " + t.nome()).withStyle(t.cor()).append(Component.literal(" (" + (t.arma() ? "arma" : "armadura") + ") — " + t.efeito()).withStyle(ChatFormatting.GRAY)));

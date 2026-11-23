@@ -112,6 +112,7 @@ public class DragaoFim {
             if (p == null) continue;
             Banco.definirSaldo(p, Banco.saldo(p) + PREMIO);
             Conquistas.maximo(p, "c:dragao_end", 1);
+            ConjuntosLendarios.darMaterial(p, br.com.frxcode.frxworld.armas.Lendarias.FRAGMENTO.get(), 4);
             nomes.add(p.getGameProfile().getName());
             br.com.frxcode.frxworld.FrxWorld.LOG.info("Dragão do Fim: {} recebeu {} cobre no banco", p.getGameProfile().getName(), PREMIO);
             Sistema.avisar(p, "O Dragão do Fim caiu", "Você ajudou a derrotá-lo: " + String.format(java.util.Locale.ROOT, "%,d", PREMIO / 100).replace(',', '.')

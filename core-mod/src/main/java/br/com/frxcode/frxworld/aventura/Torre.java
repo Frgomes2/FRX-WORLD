@@ -943,6 +943,10 @@ public class Torre {
                 dados(p).putInt("seguro", Math.max(seguro(p), c.andar));
                 p.heal(p.getMaxHealth());
                 if (novo) Tesouros.talvezDar(p, 20);
+                // materiais das armaduras lendárias nos chefes altos (só na primeira vez em cada andar)
+                if (novo && c.andar >= 80) ConjuntosLendarios.darMaterial(p, br.com.frxcode.frxworld.armas.Lendarias.FRAGMENTO.get(), 1);
+                else if (novo && c.andar >= 50) ConjuntosLendarios.darMaterial(p, br.com.frxcode.frxworld.armas.Lendarias.ESSENCIA.get(), c.andar >= 70 ? 2 : 1);
+                else if (novo && c.andar >= 30) ConjuntosLendarios.darMaterial(p, br.com.frxcode.frxworld.armas.Lendarias.ESCAMA.get(), 2);
                 if (novo) Runas.talvezDar(p, 35, c.andar >= 60 ? 3 : c.andar >= 30 ? 2 : 1);
                 if (novo && ThreadLocalRandom.current().nextInt(100) < 40) {
                     ItemStack tomo = new ItemStack(Blocos.TOMO_ARCANO.get());

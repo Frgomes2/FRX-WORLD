@@ -130,6 +130,18 @@ public class TelaHabilidades extends Screen {
             addRenderableWidget(ex);
             addRenderableWidget(botaoTecla(6, x0 + 248, y0 + 5, 22));
         }
+        {   // habilidades ferem jogadores?
+            boolean pvp = ClienteHabilidades.pvp;
+            Button bp = Button.builder(pvp ? Component.literal("⚔ Dano em jogadores: ligado").withStyle(net.minecraft.ChatFormatting.RED)
+                            : Component.literal("☮ Dano em jogadores: desligado").withStyle(net.minecraft.ChatFormatting.GREEN),
+                    b -> br.com.frxcode.frxworld.rede.Rede.CANAL.sendToServer(new br.com.frxcode.frxworld.rede.AcaoHabilidade(
+                            br.com.frxcode.frxworld.rede.AcaoHabilidade.PVP, 0, "")))
+                    .bounds(x0 + 8, y0 + ALT - 24, 150, 16).build();
+            bp.setTooltip(net.minecraft.client.gui.components.Tooltip.create(Component.literal(pvp
+                    ? "Ligado: suas habilidades ferem jogadores, inclusive do seu clã (precisa do PvP do servidor ativo). Clique para desligar."
+                    : "Desligado: suas habilidades não ferem jogadores. Clique para ligar e poder acertar qualquer jogador, mesmo do seu clã.")));
+            addRenderableWidget(bp);
+        }
         // barra: tirar
         for (int i : ordem()) {
             final int espaco = i;

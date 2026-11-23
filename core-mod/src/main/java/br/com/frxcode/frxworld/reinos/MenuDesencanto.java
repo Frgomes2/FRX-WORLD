@@ -49,11 +49,16 @@ public class MenuDesencanto extends AbstractContainerMenu {
             @Override public int getMaxStackSize() { return 1; }
         });
         addSlot(new Slot(caixa, LIVRO, LIVRO_X, LIVRO_Y) {
-            @Override public boolean mayPlace(ItemStack s) { return s.is(Items.BOOK); }
+            @Override public boolean mayPlace(ItemStack s) { return livroBranco(s); }
         });
         for (int l = 0; l < 3; l++)
             for (int c = 0; c < 9; c++) addSlot(new Slot(inv, c + l * 9 + 9, INV_X + c * 18, INV_Y + l * 18));
         for (int c = 0; c < 9; c++) addSlot(new Slot(inv, c, INV_X + c * 18, INV_Y + 58));
+    }
+
+    /** Livro em branco ou livro encantado vazio (sem nenhum encantamento guardado). */
+    public static boolean livroBranco(ItemStack s) {
+        return s.is(Items.BOOK) || (s.is(Items.ENCHANTED_BOOK) && net.minecraft.world.item.EnchantedBookItem.getEnchantments(s).isEmpty());
     }
 
     @Override
@@ -77,7 +82,7 @@ public class MenuDesencanto extends AbstractContainerMenu {
         ItemStack s = slot.getItem(), copia = s.copy();
         if (indice < 2) {
             if (!moveItemStackTo(s, 2, slots.size(), true)) return ItemStack.EMPTY;
-        } else if (s.is(Items.BOOK)) {
+        } else if (livroBranco(s)) {
             if (!moveItemStackTo(s, LIVRO, LIVRO + 1, false)) return ItemStack.EMPTY;
         } else {
             if (slots.get(ITEM).hasItem() || !moveItemStackTo(s, ITEM, ITEM + 1, false)) return ItemStack.EMPTY;

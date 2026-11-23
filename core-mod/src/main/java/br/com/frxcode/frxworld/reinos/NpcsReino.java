@@ -68,7 +68,7 @@ public class NpcsReino {
     private static final List<Papel> PAPEIS = List.of(
             new Papel("rei", "", 0, 0, new String[]{"Seja bem-vindo ao meu reino, viajante.", "Meus súditos contam com heróis como você.", "Prove seu valor e terá a gratidão da coroa."}),
             new Papel("ferreiro", "weaponsmith", 7, 0, new String[]{"Lâminas afiadas, preço justo! Fale comigo e eu aprimoro a sua arma.", "Traga minério e moedas e eu levo sua arma até +10.", "Cuidado com a fornalha, está quente."}),
-            new Papel("armeiro", "armorer", 7, 5, new String[]{"Uma boa armadura salva vidas.", "Fale comigo: eu reforjo a qualidade da sua arma ou armadura."}),
+            new Papel("armeiro", "armorer", 7, 5, new String[]{"Uma boa armadura salva vidas.", "Fale comigo: eu reforjo a qualidade da sua arma ou armadura.", "Netherite não é o fim: com escamas de dragão, essências do abismo e fragmentos celestiais, a mesa de ferraria vai além.", "Dizem que a armadura do Warden e a de Ignitium nascem do netherite. Procure o livro Depois do Netherite."}),
             new Papel("mercador", "toolsmith", -7, 0, new String[]{"Tudo o que um aventureiro precisa!", "Hoje tenho ofertas especiais."}),
             new Papel("sacerdote", "cleric", 0, 7, new String[]{"Que a luz guie seus passos.", "Poções e bênçãos para quem precisa."}),
             new Papel("sabio", "librarian", 0, -7, new String[]{"Conhecimento é a arma mais poderosa.", "Tenho livros que nem o rei leu."}),
@@ -669,6 +669,62 @@ public class NpcsReino {
             ev.setCanceled(true);
             br.com.frxcode.frxworld.FrxWorld.LOG.info("NPCs: {} retirado de {} (só existe fora das capitais).", papel, e.getPersistentData().getString("frx_reino"));
         }
+    }
+
+    /**
+     * Regra de espaço: dois moradores nunca ficam no mesmo bloco. A cada 5 s, perto de cada jogador, quem estiver
+     * a menos de 1 bloco de outro NPC anda sozinho para o bloco livre mais próximo (chão firme, pés e cabeça vazios,
+     * longe de outros NPCs). A posição nova fica salva na própria entidade.
+     */
+    private static int ticksEspaco;
+
+    @SubscribeEvent
+    public void espaco(net.minecraftforge.event.TickEvent.ServerTickEvent ev) {
+        if (ev.phase != net.minecraftforge.event.TickEvent.Phase.END || ++ticksEspaco % 100 != 0) return;
+        java.util.Set<java.util.UUID> vistos = new java.util.HashSet<>();
+        for (ServerPlayer jog : ev.getServer().getPlayerList().getPlayers()) {
+            ServerLevel nivel = jog.serverLevel();
+            List<Entity> npcs = nivel.getEntities((Entity) null, jog.getBoundingBox().inflate(48, 24, 48),
+                    x -> x.isAlive() && x.getTags().contains(TAG) && !"guarda".equals(x.getPersistentData().getString("frx_papel")));
+            for (int i = 0; i < npcs.size(); i++) {
+                Entity a = npcs.get(i);
+                if (!vistos.add(a.getUUID())) continue;
+                for (int j = 0; j < i; j++) {
+                    Entity b = npcs.get(j);
+                    double dx = a.getX() - b.getX(), dz = a.getZ() - b.getZ();
+                    if (dx * dx + dz * dz >= 1.0 || Math.abs(a.getY() - b.getY()) >= 2) continue;
+                    BlockPos livre = blocoLivre(nivel, a.blockPosition(), npcs, a);
+                    if (livre != null) {
+                        a.teleportTo(livre.getX() + 0.5, livre.getY(), livre.getZ() + 0.5);
+                        br.com.frxcode.frxworld.FrxWorld.LOG.info("NPCs: {} estava em cima de {} e andou para {}.",
+                                a.getName().getString(), b.getName().getString(), livre.toShortString());
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+    private static BlockPos blocoLivre(ServerLevel nivel, BlockPos de, List<Entity> npcs, Entity eu) {
+        for (int raio = 1; raio <= 3; raio++)
+            for (int dy : new int[]{0, 1, -1})
+                for (int dx = -raio; dx <= raio; dx++)
+                    for (int dz = -raio; dz <= raio; dz++) {
+                        if (Math.max(Math.abs(dx), Math.abs(dz)) != raio) continue;
+                        BlockPos b = de.offset(dx, dy, dz);
+                        if (!nivel.getBlockState(b).getCollisionShape(nivel, b).isEmpty()
+                                || !nivel.getBlockState(b.above()).getCollisionShape(nivel, b.above()).isEmpty()
+                                || !nivel.getFluidState(b).isEmpty()
+                                || !nivel.getBlockState(b.below()).isFaceSturdy(nivel, b.below(), net.minecraft.core.Direction.UP)) continue;
+                        boolean perto = false;
+                        for (Entity o : npcs) {
+                            if (o == eu) continue;
+                            double ox = o.getX() - (b.getX() + 0.5), oz = o.getZ() - (b.getZ() + 0.5);
+                            if (ox * ox + oz * oz < 1.0 && Math.abs(o.getY() - b.getY()) < 2) { perto = true; break; }
+                        }
+                        if (!perto) return b;
+                    }
+        return null;
     }
 
     /** Moradores (menos guardas) não apanham; para remover: criativo agachado. */

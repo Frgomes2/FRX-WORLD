@@ -29,11 +29,11 @@ import java.util.List;
  * Áreas protegidas da superfície (labirinto, arenas, construções do admin): dentro delas ninguém quebra nem
  * coloca bloco, e explosão não estraga nada. Só admin no criativo mexe. Cada área pode ter um "refúgio":
  * uma caixa menor de onde os monstros são retirados (sala segura).
- * Registro por mundo em frx_protegidas.txt, uma área por linha:
+ * Dentro do refúgio também não nasce monstro. Registro por mundo em frx_protegidas.txt, uma área por linha:
  * "id;minX;minY;minZ;maxX;maxY;maxZ" e, opcional, mais seis números com a caixa do refúgio.
  */
 public class AreasProtegidas {
-    private record Area(String id, BoundingBox caixa, BoundingBox refugio) {}
+    private record Area(String id, BoundingBox caixa, BoundingBox refugio, boolean livre) {}
     private static volatile List<Area> AREAS = List.of();
     private int ticks;
 
@@ -45,7 +45,15 @@ public class AreasProtegidas {
         return bloco != null && bloco.getNamespace().equals("gravestone");
     }
 
+    /** Área onde ninguém quebra nem coloca bloco (as marcadas "livre" ficam de fora). */
     public static boolean protegido(Level n, BlockPos p) {
+        if (n.dimension() != Level.OVERWORLD) return false;
+        for (Area a : AREAS) if (!a.livre() && a.caixa().isInside(p)) return true;
+        return false;
+    }
+
+    /** Qualquer área (inclusive as "livre"): explosão não estraga nada. */
+    private static boolean semExplosao(Level n, BlockPos p) {
         if (n.dimension() != Level.OVERWORLD) return false;
         for (Area a : AREAS) if (a.caixa().isInside(p)) return true;
         return false;
@@ -60,10 +68,12 @@ public class AreasProtegidas {
                 for (String l : Files.readAllLines(arq, StandardCharsets.UTF_8)) {
                     String[] p = l.trim().split(";");
                     if (p.length < 7) continue;
-                    int[] v = new int[p.length - 1];
-                    for (int i = 1; i < p.length; i++) v[i - 1] = Integer.parseInt(p[i].trim());
+                    boolean livre = p[p.length - 1].trim().equalsIgnoreCase("livre");   // jogadores podem construir; só explosões e monstros ficam barrados
+                    int qtd = p.length - 1 - (livre ? 1 : 0);
+                    int[] v = new int[qtd];
+                    for (int i = 0; i < qtd; i++) v[i] = Integer.parseInt(p[i + 1].trim());
                     novo.add(new Area(p[0], new BoundingBox(v[0], v[1], v[2], v[3], v[4], v[5]),
-                            v.length >= 12 ? new BoundingBox(v[6], v[7], v[8], v[9], v[10], v[11]) : null));
+                            v.length >= 12 ? new BoundingBox(v[6], v[7], v[8], v[9], v[10], v[11]) : null, livre));
                 }
         } catch (Exception e) {
             FrxWorld.LOG.warn("Áreas protegidas: não li frx_protegidas.txt: {}", e.toString());
@@ -95,7 +105,7 @@ public class AreasProtegidas {
     public void naExplosao(ExplosionEvent.Detonate ev) {
         Level n = ev.getLevel();
         if (n.isClientSide() || AREAS.isEmpty()) return;
-        ev.getAffectedBlocks().removeIf(b -> protegido(n, b));
+        ev.getAffectedBlocks().removeIf(b -> semExplosao(n, b));
     }
 
     // ------------------------------------------------------------------ quem já chegou ao refúgio (Mural dos Primeiros)
@@ -155,6 +165,17 @@ public class AreasProtegidas {
         return primeiro;
     }
 
+    /** Dentro de um refúgio não nasce monstro (nem natural, nem de spawner, nem de evento); só por comando ou ovo. */
+    @SubscribeEvent
+    public void semMonstros(net.minecraftforge.event.entity.living.MobSpawnEvent.FinalizeSpawn ev) {
+        if (AREAS.isEmpty() || ev.getLevel().isClientSide() || ev.getEntity().getType().getCategory() != net.minecraft.world.entity.MobCategory.MONSTER) return;
+        net.minecraft.world.entity.MobSpawnType t = ev.getSpawnType();
+        if (t == net.minecraft.world.entity.MobSpawnType.COMMAND || t == net.minecraft.world.entity.MobSpawnType.SPAWN_EGG) return;
+        if (!(ev.getLevel() instanceof ServerLevel n) || n.dimension() != Level.OVERWORLD) return;
+        BlockPos pos = BlockPos.containing(ev.getX(), ev.getY(), ev.getZ());
+        for (Area a : AREAS) if (a.refugio() != null && a.refugio().isInside(pos)) { ev.setSpawnCancelled(true); return; }
+    }
+
     /** A cada segundo tira os monstros que entraram num refúgio. */
     @SubscribeEvent
     public void aoTick(TickEvent.ServerTickEvent ev) {
@@ -165,7 +186,8 @@ public class AreasProtegidas {
             if (r == null || !nivel.hasChunkAt(r.getCenter())) continue;
             AABB caixa = new AABB(r.minX(), r.minY(), r.minZ(), r.maxX() + 1, r.maxY() + 1, r.maxZ() + 1);
             for (Mob m : nivel.getEntitiesOfClass(Mob.class, caixa, x -> x instanceof Enemy && !x.getTags().contains("frx_npc"))) m.discard();
-            for (net.minecraft.server.level.ServerPlayer p : nivel.getEntitiesOfClass(net.minecraft.server.level.ServerPlayer.class, caixa)) chegou(nivel, a.id(), p);
+            if (a.id().startsWith("labirinto"))   // o anúncio de chegada é do coração do labirinto
+                for (net.minecraft.server.level.ServerPlayer p : nivel.getEntitiesOfClass(net.minecraft.server.level.ServerPlayer.class, caixa)) chegou(nivel, a.id(), p);
         }
     }
 }

@@ -202,8 +202,12 @@ public class Enigma {
     private static boolean conta(ServerPlayer p) { return p.isAlive() && !p.isCreative() && !p.isSpectator(); }
     private static String id(ServerPlayer p) { return Personagens.id(p).toString(); }
 
-    /** Quem já venceu outro enigma do mesmo grupo não avança neste (uma peça por pessoa). */
+    /**
+     * Antes: quem vencia um enigma do grupo não podia fazer os outros (uma peça por pessoa).
+     * Decisão do Flavio (22/11): todo mundo pode fazer todos os enigmas. O campo "grupo" continua lido, mas não bloqueia mais.
+     */
     private static boolean bloqueado(ServerPlayer p, Def d) {
+        if (true) return false;
         if (d.grupo.isEmpty()) return false;
         String eu = id(p);
         for (Def o : defs)

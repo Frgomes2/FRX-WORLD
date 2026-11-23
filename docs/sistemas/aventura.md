@@ -67,7 +67,7 @@
 ## Runas (`Runas.java`)
 
 - Item: fragmento de eco com a marca `frx_runa` (tipo e nível I a III). Pode ser trocado entre jogadores.
-- **Encaixe na bigorna:** item à esquerda, runa à direita (3 níveis de XP por nível da runa). Até 2 runas por item, de tipos diferentes; a mesma runa de nível maior substitui a antiga. Ficam em `frx_runas` no item e aparecem na descrição.
+- **Encaixe na bigorna:** item à esquerda, runa à direita (3 níveis de XP por nível da runa). Vagas por item conforme o rank da Guilda de quem encaixa (`Runas.vagas`): 2 até D, 3 no C, 4 no B, 5 no A e S, de tipos diferentes (runas já encaixadas continuam valendo se o item passar para alguém de rank menor); a mesma runa de nível maior substitui a antiga. Ficam em `frx_runas` no item e aparecem na descrição.
 - **Subir de nível:** duas runas iguais do mesmo nível na bigorna viram uma do nível seguinte.
 - **De arma** (agem ao bater corpo a corpo ou com flecha, e nas habilidades físicas): Sangue (cura 3% do dano por nível), Gelo (10% por nível de congelar 3 s), Fogo (+1 de dano por nível e incendeia), Trovão (8% por nível de raio com dano extra), Fortuna (12% por nível de XP em dobro ao matar), Execução (+12% por nível em alvos abaixo de 30% de vida).
 - **De armadura** (somam os níveis de todas as peças vestidas): Pedra (−2% de dano por nível, teto de 30%), Espinhos (devolve 6% por nível), Vigor (+1 coração por nível), Vento (+3% de velocidade por nível), Fênix (salva de um golpe fatal; recarga de 10 min menos 1 por nível, mínimo 3).
@@ -119,7 +119,7 @@ Corridas de pistas pelo mundo. Em cada enigma, só o primeiro personagem a chega
 - **Diário do Enigma:** um livro só para todos os enigmas, entregue a quem estiver online ou entrar enquanto houver enigma anunciado ou em andamento (`<mundo>/frx_enigmas/diarios.json`). Clicar com ele na mão abre a tela de livro (`cliente/TelaDiarioEnigma.java`): na página da esquerda, um marcador de fita colorida por enigma, com o estado (aguardando com contagem, em andamento, guardião à espera, desvendado por X, não responde mais a você) e seis contas de progresso; na da direita, o enigma escolhido, com as pistas já descobertas (a atual em destaque, rolagem com a roda do mouse). O servidor só manda ao cliente as pistas que o jogador já descobriu.
 - **`/enigma`:** abre o Diário; se o jogador não tem o livro na mochila nem no baú de Ender, recebe um novo (só enquanto houver enigma anunciado ou em andamento).
 - **Andamento:** por personagem, no arquivo de estado de cada enigma (`frx_enigma_estado.json` ou `frx_enigmas/<id>.estado.json`). Cada etapa só vale para quem cumpriu a anterior. Criativo e espectador não contam; operador conta (o admin pode jogar).
-- **Grupo:** quem vence um enigma do grupo não avança nem vence os outros do mesmo grupo (uma peça por pessoa). Os prêmios continuam negociáveis.
+- **Grupo:** o campo continua nos dados, mas não bloqueia mais (desde a 1.4.3): quem vence um enigma pode fazer e vencer os outros do mesmo grupo. Os prêmios continuam negociáveis.
 - **Ao avançar:** a pessoa recebe a fala e a próxima pista; os outros recebem só "alguém desvendou o passo N do <enigma>".
 - **Guardião:** ao chegar ao ponto final de um enigma com `chefe`, surge um chefão do rank indicado (os mesmos chefões das dungeons, com golpes e barra de vida) chamado "Guardião do <enigma>". Só um por enigma de cada vez; todos sabem que alguém o despertou. Quando ele cai, vence quem deu o golpe final, se estiver no último passo; se não, quem estiver no último passo mais perto (até 40 blocos). Sem ninguém no último passo a menos de 48 blocos por 60 segundos, ele volta a dormir e pode ser despertado de novo. Guardiões não sobrevivem a um reinício.
 - **Fim:** surge um baú (no ponto final, ou onde o guardião caiu) com o prêmio (emitido pelo Códex, contando no limite) e uma Estrela do Nether; anúncio para todos e Mural dos Primeiros (`chegada:enigma` para o primeiro, `chegada:enigma_<id>` para os demais, gravados em `frx_chegadas.json`). Quando não sobra enigma anunciado nem em andamento, o Diário do Enigma some da mochila e do baú de Ender de cada um.
@@ -130,3 +130,22 @@ Corridas de pistas pelo mundo. Em cada enigma, só o primeiro personagem a chega
 ## Moedas dos chefões de masmorra (`dungeon/Recompensa.java`)
 
 O chefão das catacumbas (`Dungeons`) e os chefes de estruturas de outros mods (`Externos`) pagam, a cada jogador perto, `masmorras.moedasPorNivel` (padrão 150 cobre) × nível do chefão, junto com o XP e o loot do painel e dentro da mesma recarga. O guardião de cada andar das catacumbas paga 20% disso por andar, junto com a Chave da Camada. Painel: **Economia → Portais e masmorras**.
+
+## Torneio de pesca (`eventos/Pesca.java`)
+
+- Todo peixe pescado (vanilla e Aquaculture, tag `minecraft:fishes`) ganha peso em kg sorteado na faixa da espécie (grandes são raros: `r^2,2`), nota de 1 a 5 estrelas e a linha "Pescado por" na descrição (NBT `frx_peso`, `frx_peso_pct`).
+- Placar semanal (segunda a domingo, horário de Brasília): melhor peixe de cada jogador pela porcentagem da faixa da espécie. Na virada, 1º 30 ouro, 2º 15, 3º 8 (offline recebe no próximo login, por `AjustesAdmin.pendente`); o campeão ganha a conquista Rei da Pesca. Recorde de peso por espécie é permanente (aviso no chat quando um peixe de 50%+ bate o recorde).
+- Peixe-Rei Dourado: 0,4% por peixe à noite ou com chuva; 8 a 40 kg, vale 150% no placar, paga 25 ouro na hora e avisa o servidor.
+- Conquistas: Pescador (100 peixes), Mestre Pescador (1.000), Rei da Pesca. `/pesca` mostra o placar; `/frx pesca encerrar` fecha a semana na hora. Dados em `<mundo>/frx_pesca.json`; o site mostra o placar.
+
+## Corridas (`aventura/Corridas.java`)
+
+- Pistas criadas pelo admin (`/frx corrida`), cada uma de um tipo: a pé, a cavalo, de barco ou de élitro. Pontos: largada, pontos de controle e chegada (o último).
+- Largada: anel de fogo visível a até 48 blocos. Quem fica a até 3 blocos dele do jeito certo recebe no chat o botão **[Iniciar corrida]** (`/corrida iniciar <id>`). Clicando: contagem de 5 s com a montaria travada (lentidão e volta à posição) e fogos no "Vai!". Quem estiver na linha (até raio + 1 blocos), do jeito certo, quando alguém clica larga junto: é uma corrida em grupo, com colocação na chegada, 5 ouro para o vencedor de uma largada com 2 ou mais e o resultado no chat quando o último termina. Uma largada por vez em cada pista; quem chega durante uma corrida vê "pista ocupada".
+- Durante a corrida: coluna de luz azul no próximo ponto (dourada na chegada), anel do raio, tempo e distância na barra de ação. O ponto conta dentro do raio (padrão 5; élitro 10) e até 1,5 × raio de altura.
+- Cancela: sair do jeito certo por mais de 4 s, teleporte (mais de 40 blocos entre leituras), morrer, sair do jogo, trocar de dimensão ou passar do limite da pista (`/frx corrida limite`, padrão 15 min).
+- Volta mais rápida (pistas de 2+ voltas): cada volta é cronometrada; a melhor de todas fica guardada (`voltaRapida`), é anunciada no chat quando batida e aparece em destaque no placar gigante e no site.
+- Placar gigante (`/frx corrida placar <id> [tamanho]`): texto flutuante (`text_display`, tag `frx_placar_corrida:<id>`) com os 10 melhores tempos e quem está correndo; refeito a cada largada, chegada e cancelamento (ou quando o chunk carregar).
+- Pista de voltas (`/frx corrida voltas <id> <n>`) é um circuito: depois do último ponto marcado, o alvo é a própria linha de largada (não precisa marcar a chegada; se o último ponto já estiver em cima da linha, ele vale como chegada). Ao cruzar a linha antes da última volta, a contagem recomeça e aparece "Volta 2/3"; na última, é a chegada. Pista de uma volta só termina no último ponto (ida de A a B). Depois de chegar, só larga de novo quem sair do anel (mais de 8 blocos).
+- Chegada: fogos de artifício; 10 melhores tempos por pista (um por jogador); 1ª chegada do dia em cada pista = 2 ouro; recorde da pista = 10 ouro e aviso no chat. Conquistas: Na Pista, Piloto (50 corridas), Recordista. Dados em `<mundo>/frx_corridas.json`; o site mostra os 5 melhores de cada pista.
+

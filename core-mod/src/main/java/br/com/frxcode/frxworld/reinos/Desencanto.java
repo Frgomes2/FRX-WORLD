@@ -162,7 +162,7 @@ public final class Desencanto {
         String msg;
         boolean ok = false;
         if (e.isCurse()) msg = "Maldições não se deixam prender num livro.";
-        else if (!livroBranco.is(Items.BOOK)) msg = "Coloque um livro em branco no espaço do livro.";
+        else if (!MenuDesencanto.livroBranco(livroBranco)) msg = "Coloque um livro em branco (ou um livro encantado vazio) no espaço do livro.";
         else if (!p.isCreative() && p.experienceLevel < c.xp()) msg = "Faltam níveis de experiência: são " + c.xp() + ", você tem " + p.experienceLevel + ".";
         else if (Moedas.contar(p) + Banco.saldo(p) < c.moedas()) msg = "Faltam moedas: custa " + Moedas.texto(c.moedas()) + ".";
         else if (!pagar(p, c.moedas())) msg = "Não consegui cobrar as moedas.";

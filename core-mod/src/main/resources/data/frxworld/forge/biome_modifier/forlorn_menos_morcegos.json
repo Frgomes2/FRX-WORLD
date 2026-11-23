@@ -1,0 +1,5 @@
+{
+  "type": "forge:remove_spawns",
+  "biomes": "alexscaves:forlorn_hollows",
+  "entity_types": "minecraft:bat"
+}

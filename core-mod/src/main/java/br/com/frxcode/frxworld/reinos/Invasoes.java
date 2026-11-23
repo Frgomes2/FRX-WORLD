@@ -113,14 +113,14 @@ public class Invasoes {
         long agora = System.currentTimeMillis();
         switch (fase) {
             case NADA -> {
-                if (!ativo() || agora - ultimaChance < num("intervaloMinutos", 30) * 60000) return;
+                if (!ativo() || agora - ultimaChance < num("intervaloMinutos", 60) * 60000) return;
                 ultimaChance = agora;
-                if (ThreadLocalRandom.current().nextDouble(100) >= num("chance", 35)) return;
+                if (ThreadLocalRandom.current().nextDouble(100) >= num("chance", 25)) return;
                 List<ServerPlayer> candidatos = new ArrayList<>();
                 for (ServerPlayer p : s.getPlayerList().getPlayers()) {
                     if (p.level().dimension() != Level.OVERWORLD || p.isSpectator() || p.isCreative()) continue;
                     for (Reino r : Reinos.todos()) {
-                        if (r.distancia(p.getBlockX(), p.getBlockZ()) == 0 && agora - ultimaPorReino.getOrDefault(r.id(), 0L) > 3_600_000) candidatos.add(p);
+                        if (r.distancia(p.getBlockX(), p.getBlockZ()) == 0 && agora - ultimaPorReino.getOrDefault(r.id(), 0L) > 3 * 3_600_000L) candidatos.add(p);   // a mesma capital só de 3 em 3 horas
                     }
                 }
                 if (candidatos.isEmpty()) return;
@@ -131,6 +131,9 @@ public class Invasoes {
             case ONDA -> acompanhar(s, agora);
         }
     }
+
+    /** Há uma invasão em andamento nesta capital? (a limpeza da cidade espera ela acabar) */
+    static boolean emAndamento(Reino r) { return fase != Fase.NADA && reino != null && reino.id().equals(r.id()); }
 
     static boolean comecar(MinecraftServer s, Reino r, BlockPos onde) {
         if (fase != Fase.NADA) return false;

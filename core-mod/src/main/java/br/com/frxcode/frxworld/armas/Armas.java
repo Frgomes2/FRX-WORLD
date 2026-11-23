@@ -37,7 +37,7 @@ import java.util.UUID;
  */
 public class Armas {
     public static final String RARIDADE = "frx_raridade", NIVEL = "frx_nivel";
-    public static final int NIVEL_MAX = 10;
+    public static final int NIVEL_MAX = 15;   // +11 a +15 só para Rank A e S da Guilda (armas/Forja)
     public static final double DANO_POR_NIVEL = 0.06, ARMADURA_POR_NIVEL = 0.3;
 
     private static final DeferredRegister<Codec<? extends IGlobalLootModifier>> GLM =

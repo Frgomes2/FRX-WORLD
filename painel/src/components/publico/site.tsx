@@ -569,6 +569,53 @@ export function SitePublico({ inicial, mods, mapa, notas, livros, bestiario }: {
               </details>
             </Cartao>
           </div>
+          <div className="mt-5 grid gap-5 md:grid-cols-2">
+            <Cartao titulo="🎣 Torneio de pesca" sub={d?.pesca.fim ? `Maior peixe da semana para a espécie · termina ${new Date(d.pesca.fim).toLocaleDateString("pt-BR", { weekday: "long" })} à meia-noite · 1º 30 ouro, 2º 15, 3º 8` : "Maior peixe da semana para a espécie"}>
+              {d?.pesca.campeao && <p className="mb-3 text-xs text-pedra-500">Campeão da semana passada: <span className="text-ouro">{d.pesca.campeao.nome}</span> ({d.pesca.campeao.especie}, {d.pesca.campeao.peso.toLocaleString("pt-BR", { maximumFractionDigits: 1 })} kg)</p>}
+              {d?.pesca.linhas.length ? (
+                <ol className="space-y-1.5">
+                  {d.pesca.linhas.map((t, i) => (
+                    <li key={t.nome} className="flex items-center gap-3 rounded-md bg-pedra-800/60 px-3 py-2 text-sm">
+                      <span className={`w-7 text-center ${i < 3 ? "text-xl" : "font-titulo text-lg text-pedra-500"}`}>{MEDALHAS[i] ?? i + 1}</span>
+                      <Skin nick={t.nome} tam={24} />
+                      <span className="min-w-0 flex-1"><Nick nick={t.nome} abrir={abrir} /></span>
+                      <span className="hidden text-xs text-pedra-500 sm:inline">{t.qtd} peixes</span>
+                      <span className="text-right text-ouro">{t.pct > 1 ? "✦ " : ""}{t.especie} · {t.peso.toLocaleString("pt-BR", { maximumFractionDigits: 1 })} kg</span>
+                    </li>
+                  ))}
+                </ol>
+              ) : <p className="text-sm text-pedra-500">Ninguém pescou nada esta semana. À noite ou com chuva, dizem que o Peixe-Rei Dourado morde.</p>}
+            </Cartao>
+            <Cartao titulo="🏁 Corridas" sub="Os melhores tempos de cada pista · fique na largada (anel de fogo) para correr">
+              {d?.corridas.length ? (
+                <div className="space-y-3">
+                  {d.corridas.map((c) => (
+                    <div key={c.id} className="rounded-lg bg-pedra-800/60 px-3 py-2">
+                      <p className="mb-1 text-sm"><span className="text-ouro">{c.nome}</span> <span className="text-xs text-pedra-500">· {({ pe: "a pé", cavalo: "a cavalo", barco: "de barco", elitro: "de élitro" } as Record<string, string>)[c.tipo] ?? c.tipo} · {c.voltas > 1 ? `${c.voltas} voltas · ` : ""}{c.pontos} pontos · {c.feitas} corridas</span></p>
+                      {c.voltaRapida && (
+                        <p className="mb-1.5 flex items-center gap-2 rounded-md border border-fuchsia-700/60 bg-fuchsia-950/40 px-2 py-1 text-sm">
+                          <span aria-hidden="true">⚡</span><span className="text-fuchsia-300">Volta mais rápida</span>
+                          <span className="min-w-0 flex-1"><Nick nick={c.voltaRapida.nome} abrir={abrir} /></span>
+                          <span className="font-mono text-fuchsia-200">{Math.floor(c.voltaRapida.ms / 60000)}:{String(Math.floor(c.voltaRapida.ms / 1000) % 60).padStart(2, "0")}.{String(Math.floor(c.voltaRapida.ms / 10) % 100).padStart(2, "0")}</span>
+                        </p>
+                      )}
+                      {c.recordes.length ? (
+                        <ol className="space-y-0.5 text-sm">
+                          {c.recordes.map((r, i) => (
+                            <li key={r.nome} className="flex items-center gap-2">
+                              <span className="w-6 text-center">{MEDALHAS[i] ?? i + 1}</span>
+                              <span className="min-w-0 flex-1"><Nick nick={r.nome} abrir={abrir} /></span>
+                              <span className="font-mono text-ouro">{Math.floor(r.ms / 60000)}:{String(Math.floor(r.ms / 1000) % 60).padStart(2, "0")}.{String(Math.floor(r.ms / 10) % 100).padStart(2, "0")}</span>
+                            </li>
+                          ))}
+                        </ol>
+                      ) : <p className="text-xs text-pedra-500">Ninguém completou ainda.</p>}
+                    </div>
+                  ))}
+                </div>
+              ) : <p className="text-sm text-pedra-500">As pistas de corrida ainda estão sendo traçadas.</p>}
+            </Cartao>
+          </div>
           <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
             {([
               [String(d?.totais.nivelMedio ?? 0), "nível médio"],

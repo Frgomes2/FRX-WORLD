@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /** Servidor → cliente: classe, habilidades da classe (aprendidas ou não) e a barra de combate. */
-public record SyncHabilidades(String classe, String recurso, List<Info> habilidades, List<String> barra, int extras) {
+public record SyncHabilidades(String classe, String recurso, List<Info> habilidades, List<String> barra, int extras, boolean pvp) {
 
     public record Info(String codigo, String nome, String descricao, String tipo, String elemento, String icone,
                        int custo, float recarga, int nivelReq, boolean ultimate, boolean porItem,
@@ -29,6 +29,7 @@ public record SyncHabilidades(String classe, String recurso, List<Info> habilida
         b.writeVarInt(barra.size());
         for (String s : barra) b.writeUtf(s);
         b.writeVarInt(extras);
+        b.writeBoolean(pvp);
     }
 
     public static SyncHabilidades decodificar(FriendlyByteBuf b) {
@@ -42,7 +43,8 @@ public record SyncHabilidades(String classe, String recurso, List<Info> habilida
         int m = b.readVarInt();
         List<String> barra = new ArrayList<>(m);
         for (int k = 0; k < m; k++) barra.add(b.readUtf());
-        return new SyncHabilidades(classe, recurso, lista, barra, b.readVarInt());
+        int extras = b.readVarInt();
+        return new SyncHabilidades(classe, recurso, lista, barra, extras, b.readBoolean());
     }
 
     public void tratar(Supplier<NetworkEvent.Context> ctx) {

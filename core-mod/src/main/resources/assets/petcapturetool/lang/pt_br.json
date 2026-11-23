@@ -1,0 +1,6 @@
+{
+  "item.petcapturetool.capture_tool": "Esfera Portátil de Pets",
+  "item.petcapturetool.capture_tool.desc": "Bata num bicho para guardar; use num bloco para soltar.",
+  "item.petcapturetool.capture_tool.contained_entity": "Guardado: %1$s",
+  "message.petcapturetool.never_capturable": "%1$s não pode ser guardado."
+}

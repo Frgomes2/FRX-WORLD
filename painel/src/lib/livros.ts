@@ -204,7 +204,7 @@ export async function livros(): Promise<Livro[]> {
         ] },
         { titulo: "O sábio e os encantamentos", blocos: [
           p("O sábio das capitais consegue tirar um encantamento de um item e guardá-lo num livro em branco. Depois, é só usar a bigorna para passar o livro para outro item."),
-          lista("Converse com o sábio e escolha \"Extrair um encantamento\". Na bancada, coloque o item de um lado e um livro em branco do outro, como na bigorna, e escolha qual encantamento vai para o livro.", "Custa caro: moedas (da bolsa e, se faltar, do banco), níveis de experiência e um livro. Afiação V, por exemplo, custa 100 ouro.", "Até o nível III sempre dá certo. No nível IV e acima pode falhar: o pagamento se perde, mas o item fica como estava.", "Relíquias do Códex e maldições não podem ter o encantamento extraído."),
+          lista("Converse com o sábio e escolha \"Extrair um encantamento\". Na bancada, coloque o item de um lado e um livro em branco (ou um livro encantado vazio) do outro, como na bigorna, e escolha qual encantamento vai para o livro.", "Custa caro: moedas (da bolsa e, se faltar, do banco), níveis de experiência e um livro. Afiação V, por exemplo, custa 100 ouro.", "Até o nível III sempre dá certo. No nível IV e acima pode falhar: o pagamento se perde, mas o item fica como estava.", "Relíquias do Códex e maldições não podem ter o encantamento extraído."),
         ] },
         { titulo: "Lojas", blocos: [
           lista("Ferreiro: armas e ferramentas. Armeiro: armaduras e escudo. Mercador: utilidades. Cozinheiro: comida. Pedreiro: blocos.", "O estoque muda com o seu nível e, em parte, todo dia.", "Só aparecem equipamentos que o seu rank da Guilda já pode usar.", "Desconto: reputação no reino mais 2% por rank da Guilda."),
@@ -214,7 +214,7 @@ export async function livros(): Promise<Livro[]> {
           nota("O armeiro reforja a raridade de um item (agachar e clicar com o item na mão). Nunca piora."),
         ] },
         { titulo: "Aprimorar no ferreiro", blocos: [
-          p("O ferreiro aprimora de +1 até +10, cobrando moedas e minério. Cada nível dá +6% de dano nas armas ou +0,3 de armadura por peça."),
+          p("O ferreiro aprimora de +1 até +10, cobrando moedas e minério (de +11 a +15 só para Rank A ou S, veja o livro Depois do Netherite). Cada nível dá +6% de dano nas armas ou +0,3 de armadura por peça."),
           tabela(["Nível alvo", "Chance"], [["+1 a +4", "100%"], ["+5", "90%"], ["+6", "80%"], ["+7", "70%"], ["+8", "55%"], ["+9", "45%"], ["+10", "25%"]]),
           nota("Se falhar, você perde o material, mas o item não quebra."),
         ] },
@@ -288,6 +288,37 @@ export async function livros(): Promise<Livro[]> {
         ] },
         { titulo: "Morrer na Torre", blocos: [
           lista("A morte é de verdade: o túmulo aparece na porta da Torre.", "Você perde parte da experiência do nível, mais quanto maior o seu nível.", "Fica 10 minutos sem poder entrar."),
+        ] },
+      ],
+    },
+    {
+      id: "alem-netherite", titulo: "Depois do Netherite", subtitulo: "Armaduras para os mais fortes", icone: "🛡️", cor: "#3a2a5b", grupo: "Mundo",
+      paginas: [
+        { titulo: "Para onde ir", blocos: [
+          p("Netherite é só o começo. Toda armadura melhor nasce dela, na mesa de ferraria, e mantém os encantamentos, a forja e as runas."),
+          tabela(["Armadura", "Classe", "Como fazer"], [
+            ["Warden (Deeper and Darker)", "B", "Molde das Cidades Ancestrais + Fragmento de Eco Reforçado (carapaça do Warden)"],
+            ["Draconiana (FRX)", "B", "2 Escamas Draconianas por peça"],
+            ["Ignitium e Cursium (Cataclysm)", "A–S", "Lingotes dos chefes Ignis e Maledictus/Arauto + molde"],
+            ["Abissal (FRX)", "A", "Draconiana + 2 Essências Abissais por peça"],
+            ["Celestial (FRX)", "S", "Abissal + 2 Fragmentos Celestiais por peça"],
+          ]),
+          nota("A classe da armadura pede o mesmo rank da Guilda para vestir."),
+        ] },
+        { titulo: "Conjuntos do FRX", blocos: [
+          lista("Draconiana (4 peças): imune a fogo, e quem bate em você pega fogo.", "Abissal (4 peças): +4 corações e 12% de chance de esquivar de um golpe.", "Celestial (4 peças): sem dano de queda, efeitos ruins somem e a vida se recupera sem parar."),
+        ] },
+        { titulo: "Onde achar os materiais", blocos: [
+          lista("Escama Draconiana: dragões adultos do Ice and Fire, chefes de outros mods de nível 40 a 54 e chefes da Torre do andar 30 em diante.", "Essência Abissal: chefes especiais de nível 55 ou mais (Maledictus, Ignis, Arauto, Leviatã...) e chefes da Torre do andar 50 em diante.", "Fragmento Celestial: o Dragão do Fim (4 para cada ajudante) e chefes da Torre do andar 80 em diante."),
+          nota("Os chefes da Torre só dão material na primeira vez em cada andar."),
+        ] },
+        { titulo: "Forja além do +10", blocos: [
+          p("Quem é Rank A ou S da Guilda pode pedir ao ferreiro para passar de +10, até +15."),
+          tabela(["Nível", "Custo", "Chance"], [["+11", "25 ouro + 2 Essências Abissais", "30%"], ["+12", "35 ouro + 3 Essências", "25%"], ["+13", "50 ouro + 4 Essências", "20%"], ["+14", "70 ouro + 2 Fragmentos Celestiais", "15%"], ["+15", "100 ouro + 3 Fragmentos", "10%"]]),
+          nota("Se falhar, perde o material, mas o item não quebra."),
+        ] },
+        { titulo: "Peças únicas", blocos: [
+          p("Algumas armaduras existem uma só no mundo inteiro: prêmios de enigmas, eventos e chefes. Quem pega a primeira fica gravado no site, em Armas Únicas."),
         ] },
       ],
     },
@@ -392,7 +423,7 @@ export async function livros(): Promise<Livro[]> {
           p("Todo aventureiro recebe uma habilidade única, só dele, que evolui com os abates. Ela aparece na ficha do jogador aqui no site. São 20 habilidades diferentes, e o sorteio dá preferência às que menos gente tem."),
         ] },
         { titulo: "Runas", blocos: [
-          p("Runas se encaixam na bigorna: item à esquerda, runa à direita. Cada item aceita até 2 runas de tipos diferentes. Duas runas iguais do mesmo nível viram uma do nível seguinte."),
+          p("Runas se encaixam na bigorna: item à esquerda, runa à direita. Cada item aceita runas de tipos diferentes conforme o seu rank na Guilda: 2 até o Rank D, 3 no C, 4 no B e 5 no A e no S. Duas runas iguais do mesmo nível viram uma do nível seguinte."),
           tabela(["De arma", "Efeito"], [["Sangue", "Cura parte do dano causado"], ["Gelo", "Chance de congelar"], ["Fogo", "Dano extra e incendeia"], ["Trovão", "Chance de raio"], ["Fortuna", "Chance de experiência em dobro"], ["Execução", "Mais dano em alvos feridos"]]),
           tabela(["De armadura", "Efeito"], [["Pedra", "Reduz o dano recebido"], ["Espinhos", "Devolve parte do dano"], ["Vigor", "Mais corações"], ["Vento", "Mais velocidade"], ["Fênix", "Salva de um golpe fatal"]]),
           nota("Quer tirar uma runa? O sábio das capitais tira, na aba Runas da bancada dele: a runa sai inteira e volta para você. Custa 10 ouro (nível I), 25 (II) ou 50 (III)."),
@@ -408,6 +439,14 @@ export async function livros(): Promise<Livro[]> {
         ] },
         { titulo: "Eventos do céu", blocos: [
           lista("Lua de Sangue: em algumas noites os monstros ficam mais rápidos, e a experiência e o saque deles vêm em dobro até amanhecer.", "Chuva de meteoros: meteoros caem perto de jogadores, sem destruir nada, e deixam minério raro com uma coluna de fogo."),
+        ] },
+        { titulo: "Torneio de pesca", blocos: [
+          p("Todo peixe pescado ganha um peso, conforme a espécie, e uma nota de uma a cinco estrelas. Vale o maior peixe para a espécie: um atum enorme e uma perca enorme contam igual."),
+          lista("O placar é da semana e aparece no site. Domingo à meia-noite os três primeiros ganham 30, 15 e 8 moedas de ouro.", "Cada espécie guarda o recorde de peso para sempre.", "À noite ou com chuva, o lendário Peixe-Rei Dourado pode morder: vale mais que qualquer peixe e paga 25 ouro na hora.", "/pesca mostra o placar e quanto falta para acabar."),
+        ] },
+        { titulo: "Corridas", blocos: [
+          p("Pistas a pé, a cavalo, de barco e de élitro. A largada é um anel de fogo no chão: fique nele do jeito certo (no cavalo, no barco...) e clique em [Iniciar corrida] no chat. A contagem de 5 segundos trava a montaria, e no \"Vai!\" estouram fogos."),
+          lista("Siga a coluna de luz até cada ponto; o tempo aparece embaixo da tela. A chegada é dourada.", "Quem estiver na linha quando alguém clica em Iniciar larga junto: ganha quem cruzar primeiro, e o vencedor leva 5 ouro. Uma largada por vez em cada pista. Descer da montaria, teleportar, sair do mundo ou passar do tempo máximo cancela a corrida.", "A primeira chegada do dia em cada pista paga 2 ouro; bater o recorde da pista, 10 ouro.", "Os melhores tempos ficam no site. /corridas lista as pistas e onde fica cada largada."),
         ] },
         { titulo: "Mapas do tesouro", blocos: [
           p("O mapa dá uma pista de distância e direção. Com ele na mão, o botão direito diz se está frio, morno ou pelando. Perto o bastante, o baú aparece."),

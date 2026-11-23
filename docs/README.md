@@ -1,7 +1,7 @@
 # FRX-WORLD — Documentação (índice principal)
 
 > Modpack MMORPG para **Minecraft 1.20.1 / Forge 47.4.10**, com core mod próprio (`frxworld`) e painel administrativo em Next.js.
-> Versão atual do core mod: **1.3.9**. Regra: cada atualização comum soma 1 no último número (0.41.8 → 0.41.9 → 0.42.0); só uma mudança muito grande abre uma versão cheia (1.0.0). As notas do site (`painel/src/lib/notas.ts`) levam o mesmo número.
+> Versão atual do core mod: **1.4.5**. Regra: cada atualização comum soma 1 no último número (0.41.8 → 0.41.9 → 0.42.0); só uma mudança muito grande abre uma versão cheia (1.0.0). As notas do site (`painel/src/lib/notas.ts`) levam o mesmo número.
 
 Este é o ponto de entrada de toda a documentação. Cada arquivo cobre um assunto; comece por aqui e siga os links.
 

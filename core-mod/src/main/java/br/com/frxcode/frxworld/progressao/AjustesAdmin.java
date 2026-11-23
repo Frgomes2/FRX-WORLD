@@ -68,10 +68,24 @@ public class AjustesAdmin {
                 }
                 return (v.length > 1 ? v[1] : "1") + "× " + nome;
             }
+            case "contador" -> { Conquistas.somar(p, valor, 1); return "-"; }
             case "chefe" -> { Colecao.registrarChefe(p, valor); Progressao.enviarAoPainel(p, false); return valor + " na sua coleção de chefões"; }
             case "aviso" -> { p.sendSystemMessage(Component.literal("✉ " + valor).withStyle(ChatFormatting.GOLD)); return "-"; }
             default -> { return ""; }
         }
+    }
+
+    /** Deixa um ajuste para o próximo login de quem está offline (moedas somam com as já pendentes). Usado por eventos (ex.: prêmio do torneio de pesca). */
+    public static void pendente(MinecraftServer s, String nick, String acao, String valor) {
+        List<String> l = ler(s);
+        String pre = nick.toLowerCase(Locale.ROOT) + ";" + acao + ";";
+        if (acao.equals("moedas")) {
+            long soma = Long.parseLong(valor);
+            for (String x : l) if (x.toLowerCase(Locale.ROOT).startsWith(pre)) try { soma += Long.parseLong(x.substring(pre.length()).trim()); } catch (NumberFormatException ignorado) { }
+            l.removeIf(x -> x.toLowerCase(Locale.ROOT).startsWith(pre));
+            l.add(nick + ";moedas;" + soma);
+        } else l.add(nick + ";" + acao + ";" + valor.replace(";", ","));
+        gravar(s, l);
     }
 
     private static int pedir(CommandSourceStack src, String nick, String acao, String valor) {
