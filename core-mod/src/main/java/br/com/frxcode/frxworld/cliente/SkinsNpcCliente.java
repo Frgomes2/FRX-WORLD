@@ -50,6 +50,9 @@ public final class SkinsNpcCliente {
 
     public static String[] marca(Entity e) { return MARCAS.get(e.getId()); }
 
+    /** Skin do painel por chave direta (ex.: "papel:vegeta"), ou null. */
+    public static Textura porChave(String chave) { return SKINS.get(chave); }
+
     /** A skin mais específica para esta entidade (reino + papel, depois só o papel), ou null. */
     public static Textura para(Entity e) {
         String[] m = MARCAS.get(e.getId());

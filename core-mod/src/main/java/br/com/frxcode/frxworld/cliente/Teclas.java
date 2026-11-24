@@ -25,6 +25,8 @@ public final class Teclas {
     public static final KeyMapping BOLSOS = tecla("bolsos", GLFW.GLFW_KEY_O);
     /** Despertar: poder especial da classe (Invocador: Levante-se!). */
     public static final KeyMapping DESPERTAR = tecla("despertar", GLFW.GLFW_KEY_B);
+    /** Saiyajin: sobe uma forma Super Saiyajin (agachado volta ao normal). */
+    public static final KeyMapping TRANSFORMAR = tecla("transformar", GLFW.GLFW_KEY_U);
     /** Exército de sombras (Invocador): 3 atalhos para uma sombra escolhida + chamar/recolher todas. */
     public static final KeyMapping[] SOMBRAS = {
             tecla("sombra1", InputConstants.UNKNOWN.getValue()), tecla("sombra2", InputConstants.UNKNOWN.getValue()),
@@ -52,6 +54,9 @@ public final class Teclas {
         }
         while (DESPERTAR.consumeClick()) {
             if (mc.screen == null && !ClienteHabilidades.classe.isEmpty()) Rede.CANAL.sendToServer(new AcaoHabilidade(AcaoHabilidade.DESPERTAR, 0, ""));
+        }
+        while (TRANSFORMAR.consumeClick()) {
+            if (mc.screen == null) Rede.CANAL.sendToServer(new br.com.frxcode.frxworld.rede.AcaoRaca(br.com.frxcode.frxworld.rede.AcaoRaca.TRANSFORMAR, "", ""));
         }
         for (int i = 0; i < SOMBRAS.length; i++) {
             while (SOMBRAS[i].consumeClick()) {

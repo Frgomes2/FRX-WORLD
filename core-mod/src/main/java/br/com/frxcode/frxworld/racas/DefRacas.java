@@ -19,7 +19,7 @@ public final class DefRacas {
 
     /** Efeitos que não são números. */
     public static final String VISAO_NOTURNA = "visaoNoturna", QUEDA_LENTA = "quedaLenta", SEM_QUEDA = "semDanoQueda",
-            FRACO_SOL = "fracoSol", AURA = "aura", SOPRO = "sopro", REGEN_TOTAL = "regenTotal";
+            FRACO_SOL = "fracoSol", AURA = "aura", SOPRO = "sopro", REGEN_TOTAL = "regenTotal", SAIYAJIN = "saiyajin";
     public static final Set<String> DESVANTAGENS_BINARIAS = Set.of(FRACO_SOL);
 
     public record Raca(String id, String nome, int nivel, String familia, String descricao,
@@ -75,6 +75,11 @@ public final class DefRacas {
                 n("vida", 10, "fogo", 100, "velocidade", -5, "fome", 50), Set.of(SOPRO), List.of("Sopro de fogo a cada 30 s no próximo golpe", "+5 corações e imune a fogo"), List.of("−5% de velocidade", "Sente fome 50% mais rápido"), "Derrote um dragão", "");
         r("celestial", "Ser Celestial", LENDARIA, "luz", "Feito de luz antiga: o corpo se refaz sozinho quando a luta acaba.",
                 n("regenRecurso", 30, "dano", -10), Set.of(REGEN_TOTAL, SEM_QUEDA), List.of("Fora de combate, regenera a vida inteira", "+30% de regeneração de recurso e sem dano de queda"), List.of("−10% de dano corpo a corpo"), "Chegue ao nível 100", "");
+        r("saiyajin", "Saiyajin", LENDARIA, "fera", "Guerreiros de uma linhagem das estrelas: quanto mais apanham, mais fortes voltam. Quando a raiva explode, o cabelo vira ouro.",
+                n("dano", 15, "vida", 4, "fome", 50), Set.of(SAIYAJIN),
+                List.of("+15% de dano corpo a corpo e +2 corações", "Zenkai: escapar de uma luta com menos de 20% de vida deixa você mais forte (+1% de dano, até +15%)",
+                        "Transformação Super Saiyajin (tecla U): forma 1 no nível 20, forma 2 no 40 e forma 3 no 60"),
+                List.of("Sente fome 50% mais rápido", "Transformado, a fome cai ainda mais rápido"), "Derrote o Príncipe Vegeta no topo do Templo Karin", "");
         r("deus", "Deus", DIVINA, "divino", "Uma divindade entre os mortais. Só nasce de eventos do servidor.",
                 n("vida", 6, "dano", 10, "velocidade", 5, "xp", 10, "recursoMax", 10), Set.of(), List.of("Um pouco de tudo: vida, dano, velocidade, XP e recurso"), List.of("Só por evento ou admin"), "Somente por evento ou admin", "");
     }

@@ -131,6 +131,56 @@ Corridas de pistas pelo mundo. Em cada enigma, só o primeiro personagem a chega
 
 O chefão das catacumbas (`Dungeons`) e os chefes de estruturas de outros mods (`Externos`) pagam, a cada jogador perto, `masmorras.moedasPorNivel` (padrão 150 cobre) × nível do chefão, junto com o XP e o loot do painel e dentro da mesma recarga. O guardião de cada andar das catacumbas paga 20% disso por andar, junto com a Chave da Camada. Painel: **Economia → Portais e masmorras**.
 
+## Templo Karin e Príncipe Vegeta (`Karin.java`, `Vegeta.java`)
+
+**Templo Karin** — torre branca a leste de Lubelius, centro (2060, 1640), do chão (63) até o templo no topo (288).
+
+- Construção pelo código: `/frx karin construir` (admin; pode repetir, reconstrói por cima). Área protegida `karin` em `frx_protegidas.txt` (45 blocos em volta).
+- **Subida:** escadas por fora em trechos de 21 blocos, cada trecho numa face (norte, leste, sul, oeste) e uma passarela estreita de quarto de volta até o próximo. Patamares de descanso com lanternas depois do 4º e do 8º trecho. A última escada atravessa o cone por baixo do templo.
+- **Fosso de água** de 6 blocos de fundo em volta da base: quem cai junto da torre cai na água. Ponte de madeira da borda até a primeira escada (face norte).
+- **Regras da área:** élitro para de planar, voo é desligado, montaria derruba quem está montado, pérola do Ender e fruta do coro não teleportam, e subir sem apoio por mais de ~0,7 s é cortado. Monstro não nasce sozinho na área.
+- **Ventania** entre a altura 160 e o topo: aviso na tela e nuvens 1,5 s antes; quem não estiver agachado é empurrado para fora da torre.
+
+**Príncipe Vegeta** — entidade própria `frxworld:principe_vegeta` (corpo de jogador, textura original; cabelo dourado a partir da fase 1).
+
+- **Topo:** santuário de raio 30 com templo de cúpulas douradas ao norte, mirantes, fileiras de ciprestes e o círculo de duelo dourado no centro; a escada chega por um alçapão. Na ponta sul fica a waystone "Templo Karin": quem já subiu e ativou pode voltar direto.
+- Aparece quando alguém pisa no santuário do topo (raio 30). A skin dele pode ser trocada no painel (NPCs e skins → Príncipe Vegeta; a transformada é um segundo cartão). Apresentação de ~3 s com falas e raio. Todos que pisam na arena durante a luta são participantes.
+- **Escala:** vida 700 × participantes (só sobe) e dano × (1 + 0,3 por participante extra) × fase (1 / 1,25 / 1,5).
+- **Ataques com aviso:** rajadas de ki (carga com brilho na mão, 3 esferas lentas o bastante para desviar), Galick Ho (linha roxa de aviso por 1,6 s e depois o feixe), investida (agacha brilhando em vermelho antes de avançar), Big Bang (esfera grande e lenta, explosão larga), chuva de rajadas (sobe no ar; marca vermelha no chão onde cada uma vai cair) e Final Flash (só na fase 2: sobe ao centro, 3 s de carga com três linhas douradas de aviso e um feixe largo).
+- **Fases:** abaixo de 66% vira Super Saiyajin (2 s invulnerável, empurra quem está perto); abaixo de 33% ganha relâmpagos e o Final Flash (no máximo a cada 25 s).
+- **Fim:** vencido, todos os participantes online ganham a raça Saiyajin liberada (`RacasJogador.liberarRaca`), contador `c:vegeta` e anúncio no chat; o primeiro do servidor entra no Mural dos Primeiros (marco `vegeta`). Se ninguém ficar na arena por 10 s, ele vai embora. Nova luta 1 min depois (2 min depois de uma vitória). Vegeta que sobrar de antes de um reinício some ao carregar.
+- **Música:** se existir no painel um disco de código `luta_vegeta`, ele toca em volta da arena durante a luta (repete pela duração cadastrada) e para no fim. Discos de código `luta_...` não aparecem na loja do Mercador de Discos.
+
+## Esferas do Dragão e Shenlong (`Esferas.java`)
+
+Um conjunto só no servidor. Estado em `<mundo>/frx_esferas.json`.
+
+| Esfera | Onde |
+|---|---|
+| 1 a 4 estrelas | Enterradas no mundo normal, de 1.500 a 5.000 blocos do spawn. Aparecem para quem chega a 3 blocos do ponto (qualquer altura) |
+| 5 estrelas | No Nether, de 200 a 1.200 blocos do centro, do mesmo jeito |
+| 6 estrelas | Com o Dragão do Fim: vai para quem o matar |
+| 7 estrelas | Com a Rainha da Neve da Floresta do Crepúsculo (`twilightforest:snow_queen`) |
+
+- **Radar do Dragão** (mercador das capitais, 50 ouro): clique para abrir o visor (tela redonda verde com grade; cada esfera desta dimensão é um ponto laranja numerado, norte para cima, você no centro, botões + e − para o alcance) e listar no chat as 7 esferas: distância e rumo das enterradas e das caídas, com qual chefão estão, com qual jogador online estão (e onde ele está) ou "sinal perdido" (baú ou jogador offline).
+- **Morte:** quem morre com esferas deixa elas no chão (saem do túmulo) e o servidor inteiro é avisado do lugar. No chão a esfera brilha, não some e não queima.
+- **Sem sinal por 3 dias** (guardada, com alguém offline ou perdida): a esfera se esconde de novo e a antiga vira pó (cada esfera tem um número de série no NBT).
+- **Shenlong:** com as 7 no inventário, no mundo normal e a céu aberto, clique com uma esfera. Tempestade, raios, e o dragão sobe do chão (feito de `block_display`, tag `frx_shenlong`). Abre a tela dos desejos; se fechar, clicar de novo reabre. Ele vai embora sem cobrar nada se o jogador se afastar 60 blocos, morrer, perder uma esfera ou demorar 3 minutos.
+- **Depois do desejo:** as esferas somem, viram pedra por 7 dias reais (o radar mostra a contagem) e então se espalham de novo, com anúncio.
+
+| Desejo | Efeito |
+|---|---|
+| Poder | +50% do nível atual, mínimo +20 (até o nível máximo) |
+| Riqueza | 1.000 ouro no banco |
+| Tesouro | 1 item do servidor, por busca de nome. Fora: relíquias do Alvorecer, as próprias esferas, ovos de criatura, blocos de admin (comando, estrutura, barreira, rocha-mãe, gerador...) e qualquer arma com 100 ou mais de dano base |
+| Arsenal lendário | Conjunto Draconiana, Abissal ou Celestial completo em +10 |
+| Divindade | Libera uma raça: Anjo, Rei Demônio, Dragão, Ser Celestial, Saiyajin ou Deus |
+| Bênção do Dragão | +5 corações e +10% de dano permanentes (acumula a cada desejo) |
+| Imortalidade | 30 dias sem perder itens, XP nem nível ao morrer (as esferas caem do mesmo jeito) |
+| Glória ao clã | XP em dobro por 30 dias para todos os clãs de quem pediu |
+
+Admin: `/frx esferas ver` (onde está cada uma) e `/frx esferas espalhar` (esconde todas de novo e tira da pedra).
+
 ## Torneio de pesca (`eventos/Pesca.java`)
 
 - Todo peixe pescado (vanilla e Aquaculture, tag `minecraft:fishes`) ganha peso em kg sorteado na faixa da espécie (grandes são raros: `r^2,2`), nota de 1 a 5 estrelas e a linha "Pescado por" na descrição (NBT `frx_peso`, `frx_peso_pct`).

@@ -9,7 +9,7 @@ import java.util.function.Supplier;
 
 /** Cliente → servidor: confirmar a escolha de raça, alternar o disfarce da lendária ou pedir os dados. */
 public record AcaoRaca(int acao, String principal, String secundaria) {
-    public static final int CONFIRMAR = 0, REVELAR = 1, PEDIR = 2;
+    public static final int CONFIRMAR = 0, REVELAR = 1, PEDIR = 2, TRANSFORMAR = 3;
 
     public void codificar(FriendlyByteBuf b) { b.writeVarInt(acao); b.writeUtf(principal, 32); b.writeUtf(secundaria, 32); }
 
@@ -21,6 +21,7 @@ public record AcaoRaca(int acao, String principal, String secundaria) {
         switch (acao) {
             case CONFIRMAR -> RacasJogador.escolher(p, principal, secundaria, false);
             case REVELAR -> RacasJogador.alternarRevelar(p);
+            case TRANSFORMAR -> br.com.frxcode.frxworld.racas.Saiyajin.transformar(p);
             default -> RacasJogador.sincronizar(p, false);
         }
     }

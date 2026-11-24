@@ -209,6 +209,7 @@ public class Suprema {
     }
 
     public static void usar(ServerPlayer p) {
+        if (br.com.frxcode.frxworld.aventura.X1.semHabilidades(p)) return;   // duelo combinado sem habilidades
         Def d = def(p);
         if (d == null) return;
         CompoundTag dados = Unica.dadosDe(p);

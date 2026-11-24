@@ -88,6 +88,11 @@ public class Fenda {
         return null;
     }
 
+    /** Está numa dungeon de portal (ou na área delas)? (o X1 não chama quem está aqui) */
+    public static boolean dentro(Player p) {
+        return de(p) != null || (p.level().dimension() == net.minecraft.world.level.Level.OVERWORLD && naZona(p.getBlockX(), p.getBlockZ()));
+    }
+
     /** Há grupo lutando numa dungeon aberta por este portal? */
     public static boolean emAndamento(BlockPos portal) {
         for (Inst i : insts.values()) if (i.saida.equals(portal)) return true;

@@ -42,6 +42,7 @@ public class CamadaRaca extends RenderLayer<AbstractClientPlayer, PlayerModel<Ab
             getParentModel().head.translateAndRotate(ps);
             cabeca(ps, vc, brilho, luz, v.principal(), 1f, true, capacete);
             if (!v.secundaria().isEmpty()) cabeca(ps, vc, brilho, luz, v.secundaria(), 0.6f, false, capacete);
+            if (v.aura().startsWith("saiyajin:")) cabeloSuper(ps, brilho, v.aura().endsWith("3") ? 3 : v.aura().endsWith("2") ? 2 : 1, idade);
             ps.popPose();
 
             ps.pushPose();
@@ -117,6 +118,43 @@ public class CamadaRaca extends RenderLayer<AbstractClientPlayer, PlayerModel<Ab
                 if ("celestial".equals(raca)) olhos(ps, brilho, 0xFFE8F8FF);
             }
             default -> { }
+        }
+    }
+
+    /**
+     * Cabelo do Super Saiyajin: mechas douradas espetadas para cima (brilham no escuro).
+     * Forma 2 com mechas mais altas; forma 3 com o cabelo longo descendo pelas costas.
+     */
+    private static void cabeloSuper(PoseStack ps, VertexConsumer vc, int forma, float idade) {
+        int luz = 0xF000F0;
+        int ouro = forma == 3 ? 0xFFFFE860 : 0xFFFFD83A, claro = 0xFFFFF4B0;
+        float pulso = Mth.sin(idade * 0.5f) * 0.25f;
+        float alto = forma == 1 ? 0f : 1.2f;
+        // base que cobre o topo da cabeça
+        caixa(ps, vc, luz, -4.3f, -8.6f, -4.3f, 4.3f, -7.6f, 4.3f, ouro);
+        // franja na testa
+        caixa(ps, vc, luz, -4.3f, -8.2f, -4.4f, -1.5f, -6.4f, -4.1f, ouro);
+        caixa(ps, vc, luz, 1.5f, -8.2f, -4.4f, 4.3f, -6.8f, -4.1f, ouro);
+        caixa(ps, vc, luz, -0.8f, -8.2f, -4.4f, 0.8f, -5.6f, -4.1f, ouro);
+        // mechas espetadas (3 x 3), tortas para fora
+        float[] xs = {-3f, 0f, 3f}, zs = {-2.5f, 0.5f, 3.2f};
+        for (float x : xs)
+            for (float z : zs) {
+                float h = (2.2f + (Math.abs(x) < 1 ? 1.4f : 0.6f) + (z > 2 ? -0.4f : 0f) + alto + pulso);
+                ps.pushPose();
+                ps.translate(x / 16f, -8.4f / 16f, z / 16f);
+                ps.mulPose(Axis.ZP.rotationDegrees(-x * 6f));
+                ps.mulPose(Axis.XP.rotationDegrees(z * 5f));
+                caixa(ps, vc, luz, -1.4f, -h * 0.5f, -1.4f, 1.4f, 0f, 1.4f, ouro);
+                caixa(ps, vc, luz, -0.9f, -h * 0.85f, -0.9f, 0.9f, -h * 0.5f, 0.9f, ouro);
+                caixa(ps, vc, luz, -0.4f, -h, -0.4f, 0.4f, -h * 0.85f, 0.4f, claro);
+                ps.popPose();
+            }
+        if (forma == 3) {
+            // cabelo longo até a cintura (atrás) e laterais
+            caixa(ps, vc, luz, -4.4f, -8f, 4.1f, 4.4f, 9f, 5.6f, ouro);
+            caixa(ps, vc, luz, -4.6f, -7f, -2f, -4.1f, 2f, 4.2f, ouro);
+            caixa(ps, vc, luz, 4.1f, -7f, -2f, 4.6f, 2f, 4.2f, ouro);
         }
     }
 

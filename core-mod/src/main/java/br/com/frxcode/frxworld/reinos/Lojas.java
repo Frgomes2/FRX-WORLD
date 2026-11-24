@@ -100,6 +100,7 @@ public final class Lojas {
         try {
             List<MerchantOffer> l = new ArrayList<>(mercador());
             l.addAll(especiais(nivelRep, nomeReino));
+            l.add(venda(new ItemStack(br.com.frxcode.frxworld.aventura.Esferas.RADAR.get()), 5000));   // Radar do Dragão: 50 ouro
             return l;
         } finally { fatorVenda = 1; nivelJogador = Integer.MAX_VALUE; }
     }

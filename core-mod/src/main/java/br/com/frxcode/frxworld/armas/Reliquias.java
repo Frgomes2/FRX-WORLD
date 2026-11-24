@@ -21,12 +21,11 @@ import net.minecraftforge.registries.RegistryObject;
 public class Reliquias {
     private static final DeferredRegister<Item> ITENS = DeferredRegister.create(ForgeRegistries.ITEMS, FrxWorld.MOD_ID);
 
-    /** Cristal do Alvorecer: proteção de diamante e resistência de netherite, sem desgaste próprio (o Códex a deixa inquebrável). */
+    /** Cristal do Alvorecer: proteção de diamante e resistência de netherite, inquebrável: não tem durabilidade. */
     public static final ArmorMaterial ALVORECER = new ArmorMaterial() {
         private final int[] defesa = {3, 6, 8, 3};   // botas, perneiras, peitoral, elmo
-        @Override public int getDurabilityForType(ArmorItem.Type t) {
-            return 37 * switch (t) { case HELMET -> 11; case CHESTPLATE -> 16; case LEGGINGS -> 15; case BOOTS -> 13; };
-        }
+        /** 0 = sem durabilidade: a relíquia nunca desgasta (peças já gastas voltam inteiras, porque deixam de ter barra). */
+        @Override public int getDurabilityForType(ArmorItem.Type t) { return 0; }
         @Override public int getDefenseForType(ArmorItem.Type t) {
             return switch (t) { case HELMET -> defesa[3]; case CHESTPLATE -> defesa[2]; case LEGGINGS -> defesa[1]; case BOOTS -> defesa[0]; };
         }

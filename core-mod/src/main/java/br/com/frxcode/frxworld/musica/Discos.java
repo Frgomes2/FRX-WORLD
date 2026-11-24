@@ -153,7 +153,7 @@ public class Discos {
         d.putLong("bolsa", Moedas.contar(p));
         int rank = Guilda.indice(p);
         ListTag lista = new ListTag();
-        for (Def def : catalogo.values()) {
+        for (Def def : aVenda()) {
             CompoundTag t = new CompoundTag();
             t.putString("codigo", def.codigo());
             t.put("item", criar(def).save(new CompoundTag()));
@@ -176,7 +176,7 @@ public class Discos {
     public static void acao(ServerPlayer p, br.com.frxcode.frxworld.rede.AcaoMenu a) {
         net.minecraft.world.entity.Entity npc = p.level().getEntity(a.npc());
         if (npc == null || npc.distanceToSqr(p) > 144 || !"discos".equals(npc.getPersistentData().getString("frx_papel")) || a.acao() != COMPRAR) return;
-        List<Def> lista = new ArrayList<>(catalogo.values());
+        List<Def> lista = aVenda();
         String msg;
         boolean ok = false;
         Def d = null;
@@ -201,7 +201,16 @@ public class Discos {
 
     // ------------------------------------------------------------------ jukebox
 
-    private static ResourceLocation som(String codigo) { return new ResourceLocation(FrxWorld.MOD_ID, "disco." + codigo); }
+    public static ResourceLocation som(String codigo) { return new ResourceLocation(FrxWorld.MOD_ID, "disco." + codigo); }
+
+    /** Disco cadastrado no painel pelo código (ou null). Os de código "luta_..." são trilhas de chefão e não vão para a loja. */
+    public static Def def(String codigo) { return catalogo.get(codigo); }
+
+    private static List<Def> aVenda() {
+        List<Def> l = new ArrayList<>();
+        for (Def d : catalogo.values()) if (!d.codigo().startsWith("luta_")) l.add(d);
+        return l;
+    }
 
     private static void parar(ServerLevel n, BlockPos pos, String codigo) {
         tocando.remove(GlobalPos.of(n.dimension(), pos));

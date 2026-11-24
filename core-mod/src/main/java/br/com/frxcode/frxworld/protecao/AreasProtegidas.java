@@ -52,6 +52,13 @@ public class AreasProtegidas {
         return false;
     }
 
+    /** O ponto está dentro do labirinto? (áreas cujo id começa com "labirinto") */
+    public static boolean noLabirinto(Level n, BlockPos p) {
+        if (n.dimension() != Level.OVERWORLD) return false;
+        for (Area a : AREAS) if (a.id().startsWith("labirinto") && a.caixa().isInside(p)) return true;
+        return false;
+    }
+
     /** Qualquer área (inclusive as "livre"): explosão não estraga nada. */
     private static boolean semExplosao(Level n, BlockPos p) {
         if (n.dimension() != Level.OVERWORLD) return false;
@@ -99,6 +106,27 @@ public class AreasProtegidas {
         if (ev.getEntity() instanceof Player p && admin(p)) return;
         ev.setCanceled(true);
         if (ev.getEntity() instanceof Player p) p.displayClientMessage(Component.literal("Este lugar é protegido: não dá para colocar blocos aqui.").withStyle(ChatFormatting.RED), true);
+    }
+
+    /** Monstros não mexem nos blocos de uma área protegida (enderman pegando bloco, dragão e wither quebrando, bola de fogo...). */
+    @SubscribeEvent
+    public void monstroQuebra(net.minecraftforge.event.entity.living.LivingDestroyBlockEvent ev) {
+        if (protegido(ev.getEntity().level(), ev.getPos())) ev.setCanceled(true);
+    }
+
+    @SubscribeEvent
+    public void monstroMexe(net.minecraftforge.event.entity.EntityMobGriefingEvent ev) {
+        if (ev.getEntity() != null && protegido(ev.getEntity().level(), ev.getEntity().blockPosition())) ev.setResult(net.minecraftforge.eventbus.api.Event.Result.DENY);
+    }
+
+    /** Balde de água ou lava não despeja dentro de área protegida. */
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public void balde(net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock ev) {
+        Level n = ev.getLevel();
+        if (n.isClientSide() || !(ev.getItemStack().getItem() instanceof net.minecraft.world.item.BucketItem) || admin(ev.getEntity())) return;
+        if (!protegido(n, ev.getPos()) && !protegido(n, ev.getPos().relative(ev.getFace() == null ? net.minecraft.core.Direction.UP : ev.getFace()))) return;
+        ev.setCanceled(true);
+        ev.getEntity().displayClientMessage(Component.literal("Este lugar é protegido: não dá para despejar nada aqui.").withStyle(ChatFormatting.RED), true);
     }
 
     @SubscribeEvent

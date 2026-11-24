@@ -143,7 +143,8 @@ public class ClassesEquip {
         return dano;
     }
 
-    private static boolean livre(ServerPlayer p) { return p.isCreative() || p.isSpectator(); }
+    /** Criativo, espectador ou lutando um X1 com kit sorteado (o kit é igual para os dois, seja qual for o rank). */
+    private static boolean livre(ServerPlayer p) { return p.isCreative() || p.isSpectator() || br.com.frxcode.frxworld.aventura.X1.comKit(p); }
 
     private static void avisar(ServerPlayer p, ItemStack s, int classe) {
         long agora = System.currentTimeMillis();

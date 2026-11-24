@@ -43,12 +43,28 @@ O visual não entrega todo o poder: as raças lendárias andam disfarçadas.
 | Rei Demônio | Concluir a campanha dos Lordes Demônios | Aura (monstros a 6 blocos ficam fracos e lentos), +15% dano, imune a fogo | −25% cura recebida |
 | Dragão | Derrotar um dragão (tags `c:dragoes` / `c:dragao_end`) | Sopro de fogo a cada 30 s, +5 corações, imune a fogo | −5% velocidade, fome 50% mais rápida |
 | Ser Celestial | Chegar ao nível 100 | Regenera toda a vida fora de combate, +30% regen. de recurso, sem dano de queda | −10% dano |
+| Saiyajin | Vencer o Príncipe Vegeta no topo do Templo Karin (ver [aventura.md](aventura.md#templo-karin-e-príncipe-vegeta-karinjava-vegetajava)) | +15% dano, +2 corações, Zenkai e transformações Super Saiyajin | Fome 50% mais rápida (ainda mais transformado) |
 
 ### Divina
 
 | Raça | Como liberar | Efeito |
 |---|---|---|
 | Deus | Só por evento ou admin | Um pouco de tudo: vida, dano, velocidade, XP e recurso |
+
+### Saiyajin (`racas/Saiyajin.java`)
+
+- **Zenkai:** quando o Saiyajin fica com menos de 20% de vida e sobrevive, depois de 8 s e com a vida acima de 40% ganha +1% de dano permanente (até +15%, no máximo uma vez a cada 10 minutos). Fica salvo no jogador (`frx_zenkai`).
+- **Transformação (tecla U, reconfigurável):** cada aperto sobe uma forma; agachado + U volta ao normal.
+
+| Forma | Nível | Dano | Velocidade | Armadura | Fome por segundo |
+|---|---|---|---|---|---|
+| Super Saiyajin | 20 | +25% | +12% | +2 | 0,2 |
+| Super Saiyajin 2 | 40 | +45% (golpe dá choque: +15% e lentidão) | +18% | +4 | 0,4 |
+| Super Saiyajin 3 | 60 | +70% (com choque) | +25% | +6 | 0,9 |
+
+- Transformar leva 2 s parado (aura subindo, chão rachando, raio e explosão no fim que empurra quem estiver a 4 blocos, sem dano). Não dá para transformar com menos de 6 de fome; com 3 ou menos, volta ao normal.
+- A forma 3 dura até 60 s e depois deixa lento, fraco e cansado por 10 s; só pode repetir 30 s depois.
+- Transformado, o disfarce cai: o nome mostra "Super Saiyajin N" e `CamadaRaca` desenha o cabelo dourado espetado (longo na forma 3), que brilha no escuro. Morrer, sair ou trocar de dimensão desfaz a forma.
 
 ## Compatibilidade (peso da secundária)
 
@@ -76,6 +92,7 @@ Exemplos: Elfo + Vampiro = Instável · Elfo + Oni = Estável · Anão + Gigante
   - Os traços da secundária aparecem menores e sem cauda.
   - Não muda a hitbox.
 - **Lendárias** andam disfarçadas: o nome mostra uma raça comum, com partículas discretas.
+  - Exceção: a **Saiyajin** não se disfarça; aparece no nome e no TAB.
   - `/raca revelar` mostra a verdadeira.
   - NPCs reconhecem ao conversar.
   - Jogadores de nível 50+ percebem com `/raca ver <j>`.

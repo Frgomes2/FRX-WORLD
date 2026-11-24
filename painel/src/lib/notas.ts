@@ -16,6 +16,40 @@ export type NotaAtualizacao = { versao: string; data: string; hora?: string; tit
 
 export const NOTAS: NotaAtualizacao[] = [
   {
+    versao: "2.0.2", data: "23/11/2026", hora: "21:13:00", titulo: "X1: duelo em arena, Saiyajin no nome e mais anéis",
+    itens: [
+      "X1: nova aba no inventário (espada de diamante) para desafiar quem está online para um duelo em arena, com regras combinadas (habilidades, itens do personagem ou kit sorteado, poções, melhor de 3 e aposta). Morrer no duelo não tem punição e o inventário volta igual no fim.",
+      "A raça Saiyajin agora aparece no nome e no TAB (as outras lendárias continuam disfarçadas até serem reveladas).",
+      "Quando alguém acha uma Esfera do Dragão, todo o servidor vê um título na tela e ouve um som, além do aviso no chat.",
+      "Mais 5 espaços de anel: agora são 15 (continua sem poder repetir o mesmo anel).",
+      "Áreas protegidas (Templo Karin, labirinto): monstros não mexem mais nos blocos e balde de água ou lava não despeja lá dentro.",
+    ],
+  },
+  {
+    versao: "2.0.1", data: "23/11/2026", hora: "19:43:10", titulo: "Santuário maior no topo do Templo Karin",
+    itens: [
+      "O topo do Templo Karin virou um santuário bem maior (60 blocos de largura): espaço de sobra para lutar, templo de cúpulas douradas, mirantes e fileiras de árvores.",
+      "A chegada da escada no topo ganhou um alçapão, para ninguém cair no meio da luta.",
+      "Waystone \"Templo Karin\" no topo: quem já subiu uma vez pode voltar direto.",
+      "Radar do Dragão com visor: ao clicar, abre a tela redonda verde com os pontos laranja das esferas (norte para cima, você no centro; + e − mudam o alcance). A lista no chat continua.",
+    ],
+  },
+  {
+    versao: "2.0.0", data: "22/11/2026", hora: "22:19:19", titulo: "O sangue Saiyajin: Templo Karin e Príncipe Vegeta",
+    itens: [
+      "Nova raça lendária: Saiyajin. +15% de dano e +2 corações; a fome gasta mais rápido.",
+      "Zenkai: escapar de uma luta com menos de 20% de vida deixa o Saiyajin mais forte para sempre (+1% de dano, até +15%).",
+      "Transformações com a tecla U: Super Saiyajin (nível 20), Super Saiyajin 2 (nível 40) e Super Saiyajin 3 (nível 60), com animação, aura, raio e cabelo dourado. Agachado + U volta ao normal.",
+      "Templo Karin: uma torre altíssima a leste de Lubelius. Só se sobe no braço, com ventania nas partes altas (agache para se segurar). Élitro, voo, montaria e pérola não funcionam lá.",
+      "No topo, o Príncipe Vegeta: rajadas de ki, Galick Ho, Big Bang, chuva de rajadas e, no fim, o Final Flash. Todo ataque avisa antes para dar tempo de desviar.",
+      "Dá para lutar em grupo, mas ele fica mais forte com cada um que entra. Quem vence libera a raça Saiyajin.",
+      "As 7 Esferas do Dragão: um conjunto só no servidor. Quatro estão enterradas no mundo normal, uma no Nether, uma com o Dragão do Fim e uma com a Rainha da Neve da Floresta do Crepúsculo.",
+      "Radar do Dragão no mercador (50 ouro): mostra onde está cada esfera, inclusive com qual jogador. Quem morre carregando uma esfera deixa ela cair.",
+      "Com as 7, clique com uma esfera a céu aberto para chamar Shenlong e escolher 1 de 8 desejos: Poder, Riqueza, Tesouro, Arsenal lendário, Divindade, Bênção do Dragão, Imortalidade ou Glória ao clã. Depois as esferas viram pedra por 7 dias.",
+      "A armadura do Alvorecer (relíquia dos enigmas) não desgasta mais; as peças já gastas voltaram inteiras.",
+    ],
+  },
+  {
     versao: "1.4.5", data: "22/11/2026", hora: "20:48:45", titulo: "Mais mariposas nas Cavernas Desoladas",
     itens: [
       "Cavernas Desoladas (Alex's Caves): bem menos morcegos e mais Mariposas Sombrias. Dica: acenda tochas, elas se juntam em volta da luz.",

@@ -30,6 +30,8 @@ export const PAPEIS = [
   { id: "craque", nome: "Ronaldinho (evento raro)", icone: "⚽" },
   { id: "noel", nome: "Papai Noel (evento raro)", icone: "🎅" },
   { id: "ladrao", nome: "Ladrão (evento raro)", icone: "🪙" },
+  { id: "vegeta", nome: "Príncipe Vegeta (Templo Karin)", icone: "⚡" },
+  { id: "vegeta_ssj", nome: "Príncipe Vegeta transformado (cabelo dourado)", icone: "🌟" },
 ] as const;
 
 export type Papel = (typeof PAPEIS)[number]["id"];

@@ -300,6 +300,7 @@ public class Despertar {
     // ------------------------------------------------------------------ tecla
 
     public static void acionar(ServerPlayer p) {
+        if (br.com.frxcode.frxworld.aventura.X1.semHabilidades(p)) return;   // duelo combinado sem habilidades
         String c = classe(p);
         if (c.isEmpty()) { avisar(p, "Escolha sua classe primeiro (tecla K).", ChatFormatting.YELLOW); return; }
         if ("INVOCADOR".equals(c)) { Sombras.erguer(p); return; }

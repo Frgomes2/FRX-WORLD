@@ -804,6 +804,12 @@ public class Torre {
         return l;
     }
 
+    /** Está subindo a Torre, no saguão dela ou dentro da torre e das salas dos andares? (o X1 não chama quem está aqui) */
+    public static boolean dentro(net.minecraft.world.entity.player.Player p) {
+        if (corridaDe(p) != null || noSaguao.containsKey(p.getUUID())) return true;
+        return p.level().dimension() == net.minecraft.world.level.Level.OVERWORLD && (naSala(p.getBlockX(), p.getBlockZ()) || naTorre(p.blockPosition()));
+    }
+
     private static Corrida corridaDe(Player p) {
         for (Corrida c : corridas.values()) if (c.membros.contains(p.getUUID())) return c;
         return null;

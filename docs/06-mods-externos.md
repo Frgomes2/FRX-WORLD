@@ -77,7 +77,7 @@ O pack é gerenciado pelo **packwiz** em `pack/`. Cada mod é um `mods/<slug>.pw
 
 Ajustes em mods que já estavam no pack:
 
-- **Curios:** 10 espaços de anel (`server/kubejs/data/frxworld/curios/slots/ring.json`).
+- **Curios:** 15 espaços de anel (`server/kubejs/data/frxworld/curios/slots/ring.json`).
 - **JourneyMap:** os marcadores de waypoint não aparecem mais flutuando no jogo, só no mapa (`showInGameBeacons false` em `server/journeymap/server/6.0/journeymap.server.global.config`).
 - **The Graveyard:** névoa desligada (`fogParticles.enabled false` em `server/config/graveyard/graveyard.json5`; o AutoModpack envia o arquivo aos clientes).
 - **Ice and Fire:** dragões não quebram blocos (`"Dragon Griefing" = 2` em `server/config/iceandfire-common.toml`).

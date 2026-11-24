@@ -117,7 +117,13 @@
 | `/frx ladrao [jogador]` · `chance <0-1000>` | Solta o ladrão · ajusta a chance |
 | `/frx ronaldinho [jogador]` · `chance <0-1000>` | Chama o Ronaldinho · ajusta a chance |
 | `/pesca` | Placar do torneio de pesca da semana (todos) |
+| `/x1` | Abre a aba de duelos X1; `/x1 aceitar\|recusar\|cancelar\|desistir\|assistir\|sair\|placar` (todos) |
 | `/frx pesca encerrar` | Encerra o torneio agora e paga os prêmios |
+| `/frx karin construir` | Constrói (ou refaz) o Templo Karin a leste de Lubelius |
+| `/frx arena criar\|spawn\|espectador\|raio\|ir\|remover\|lista` | Arenas do X1 (ver [sistemas/x1.md](sistemas/x1.md)) |
+| `/frx esferas ver` | Mostra o estado e o lugar de cada Esfera do Dragão |
+| `/frx esferas espalhar` | Esconde as 7 esferas de novo (e tira da pedra) |
+| `/frx karin ir` | Leva você à ponte da base do Templo Karin |
 | `/corridas` | Lista as pistas, recordes e onde fica cada largada (todos) |
 | `/frx corrida criar <id> <pe\|cavalo\|barco\|elitro> <nome>` | Cria uma pista |
 | `/frx corrida ponto <id> [x y z]` | Marca o próximo ponto onde você está (ou nas coordenadas): o 1º é a largada, o último a chegada; zera os recordes da pista |

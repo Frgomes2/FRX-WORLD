@@ -145,6 +145,17 @@ public class RacasJogador {
         };
     }
 
+    /** Libera uma raça para o jogador (feitos especiais, como vencer o Príncipe Vegeta). Devolve false se já estava liberada. */
+    public static boolean liberarRaca(ServerPlayer p, String id) {
+        CompoundTag d = dados(p);
+        Set<String> l = lista(d, "liberadas");
+        if (!l.add(id)) return false;
+        guardarLista(d, "liberadas", l);
+        avisarLiberadas(p);
+        sincronizar(p, false);
+        return true;
+    }
+
     /** Custo (cobre) da próxima troca: escolha inicial e primeira troca grátis, depois sobe. */
     public static long custo(Player p) {
         CompoundTag d = dados(p);
@@ -261,7 +272,8 @@ public class RacasJogador {
 
     private static boolean disfarcada(Player p) {
         Raca r = DefRacas.de(principal(p));
-        return r != null && r.lendaria() && !dados(p).getBoolean("revelar");
+        // Saiyajin não se disfarça: é um título conquistado no braço, aparece no nome e no TAB
+        return r != null && r.lendaria() && !"saiyajin".equals(r.id()) && !dados(p).getBoolean("revelar");
     }
 
     /** Id da raça que os outros enxergam (a lendária disfarçada aparece como a secundária ou humano). */
@@ -275,6 +287,8 @@ public class RacasJogador {
     /** "Elfo/Oni"; lendária disfarçada mostra só a secundária (ou Humano). */
     public static String textoVisivel(Player p) {
         if (!escolheu(p)) return "";
+        int forma = br.com.frxcode.frxworld.racas.Saiyajin.forma(p);
+        if (forma > 0) return forma == 1 ? "Super Saiyajin" : "Super Saiyajin " + forma;
         String pr = principal(p), se = secundaria(p);
         if (disfarcada(p)) return se.isEmpty() || se.equals(pr) ? "Humano" : DefRacas.nome(se);
         if (se.isEmpty()) return DefRacas.nome(pr);
@@ -282,8 +296,21 @@ public class RacasJogador {
         return DefRacas.nome(pr) + "/" + DefRacas.nome(se);
     }
 
+    /** Reenvia a aparência do jogador para todos (ex.: virou ou desvirou Super Saiyajin). */
+    public static void atualizarVisual(ServerPlayer p) {
+        p.refreshDisplayName();
+        p.refreshTabListName();
+        Rede.CANAL.send(PacketDistributor.ALL.noArg(), visivel(p));
+    }
+
     private static SyncRacaVisivel visivel(Player p) {
         if (!escolheu(p)) return new SyncRacaVisivel(p.getUUID(), "", "", "", "");
+        int forma = br.com.frxcode.frxworld.racas.Saiyajin.forma(p);
+        if (forma > 0) {   // transformado não tem disfarce: o cabelo dourado entrega
+            String se = secundaria(p);
+            return new SyncRacaVisivel(p.getUUID(), forma == 1 ? "Super Saiyajin" : "Super Saiyajin " + forma, "saiyajin",
+                    se.equals("saiyajin") ? "" : se, "saiyajin:" + forma);
+        }
         String pr = principal(p), se = secundaria(p);
         Raca r = DefRacas.de(pr);
         String vp = pr, vs = se.equals(pr) ? "" : se;
@@ -494,6 +521,7 @@ public class RacasJogador {
             case "dragao" -> "recua um passo: \"Esses olhos... dizem que os antigos dragões andam entre nós.\"";
             case "celestial" -> "sorri, sem saber por quê: \"Estar perto de você me acalma.\"";
             case "deus" -> "se ajoelha: \"Os sábios diziam que um dia você viria.\"";
+            case "saiyajin" -> "arregala os olhos: \"Esse poder escondido... você não é um viajante comum.\"";
             default -> "";
         };
         if (!fala.isEmpty())

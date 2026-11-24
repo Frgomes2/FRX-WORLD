@@ -23,7 +23,7 @@ import java.util.function.Consumer;
 public class TelaStatus extends Screen {
     public static final String[][] ABAS = {
             {"INVENTARIO", "Inventário"}, {"STATUS", "Status"}, {"HABILIDADES", "Habilidades"}, {"TALENTOS", "Talentos"},
-            {"REINOS", "Reinos"}};   // a aba Grupo saiu na 1.1.9: ficaram só os clãs
+            {"REINOS", "Reinos"}, {"X1", "X1 (duelo)"}};   // a aba Grupo saiu na 1.1.9: ficaram só os clãs
 
     // mesmas cores da tela de Habilidades (painel marrom-escuro, moldura marrom, títulos dourados)
     static final int FUNDO = 0xF017140F, MOLDURA = 0xFF5A3A1E, BORDA2 = 0xFF5A3A1E, TITULO = 0xFFD4A93A, TEXTO = 0xFFE9DFC8,
@@ -49,6 +49,7 @@ public class TelaStatus extends Screen {
             case "HABILIDADES" -> net.minecraft.world.item.Items.ENCHANTED_BOOK;
             case "TALENTOS" -> net.minecraft.world.item.Items.NETHER_STAR;
             case "REINOS" -> net.minecraft.world.item.Items.GOLDEN_HELMET;
+            case "X1" -> net.minecraft.world.item.Items.DIAMOND_SWORD;
             default -> net.minecraft.world.item.Items.SHIELD;
         });
     }
@@ -69,6 +70,7 @@ public class TelaStatus extends Screen {
         switch (id) {
             case "INVENTARIO" -> mc.setScreen(new InventoryScreen(mc.player));
             case "HABILIDADES" -> mc.setScreen(new TelaHabilidades());
+            case "X1" -> mc.setScreen(new TelaX1(new net.minecraft.nbt.CompoundTag()));   // a tela pede os dados ao servidor ao abrir
             default -> {
                 if (mc.screen instanceof TelaStatus t) { t.aba = id; t.rolagem = 0; t.rebuildWidgets(); }
                 else mc.setScreen(new TelaStatus(id));

@@ -23,6 +23,8 @@ public record AcaoMenu(String tipo, int npc, int acao, long valor) {
     public void tratar(Supplier<NetworkEvent.Context> ctx) {
         ServerPlayer p = ctx.get().getSender();
         if (p == null) return;
+        if (tipo.equals("x1")) { br.com.frxcode.frxworld.aventura.X1.acao(p, this); return; }
+        if (br.com.frxcode.frxworld.aventura.X1.emDuelo(p)) return;   // lutando: nenhum menu (banco, bolsos, mercado...) até o duelo acabar
         if (tipo.equals("abertura")) {
             if (acao == 0) br.com.frxcode.frxworld.acesso.Abertura.acao(p, this);
             else if (acao == 2) br.com.frxcode.frxworld.acesso.Abertura.avancarPrevia(p);

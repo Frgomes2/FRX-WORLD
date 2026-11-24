@@ -218,6 +218,13 @@ public class Clas {
         return false;
     }
 
+    /** Ids dos clãs do personagem (para bônus de clã, como o desejo do Shenlong). */
+    public static List<UUID> idsDe(ServerPlayer p) {
+        List<UUID> l = new ArrayList<>();
+        for (Cla c : clasDe(br.com.frxcode.frxworld.acesso.Personagens.id(p))) l.add(c.id);
+        return l;
+    }
+
     public static boolean temCla(ServerPlayer p) { return !clasDe(br.com.frxcode.frxworld.acesso.Personagens.id(p)).isEmpty(); }
     private static List<Cla> clasDe(UUID jogador) { List<Cla> l = new ArrayList<>(); for (Cla c : CLAS.values()) if (c.membros.containsKey(jogador)) l.add(c); return l; }
     private static int poder(Cla c) { int n = 0; for (UUID m : c.membros.keySet()) n += resumo(m).nivel(); return n; }

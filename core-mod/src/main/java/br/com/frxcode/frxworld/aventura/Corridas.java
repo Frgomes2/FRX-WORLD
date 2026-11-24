@@ -107,6 +107,9 @@ public class Corridas {
 
     public Corridas() {}
 
+    /** Está no meio de uma corrida? (o X1 não chama quem está correndo) */
+    public static boolean correndo(net.minecraft.world.entity.player.Player p) { return voltas.containsKey(p.getUUID()); }
+
     // ------------------------------------------------------------------ arquivo
 
     private static Path arquivo(MinecraftServer s) { return s.getWorldPath(LevelResource.ROOT).resolve("frx_corridas.json"); }

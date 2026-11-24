@@ -320,6 +320,7 @@ public class Habilidades {
 
     public static void usar(ServerPlayer p, int espaco) {
         if (!Progressao.temDados(p) || espaco < 0 || espaco > 8 || p.isSpectator() || trancado(p, espaco)) return;
+        if (br.com.frxcode.frxworld.aventura.X1.semHabilidades(p)) return;   // duelo combinado sem habilidades
         DadosJogador d = Progressao.dados(p);
         if (d.classe().isEmpty()) { avisar(p, "Escolha sua classe primeiro (tecla K).", ChatFormatting.YELLOW); return; }
         String cod = d.barra()[espaco];
@@ -707,7 +708,11 @@ public class Habilidades {
     }
 
     /** O jogador escolheu que as habilidades dele ferem outros jogadores (botão na janela de Habilidades). Desligado por padrão. */
-    public static boolean pvp(Player p) { return p.getPersistentData().getCompound(Player.PERSISTED_NBT_TAG).getBoolean("frx_hab_pvp"); }
+    public static boolean pvp(Player p) {
+        Boolean duelo = br.com.frxcode.frxworld.aventura.X1.danoEmJogadores(p);   // no X1 quem manda é a regra do duelo
+        if (duelo != null) return duelo;
+        return p.getPersistentData().getCompound(Player.PERSISTED_NBT_TAG).getBoolean("frx_hab_pvp");
+    }
 
     public static void alternarPvp(ServerPlayer p) {
         net.minecraft.nbt.CompoundTag pers = p.getPersistentData().getCompound(Player.PERSISTED_NBT_TAG);

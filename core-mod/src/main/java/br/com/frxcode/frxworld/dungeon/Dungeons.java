@@ -240,6 +240,13 @@ public class Dungeons {
         return centro.offset(2, -1, 0);
     }
 
+    /** Está na luta de alguma dungeon em andamento (perto do núcleo dela)? (o X1 não chama quem está aqui) */
+    public static boolean dentro(ServerPlayer p) {
+        for (Ativa a : ativas.values())
+            if (a.nivel == p.level() && p.distanceToSqr(a.nucleo.getX() + 0.5, a.nucleo.getY(), a.nucleo.getZ() + 0.5) <= RAIO_BARRA * RAIO_BARRA) return true;
+        return false;
+    }
+
     private static List<ServerPlayer> jogadoresPerto(Ativa a, double raio) {
         List<ServerPlayer> lista = new ArrayList<>();
         for (ServerPlayer p : a.nivel.players()) {

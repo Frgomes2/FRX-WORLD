@@ -17,12 +17,24 @@ public final class ClienteMenus {
     public static void abrir(AbrirMenu msg) {
         Minecraft mc = Minecraft.getInstance();
         if (msg.tipo().equals("marcador")) { MarcadorMapa.tratar(msg.dados()); return; }
+        if (msg.tipo().equals("x1")) {
+            if (msg.dados().getBoolean("fechar")) { if (mc.screen instanceof TelaX1) mc.setScreen(null); return; }   // o duelo começou
+            if (mc.screen instanceof TelaX1 t) t.atualizar(msg.dados());
+            else if (msg.dados().getBoolean("abrir")) mc.setScreen(new TelaX1(msg.dados()));   // comando /x1
+            return;
+        }
         if (msg.tipo().equals("personagens")) {
             if (msg.dados().getBoolean("reconectar")) { Reconexao.marcar(msg.dados().getString("nome")); return; }   // troca: o jogo vai entrar de novo
             if (mc.screen instanceof TelaPersonagens t) t.atualizar(msg.dados()); else mc.setScreen(new TelaPersonagens(msg.dados()));
             return;
         }
         if (msg.tipo().equals("area")) { AreasMapa.tratar(msg.dados()); return; }   // área pintada no mapa: não abre tela   // ponto no mapa: não abre tela
+        if (msg.tipo().equals("radar")) { mc.setScreen(new TelaRadar(msg.dados())); return; }
+        if (msg.tipo().equals("shenlong")) {
+            if (msg.dados().getBoolean("fechar")) { if (mc.screen instanceof TelaShenlong) mc.setScreen(null); }
+            else if (mc.screen instanceof TelaShenlong t) t.atualizar(msg.dados()); else mc.setScreen(new TelaShenlong(msg.dados()));
+            return;
+        }
         if (msg.tipo().equals("banco")) {
             if (mc.screen instanceof TelaBanco t) t.atualizar(msg.dados()); else mc.setScreen(new TelaBanco(msg.dados()));
         } else if (msg.tipo().equals("abertura")) {

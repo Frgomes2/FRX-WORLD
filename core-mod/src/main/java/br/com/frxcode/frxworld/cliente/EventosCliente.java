@@ -35,6 +35,12 @@ public final class EventosCliente {
             }
         }
 
+        /** Desenho do Príncipe Vegeta (chefão do Templo Karin). */
+        @SubscribeEvent
+        public static void renderizadores(net.minecraftforge.client.event.EntityRenderersEvent.RegisterRenderers evento) {
+            evento.registerEntityRenderer(br.com.frxcode.frxworld.aventura.Vegeta.VEGETA.get(), RenderVegeta::new);
+        }
+
         @SubscribeEvent
         public static void registrarTeclas(net.minecraftforge.client.event.RegisterKeyMappingsEvent evento) {
             for (var t : Teclas.BARRA) evento.register(t);
@@ -43,6 +49,7 @@ public final class EventosCliente {
             evento.register(Teclas.BOLSOS);
             evento.register(Teclas.SITE);
             evento.register(Teclas.DESPERTAR);
+            evento.register(Teclas.TRANSFORMAR);
             for (var t : Teclas.SOMBRAS) evento.register(t);
             evento.register(Teclas.ALVO_SOMBRAS);
         }

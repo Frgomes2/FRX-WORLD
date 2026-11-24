@@ -31,6 +31,7 @@ public class EventosMorte {
     @SubscribeEvent(priority = EventPriority.LOW)
     public void aoMorrer(LivingDeathEvent evento) {
         if (evento.isCanceled() || !(evento.getEntity() instanceof ServerPlayer jogador)) return;
+        if (br.com.frxcode.frxworld.aventura.Esferas.imortal(jogador)) return;   // desejo "Imortalidade": morrer não custa nada
 
         DadosJogador d = Progressao.dados(jogador);
         ConfigJogo.FaixaMorte faixa = ConfigJogo.faixaMorte(d.nivel());

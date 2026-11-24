@@ -1,7 +1,7 @@
 # FRX-WORLD — Documentação (índice principal)
 
 > Modpack MMORPG para **Minecraft 1.20.1 / Forge 47.4.10**, com core mod próprio (`frxworld`) e painel administrativo em Next.js.
-> Versão atual do core mod: **1.4.5**. Regra: cada atualização comum soma 1 no último número (0.41.8 → 0.41.9 → 0.42.0); só uma mudança muito grande abre uma versão cheia (1.0.0). As notas do site (`painel/src/lib/notas.ts`) levam o mesmo número.
+> Versão atual do core mod: **2.0.2**. Regra: cada atualização comum soma 1 no último número (0.41.8 → 0.41.9 → 0.42.0); só uma mudança muito grande abre uma versão cheia (1.0.0). As notas do site (`painel/src/lib/notas.ts`) levam o mesmo número.
 
 Este é o ponto de entrada de toda a documentação. Cada arquivo cobre um assunto; comece por aqui e siga os links.
 
@@ -36,6 +36,7 @@ Na ordem da cadeia de progressão:
 | Economia, moedas, lojas e banco | [sistemas/economia.md](sistemas/economia.md) |
 | Imersão: Sistema, Guilda, habilidade única/suprema, nomeação, NPCs reativos, portais e bestiário | [sistemas/imersao.md](sistemas/imersao.md) |
 | Aventura: história principal, temporadas, procurados, Torre Infinita, eventos do céu e mapas do tesouro | [sistemas/aventura.md](sistemas/aventura.md) |
+| X1: duelo combinado em arena (regras, aposta, plateia, placar) | [sistemas/x1.md](sistemas/x1.md) |
 | Códex de Armas: armas únicas criadas no painel, com total no mundo, evolução e aparência própria | [sistemas/codex-armas.md](sistemas/codex-armas.md) |
 | Códex de Criaturas: chefes e monstros criados no painel, com golpes, lugares, recompensas e skin própria | [sistemas/codex-criaturas.md](sistemas/codex-criaturas.md) |
 | Contratos diários e semanais da Guilda, coleção de criaturas e chefões, clãs (FTB Teams) no site | [sistemas/contratos-colecao-clas.md](sistemas/contratos-colecao-clas.md) |

@@ -600,7 +600,14 @@ public class Sombras {
     private static final int ATALHOS = 3;
 
     /** O dono escolhe se as invocações dele ferem jogadores (e se jogadores podem feri-las). Desligado por padrão. */
-    public static boolean pvp(Player p) { return p.getPersistentData().getCompound(Player.PERSISTED_NBT_TAG).getBoolean("frx_invoc_pvp"); }
+    public static boolean pvp(Player p) {
+        Boolean duelo = br.com.frxcode.frxworld.aventura.X1.danoEmJogadores(p);   // no X1 quem manda é a regra do duelo
+        if (duelo != null) return duelo;
+        return p.getPersistentData().getCompound(Player.PERSISTED_NBT_TAG).getBoolean("frx_invoc_pvp");
+    }
+
+    /** Recolhe todas as sombras que estão fora (X1 sem habilidades). */
+    public static void recolherTodas(ServerPlayer p) { if (ehInvocador(p)) guardar(p, "todas"); }
 
     private static void alternarPvp(ServerPlayer p) {
         CompoundTag pers = p.getPersistentData().getCompound(Player.PERSISTED_NBT_TAG);
@@ -660,6 +667,10 @@ public class Sombras {
     /** Pedido da tela ou das teclas rápidas. */
     public static void acao(ServerPlayer p, int acao, int numero, String id) {
         if (acao != br.com.frxcode.frxworld.rede.AcaoSombra.PEDIR && !ehInvocador(p)) { avisar(p, "Só o Invocador comanda as sombras.", ChatFormatting.RED); return; }
+        // duelo combinado sem habilidades: nada de chamar sombra nem marcar alvo
+        if ((acao == br.com.frxcode.frxworld.rede.AcaoSombra.INVOCAR || acao == br.com.frxcode.frxworld.rede.AcaoSombra.INVOCAR_TODAS
+                || acao == br.com.frxcode.frxworld.rede.AcaoSombra.USAR_ATALHO || acao == br.com.frxcode.frxworld.rede.AcaoSombra.MARCAR_ALVO)
+                && br.com.frxcode.frxworld.aventura.X1.semHabilidades(p)) return;
         switch (acao) {
             case br.com.frxcode.frxworld.rede.AcaoSombra.MARCAR_ALVO -> marcarAlvo(p);
             case br.com.frxcode.frxworld.rede.AcaoSombra.ALTERNAR_PVP -> alternarPvp(p);

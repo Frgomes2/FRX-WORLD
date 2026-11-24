@@ -25,7 +25,7 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 /**
- * Anéis sem repetição: o jogador tem 10 espaços de anel (Curios), mas não pode usar dois anéis iguais ao mesmo tempo.
+ * Anéis sem repetição: o jogador tem 15 espaços de anel (Curios), mas não pode usar dois anéis iguais ao mesmo tempo.
  * Barra na hora de equipar (evento do Curios) e, ao entrar no jogo, devolve à mochila os repetidos que já estavam postos.
  * O Curios é usado por reflexão: sem ele, ou com outra versão da API, nada é barrado e o resto continua igual.
  */

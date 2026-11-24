@@ -6,6 +6,32 @@ Formato: versão, depois o que entrou. A versão do mod fica em `core-mod/gradle
 
 > **Situação dos testes (10/11/2026):** a última versão compilada e testada no PC é a **0.33.0** (`pack/mods/frxworld-0.33.0.jar`). As versões **0.34 a 0.40** ainda não rodaram no jogo. O roteiro de teste está no checklist "FRX-WORLD — Checklist de testes".
 
+## 2.0.2 (23/11) — X1, Saiyajin visível e proteção contra monstros
+
+- **X1** (`aventura/X1.java`, `cliente/TelaX1.java`, novos): duelo combinado em arena pela aba X1 do inventário; arenas e placar em `frx_x1.json`; comandos `/x1` e `/frx arena`. Ganchos em `AcaoMenu` (tipo `x1`), `TelaStatus` (aba), `Habilidades`, `Sombras`, `Despertar`, `Suprema`, `ClassesEquip`, `Torre`, `Fenda`, `Corridas`, `Dungeons` e `AreasProtegidas.noLabirinto`. Detalhes em [sistemas/x1.md](sistemas/x1.md).
+- `Esferas.entregar`: título na tela e som para todos os jogadores online, além da mensagem no chat.
+- Curios: espaços de anel de 10 para 15 (`server/kubejs/data/frxworld/curios/slots/ring.json`).
+- `RacasJogador.disfarcada`: a raça Saiyajin não se disfarça (aparece no nome e no TAB).
+- `AreasProtegidas`: `LivingDestroyBlockEvent` e `EntityMobGriefingEvent` barrados dentro das áreas não livres; baldes não despejam (`RightClickBlock`). A waystone do Templo Karin já estava coberta: a área impede quebrar e o Waystones está com `restrictRenameToOwner = true` (waystone sem dono: só admin no criativo edita).
+
+## 2.0.1 (23/11) — Santuário maior e skin do Vegeta pelo painel
+
+- `Karin`: `RAIO_ARENA` 13 → 30 e `RAIO_AREA` 35 → 45; topo refeito (plataforma de raio 30 com bojo em meia esfera, templo de cúpulas douradas ao norte, 4 mirantes, fileiras de ciprestes, círculo de duelo dourado de raio 11, alçapão na chegada da escada). Área `karin` do `frx_protegidas.txt` ampliada para (2015..2105, 1595..1685). `Vegeta` segura o chefão a `RAIO_ARENA − 2,5` do centro. Waystone "Templo Karin" na ponta sul do santuário (API do Waystones por reflexão, como nos reinos).
+- Painel → NPCs e skins: papéis `vegeta` e `vegeta_ssj` (chaves `papel:vegeta` e `papel:vegeta_ssj`); `RenderVegeta` usa a skin do painel quando existe (`SkinsNpcCliente.porChave`). Sem a skin transformada, a fase dourada usa a mesma skin normal do painel.
+
+- Radar do Dragão: além da lista no chat, `Esferas.radar` manda `AbrirMenu "radar"` (pontos desta dimensão e as linhas) e a `cliente/TelaRadar` desenha o visor redondo com grade, pontos e 4 alcances (250, 1.000, 4.000 e 16.000 blocos).
+
+## 2.0.0 (22/11) — Raça Saiyajin, Templo Karin e Príncipe Vegeta
+
+- Raça lendária **Saiyajin** (`racas/DefRacas.java`, efeito `saiyajin`): +15% dano, +2 corações, fome +50%. Liberada só por `RacasJogador.liberarRaca` (vitória contra o Vegeta).
+- `racas/Saiyajin.java` (novo): transformações Super Saiyajin 1/2/3 (tecla U, `AcaoRaca.TRANSFORMAR`), animação de 2 s, bônus por forma, choque nas formas 2 e 3, fome extra, limite e cansaço da forma 3, Zenkai (`frx_zenkai`). Visual pelo campo `aura` do `SyncRacaVisivel` ("saiyajin:N"); `CamadaRaca.cabeloSuper` desenha o cabelo.
+- `aventura/Karin.java` (novo): Templo Karin em (2060, 1640), construído por `/frx karin construir`; regras da área (sem élitro, voo, montaria, pérola, coro; subida sem apoio cortada; ventania acima de 160; sem monstros naturais). Área `karin` em `frx_protegidas.txt`.
+- `aventura/Vegeta.java` e `VegetaEntidade.java` (novos): entidade `frxworld:principe_vegeta` com renderizador `cliente/RenderVegeta` e texturas originais; luta com escala por participantes, ataques avisados, fases, barra de chefe, música pelo disco `luta_vegeta` e liberação da raça.
+- `musica/Discos`: `def(codigo)` e `som(codigo)` públicos; discos `luta_...` fora da loja.
+- Livro "Raças" (`painel/src/lib/livros.ts`): Saiyajin, transformações e Templo Karin.
+- **Esferas do Dragão** (`aventura/Esferas.java`, novo): itens `esfera_1..7` e `radar_dragao` (mercador, 50 ouro), estado em `frx_esferas.json`, queda na morte fora do túmulo, Shenlong em `block_display` (tag `frx_shenlong`), 8 desejos pela `cliente/TelaShenlong` (`AbrirMenu "shenlong"`, `AcaoHabilidade.SHENLONG`). Ganchos: `Progressao.ganharXp` (XP em dobro do clã), `EventosMorte` (Imortalidade), `Clas.idsDe`, `Lojas.mercador`. Comandos `/frx esferas ver|espalhar`.
+- `armas/Reliquias`: material Alvorecer com durabilidade 0 (inquebrável; as peças gastas deixam de ter barra).
+
 ## 1.4.5 (22/11) — Mariposas e estabilidade do painel
 
 - Alex's Caves, Cavernas Desoladas (`alexscaves:forlorn_hollows`): biome modifiers do core mod `data/frxworld/forge/biome_modifier/forlorn_menos_morcegos.json` (tira o morcego, que vinha com peso 10 em bando de 8 e enchia o limite de ambiente) e `forlorn_spawns_ajustados.json` (morcego peso 4 em 1–2; Gloomoth +25 de peso em 4–6, somando ao 20 original).

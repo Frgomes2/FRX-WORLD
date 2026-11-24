@@ -241,8 +241,8 @@ hash = "dd7c74c71d3facf74a684055b546cef5430b06b18dfe85cf8761b61ee9c92881"
 metafile = true
 
 [[files]]
-file = "mods/frxworld-1.4.5.jar"
-hash = "419d0af6f21b5df3bcd7ab24b332a9941a7623b68a40f0b81a7573de60ec8c4b"
+file = "mods/frxworld-2.0.2.jar"
+hash = "51c043cec95db1bfcae8e0b970199176f76e11706b3dc76f8864bc9deb475538"
 
 [[files]]
 file = "mods/ftb-library-forge.pw.toml"
