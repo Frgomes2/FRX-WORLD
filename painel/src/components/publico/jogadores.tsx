@@ -196,6 +196,28 @@ export function Perfil({ nick: pedido, fechar }: { nick: string; fechar: () => v
               </div>
             )}
 
+            {p.expedicoes && (
+              <div className="rounded-xl border border-pedra-700 p-4">
+                <p className="text-xs uppercase tracking-wider text-pedra-500">🧭 Expedições · Terras Inexploradas</p>
+                <div className="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-5">
+                  {numero(String(p.expedicoes.participacoes), "participações")}
+                  {numero(String(p.expedicoes.estruturas), "estruturas")}
+                  {numero(String(p.expedicoes.chefes), "chefes")}
+                  {numero(`${p.expedicoes.km2.toLocaleString("pt-BR", { maximumFractionDigits: 2 })} km²`, "explorados")}
+                  {numero(String(p.expedicoes.mvps), "vezes MVP")}
+                </div>
+                {!!p.expedicoes.ultimas.length && (
+                  <p className="mt-3 flex flex-wrap gap-1.5 text-xs">
+                    {p.expedicoes.ultimas.map((u) => (
+                      <a key={u.numero} href={`/expedicoes/${u.numero}`} className="rounded-full border border-pedra-700 bg-pedra-800/60 px-2 py-0.5 hover:border-ouro">
+                        #{u.numero} · {u.posicao === 1 ? "🥇" : u.posicao === 2 ? "🥈" : u.posicao === 3 ? "🥉" : `${u.posicao}º`} <span className="text-pedra-500">de {u.total}</span>
+                      </a>
+                    ))}
+                  </p>
+                )}
+              </div>
+            )}
+
             {p.unica && (
               <div className="rounded-xl border border-ouro-escuro bg-gradient-to-r from-[#3a2c12] to-pedra-900 p-4">
                 <p className="text-xs uppercase tracking-wider text-ouro-escuro">Habilidade única · nível {p.unica.nivel}</p>

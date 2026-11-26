@@ -1,4 +1,5 @@
 import { personagensGuardados, porPersonagem } from "@/lib/personagens";
+import { expedicoesDoJogador, type ExpedicoesDoJogador } from "@/lib/expedicoes";
 import "server-only";
 import fs from "fs";
 import path from "path";
@@ -86,6 +87,7 @@ export type PerfilPublico = {
   temporada: { pts: number; posicao: number } | null;
   clas: { nome: string; cor: string; cargo: string }[];
   colecao: { criaturas: number; total: number; proximoMarco: number; chefes: string[] } | null;
+  expedicoes: ExpedicoesDoJogador | null;
 };
 /** Criatura do Códex no bestiário público. Enquanto ninguém a derrotou, só saem o tipo, a faixa de rank e onde aparece. */
 export type CriaturaPublica = {
@@ -454,6 +456,7 @@ export async function perfilPublico(nick: string, vagaPedida = 0): Promise<Perfi
       torre: placar[idJogo] ? { recorde: placar[idJogo].recorde ?? 0, abates: placar[idJogo].abates ?? 0 } : null,
       temporada: pos >= 0 ? { pts: pontos[pos][1].pts ?? 0, posicao: pos + 1 } : null,
       clas: meusClas,
+      expedicoes: await expedicoesDoJogador(contaUuid).catch(() => null),
       colecao: d.colecao && typeof d.colecao.criaturas === "number"
         ? { criaturas: d.colecao.criaturas, total: d.colecao.totalCriaturas ?? 0, proximoMarco: d.colecao.proximoMarco ?? 0, chefes: (d.colecao.chefes ?? []).filter((x) => typeof x === "string").slice(0, 40) }
         : null,

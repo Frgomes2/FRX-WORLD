@@ -1,0 +1,11 @@
+{
+  "type": "ringsofascension:rings_modifier",
+  "conditions": [
+    {
+      "condition": "random_chance",
+      "chance": 0.0
+    }
+  ],
+  "loot_tables": [],
+  "ring": "ringsofascension:ring_flight"
+}

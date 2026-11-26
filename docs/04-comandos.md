@@ -162,3 +162,17 @@
 | `/frx npc recriar <reino>` | Recria os NPCs de um reino sem precisar estar nele (funciona pelo console) |
 | `/frx npc aqui contrabandista` | Coloca o Contrabandista. Só funciona fora das capitais |
 | `/frx populacao refazer` | Remove os moradores carregados e povoa de novo |
+
+## Terras Inexploradas (3.0.0)
+
+- `/expedicao` (todos): expedição atual, troca e quanto falta. `/expedicao sair`: volta ao mundo principal.
+- Admin: `/expedicao info | portal | ir | abrir | fechar | trocar | historico`. Detalhes em [sistemas/expedicao.md](sistemas/expedicao.md).
+
+
+## Mapa (3.0.5)
+
+| Comando | O que faz |
+|---|---|
+| `/frx mapa pontos` | Lista os pontos globais do JourneyMap |
+| `/frx mapa limparpontos` | Apaga no servidor os pontos globais de reino, de teste e repetidos (apagar pelo mapa do jogo só tira da tela de quem apagou) |
+| `/frx mapa publicos` · `/frx mapa apagarpublico <n>` | Lista / apaga um ponto público de jogador (apaga também no JourneyMap do dono) |

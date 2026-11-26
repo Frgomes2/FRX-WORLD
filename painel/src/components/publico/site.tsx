@@ -191,7 +191,7 @@ function Clas({ clas, abrir }: { clas: DadosPublicos["clas"]; abrir: (n: string)
 
 /** Atalhos do cabeçalho: os principais ficam à vista; os outros, na lista "Mais". */
 const NAV_PRINCIPAL = [["#aventureiros", "Aventureiros"], ["#rankings", "Rankings"], ["#mural", "Mural"], ["#clas", "Clãs"], ["#mapa", "Mapa"], ["#biblioteca", "Biblioteca"]] as const;
-const NAV_MAIS = [["#armas", "Armas Únicas", "⚔️"], ["#agora", "Agora no servidor", "🟢"], ["#bestiario", "Bestiário", "🐉"], ["#mundo", "O mundo", "🌍"], ["#mods", "Mods", "🧩"], ["#cronicas", "Crônicas", "📜"], ["#novidades", "Novidades", "📰"], ["#entrar", "Como entrar", "🚪"]] as const;
+const NAV_MAIS = [["/expedicoes", "Expedições", "🧭"], ["#armas", "Armas Únicas", "⚔️"], ["#agora", "Agora no servidor", "🟢"], ["#bestiario", "Bestiário", "🐉"], ["#mundo", "O mundo", "🌍"], ["#mods", "Mods", "🧩"], ["#cronicas", "Crônicas", "📜"], ["#novidades", "Novidades", "📰"], ["#entrar", "Como entrar", "🚪"]] as const;
 
 export function SitePublico({ inicial, mods, mapa, notas, livros, bestiario }: { inicial: DadosPublicos | null; mods: ModPublico[]; mapa: MapaDados; notas: NotaAtualizacao[]; livros: Livro[]; bestiario: CriaturaPublica[] }) {
   const [todasNotas, setTodasNotas] = useState(false);

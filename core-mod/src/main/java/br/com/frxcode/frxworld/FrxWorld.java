@@ -127,6 +127,12 @@ public class FrxWorld {
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.reinos.Bencao());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.criaturas.Pokebola());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.acesso.ComandosArquivo());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.acesso.PreGeracao());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.aventura.Expedicao());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.armas.LaminasSamurai());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.protecao.VooAnel());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.habilidades.EscudoPaladino());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.protecao.PontosMapa());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.reinos.EntradasMasmorra());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.reinos.Portao());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.reinos.Casas());

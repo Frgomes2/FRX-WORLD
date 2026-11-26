@@ -244,6 +244,11 @@ public final class PainelApi {
         post("/api/servidor/codex", corpo).exceptionally(e -> null);
     }
 
+    /** Expedição (Terras Inexploradas): dados da expedição e estatísticas dos participantes. */
+    public static void enviarExpedicao(JsonObject corpo) {
+        post("/api/servidor/expedicoes", corpo).exceptionally(e -> null);
+    }
+
     /** Ficha completa de um jogador para a aba Jogadores. */
     public static void enviarDetalheJogador(JsonObject ficha) {
         post("/api/servidor/jogador-detalhe", ficha).exceptionally(e -> null);

@@ -810,6 +810,9 @@ public class Torre {
         return p.level().dimension() == net.minecraft.world.level.Level.OVERWORLD && (naSala(p.getBlockX(), p.getBlockZ()) || naTorre(p.blockPosition()));
     }
 
+    /** true se o jogador está subindo a Torre agora. */
+    public static boolean naTorre(Player p) { return corridaDe(p) != null; }
+
     private static Corrida corridaDe(Player p) {
         for (Corrida c : corridas.values()) if (c.membros.contains(p.getUUID())) return c;
         return null;

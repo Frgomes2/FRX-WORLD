@@ -100,3 +100,27 @@ Na sábia de Lubelius, Hinata Sakaguchi, opção "Pedir a bênção para a minha
 | Samurai | +0,6% de dano corpo a corpo | +12% |
 | Cartomante | 0,6% menos custo de recurso | 12% menos |
 
+## Lâminas do Epic Samurais (3.0.2)
+
+No mod original as katanas batem como espada de netherite. O core mod soma dano fixo na mão principal (aparece na descrição):
+
+| Arma | Dano a mais |
+|---|---|
+| Katana | +3 |
+| Katana de netherite | +4 |
+| Katanas de yokai (Oni, Kitsune, Onibi, Akaname, Jorogumo) | +5 |
+| Wakizashi / de netherite | +2 / +3 |
+| Odachi / de netherite | +3 / +4 |
+
+O Samurai ainda soma os 10% da Katana e o Saque. Para mudar os valores: `BONUS` em `armas/LaminasSamurai.java`.
+
+## Armaduras do Epic Samurais (3.0.5)
+
+Bônus por peça, somado ao do mod (`armaduras` em `armas/LaminasSamurai.java`):
+
+| Material | Armadura | Resistência | Vida | Contra repulsão |
+|---|---|---|---|---|
+| Ferro, ouro, aço, chapéu de palha | +1 | +0,5 | — | — |
+| Diamante, rubi, jade, água-marinha, prata, ônix, ametista, quartzo | +2 | +1,5 | +meio coração | — |
+| Netherite, Battlemage, Warden | +3 | +2,5 | +1 coração | +5% |
+

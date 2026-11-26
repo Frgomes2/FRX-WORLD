@@ -116,6 +116,11 @@ export async function livros(): Promise<Livro[]> {
           lista("Só o dono abre e quebra o baú trancado.", "Explosões não o destroem.", "Para destrancar, agachado, clique com um gancho de novo. O gancho usado volta para você."),
           nota("O gancho de armadilha é feito com um lingote de ferro, um graveto e uma tábua."),
         ] },
+        { titulo: "Pontos do mapa", blocos: [
+          p("Marque um ponto no seu JourneyMap como sempre e coloque no grupo Público (ou comece o nome com *). Em alguns segundos ele aparece no mapa de todos os jogadores. Só quem marcou pode apagar: apagou no seu mapa, some para todo mundo."),
+          tabela(["Rank", "F", "E", "D", "C", "B", "A", "S"], [["Pontos", "3", "4", "5", "6", "7", "8", "10"]]),
+          nota("Os reinos e os pórticos das masmorras já aparecem sozinhos no mapa."),
+        ] },
         { titulo: "Reinos", blocos: [
           p("O mundo tem oito reinos, cada um com rei, moradores, lojas, banqueiro, taverna e uma campanha própria. Alguns estão longe e ainda esperam ser encontrados."),
           lista("Reputação: ajudar um reino melhora os preços e libera itens, raças especiais, o Favor Real (Honrado) e o Corcel do reino (Reverenciado).", "Rivais: Lubelius e Lordes Demônios, Farmus e Tempest, Império do Leste e Sarion. Ajudar um desagrada o outro. Dwargon e Sakura são neutros.", "Má fama: Malvisto paga mais caro, Hostil não é atendido e é atacado pelos guardas, Inimigo tem a cabeça a prêmio. O rei aceita uma multa para limpar o nome.", "Contrabandista: fora das capitais, dá serviços contra os reinos e vende mercadoria só para quem tem má fama.", "Moradores: os lojistas lembram das suas compras e dão desconto a freguês. À noite a loja fica com o aprendiz, mais cara, e os mestres vão para a taverna, onde contam boatos e pedem favores.", "Ferreiro e armeiro são rivais: ajudar um dá desconto na loja dele e encarece a do outro.", "Encontros: longe das capitais, às vezes aparece um viajante ferido, um mercador perdido, uma estrela caída, um baú que foge ou um mensageiro com uma carta. São raros e nenhum obriga a lutar.", "Campanha do rei: cinco etapas. No fim, o rei faz uma cerimônia e concede um nome a você.", "Os moradores reagem a quem você é: rank, raça, título e nome mudam o jeito como falam."),
@@ -140,6 +145,11 @@ export async function livros(): Promise<Livro[]> {
             ["B", "68", "5.600", "5", "16"], ["A", "92", "9.000", "6", "34"], ["S", "114", "14.000", "7", "68"],
           ]),
         ] },
+        { titulo: "Anéis", blocos: [
+          p("Os espaços de anel crescem com o rank da Guilda. No Rank S cabem todos os 27 anéis. Subiu de rank, o espaço novo aparece na hora; se o rank liberar menos anéis do que você usa, os que sobram voltam para a mochila."),
+          tabela(["Rank", "F", "E", "D", "C", "B", "A", "S"], [["Anéis ao mesmo tempo", "2", "4", "7", "11", "15", "20", "27"], ["Corações do Anel de Vida", "2", "3", "4", "5", "6", "8", "10"]]),
+          lista("Não dá para usar dois anéis iguais ao mesmo tempo.", "Anel de Voo: só a partir do Rank B. Ele tem fôlego: 90 segundos de voo com a barra cheia, que enche de novo em 45 segundos com os pés no chão.", "O voo para por 5 segundos ao bater ou apanhar, e não funciona na Torre, em X1, na Fenda nem com um chefão por perto.", "O Anel de Voo só é encontrado nos baús do salão seguro do Labirinto do Dragão.", "Em qualquer duelo X1 os anéis saem no começo e voltam no fim."),
+        ] },
         { titulo: "Contratos da Guilda", blocos: [
           p("Todo dia a Guilda sorteia três contratos para você, e toda semana mais um. Eles contam sozinhos enquanto você joga e pagam na hora, sem entregar nada."),
           lista("Abra o quadro pelo botão Contratos do Cartão de Aventureiro ou no balcão da recepcionista.", "Cada cartão mostra o objetivo, a barra de progresso e a recompensa em moedas e experiência.", "Fechar os três do dia paga um extra.", "Os do dia renovam à meia-noite; o da semana, na segunda-feira.", "Quanto maior o seu rank, maior o alvo e o pagamento."),
@@ -150,7 +160,6 @@ export async function livros(): Promise<Livro[]> {
         ] },
         { titulo: "Classes de equipamento", blocos: [
           p("Toda arma, armadura, ferramenta, escudo e élitro tem uma classe, de F a S, mostrada na descrição do item. Só usa quem tem aquele rank. Guardar na mochila e nos baús é livre."),
-          nota("Anéis: você tem 10 espaços de anel, mas não pode usar dois anéis iguais ao mesmo tempo."),
           tabela(["Rank", "Pode usar até"], LETRAS.map((l, i) => [l, EQUIP[i]])),
           nota("Armadura acima do seu rank sai do corpo e volta para a mochila. Arma acima do rank não acerta ninguém, arco não dispara e ferramenta não minera. As lojas só mostram o que o seu rank já pode usar."),
         ] },
@@ -206,6 +215,11 @@ export async function livros(): Promise<Livro[]> {
           p("O sábio das capitais consegue tirar um encantamento de um item e guardá-lo num livro em branco. Depois, é só usar a bigorna para passar o livro para outro item."),
           lista("Converse com o sábio e escolha \"Extrair um encantamento\". Na bancada, coloque o item de um lado e um livro em branco (ou um livro encantado vazio) do outro, como na bigorna, e escolha qual encantamento vai para o livro.", "Custa caro: moedas (da bolsa e, se faltar, do banco), níveis de experiência e um livro. Afiação V, por exemplo, custa 100 ouro.", "Até o nível III sempre dá certo. No nível IV e acima pode falhar: o pagamento se perde, mas o item fica como estava.", "Relíquias do Códex e maldições não podem ter o encantamento extraído."),
         ] },
+        { titulo: "Bênção da Capitã Hinata", blocos: [
+          p("Em Lubelius, a Capitã Hinata abençoa a armadura que você está vestindo com um bônus da sua classe. São cinco graus; cada tentativa custa moedas e pode falhar."),
+          tabela(["Grau", "Chance", "Preço", "Pede também"], [["I", "100%", "10 ouro", "—"], ["II", "80%", "20 ouro", "—"], ["III", "60%", "40 ouro", "—"], ["IV", "40%", "80 ouro", "2 Escamas"], ["V", "20%", "150 ouro", "2 Essências e reputação Honrado"]]),
+          lista("O bônus segue a classe: roubo de vida no Guerreiro, dano à distância no Arqueiro, dano de habilidade no Mago, cura no Clérigo, esquiva no Ladino, crítico no Assassino, e assim por diante.", "Cada grau soma mais um pouco do mesmo bônus."),
+        ] },
         { titulo: "Lojas", blocos: [
           lista("Ferreiro: armas e ferramentas. Armeiro: armaduras e escudo. Mercador: utilidades. Cozinheiro: comida. Pedreiro: blocos.", "O estoque muda com o seu nível e, em parte, todo dia.", "Só aparecem equipamentos que o seu rank da Guilda já pode usar.", "Desconto: reputação no reino mais 2% por rank da Guilda."),
         ] },
@@ -260,6 +274,10 @@ export async function livros(): Promise<Livro[]> {
           lista("Na mesa, ponha a calça no espaço da peça. Serve qualquer calça, de couro a netherita.", "Cada bolso custa 2 de ouro. A calça aceita até 12 bolsos.", "Vestindo a calça, os bolsos aparecem dentro do próprio inventário, num painel à esquerda da mochila: é só clicar para guardar e pegar. Segurando Shift, o item volta direto para a mochila. A tecla O também abre os bolsos sem abrir o inventário.", "Caixas de shulker e outros itens que guardam itens não entram no bolso."),
           nota("Os bolsos ficam na calça, mas o que está dentro é do personagem. Se você tirar a calça ou vestir uma com menos bolsos, o que não couber volta para a mochila ou cai no chão. Ao morrer, o que está nos bolsos cai junto com a mochila."),
         ] },
+        { titulo: "Treinador de Criaturas", blocos: [
+          p("O Treinador vende pokébolas para guardar e carregar criaturas. Cada pokébola fica ligada a quem comprou: só o dono usa."),
+          lista("Até 10 pokébolas por jogador, cada uma mais cara que a anterior: de 5 ouro a primeira até 750 ouro a décima.", "Bicho domado seu entra sempre. Bicho selvagem com até 30 corações: 60% de chance, mais até 30% quanto mais ferido ele estiver.", "Não captura chefes, monstros, aldeões, golems, NPCs nem bichos dentro do terreno de outra pessoa.", "Perdeu uma? Um administrador pode devolver uma vazia sem contar no limite."),
+        ] },
         { titulo: "Criador de Dragões", blocos: [
           p("O Criador de Dragões vende ovos de dragão. São o item mais caro do reino: é coisa para quem já juntou uma fortuna."),
           tabela(["Dragão", "Raridade", "Preço em ouro"], [["Floresta", "★", "1.500"], ["Água", "★", "1.500"], ["Gelo", "★★", "2.000"], ["Fogo", "★★", "2.500"], ["Éter", "★★★", "4.000"], ["Nether", "★★★", "5.000"], ["Fantasma", "★★★★", "7.500"], ["Fim", "★★★★★", "12.000"]]),
@@ -305,6 +323,12 @@ export async function livros(): Promise<Livro[]> {
           ]),
           nota("A classe da armadura pede o mesmo rank da Guilda para vestir."),
         ] },
+        { titulo: "Equipamento samurai", blocos: [
+          p("As katanas e armaduras do mod Epic Samurais ganharam um reforço no FRX-WORLD."),
+          tabela(["Arma", "Dano a mais"], [["Katana", "+3"], ["Katana de netherite", "+4"], ["Katanas de yokai (Oni, Kitsune, Onibi, Akaname, Jorogumo)", "+5"], ["Wakizashi / de netherite", "+2 / +3"], ["Odachi / de netherite", "+3 / +4"]]),
+          tabela(["Armadura (por peça)", "Armadura", "Resistência", "Vida"], [["Ferro, ouro, aço, chapéu de palha", "+1", "+0,5", "—"], ["Diamante e pedras preciosas", "+2", "+1,5", "+½ coração"], ["Netherite, Battlemage e Warden", "+3", "+2,5", "+1 coração"]]),
+          nota("O Samurai ainda soma os 10% da katana e o Saque."),
+        ] },
         { titulo: "Conjuntos do FRX", blocos: [
           lista("Draconiana (4 peças): imune a fogo, e quem bate em você pega fogo.", "Abissal (4 peças): +4 corações e 12% de chance de esquivar de um golpe.", "Celestial (4 peças): sem dano de queda, efeitos ruins somem e a vida se recupera sem parar."),
         ] },
@@ -336,10 +360,26 @@ export async function livros(): Promise<Livro[]> {
         ] },
         { titulo: "Masmorras dos reinos", blocos: [
           p("Embaixo e perto dos reinos há masmorras fixas com chefes dos mods. São conteúdo de fim de jogo."),
-          lista("Os chefes de lá têm várias vezes a vida e o dano normais.", "Abaixo do nível 50, seus golpes mal arranham e os deles vêm em triplo."),
+          lista("Os chefes de lá têm várias vezes a vida e o dano normais.", "Abaixo do nível 50, seus golpes mal arranham e os deles vêm em triplo.", "Toda capital tem um pórtico roxo que leva à masmorra dela, marcado no mapa. Lá dentro, outro pórtico traz de volta.", "Chefe derrotado volta 7 dias depois. Enquanto isso, ao entrar na masmorra aparece no topo da tela quanto falta para ele voltar."),
         ] },
         { titulo: "Chefe mundial", blocos: [
           lista("Aparece em horários marcados, longe das capitais.", "Avisos com 10, 5 e 1 minuto de antecedência e barra de vida para todos.", "A recompensa é dividida pelo dano que cada um causou. Os três primeiros levam arma Épica ou Lendária."),
+        ] },
+      ],
+    },
+    {
+      id: "expedicoes", titulo: "Terras Inexploradas", subtitulo: "Uma terra nova a cada 2 dias", icone: "🧭", cor: "#2e5d3a", grupo: "Mundo",
+      paginas: [
+        { titulo: "A expedição", blocos: [
+          p("As Terras Inexploradas são um mundo à parte, como o Nether. A cada 2 dias, às 5h, abre uma área nova de 2000 × 2000 blocos, com terreno, estruturas e masmorras nunca vistos, inclusive o que os mods novos trouxerem."),
+          lista("Entrada pelo Pórtico das Terras Inexploradas, a partir do Rank D da Guilda. Volta pelo pórtico da chegada ou com /expedicao sair.", "Avisos 10 minutos e 1 minuto antes da troca. Na troca, quem estiver lá volta ao mundo principal com tudo o que carrega.", "/expedicao mostra o número da expedição e quanto falta para a troca."),
+        ] },
+        { titulo: "Regras de lá", blocos: [
+          lista("Cair na expedição não é morte: você volta ao mundo principal com todos os itens, mas espera 30 minutos para entrar de novo.", "Não funcionam portais de nenhum tipo, waystones, camas nem âncoras.", "Baús, construções e bichos deixados lá somem na troca.", "Chefes e baús de loot dão as recompensas normais."),
+        ] },
+        { titulo: "Ranking da expedição", blocos: [
+          p("Cada expedição tem seu ranking e o MVP. Contam a área explorada, as estruturas descobertas, os chefes derrotados, os baús de tesouro abertos e o tempo lá dentro; as quedas descontam."),
+          nota("Tudo aparece na página Expedições do site, com o histórico de todas e a seção de expedições na ficha de cada jogador."),
         ] },
       ],
     },
@@ -422,6 +462,10 @@ export async function livros(): Promise<Livro[]> {
             "Abaixo de 2/3 da vida ele vira Super Saiyajin; abaixo de 1/3 solta o Final Flash.",
             "Quem lutou e venceu ganha a raça Saiyajin."),
         ] },
+        { titulo: "Sala do Tempo", blocos: [
+          p("No fundo do salão do Templo Karin há uma passagem iluminada para a Sala do Tempo, um lugar de treino para quem já é Rank B."),
+          lista("30 minutos por dia para cada jogador; o tempo vira à meia-noite.", "Lá dentro a experiência vem em dobro, mas o dano que você leva também, e a fome corre mais rápido.", "Monstros de treino aparecem no nível do mais forte da sala e não deixam itens.", "Para sair, agache no círculo dourado do centro."),
+        ] },
       ],
     },
     {
@@ -471,6 +515,18 @@ export async function livros(): Promise<Livro[]> {
         { titulo: "Corridas", blocos: [
           p("Pistas a pé, a cavalo, de barco e de élitro. A largada é um anel de fogo no chão: fique nele do jeito certo (no cavalo, no barco...) e clique em [Iniciar corrida] no chat. A contagem de 5 segundos trava a montaria, e no \"Vai!\" estouram fogos."),
           lista("Siga a coluna de luz até cada ponto; o tempo aparece embaixo da tela. A chegada é dourada.", "Quem estiver na linha quando alguém clica em Iniciar larga junto: ganha quem cruzar primeiro, e o vencedor leva 5 ouro. Uma largada por vez em cada pista. Descer da montaria, teleportar, sair do mundo ou passar do tempo máximo cancela a corrida.", "A primeira chegada do dia em cada pista paga 2 ouro; bater o recorde da pista, 10 ouro.", "Os melhores tempos ficam no site. /corridas lista as pistas e onde fica cada largada."),
+        ] },
+        { titulo: "Titã à solta", blocos: [
+          p("Uma vez por dia, com 3 ou mais jogadores online, um titã gigante nasce longe das muralhas de Lubelius e marcha até a capital. Todo mundo vê no mapa onde ele está e de onde veio."),
+          lista("Ele tem 5.000 de vida e só jogadores o ferem. Golpe na nuca, por trás e bem do alto, vale o triplo.", "A cada 20% de vida perdida ele cambaleia e fica parado alguns segundos.", "Perto dos pés, cuidado com o pisão: um anel de fogo avisa antes.", "Vitória: ouro, experiência e reputação em Lubelius para todos que lutaram, com prêmio maior para quem mais feriu.", "Derrota: se ele chegar às muralhas, as lojas de Lubelius ficam 30 minutos fechadas."),
+        ] },
+        { titulo: "O caderno negro", blocos: [
+          p("Muito de vez em quando, um caderno negro cai do céu, e todos recebem as coordenadas. Quem pegar tem 30 minutos para escrever um nome."),
+          lista("O nome escrito invoca a Morte perto daquela pessoa. Ela tem duas formas, só ataca o alvo e o persegue até matar ou cair.", "Qualquer um pode ajudar a derrotá-la.", "Morrer caçado pela Morte não custa nada: itens, experiência e nível voltam."),
+        ] },
+        { titulo: "Duelos X1", blocos: [
+          p("Na aba X1 do inventário você desafia alguém para um duelo numa arena. As regras são combinadas no desafio e ninguém perde nada de verdade: a morte é falsa e tudo volta como estava no fim."),
+          lista("Regras: com ou sem habilidades, itens do personagem ou kit sorteado, com ou sem poções, vida igual para os dois, luta única ou melhor de 3.", "Aposta opcional: moedas ou o item que cada um segura.", "Os anéis saem em qualquer duelo e voltam no fim. Com kit sorteado saem todos os acessórios.", "Os placares de quem mais venceu aparecem no site."),
         ] },
         { titulo: "Mapas do tesouro", blocos: [
           p("O mapa dá uma pista de distância e direção. Com ele na mão, o botão direito diz se está frio, morno ou pelando. Perto o bastante, o baú aparece."),

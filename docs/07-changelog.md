@@ -6,6 +6,60 @@ Formato: versão, depois o que entrou. A versão do mod fica em `core-mod/gradle
 
 > **Situação dos testes (10/11/2026):** a última versão compilada e testada no PC é a **0.33.0** (`pack/mods/frxworld-0.33.0.jar`). As versões **0.34 a 0.40** ainda não rodaram no jogo. O roteiro de teste está no checklist "FRX-WORLD — Checklist de testes".
 
+## 3.0.6 (26/11) — Pontos públicos no mapa
+
+- Docs: `README.md` virou a vitrine do projeto (o que tem no mundo, como entrar, pastas); o passo a passo de instalação foi para `docs/00-instalacao.md`.
+- `protecao/PontosMapa.java`: a cada 10 s lê pela API de servidor do JourneyMap os pontos de cada jogador online que estão no grupo "Público" (criado pelo mod para cada um) ou com nome começando por "*", só no mundo normal; desenha para os outros (`MapaJm`, id `pub_<dono>_<guid>`) e tira quando o dono apaga. Limite por rank (F 3, E 4, D 5, C 6, B 7, A 8, S 10). Guardado em `<mundo>/frx_pontos_mapa.json`. Admin: `/frx mapa publicos`, `/frx mapa apagarpublico <n>`.
+
+## 3.0.5 (26/11) — Armaduras samurai, Paladino com escudo e reinos no mapa
+
+- `LaminasSamurai.armaduras`: bônus por peça nas armaduras do Samurai Dynasty pelo material (comum: +1 armadura e 0,5 resistência; joia: +2, +1,5, +meio coração; suprema — netherite, Battlemage, Warden: +3, +2,5, +1 coração, +5% contra repulsão).
+- `habilidades/EscudoPaladino.java`: Paladino com escudo na mão leva 15% menos dano; bloqueio devolve 30% do golpe corpo a corpo e cura meio coração (até 2 por segundo).
+- `protecao/PontosMapa.java`: `/frx mapa pontos` e `/frx mapa limparpontos` (apaga no servidor os pontos globais do JourneyMap de reino, de teste e repetidos).
+- Biblioteca (`painel/src/lib/livros.ts`): livro "Terras Inexploradas"; páginas Anéis (Guilda), Bênção da Capitã Hinata (Economia), Treinador de Criaturas (Terras), Equipamento samurai (Depois do Netherite), Sala do Tempo (Raças), Titã, caderno negro e Duelos X1 (Eventos); masmorras dos reinos com pórticos e renascimento. Migração `20261126140000_descricoes_assassino` (Passo Fantasma e Mil Cortes).
+- `EntradasMasmorra.marcarReinos`: contorno e nome de cada capital no JourneyMap de todos (`MapaJm`, id `reino_<id>`), uma vez por sessão.
+
+## 3.0.4 (26/11) — Anéis, habilidades e Assassino
+
+- `Habilidades.domado`: habilidades (e o Despertar) não acertam TamableAnimal domado, cavalo/lhama domados, OwnableEntity com dono nem NPCs (`frx_npc`, `frx_cidadao`).
+- Assassino (`Especiais`): `atordoar` (o alvo não ataca por ~1 s); Passo Fantasma atordoa; Mil Cortes (código `mil_cortes`) virou 6 golpes em volta do alvo (atrás, lados, frente), dividindo o dano; Dança da Morte com um salto a cada 6 ticks, rastro de sombra, partículas e volta com rastro; erros agora vão para o log.
+
+- Anel de Vida: `ringHealthHearts = 0` no `ringsofascension-common.toml`; `AneisUnicos.vidaDoAnel` dá a vida pelo rank da Guilda (F 2, E 3, D 4, C 5, B 6, A 8, S 10 corações), conferido a cada 2 s.
+
+- Tabela `frxworld:chests/labirinto_salao` (a de chefe de masmorra com o Anel de Voo), usada pelos 2 baús Lootr de chefe do salão seguro do Labirinto (1304, 65, 1783 e 1785).
+- `frxworld:chests/masmorra_chefe` sem o Anel de Voo.
+- `server/kubejs/data/ringsofascension/loot_modifiers/mythic/flight.json`: desliga a chance de 1% do anel nos baús das cidades do End.
+
+## 3.0.3 (26/11) — Anéis por rank e voo com fôlego
+
+- X1: em duelo sem kit, os anéis (espaço `ring` do Curios) saem na foto (`aneis`) e voltam no fim; com kit sorteado continuam saindo todos os acessórios.
+- `protecao/VooAnel.java`: fôlego de voo igual para todas as classes (90 s de voo, recarga em 45 s no chão, volta a voar com 25%); combate (bater ou apanhar de criatura/jogador) corta o voo por 5 s; sem voo na Torre, em X1, na Fenda e com chefão a até 48 blocos. Só derruba o voo em andamento (o anel reativa o "pode voar" a cada tick). Voo de outra fonte (forma de ave do Druida) não é afetado.
+
+- `ring.json` do Curios: 27 espaços (todos os anéis do Rings of Ascension).
+- `AneisUnicos`: modificador permanente de espaços por rank da Guilda (F 2, E 4, D 7, C 11, B 15, A 20, S 27; admin no criativo 27). Ajusta ao entrar e a cada 2 s (subiu de rank, libera na hora); ao diminuir, junta os anéis nos primeiros espaços e devolve o resto à mochila antes de o Curios encolher.
+
+## 3.0.2 (26/11) — Katanas mais fortes
+
+- `armas/LaminasSamurai.java`: dano a mais na mão principal para as lâminas do Samurai Dynasty (Epic Samurais): katana +3, katana de netherite +4, katanas de yokai +5, wakizashi +2/+3, odachi +3/+4. Raridade e forja seguem calculadas sobre o dano original.
+
+## 3.0.1 (26/11) — Expedições no site
+
+- Mod: estatísticas por conta em cada expedição (tempo, chunks diferentes, estruturas descobertas, chefes, baús Lootr, quedas), guardadas em `frx_expedicao_stats.json` e enviadas ao painel (`POST /api/servidor/expedicoes`) a cada minuto com gente lá e no fechamento da troca.
+- Banco: `Expedicao` (com tipo, nome, descrição, modificadores e regras para expedições especiais) e `ParticipacaoExpedicao` (ligada ao uuid do `Jogador`).
+- Site: `/expedicoes` (atual, contagem pelo relógio do servidor, quem está lá, ranking, números gerais, histórico) e `/expedicoes/[numero]` (detalhes, destaques, ranking). Ficha do jogador com a seção Expedições. Pesos do MVP na Configuracao `expedicao_pesos`.
+
+## 3.0.0 (26/11) — Terras Inexploradas
+
+- Mundo `frxworld:expedicao` (geração do Mundo Normal) e `aventura/Expedicao.java`: área nova de 2000 × 2000 a cada 2 dias às 05:00, troca ao vivo ou ao ligar, limpeza das regiões velhas ao ligar, pré-geração com o Chunky.
+- Pórtico de entrada (Rank D+) e de volta; morte lá volta com os itens e bloqueia 30 min; portais, waystones, camas e âncoras bloqueados lá.
+- Comando `/expedicao` (info, sair, portal, ir, abrir, fechar, trocar, historico). Começa fechada.
+
+## 2.0.16 (26/11) — Pré-geração com o servidor vazio
+
+- Tarefa do Chunky no Mundo Normal: quadrado de raio 5000 centrado em 0,0 (todos os reinos e a volta). Os ±3000 já estavam gerados.
+- Mods novos: Fossils and Archeology: Revival (com TerraBlender e More Hitboxes). O Jurassic Saga chegou a entrar, mas derrubou o servidor ao gerar terreno ("Feature order cycle" com os biomas do Terralith) e foi retirado. A pré-geração foi retomada depois deles, para os fósseis aparecerem na faixa nova.
+- `acesso/PreGeracao.java`: `chunky pause` quando alguém entra; `chunky continue` depois de 2 minutos com o servidor vazio.
+
 ## 2.0.15 (26/11) — Reiniciar só o painel
 
 - `reiniciar-painel.bat` (novo): confere o código do painel (`tsc`; com erro, cancela e o painel atual fica no ar), avisa a sentinela, fecha só os processos do painel (porta 3000 e `npm run start`/`next start`, nunca o Java), compila se o código mudou, sobe o painel, que assume o jogo, e liga uma sentinela nova. Registra em `logs/agente-eventos.log`.

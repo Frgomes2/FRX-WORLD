@@ -601,8 +601,19 @@ public class Habilidades {
             ServerPlayer dono = e.getPersistentData().hasUUID("frx_dono") && p != null ? p.server.getPlayerList().getPlayer(e.getPersistentData().getUUID("frx_dono")) : null;
             return dono != null && dono != p && Sombras.pvp(dono) && p.server.isPvpAllowed();
         }
-        if (e instanceof TamableAnimal t && t.isTame()) return false;
+        if (domado(e)) return false;
         return !(e instanceof IronGolem g && g.isPlayerCreated());
+    }
+
+    /**
+     * Bicho de jogador: domado (lobo, gato, dragão do Ice and Fire...), cavalo/lhama domados, qualquer criatura de mod
+     * com dono (OwnableEntity) e NPCs do servidor. Habilidade nunca acerta esses.
+     */
+    public static boolean domado(LivingEntity e) {
+        if (e instanceof TamableAnimal t && t.isTame()) return true;
+        if (e instanceof net.minecraft.world.entity.animal.horse.AbstractHorse c && c.isTamed()) return true;
+        if (e instanceof net.minecraft.world.entity.OwnableEntity o && o.getOwnerUUID() != null) return true;
+        return e.getTags().contains("frx_npc") || e.getTags().contains("frx_cidadao");
     }
 
     static LivingEntity mirar(ServerPlayer p, double alcance, double folga, boolean aliados) {

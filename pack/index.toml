@@ -52,7 +52,7 @@ metafile = true
 
 [[files]]
 file = "mods/architectury-api.pw.toml"
-hash = "5e9edd1fd2395f14a0c8a4acbdbdd61e1047be1f0033deb3140d2ce0d093e9d8"
+hash = "4e81241ba2da06f425efc5e09fb6b38470125c1581c39e1310c5843a0b96ec76"
 metafile = true
 
 [[files]]
@@ -281,13 +281,18 @@ hash = "902bac905b93271f02bd0951a22bac06a3da24f5c237fcaeb469e14a7679e508"
 metafile = true
 
 [[files]]
+file = "mods/fossils-and-archeology-revival.pw.toml"
+hash = "cb875171dd2439cde172143e088b8c75550b1e4593ae8479a3122e5ebd973b78"
+metafile = true
+
+[[files]]
 file = "mods/fragmentum.pw.toml"
 hash = "dd7c74c71d3facf74a684055b546cef5430b06b18dfe85cf8761b61ee9c92881"
 metafile = true
 
 [[files]]
-file = "mods/frxworld-2.0.14.jar"
-hash = "a6fd0eea83fe47da4884d9d429435d9191781ee122ec339ba3b5f868c1c5ac0a"
+file = "mods/frxworld-3.0.6.jar"
+hash = "4997538536fa6909e2ffd32837c50da1a752eaf5eb972e447da7173c8d6e9995"
 
 [[files]]
 file = "mods/ftb-library-forge.pw.toml"
@@ -480,6 +485,11 @@ hash = "75e054a74743fc397cb7b1a0ce16d5456cb895a1f4c188e1278068577aa56739"
 metafile = true
 
 [[files]]
+file = "mods/more-hitboxes.pw.toml"
+hash = "00d3f0aa041f2f6177cea20f3f21984e516c87a42fd332ea0a135315f1e666dc"
+metafile = true
+
+[[files]]
 file = "mods/mowzies-mobs.pw.toml"
 hash = "0e6b04ea03c95a193b564aee5c67b8912c52c1de61cd2bd43222c494e26bbbe9"
 metafile = true
@@ -652,6 +662,11 @@ metafile = true
 [[files]]
 file = "mods/sword-blocking-mechanics.pw.toml"
 hash = "3e3dd49761c7fdf67a2ebbb4b5d3da6ad763a62b8b20164c0863e9dce05cc828"
+metafile = true
+
+[[files]]
+file = "mods/terrablender.pw.toml"
+hash = "64c3a0ec2e1a1759bda925487c525944d5d3877b73710805024bca6893bab1d3"
 metafile = true
 
 [[files]]

@@ -619,8 +619,21 @@ public class EntradasMasmorra {
         return "pórtico " + (achado.meio() == 3 ? "7×7" : achado.meio() == 2 ? "5×5" : "3×3") + " em " + rr.id() + ": " + lugar.getX() + ", " + lugar.getY() + ", " + lugar.getZ() + nota;
     }
 
+    /**
+     * Os reinos no mapa de todo jogador: o contorno da capital com o nome (pelo nosso desenho no JourneyMap, que aparece
+     * para todos; os pontos globais do JourneyMap às vezes não chegavam aos outros jogadores).
+     */
+    private static void marcarReinos(ServerPlayer p) {
+        for (Reino r : Reinos.todos()) {
+            int x0 = r.chunkX0() << 4, z0 = r.chunkZ0() << 4;
+            int x1 = x0 + r.larguraChunks() * 16 - 1, z1 = z0 + r.profundidadeChunks() * 16 - 1;
+            br.com.frxcode.frxworld.protecao.MapaJm.mostrar(p, "reino_" + r.id(), x0, z0, x1, z1, 0xD4A93A, 0.08f, "👑 " + r.nome(), r.nome());
+        }
+    }
+
     /** Marca no mapa (JourneyMap) de um jogador os pórticos das masmorras que ficam nos reinos. */
     private static void marcarNoMapa(ServerPlayer p) {
+        marcarReinos(p);
         for (Entrada e : ENTRADAS.values()) {
             BlockPos k = portalNoReino(e);
             if (k == null) continue;

@@ -16,7 +16,71 @@ export type NotaAtualizacao = { versao: string; data: string; hora?: string; tit
 
 export const NOTAS: NotaAtualizacao[] = [
   {
-    versao: "2.0.15", data: "26/11/2026", hora: "", titulo: "Reiniciar só o painel",
+    versao: "3.0.6", data: "26/11/2026", hora: "14:00:00", titulo: "Pontos públicos no mapa",
+    itens: [
+      "Marque um ponto no JourneyMap como sempre e coloque no grupo Público (ou comece o nome com *): ele aparece no mapa de todos os jogadores.",
+      "Só quem marcou pode apagar: apagou no seu JourneyMap, some para todo mundo. O número de pontos públicos cresce com o rank da Guilda: 3 no F, 4 no E, 5 no D, 6 no C, 7 no B, 8 no A e 10 no S.",
+    ],
+  },
+  {
+    versao: "3.0.5", data: "26/11/2026", hora: "13:37:00", titulo: "Armaduras samurai, Paladino com escudo e reinos no mapa",
+    itens: [
+      "Armaduras do Epic Samurais mais fortes: as de ferro, ouro e aço ganham +1 de armadura por peça; as de diamante e pedras preciosas, +2 de armadura, resistência e vida; as de netherite, Battlemage e Warden, +3 de armadura, resistência, 1 coração e resistência a empurrão por peça.",
+      "Paladino com escudo na mão leva 15% menos dano, e cada golpe bloqueado devolve 30% do dano a quem atacou e cura meio coração.",
+      "Os reinos aparecem no mapa de todos os jogadores, com o contorno e o nome da capital.",
+      "Biblioteca do site atualizada: livro novo das Terras Inexploradas e páginas de anéis por rank, Bênção da Hinata, Treinador de Criaturas, equipamento samurai, Sala do Tempo, Titã, caderno negro, duelos X1 e masmorras dos reinos.",
+    ],
+  },
+  {
+    versao: "3.0.4", data: "26/11/2026", hora: "12:21:00", titulo: "Anéis, habilidades e Assassino",
+    itens: [
+      "O Anel de Voo agora só aparece nos baús do salão seguro do Labirinto do Dragão. Ele não sai mais nos baús de chefe das masmorras nem nas cidades do End.",
+      "Anel de Vida pelo rank da Guilda: dá 2 corações no rank F, 3 no E, 4 no D, 5 no C, 6 no B, 8 no A e 10 no S.",
+      "Habilidades não acertam mais bichos de jogador: animais domados, cavalos, dragões e criaturas de mods com dono, além dos NPCs.",
+      "Assassino: o Passo Fantasma deixa o alvo atordoado por um instante, sem o contragolpe na hora. Mil Cortes agora some e reaparece em volta do alvo, golpeando 6 vezes. A Dança da Morte ficou mais visível, com rastro de sombra entre os saltos.",
+    ],
+  },
+  {
+    versao: "3.0.3", data: "26/11/2026", hora: "12:08:00", titulo: "Anéis por rank e voo com fôlego",
+    itens: [
+      "Os espaços de anel agora crescem com o rank da Guilda: F 2, E 4, D 7, C 11, B 15, A 20 e S 27. No rank S dá para usar todos os 27 anéis ao mesmo tempo.",
+      "Se o seu rank libera menos anéis do que você usava, os que sobrarem voltam para a mochila. Subir de rank libera os espaços na hora.",
+      "Anel de Voo com fôlego: 90 segundos de voo com o fôlego cheio, que enche de novo em 45 segundos com os pés no chão. Vale igual para todas as classes.",
+      "O voo também para por 5 segundos ao bater ou apanhar, e não funciona na Torre, em X1, na Fenda nem com um chefão por perto.",
+      "X1: os anéis agora saem em qualquer duelo, não só no de kit sorteado, e voltam no fim.",
+    ],
+  },
+  {
+    versao: "3.0.2", data: "26/11/2026", hora: "11:44:00", titulo: "Katanas mais fortes",
+    itens: [
+      "As katanas, wakizashis e odachis do Epic Samurais batem mais forte: +3 de dano na katana comum, +4 na de netherite e +5 nas katanas de yokai (Oni, Kitsune, Onibi, Akaname e Jorogumo).",
+    ],
+  },
+  {
+    versao: "3.0.1", data: "26/11/2026", hora: "10:59:00", titulo: "Expedições no site",
+    itens: [
+      "Nova página Expedições no site: a expedição atual, a contagem para a próxima, quem está lá agora, o ranking e o histórico de todas.",
+      "Cada expedição tem seu ranking e o MVP, com área explorada, estruturas descobertas, chefes, baús de tesouro e quedas.",
+      "A ficha de cada jogador agora mostra as expedições: participações, estruturas, chefes, área explorada, vezes MVP e as últimas colocações.",
+    ],
+  },
+  {
+    versao: "3.0.0", data: "26/11/2026", hora: "10:21:00", titulo: "Terras Inexploradas",
+    itens: [
+      "Novo mundo de expedição: uma área de terras nunca vistas, renovada a cada 2 dias às 5h, com estruturas e masmorras novas. Entrada pelo pórtico das Terras Inexploradas, a partir do Rank D da Guilda.",
+      "Cair na expedição não tira seus itens: você volta ao mundo principal e espera 30 minutos para entrar de novo. Lá não funcionam portais, camas nem waystones, e tudo o que for construído some na troca.",
+      "Use /expedicao para ver a expedição atual e quanto falta para a troca.",
+    ],
+  },
+  {
+    versao: "2.0.16", data: "26/11/2026", hora: "09:44:00", titulo: "Mapa pré-gerado",
+    itens: [
+      "O mundo em volta dos reinos (10 mil por 10 mil blocos) está sendo gerado antes, com o servidor vazio. Explorar essa área fica mais leve e sem travadas.",
+      "A geração pausa sozinha quando alguém entra e continua quando o servidor fica vazio.",
+    ],
+  },
+  {
+    versao: "2.0.15", data: "26/11/2026", hora: "09:44:00", titulo: "Reiniciar só o painel",
     itens: [
       "Atualizações do site e do painel agora podem entrar sem reiniciar o jogo: o painel reinicia sozinho e ninguém é desconectado.",
     ],

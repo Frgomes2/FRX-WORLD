@@ -66,3 +66,10 @@ Dentro de terreno comprado, quem não é dono nem foi liberado não quebra, não
 - Tirar ou pôr peças num suporte de armadura segue a mesma permissão dos baús (**usar**).
 - Bater, atirar ou explodir: dentro do terreno, só quem pode **quebrar** derruba suporte de armadura, moldura ou quadro. Flecha de monstro, explosão, fogo, lava e afins não destroem essas decorações.
 
+## Pontos públicos no mapa (3.0.6)
+
+- O jogador marca o ponto no próprio JourneyMap e escolhe o grupo **Público** (o mod cria esse grupo para cada um) ou começa o nome com `*`.
+- Em até 10 s o ponto aparece no mapa e no minimapa de todos (desenho do nosso mod). Apagou no JourneyMap dele, some para todos. Os outros não apagam: o ponto é do dono. Admin apaga com `/frx mapa apagarpublico <n>`.
+- Limite pelo rank da Guilda: F 3, E 4, D 5, C 6, B 7, A 8, S 10 (os excedentes não aparecem para os outros). Só no mundo normal.
+- Os pontos globais do próprio JourneyMap continuam só para admin (`/frx mapa pontos`, `/frx mapa limparpontos`).
+

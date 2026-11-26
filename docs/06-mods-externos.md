@@ -77,7 +77,7 @@ O pack é gerenciado pelo **packwiz** em `pack/`. Cada mod é um `mods/<slug>.pw
 
 Ajustes em mods que já estavam no pack:
 
-- **Curios:** 15 espaços de anel (`server/kubejs/data/frxworld/curios/slots/ring.json`).
+- **Curios:** até 27 espaços de anel (`server/kubejs/data/frxworld/curios/slots/ring.json`), liberados pelo rank da Guilda: F 2, E 4, D 7, C 11, B 15, A 20, S 27 (`protecao/AneisUnicos.java`). Sem anéis iguais ao mesmo tempo; Anel de Voo só a partir do rank B, com fôlego de voo (90 s, recarga de 45 s no chão), cortado por 5 s em combate e sem efeito na Torre, X1, Fenda e perto de chefão (`protecao/VooAnel.java`). Anel de Voo só nos baús do salão do Labirinto. Anel de Vida pelo rank (F 2, E 3, D 4, C 5, B 6, A 8, S 10 corações; `ringHealthHearts = 0` no config do mod).
 - **JourneyMap:** os marcadores de waypoint não aparecem mais flutuando no jogo, só no mapa (`showInGameBeacons false` em `server/journeymap/server/6.0/journeymap.server.global.config`).
 - **The Graveyard:** névoa desligada (`fogParticles.enabled false` em `server/config/graveyard/graveyard.json5`; o AutoModpack envia o arquivo aos clientes).
 - **Ice and Fire:** dragões não quebram blocos (`"Dragon Griefing" = 2` em `server/config/iceandfire-common.toml`).
@@ -147,4 +147,9 @@ Escolhidos do top 100 do CurseForge (Forge 1.20.1, por popularidade).
 | AllTheLeaks | CurseForge `alltheleaks` (só lá) | os dois | Corrige vazamentos de memória de vários mods e do Forge |
 
 - Ficaram de fora da lista: Xaero's (já temos JourneyMap), Oculus (pesado), Essential (contas e loja próprias), Comforts (o Traveler's Backpack já tem saco de dormir), Nature's Compass e Explorer's Compass (tiram a graça de explorar).
+
+## Dinossauros (26/11)
+
+- **Fossils and Archeology: Revival** (Modrinth `fossils-and-archeology-revival`): fósseis no terreno, extração de DNA, embriões e ovos; mais de 60 criaturas pré-históricas e bioma de vulcão. Dependências: TerraBlender e More Hitboxes.
+- **Jurassic Saga**: testado e retirado no mesmo dia. Com Terralith e The Rings of Power no pack, derruba o servidor ao gerar terreno novo ("Feature order cycle found"). Não readicionar sem testar num mundo de teste.
 

@@ -87,3 +87,10 @@ A lista de Jogadores, o Dinheiro e os rankings da Visão geral mostram uma linha
 **Memória e processador no topo do site**: os quadros do topo mostram o uso de memória do servidor do jogo (o que o mod informa a cada 10 s: usada sobre o máximo da JVM) e o uso do processador da máquina (`usoCpu()` em `src/lib/status-servidor.ts`, medido pelo próprio painel entre uma consulta e a seguinte). Só aparecem com o servidor ligado.
 
 **Teste de conexão (`/admin/servidor`, aba Teste de conexão)**: para quando reclamarem de lag. Mostra o ping de cada jogador online, com média, melhor, pior e gráfico dos últimos 30 minutos, e a saúde do servidor. "Rodar teste" mede por 1 minuto e dá o parecer: se o TPS caiu, o problema é o servidor; se o servidor está leve e todos têm ping alto, é o túnel do playit ou a internet do PC; se só alguns têm ping alto, é a internet deles. O ping vem do próprio jogo (o mod manda a cada 10 s), sem precisar de comando.
+
+## Expedições (site público, 3.0.1)
+
+- `/expedicoes` e `/expedicoes/<número>`: Terras Inexploradas (detalhes em [sistemas/expedicao.md](sistemas/expedicao.md)). Link "Expedições" no menu "Mais" do site.
+- APIs: `POST /api/servidor/expedicoes` (servidor, com token) e `GET /api/publico/expedicoes` (atual, histórico, números e o relógio do servidor).
+- Pesos do MVP: Configuracao `expedicao_pesos`.
+

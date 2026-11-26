@@ -157,3 +157,16 @@ O Minecraft limita a armadura a 30; o mod sobe o limite para **100** (servidor e
 ## Dano em jogadores (habilidades)
 
 Na janela de Habilidades, o botão **Dano em jogadores** (canto inferior esquerdo) liga ou desliga, por jogador, se as habilidades e o Despertar dele ferem outros jogadores. Desligado por padrão. Ligado, vale para qualquer jogador, inclusive do mesmo clã, desde que o PvP do servidor esteja ativo. O roubo do Ladino continua só em criaturas. As invocações têm o botão próprio no menu do Exército.
+
+## Alvos e Assassino (3.0.4)
+
+- Nenhuma habilidade acerta bicho de jogador: domados (lobo, gato, papagaio, dragões), cavalos e lhamas domados, criaturas de mods com dono e NPCs do servidor. Invocações de outro jogador só em PvP, como antes.
+- **Passo Fantasma:** depois do golpe pelas costas o alvo fica atordoado ~1 s (não ataca e fica lento).
+- **Mil Cortes (ultimate):** some e reaparece em volta do alvo 6 vezes (atrás, esquerda, direita, frente, esquerda, atrás), um golpe em cada; o dano da habilidade é dividido entre os golpes, com o último mais forte. Resistência alta durante a rajada.
+- **Dança da Morte (ultimate):** um salto a cada 0,3 s entre até 6 inimigos, com rastro de sombra, e volta ao ponto de partida.
+
+## Paladino com escudo (3.0.5)
+
+- Escudo na mão (qualquer escudo, inclusive os do Shield Expansion): 15% menos dano recebido.
+- Bloquear: devolve 30% do dano bloqueado a quem atacou corpo a corpo e cura meio coração (no máximo 2 vezes por segundo). Código: `habilidades/EscudoPaladino.java`.
+

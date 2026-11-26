@@ -1,7 +1,7 @@
 # FRX-WORLD — Documentação (índice principal)
 
 > Modpack MMORPG para **Minecraft 1.20.1 / Forge 47.4.10**, com core mod próprio (`frxworld`) e painel administrativo em Next.js.
-> Versão atual do core mod: **2.0.15**. Regra: cada atualização comum soma 1 no último número (0.41.8 → 0.41.9 → 0.42.0); só uma mudança muito grande abre uma versão cheia (1.0.0). As notas do site (`painel/src/lib/notas.ts`) levam o mesmo número.
+> Versão atual do core mod: **3.0.6**. Regra: cada atualização comum soma 1 no último número (0.41.8 → 0.41.9 → 0.42.0); só uma mudança muito grande abre uma versão cheia (1.0.0). As notas do site (`painel/src/lib/notas.ts`) levam o mesmo número.
 
 Este é o ponto de entrada de toda a documentação. Cada arquivo cobre um assunto; comece por aqui e siga os links.
 
@@ -9,6 +9,7 @@ Este é o ponto de entrada de toda a documentação. Cada arquivo cobre um assun
 
 | # | Documento | Para que serve |
 |---|---|---|
+| 00 | [Instalação do zero](00-instalacao.md) | Pré-requisitos e passo a passo para montar banco, painel, core mod, servidor e pack |
 | 01 | [Visão geral](01-visao-geral.md) | O que é o FRX-WORLD, pilares de design e a cadeia de sistemas |
 | 02 | [Arquitetura](02-arquitetura.md) | Pastas do repositório, pacotes do mod, rede, painel, banco e integrações |
 | 03 | [Operação](03-operacao.md) | Atalhos de ligar/desligar, compilação, pack (packwiz), versões, sincronização |
@@ -36,6 +37,7 @@ Na ordem da cadeia de progressão:
 | Economia, moedas, lojas e banco | [sistemas/economia.md](sistemas/economia.md) |
 | Imersão: Sistema, Guilda, habilidade única/suprema, nomeação, NPCs reativos, portais e bestiário | [sistemas/imersao.md](sistemas/imersao.md) |
 | Aventura: história principal, temporadas, procurados, Torre Infinita, eventos do céu e mapas do tesouro | [sistemas/aventura.md](sistemas/aventura.md) |
+| Terras Inexploradas: mundo de expedição renovado a cada 2 dias | [sistemas/expedicao.md](sistemas/expedicao.md) |
 | X1: duelo combinado em arena (regras, aposta, plateia, placar) | [sistemas/x1.md](sistemas/x1.md) |
 | Códex de Armas: armas únicas criadas no painel, com total no mundo, evolução e aparência própria | [sistemas/codex-armas.md](sistemas/codex-armas.md) |
 | Códex de Criaturas: chefes e monstros criados no painel, com golpes, lugares, recompensas e skin própria | [sistemas/codex-criaturas.md](sistemas/codex-criaturas.md) |

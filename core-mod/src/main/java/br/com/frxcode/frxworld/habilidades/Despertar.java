@@ -160,7 +160,7 @@ public class Despertar {
 
     static boolean aliado(LivingEntity e) {
         return e instanceof Player || e instanceof AbstractVillager || e.getTags().contains(Habilidades.TAG_INVOCADO)
-                || e.getTags().contains("frx_npc") || e.getTags().contains("frx_cidadao") || (e instanceof TamableAnimal t && t.isTame());
+                || Habilidades.domado(e);
     }
 
     static boolean inimigo(LivingEntity e) {

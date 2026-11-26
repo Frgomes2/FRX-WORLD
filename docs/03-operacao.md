@@ -176,3 +176,16 @@ O painel é um programa só: site público, admin e páginas dos jogadores. Para
 
 O .bat confere o código antes (com erro, não mexe em nada), fecha só o painel, compila se precisar, sobe de novo e o painel assume o jogo. O site fica fora por 1 a 3 minutos (mais se compilar); os jogadores continuam no jogo.
 
+## Pré-geração do mapa (Chunky)
+
+- O Chunky (só no servidor) gera o terreno antes de alguém explorar. As tarefas ficam em `server/config/chunky/tasks/` e continuam sozinhas depois de um reinício (`continueOnRestart`).
+- Tarefa atual: Mundo Normal, quadrado de raio 5000 em volta de 0,0. Já existiam: Nether e Twilight Forest com raio 1000.
+- O core mod (`PreGeracao`) pausa a tarefa quando alguém entra e continua depois de 2 minutos com o servidor vazio. Uma tarefa pausada à mão também volta quando o servidor esvazia.
+- Comandos úteis no console: `chunky progress`, `chunky pause`, `chunky continue`, `chunky cancel`. Para uma área nova: `chunky world <dimensão>`, `chunky center <x> <z>`, `chunky radius <r>`, `chunky start`.
+
+## Terras Inexploradas (expedição)
+
+- Ao ligar o servidor, o core mod faz a troca atrasada (se passou das 05:00 do dia da troca) e apaga as regiões antigas de `server/FRX-WORLD/dimensions/frxworld/expedicao/`. Nada fora dessa pasta é apagado.
+- A pré-geração da expedição usa o Chunky (tarefa `frxworld:expedicao`) e segue a mesma pausa automática do mundo principal.
+- Estado e histórico: `server/FRX-WORLD/frx_expedicao.json`.
+

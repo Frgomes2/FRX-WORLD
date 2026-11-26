@@ -330,6 +330,36 @@ public class X1 {
         t.put("curios", l);
     }
 
+    /** Duelo sem kit: só os anéis saem (invisibilidade, Undying, vida extra decidiriam a luta); o resto do equipamento fica. */
+    private static void guardarAneis(ServerPlayer p, CompoundTag t) {
+        net.minecraftforge.items.IItemHandlerModifiable h = br.com.frxcode.frxworld.protecao.AneisUnicos.aneis(p);
+        if (h == null) return;
+        ListTag l = t.contains("aneis") ? t.getList("aneis", Tag.TAG_COMPOUND) : new ListTag();
+        for (int i = 0; i < h.getSlots(); i++) {
+            ItemStack s = h.getStackInSlot(i);
+            if (s.isEmpty()) continue;
+            CompoundTag c = s.save(new CompoundTag());
+            c.putInt("frx_espaco", i);
+            l.add(c);
+            h.setStackInSlot(i, ItemStack.EMPTY);
+        }
+        t.put("aneis", l);
+    }
+
+    private static void devolverAneis(ServerPlayer p, CompoundTag t) {
+        if (!t.contains("aneis")) return;
+        net.minecraftforge.items.IItemHandlerModifiable h = br.com.frxcode.frxworld.protecao.AneisUnicos.aneis(p);
+        for (Tag e : t.getList("aneis", Tag.TAG_COMPOUND)) {
+            CompoundTag c = (CompoundTag) e;
+            ItemStack s = ItemStack.of(c);
+            int i = c.getInt("frx_espaco");
+            if (s.isEmpty()) continue;
+            if (h != null && i < h.getSlots() && h.getStackInSlot(i).isEmpty()) h.setStackInSlot(i, s);
+            else if (!p.getInventory().add(s)) p.drop(s, false);
+        }
+        t.remove("aneis");
+    }
+
     private static void devolverAcessorios(ServerPlayer p, CompoundTag t) {
         if (!t.contains("curios")) return;
         net.minecraftforge.items.IItemHandlerModifiable h = acessorios(p);
@@ -370,6 +400,7 @@ public class X1 {
         p.getInventory().clearContent();
         p.getInventory().load(t.getList("inv", Tag.TAG_COMPOUND));
         devolverAcessorios(p, t);
+        devolverAneis(p, t);
         tirarVidaIgual(p);
         p.removeAllEffects();
         for (Tag e : t.getList("efeitos", Tag.TAG_COMPOUND)) {
@@ -607,6 +638,7 @@ public class X1 {
         if (t == null || !t.contains("inv")) return;   // sem foto não se mexe no inventário
         p.getInventory().clearContent();
         if (d.kit >= 0) guardarAcessorios(p, t);   // kit sorteado: anéis e outros acessórios (Curios) também ficam de fora
+        else guardarAneis(p, t);                   // qualquer duelo: os anéis ficam de fora
         if (d.kit >= 0) darKit(p, d.kit, d.r.pocoes());
         else p.getInventory().load(t.getList("inv", Tag.TAG_COMPOUND));
         p.inventoryMenu.broadcastChanges();

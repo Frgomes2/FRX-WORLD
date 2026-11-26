@@ -69,6 +69,7 @@ public class Especiais {
 
     /** null = não é um efeito especial conhecido (segue o tipo normal). */
     static Boolean executar(ServerPlayer p, HabilidadeDef h, double mult) {
+        if ("mil_cortes".equals(h.codigo())) return milCortes(p, h, mult);
         return switch (h.efeito()) {
             case "frx:carta_embaralhar" -> Cartas.embaralhar(p, h);
             case "frx:carta_sorte" -> Cartas.mare(p, h);
@@ -775,6 +776,25 @@ public class Especiais {
         return p.level().noCollision(p, p.getBoundingBox().move(destino.subtract(p.position()))) ? destino : alvo.position();
     }
 
+    /** Criaturas atordoadas por um golpe de sombra: não atacam ninguém até este tick (o assassino não toma o contragolpe na hora). */
+    private static final Map<UUID, Integer> atordoados = new ConcurrentHashMap<>();
+
+    private static void atordoar(LivingEntity alvo, int ticks) {
+        if (alvo instanceof net.minecraft.world.entity.player.Player) return;   // em PvP o outro jogador reage normal
+        atordoados.put(alvo.getUUID(), alvo.getServer() != null ? alvo.getServer().getTickCount() + ticks : 0);
+        alvo.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, ticks, 4, false, false));
+        if (alvo instanceof Mob m) m.getNavigation().stop();
+    }
+
+    @SubscribeEvent
+    public void aoAtacarAtordoado(net.minecraftforge.event.entity.living.LivingAttackEvent ev) {
+        if (atordoados.isEmpty() || !(ev.getSource().getEntity() instanceof LivingEntity quem)) return;
+        Integer ate = atordoados.get(quem.getUUID());
+        if (ate == null) return;
+        if (quem.getServer() == null || quem.getServer().getTickCount() > ate) { atordoados.remove(quem.getUUID()); return; }
+        ev.setCanceled(true);
+    }
+
     /** Passo Fantasma: aparece atrás do alvo da mira, já virado para as costas dele, e golpeia. */
     private static boolean atras(ServerPlayer p, HabilidadeDef h, double mult) {
         LivingEntity alvo = Habilidades.mirar(p, Math.max(3, h.alcance()), 0.9, false);
@@ -789,6 +809,7 @@ public class Especiais {
         nivel.playSound(null, BlockPos.containing(para), SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 0.8f, 1.6f);
         nivel.playSound(null, alvo.blockPosition(), SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.PLAYERS, 1f, 1.2f);
         Habilidades.ferir(p, alvo, h.dano() * mult * bonusAssassino(p, alvo, h), h);
+        atordoar(alvo, 25);   // ~1 s sem revidar: dá tempo de sair ou emendar
         aviso(p, "Pelas costas!", ChatFormatting.DARK_RED);
         return true;
     }
@@ -858,6 +879,69 @@ public class Especiais {
         }
     }
 
+    /**
+     * Um salto do assassino: rastro de sombra de onde estava até o alvo, aparece em volta dele (lado = 0 atrás,
+     * 1 esquerda, 2 direita, 3 frente), golpeia e deixa o alvo atordoado um instante.
+     */
+    private static void golpeDeSombra(ServerPlayer p, LivingEntity e, double dano, HabilidadeDef h, int lado) {
+        ServerLevel n = p.serverLevel();
+        Vec3 de = p.position();
+        Vec3 para = lado == 0 ? atrasDe(p, e) : emVolta(p, e, lado);
+        Efeitos.rastro(n, de.add(0, 1, 0), para.add(0, 1, 0), "SOMBRA");
+        n.sendParticles(ParticleTypes.LARGE_SMOKE, de.x, de.y + 1, de.z, 12, 0.25, 0.5, 0.25, 0.02);
+        Vec3 olhar = e.position().subtract(para);
+        float yaw = (float) (Math.toDegrees(Math.atan2(-olhar.x, olhar.z)));
+        p.connection.teleport(para.x, para.y, para.z, yaw, 10);
+        p.fallDistance = 0;
+        semQueda.put(p.getUUID(), n.getServer().getTickCount() + 30);
+        double cy = e.getY() + e.getBbHeight() * 0.6;
+        n.sendParticles(ParticleTypes.SWEEP_ATTACK, e.getX(), cy, e.getZ(), 4, 0.35, 0.25, 0.35, 0);
+        n.sendParticles(ParticleTypes.CRIT, e.getX(), cy, e.getZ(), 18, 0.35, 0.4, 0.35, 0.4);
+        n.sendParticles(ParticleTypes.PORTAL, para.x, para.y + 1, para.z, 25, 0.3, 0.6, 0.3, 0.6);
+        n.playSound(null, e.blockPosition(), SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.PLAYERS, 1f, 1.3f);
+        n.playSound(null, BlockPos.containing(para), SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 0.5f, 1.8f);
+        Habilidades.ferir(p, e, dano, h);
+        atordoar(e, 20);
+    }
+
+    /** Ponto ao lado (1 esquerda, 2 direita) ou na frente (3) do alvo; se não couber, o de trás. */
+    private static Vec3 emVolta(ServerPlayer p, LivingEntity alvo, int lado) {
+        float giro = lado == 1 ? 90 : lado == 2 ? -90 : 180;
+        Vec3 dir = Vec3.directionFromRotation(0, alvo.getYRot() + giro);
+        Vec3 destino = alvo.position().subtract(dir.scale(1.3 + alvo.getBbWidth() * 0.5));
+        return p.level().noCollision(p, p.getBoundingBox().move(destino.subtract(p.position()))) ? destino : atrasDe(p, alvo);
+    }
+
+    /** Mil Cortes: some e reaparece em volta do alvo da mira, golpeando 6 vezes (atrás, lados, frente), e termina atrás dele. */
+    private record Cortes(UUID dono, UUID alvo, ServerLevel nivel, HabilidadeDef h, double mult, int[] estado) { }
+    private static final List<Cortes> cortes = new java.util.concurrent.CopyOnWriteArrayList<>();
+    private static final int[] ORDEM_CORTES = {0, 1, 2, 3, 1, 0};
+
+    private static boolean milCortes(ServerPlayer p, HabilidadeDef h, double mult) {
+        LivingEntity alvo = Habilidades.mirar(p, Math.max(4, h.alcance()), 0.9, false);
+        if (alvo == null) { aviso(p, "Nenhum alvo na mira.", ChatFormatting.GRAY); return false; }
+        cortes.removeIf(c -> c.dono().equals(p.getUUID()));
+        cortes.add(new Cortes(p.getUUID(), alvo.getUUID(), p.serverLevel(), h, mult, new int[]{0, p.getServer().getTickCount()}));
+        p.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, ORDEM_CORTES.length * 4 + 15, 4, false, false));
+        p.serverLevel().playSound(null, p.blockPosition(), SoundEvents.WITHER_SHOOT, SoundSource.PLAYERS, 0.7f, 1.6f);
+        aviso(p, "Mil Cortes!", ChatFormatting.DARK_RED);
+        return true;
+    }
+
+    private static void tickCortes(MinecraftServer server) {
+        for (Cortes c : cortes) {
+            if (server.getTickCount() < c.estado()[1]) continue;
+            ServerPlayer p = server.getPlayerList().getPlayer(c.dono());
+            if (p == null || !p.isAlive() || p.serverLevel() != c.nivel() || !(c.nivel().getEntity(c.alvo()) instanceof LivingEntity e) || !e.isAlive()
+                    || c.estado()[0] >= ORDEM_CORTES.length) { cortes.remove(c); continue; }
+            int i = c.estado()[0]++;
+            c.estado()[1] = server.getTickCount() + 4;
+            // o dano total da ultimate dividido nos 6 golpes, com um pouco a mais no último
+            double parte = c.h().dano() * c.mult() / ORDEM_CORTES.length * (i == ORDEM_CORTES.length - 1 ? 1.5 : 0.9);
+            golpeDeSombra(p, e, parte * bonusAssassino(p, e, c.h()), c.h(), ORDEM_CORTES[i]);
+        }
+    }
+
     /** Dança da Morte: salta de inimigo em inimigo no raio, um golpe pelas costas em cada, e volta ao ponto de partida. */
     private static boolean danca(ServerPlayer p, HabilidadeDef h, double mult) {
         ServerLevel nivel = p.serverLevel();
@@ -882,24 +966,20 @@ public class Especiais {
             if (server.getTickCount() < d.estado()[1]) continue;
             ServerPlayer p = server.getPlayerList().getPlayer(d.dono());
             if (p == null || !p.isAlive() || p.serverLevel() != d.nivel()) { dancas.remove(d); continue; }
-            if (d.estado()[0] >= d.alvos().size()) {
+            if (d.estado()[0] >= d.alvos().size()) {   // volta ao ponto de partida, deixando o rastro
                 dancas.remove(d);
+                Efeitos.rastro(d.nivel(), p.position().add(0, 1, 0), d.origem().add(0, 1, 0), "SOMBRA");
                 p.connection.teleport(d.origem().x, d.origem().y, d.origem().z, p.getYRot(), p.getXRot());
                 p.fallDistance = 0;
                 semQueda.put(p.getUUID(), server.getTickCount() + 30);
-                d.nivel().sendParticles(ParticleTypes.LARGE_SMOKE, d.origem().x, d.origem().y + 1, d.origem().z, 20, 0.3, 0.6, 0.3, 0.02);
+                d.nivel().sendParticles(ParticleTypes.LARGE_SMOKE, d.origem().x, d.origem().y + 1, d.origem().z, 30, 0.4, 0.7, 0.4, 0.03);
+                d.nivel().playSound(null, p.blockPosition(), SoundEvents.WITHER_SHOOT, SoundSource.PLAYERS, 0.6f, 1.8f);
                 continue;
             }
             UUID id = d.alvos().get(d.estado()[0]++);
-            d.estado()[1] = server.getTickCount() + 4;
+            d.estado()[1] = server.getTickCount() + 6;
             if (!(d.nivel().getEntity(id) instanceof LivingEntity e) || !e.isAlive()) { d.estado()[1] = server.getTickCount(); continue; }
-            Vec3 para = atrasDe(p, e);
-            p.connection.teleport(para.x, para.y, para.z, e.getYRot(), 10);
-            p.fallDistance = 0;
-            d.nivel().sendParticles(ParticleTypes.SWEEP_ATTACK, e.getX(), e.getY() + e.getBbHeight() * 0.6, e.getZ(), 3, 0.3, 0.2, 0.3, 0);
-            d.nivel().sendParticles(ParticleTypes.SMOKE, para.x, para.y + 1, para.z, 10, 0.2, 0.5, 0.2, 0.01);
-            d.nivel().playSound(null, e.blockPosition(), SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.PLAYERS, 1f, 1.4f);
-            Habilidades.ferir(p, e, d.h().dano() * d.mult() * bonusAssassino(p, e, d.h()), d.h());
+            golpeDeSombra(p, e, d.h().dano() * d.mult() * bonusAssassino(p, e, d.h()), d.h(), 0);
         }
     }
 
@@ -954,8 +1034,12 @@ public class Especiais {
         if (!sangrias.isEmpty() && server.getTickCount() % 20 == 0) {
             try { tickSangrias(server); } catch (Exception ignorado) { sangrias.clear(); }
         }
+        if (!cortes.isEmpty()) {
+            try { tickCortes(server); } catch (Exception erro) { br.com.frxcode.frxworld.FrxWorld.LOG.warn("Mil Cortes falhou: {}", erro.toString()); cortes.clear(); }
+        }
+        if (atordoados.size() > 200) atordoados.clear();
         if (!dancas.isEmpty()) {
-            try { tickDancas(server); } catch (Exception ignorado) { dancas.clear(); }
+            try { tickDancas(server); } catch (Exception erro) { br.com.frxcode.frxworld.FrxWorld.LOG.warn("Dança da Morte falhou: {}", erro.toString()); dancas.clear(); }
         }
         if (!semQueda.isEmpty()) {
             for (Iterator<Map.Entry<UUID, Integer>> it = semQueda.entrySet().iterator(); it.hasNext(); ) {

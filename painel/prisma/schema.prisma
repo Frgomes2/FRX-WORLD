@@ -392,3 +392,43 @@ model FotoRanking {
 
   @@id([dia, conta, vaga])
 }
+
+/// Expedição às Terras Inexploradas (uma área nova a cada troca). tipo/nome/descricao/modificadores/regras ficam prontos para expedições especiais.
+model Expedicao {
+  numero        Int       @id
+  tipo          String    @default("normal")
+  nome          String    @default("")
+  descricao     String    @default("")
+  modificadores Json      @default("{}")
+  regras        Json      @default("{}")
+  inicio        DateTime
+  proxima       DateTime  // troca prevista
+  fim           DateTime? // quando terminou (null = em andamento)
+  tamanho       Int       @default(2000)
+  versao        String    @default("")
+  ativa         Boolean   @default(true)
+  estruturas    Int       @default(0)      // estruturas diferentes descobertas na expedição
+  agora         Json      @default("[]")   // nicks dentro dela agora
+  atualizadaEm  DateTime  @updatedAt
+  participacoes ParticipacaoExpedicao[]
+}
+
+/// O que cada conta fez numa expedição (uuid = conta do Minecraft, a mesma do Jogador).
+model ParticipacaoExpedicao {
+  id         String    @id @default(cuid())
+  numero     Int
+  expedicao  Expedicao @relation(fields: [numero], references: [numero], onDelete: Cascade)
+  uuid       String
+  nick       String
+  primeira   DateTime
+  ultima     DateTime
+  tempoSeg   Int       @default(0)
+  chunks     Int       @default(0) // pedaços de terreno (16×16) diferentes visitados
+  mortes     Int       @default(0)
+  chefes     Int       @default(0)
+  estruturas Int       @default(0)
+  tesouros   Int       @default(0)
+
+  @@unique([numero, uuid])
+  @@index([uuid])
+}

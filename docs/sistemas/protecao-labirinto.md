@@ -15,6 +15,7 @@
 - Labirinto fechado de 141 × 141, com teto, do canto (1240, 63, 1711) ao (1380, 71, 1851). Área protegida `labirinto`; zona de nível 20 em `frx_areas.txt`.
 - 67 geradores de monstros no piso e 20 baús Lootr (loot próprio para cada jogador).
 - **Dificuldade (ajustada em 22/11):** os monstros dos geradores (husk, esqueleto wither, stray, aranha das cavernas, vingador e bruxa) têm metade da vida e da armadura originais, 55% do dano e 0,3 de resistência a repulsão; cada gerador solta 2 por vez (antes 4), no máximo 4 por perto (antes 8), a cada 15–30 s (antes 8–21 s). Por cima disso ainda vale o bônus da zona de nível 20. Comandos aplicados em `logs/lab-facil2.txt` (`data merge block` — `setblock` em cima de um gerador não troca os dados); os originais estão em `logs/lab-comandos2.txt`.
+- **Anel de Voo:** só existe aqui. Os 2 baús Lootr de chefe do salão (1304, 65, 1783 e 1304, 65, 1785) usam a tabela `frxworld:chests/labirinto_salao`, a única com o anel (1 entre 10 anéis em cada baú, por jogador). Ele foi tirado dos baús de chefe das masmorras e das cidades do End.
 - No centro (1310, 64, 1781) fica o salão seguro (1303–1317 × 1774–1788), com porta de ferro com botões e o **Criador de Dragões**. O salão é o refúgio da área.
 - O esquema está em `cliente/jogo/schematics/labirinto_grande_141.litematic` (gerado por script, semente 2311).
 
