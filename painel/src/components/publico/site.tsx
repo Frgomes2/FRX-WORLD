@@ -615,6 +615,38 @@ export function SitePublico({ inicial, mods, mapa, notas, livros, bestiario }: {
                 </div>
               ) : <p className="text-sm text-pedra-500">As pistas de corrida ainda estão sendo traçadas.</p>}
             </Cartao>
+            <Cartao titulo="⚔️ X1 — quem mais venceu" sub="Duelos combinados em arena · aba X1 do inventário">
+              {d?.x1.ranking.length ? (
+                <ol className="space-y-1 text-sm">
+                  {d.x1.ranking.map((r, i) => (
+                    <li key={r.nome} className="flex items-center gap-2 rounded-lg bg-pedra-800/60 px-3 py-1.5">
+                      <span className="w-6 text-center">{MEDALHAS[i] ?? i + 1}</span>
+                      <span className="min-w-0 flex-1"><Nick nick={r.nome} abrir={abrir} /></span>
+                      <span className="text-xs text-pedra-500">{r.d} derrota{r.d === 1 ? "" : "s"}{r.e ? ` · ${r.e} empate${r.e === 1 ? "" : "s"}` : ""}{r.melhor > 1 ? ` · sequência de ${r.melhor}` : ""}</span>
+                      <span className="font-mono text-ouro">{r.v} vitória{r.v === 1 ? "" : "s"}</span>
+                    </li>
+                  ))}
+                </ol>
+              ) : <p className="text-sm text-pedra-500">Nenhum duelo ainda. Abra o inventário, vá na aba X1 e desafie alguém.</p>}
+            </Cartao>
+            <Cartao titulo="⚔️ X1 — últimas lutas" sub="Quem enfrentou quem, e quem levou">
+              {d?.x1.lutas.length ? (
+                <ul className="space-y-1 text-sm">
+                  {d.x1.lutas.map((l) => (
+                    <li key={l.quando} className="rounded-lg bg-pedra-800/60 px-3 py-1.5">
+                      <p className="flex flex-wrap items-center gap-x-2">
+                        <span className={l.vencedor === l.a ? "text-ouro" : ""}>{l.vencedor === l.a ? "🏆 " : ""}{l.a}</span>
+                        <span className="text-pedra-500">vs</span>
+                        <span className={l.vencedor === l.b ? "text-ouro" : ""}>{l.vencedor === l.b ? "🏆 " : ""}{l.b}</span>
+                        {l.placar && <span className="font-mono text-pedra-300">{l.placar}</span>}
+                        {!l.vencedor && <span className="text-pedra-400">empate</span>}
+                      </p>
+                      <p className="text-xs text-pedra-500">{new Date(l.quando).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" })}{l.arena ? ` · ${l.arena}` : ""} · {l.regras}</p>
+                    </li>
+                  ))}
+                </ul>
+              ) : <p className="text-sm text-pedra-500">As lutas aparecem aqui assim que acontecerem.</p>}
+            </Cartao>
           </div>
           <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
             {([

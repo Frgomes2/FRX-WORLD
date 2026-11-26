@@ -158,3 +158,21 @@ Ficam em `server/FRX-WORLD/` e valem só para aquele mundo (mundo novo começa s
 Um erro de compilação no mod não impede o servidor de subir: ele sobe com o jar anterior e nada de novo entra. Depois de cada reinício, confira que `logs/compilacao.log` termina em `BUILD SUCCESSFUL`.
 
 O painel é o processo que mantém o servidor do Minecraft: se o painel cair, o servidor cai junto. Se o site e o jogo sumirem ao mesmo tempo, peça `diagnostico` ao agente e veja se a porta 3000 está em `LISTENING`; se não estiver, `reiniciar` traz os dois de volta.
+
+## Painel e jogo separados (2.0.14)
+
+- O Minecraft roda separado do painel. Se o painel cair, o jogo continua e os jogadores não são desconectados.
+- A sentinela percebe que só o painel caiu e pede `ligar`: o `iniciar-frx.bat` sobe só o painel (não mexe nos mods do servidor) e o painel novo **assume** o jogo que já estava rodando. O console da aba Servidor passa a vir do `server/logs/latest.log`, e os comandos vão pelo arquivo `server/frx_comandos.txt`, que o core mod lê a cada meio segundo.
+- O `desligar-frx.bat` para o jogo pelo painel; se o painel não estiver de pé, manda `stop` pelo arquivo e espera até 2 min o mundo salvar. Só encerra à força se o servidor não fechar.
+- Diagnóstico das quedas do painel: `logs/painel-saida.log` (memória a cada minuto, quem chamou `process.exit`, exceções). Se o painel sumir sem nada registrado ali, ele foi encerrado por outro programa.
+
+### Reiniciar só o painel (2.0.15)
+
+O painel é um programa só: site público, admin e páginas dos jogadores. Para aplicar uma mudança nele sem derrubar o jogo:
+
+- botão **Reiniciar só o painel** na aba Servidor; ou
+- dois cliques no `reiniciar-painel.bat`; ou
+- o comando `/frx painel reiniciar` (também pelo arquivo `server/frx_comandos.txt`, que funciona com o painel travado).
+
+O .bat confere o código antes (com erro, não mexe em nada), fecha só o painel, compila se precisar, sobe de novo e o painel assume o jogo. O site fica fora por 1 a 3 minutos (mais se compilar); os jogadores continuam no jogo.
+

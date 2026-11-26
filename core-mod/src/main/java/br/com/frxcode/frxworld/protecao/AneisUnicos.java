@@ -31,6 +31,29 @@ import java.util.function.Consumer;
  */
 public class AneisUnicos {
     private static final String ESPACO = "ring";
+    /** Anel de Voo (Rings of Ascension): voa como no criativo. Só a partir do rank B da Guilda. */
+    private static final net.minecraft.resources.ResourceLocation VOO = new net.minecraft.resources.ResourceLocation("ringsofascension", "ring_flight");
+    private static int relogio;
+
+    private static int rankB() {
+        for (int i = 0; i < br.com.frxcode.frxworld.progressao.ConfigJogo.totalRanks(); i++)
+            if (br.com.frxcode.frxworld.progressao.ConfigJogo.nomeRank(i).equalsIgnoreCase("B")) return i;
+        return 4;
+    }
+
+    private static boolean ehVoo(ItemStack s) { return !s.isEmpty() && VOO.equals(net.minecraftforge.registries.ForgeRegistries.ITEMS.getKey(s.getItem())); }
+
+    private static boolean semRankParaVoar(Player p) {
+        return !p.isCreative() && !p.isSpectator() && br.com.frxcode.frxworld.progressao.Guilda.indice(p) < rankB();
+    }
+
+    private static void avisarVoo(ServerPlayer sp) {
+        long agora = System.currentTimeMillis();
+        if (agora - AVISADO.getOrDefault(sp.getUUID(), 0L) < 1500) return;
+        AVISADO.put(sp.getUUID(), agora);
+        sp.displayClientMessage(Component.literal("O Anel de Voo só funciona a partir do rank B da Guilda. O seu é "
+                + br.com.frxcode.frxworld.progressao.Guilda.rank(sp) + ".").withStyle(ChatFormatting.RED), true);
+    }
     private static final Map<UUID, Long> AVISADO = new HashMap<>();
 
     public AneisUnicos() {}
@@ -67,6 +90,11 @@ public class AneisUnicos {
             if (!ESPACO.equals(contexto.getClass().getMethod("identifier").invoke(contexto))) return;
             int indice = (int) contexto.getClass().getMethod("index").invoke(contexto);
             ItemStack novo = (ItemStack) ev.getClass().getMethod("getStack").invoke(ev);
+            if (ehVoo(novo) && semRankParaVoar(p)) {
+                ev.setResult(Event.Result.DENY);
+                if (p instanceof ServerPlayer sp) avisarVoo(sp);
+                return;
+            }
             IItemHandlerModifiable postos = aneis(p);
             if (novo.isEmpty() || postos == null) return;
             for (int i = 0; i < postos.getSlots(); i++) {
@@ -102,6 +130,33 @@ public class AneisUnicos {
             }
             if (tirados > 0) p.sendSystemMessage(Component.literal("Não dá mais para usar dois anéis iguais: " + tirados + (tirados == 1 ? " anel repetido voltou" : " anéis repetidos voltaram") + " para a sua mochila.").withStyle(ChatFormatting.YELLOW));
         });
+    }
+
+    /** Quem já estava com o Anel de Voo posto e não tem rank B: o anel volta para a mochila e o voo acaba (a cada 2 s). */
+    @SubscribeEvent
+    public void conferirVoo(net.minecraftforge.event.TickEvent.ServerTickEvent ev) {
+        if (ev.phase != net.minecraftforge.event.TickEvent.Phase.END || ++relogio % 40 != 0) return;
+        for (ServerPlayer p : ev.getServer().getPlayerList().getPlayers()) {
+            if (!semRankParaVoar(p)) continue;
+            IItemHandlerModifiable postos = aneis(p);
+            if (postos == null) continue;
+            boolean tirou = false;
+            for (int i = 0; i < postos.getSlots(); i++) {
+                ItemStack s = postos.getStackInSlot(i);
+                if (!ehVoo(s)) continue;
+                postos.setStackInSlot(i, ItemStack.EMPTY);
+                if (!p.getInventory().add(s)) p.drop(s, false);
+                tirou = true;
+            }
+            if (!tirou) continue;
+            p.getAbilities().flying = false;
+            p.getAbilities().mayfly = false;
+            p.onUpdateAbilities();
+            p.fallDistance = 0;
+            p.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.SLOW_FALLING, 200, 0, false, false));
+            p.sendSystemMessage(Component.literal("O Anel de Voo voltou para a sua mochila: ele só funciona a partir do rank B da Guilda (o seu é "
+                    + br.com.frxcode.frxworld.progressao.Guilda.rank(p) + ").").withStyle(ChatFormatting.YELLOW));
+        }
     }
 
     @SubscribeEvent

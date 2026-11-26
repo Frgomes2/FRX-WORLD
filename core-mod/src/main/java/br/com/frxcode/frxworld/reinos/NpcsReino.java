@@ -500,6 +500,18 @@ public class NpcsReino {
                 || i instanceof net.minecraft.world.item.AxeItem || i instanceof net.minecraft.world.item.TridentItem;
     }
 
+    /** NPCs dos reinos, moradores e NPCs do Easy NPC não atravessam portal nenhum (Nether, Fim, outras dimensões). */
+    @SubscribeEvent
+    public void semPortal(net.minecraftforge.event.entity.EntityTravelToDimensionEvent evento) {
+        Entity e = evento.getEntity();
+        if (e instanceof net.minecraft.world.entity.player.Player) return;
+        net.minecraft.resources.ResourceLocation id = net.minecraftforge.registries.ForgeRegistries.ENTITY_TYPES.getKey(e.getType());
+        if (e.getTags().contains(TAG) || e.getTags().contains("frx_cidadao") || (id != null && id.getNamespace().equals("easy_npc"))) {
+            evento.setCanceled(true);
+            e.setPortalCooldown(200);
+        }
+    }
+
     @SubscribeEvent(priority = net.minecraftforge.eventbus.api.EventPriority.HIGHEST)
     public void aoInteragir(PlayerInteractEvent.EntityInteract evento) {
         Entity e = evento.getTarget();
@@ -509,6 +521,13 @@ public class NpcsReino {
             return;
         }
         String papel = e.getPersistentData().getString("frx_papel");
+        // o Titã chegou às muralhas de Lubelius: o reino para por um tempo (a Deusa continua atendendo)
+        if (!papel.equals("rei") && "lubelius".equals(e.getPersistentData().getString("frx_reino")) && evento.getEntity() instanceof ServerPlayer barrado
+                && br.com.frxcode.frxworld.aventura.Tita.lojasFechadas(barrado)) {
+            evento.setCanceled(true);
+            evento.setCancellationResult(InteractionResult.SUCCESS);
+            return;
+        }
         if (evento.getEntity() instanceof ServerPlayer decifrador && br.com.frxcode.frxworld.aventura.Enigma.aoFalar(decifrador, e)) {
             evento.setCanceled(true);
             evento.setCancellationResult(InteractionResult.SUCCESS);

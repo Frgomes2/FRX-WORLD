@@ -218,7 +218,7 @@ public class Talentos {
     public static double bonus(ServerPlayer p, Atributo a) {
         EnumMap<Atributo, Double> m = CACHE.get(p.getUUID());
         if (m == null) m = recalcular(p);
-        return m.getOrDefault(a, 0.0);
+        return m.getOrDefault(a, 0.0) + br.com.frxcode.frxworld.reinos.Bencao.bonus(p, a);   // armadura abençoada pela Hinata
     }
 
     /** 1 + bônus (para multiplicar). */

@@ -25,5 +25,8 @@ public record Reino(String id, String nome, String modo, int larguraChunks, int 
         return Math.max(dx, dz);
     }
 
+    /** O chunk faz parte das fatias coladas da capital (tem construção), e não só da caixa em volta. */
+    public boolean contemFatia(int cx, int cz) { return fatias.isEmpty() || fatias.contains(chave(cx, cz)) || fatias.contains(chave(cx - chunkX0(), cz - chunkZ0())); }
+
     static long chave(int a, int b) { return ((long) a << 32) | (b & 0xffffffffL); }
 }

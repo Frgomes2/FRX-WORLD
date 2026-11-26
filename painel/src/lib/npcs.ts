@@ -32,6 +32,7 @@ export const PAPEIS = [
   { id: "ladrao", nome: "Ladrão (evento raro)", icone: "🪙" },
   { id: "vegeta", nome: "Príncipe Vegeta (Templo Karin)", icone: "⚡" },
   { id: "vegeta_ssj", nome: "Príncipe Vegeta transformado (cabelo dourado)", icone: "🌟" },
+  { id: "tita", nome: "Titã (evento de Lubelius)", icone: "🗿" },
 ] as const;
 
 export type Papel = (typeof PAPEIS)[number]["id"];

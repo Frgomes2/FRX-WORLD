@@ -145,7 +145,7 @@ O chefão das catacumbas (`Dungeons`) e os chefes de estruturas de outros mods (
 
 - **Topo:** santuário de raio 30 com templo de cúpulas douradas ao norte, mirantes, fileiras de ciprestes e o círculo de duelo dourado no centro; a escada chega por um alçapão. Na ponta sul fica a waystone "Templo Karin": quem já subiu e ativou pode voltar direto.
 - Aparece quando alguém pisa no santuário do topo (raio 30). A skin dele pode ser trocada no painel (NPCs e skins → Príncipe Vegeta; a transformada é um segundo cartão). Apresentação de ~3 s com falas e raio. Todos que pisam na arena durante a luta são participantes.
-- **Escala:** vida 700 × participantes (só sobe) e dano × (1 + 0,3 por participante extra) × fase (1 / 1,25 / 1,5).
+- **Escala:** vida 1.000 × participantes (só sobe) e dano × (1 + 0,3 por participante extra) × fase (1 / 1,25 / 1,5).
 - **Ataques com aviso:** rajadas de ki (carga com brilho na mão, 3 esferas lentas o bastante para desviar), Galick Ho (linha roxa de aviso por 1,6 s e depois o feixe), investida (agacha brilhando em vermelho antes de avançar), Big Bang (esfera grande e lenta, explosão larga), chuva de rajadas (sobe no ar; marca vermelha no chão onde cada uma vai cair) e Final Flash (só na fase 2: sobe ao centro, 3 s de carga com três linhas douradas de aviso e um feixe largo).
 - **Fases:** abaixo de 66% vira Super Saiyajin (2 s invulnerável, empurra quem está perto); abaixo de 33% ganha relâmpagos e o Final Flash (no máximo a cada 25 s).
 - **Fim:** vencido, todos os participantes online ganham a raça Saiyajin liberada (`RacasJogador.liberarRaca`), contador `c:vegeta` e anúncio no chat; o primeiro do servidor entra no Mural dos Primeiros (marco `vegeta`). Se ninguém ficar na arena por 10 s, ele vai embora. Nova luta 1 min depois (2 min depois de uma vitória). Vegeta que sobrar de antes de um reinício some ao carregar.
@@ -198,4 +198,55 @@ Admin: `/frx esferas ver` (onde está cada uma) e `/frx esferas espalhar` (escon
 - Placar gigante (`/frx corrida placar <id> [tamanho]`): texto flutuante (`text_display`, tag `frx_placar_corrida:<id>`) com os 10 melhores tempos e quem está correndo; refeito a cada largada, chegada e cancelamento (ou quando o chunk carregar).
 - Pista de voltas (`/frx corrida voltas <id> <n>`) é um circuito: depois do último ponto marcado, o alvo é a própria linha de largada (não precisa marcar a chegada; se o último ponto já estiver em cima da linha, ele vale como chegada). Ao cruzar a linha antes da última volta, a contagem recomeça e aparece "Volta 2/3"; na última, é a chegada. Pista de uma volta só termina no último ponto (ida de A a B). Depois de chegar, só larga de novo quem sair do anel (mais de 8 blocos).
 - Chegada: fogos de artifício; 10 melhores tempos por pista (um por jogador); 1ª chegada do dia em cada pista = 2 ouro; recorde da pista = 10 ouro e aviso no chat. Conquistas: Na Pista, Piloto (50 corridas), Recordista. Dados em `<mundo>/frx_corridas.json`; o site mostra os 5 melhores de cada pista.
+
+## Death Note (evento raro)
+
+- A cada hora o servidor sorteia (15%) se um caderno negro cai do céu. Precisa de 2 ou mais jogadores no mundo normal, fora da torre, de duelos X1 e do Templo Karin.
+- Ele cai com um raio a 30–60 blocos de um jogador sorteado e todos recebem as coordenadas no chat. No chão ele brilha e some em 20 minutos.
+- Quem pega tem 30 minutos (depois vira cinzas). Clique com ele na mão: abre a lista de quem está online; escolha um nome e confirme. Um uso só.
+- O nome escrito invoca **a Morte** (o Lifestealer do Born in Chaos) a uns 10 blocos do alvo, com raio, aviso geral e barra de chefe.
+- Ela tem **2.000 de vida** em duas fases de 1.000: com o manto e depois a forma verdadeira. Só ataca o alvo; cada golpe tira pelo menos 12% da vida máxima dele.
+- Ela só para quando mata o alvo ou é derrotada. Se o alvo se afastar mais de 48 blocos ou trocar de dimensão, ela reaparece perto dele com a mesma vida. Se o alvo sair do jogo ou entrar em um X1, ela some e volta quando ele voltar.
+- Qualquer jogador pode ajudar a bater nela. Derrotada, o servidor é avisado de que o alvo escapou.
+- Morrer enquanto é caçado não custa nada: itens, XP e nível voltam ao renascer. O servidor é avisado do nome escrito, mas não de quem escreveu.
+- Se o servidor reiniciar no meio, a caçada acaba e a Morte some.
+- Não atinge quem está em duelo X1, no criativo ou no espectador, nem o próprio dono.
+- Admin: `/frx deathnote soltar` e `/frx deathnote dar`.
+
+## Sala do Tempo
+
+- Entrada: a passagem iluminada no fundo do salão principal do Templo Karin (no topo). Exige **rank B ou maior** na Guilda.
+- Cada jogador tem **30 minutos por dia** (vira à meia-noite de São Paulo). O tempo que falta aparece na barra de ação.
+- Lá dentro: XP em dobro, dano recebido em dobro e fome mais rápida.
+- Monstros de treino aparecem no nível do jogador mais forte da sala (até 5 por jogador, no máximo 18) e somem quando a sala esvazia. Não deixam itens.
+- Saída: agachar no círculo dourado do centro, ou o tempo acabar. O jogador volta para o salão do templo.
+- A sala fica em 26000, 200, 26000 (área protegida `sala_tempo`). Admin: `/frx sala construir` (sala + passagem) e `/frx sala ir`.
+
+
+## Titã à solta (evento de Lubelius)
+
+- No máximo **1 vez por dia real** (vira à meia-noite de São Paulo) e só com **3 ou mais jogadores online**. Com 3+ online, a cada minuto há 4% de chance de começar.
+- O Titã (35 blocos de altura) nasce a 320 blocos das muralhas de Lubelius, em terra firme e longe do Templo Karin, e anda em linha reta para o reino a 0,8 bloco por segundo, atravessando árvores e morros. Leva uns 7 minutos, mais as paradas.
+- Todos os jogadores recebem o título, as coordenadas no chat e a barra de chefe com a vida e a distância que falta.
+- No mapa do JourneyMap: quadrado vermelho "TITÃ" na posição dele (atualiza a cada 5 segundos) e pontilhado laranja do ponto onde surgiu até as muralhas. Some quando o evento acaba.
+- Vida: 5.000, fixa. Só jogadores ferem. Golpes e flechas acertam pernas, tronco e cabeça.
+- **Nuca:** golpe dado por trás e pelo menos 20 blocos acima dos pés dele vale 3 vezes.
+- A cada 20% de vida perdida ele cambaleia e fica 6 segundos parado.
+- **Pisão:** a cada 9 segundos, se houver alguém a até 20 blocos dos pés, ele avisa (anel de fogo a 14 blocos e som) e 2,5 segundos depois pisa: 25% da vida máxima de quem ainda estiver dentro do anel, e arremessa.
+- **Vitória:** todos que causaram dano e estão online ganham 30 de ouro, 10% de um nível de XP e +150 de reputação em Lubelius; quem mais feriu ganha 60 de ouro e +300 de reputação. O chat mostra os 3 que mais feriram.
+- **Derrota:** se ele encostar nas muralhas, some em vapor e os NPCs de Lubelius (menos a Deusa) ficam 30 minutos sem atender.
+- Skin: painel → NPCs e skins → "Titã (evento de Lubelius)". Música: disco de código `luta_tita`, se existir.
+- Se o servidor reiniciar no meio, o evento acaba e conta como feito naquele dia. Admin: `/frx tita iniciar`, `/frx tita parar`, `/frx tita abrirlojas`.
+
+## Pokébola e Treinador de Criaturas (2.0.12)
+
+- **Comprar:** só com o Treinador de Criaturas, que o admin coloca onde quiser (`/frx pokebola treinador`). Cada jogador compra no máximo **10**, com preço subindo: 5, 10, 20, 40, 80, 160, 250, 350, 500 e 750 ouro (bolsa e, se faltar, banco).
+- **Presa ao dono:** a pokébola leva o nome e a conta de quem comprou. Só o dono joga, pega do chão e solta. Ela não queima, não explode e não some com o tempo; se cair no vazio, o admin devolve com `/frx pokebola devolver`.
+- **Capturar:** jogue a pokébola vazia num bicho.
+  - Domado por você (cachorro, gato, cavalo, dragão, montaria): captura sempre.
+  - Selvagem pacífico com até 60 de vida: 60% de chance, até 90% se ele estiver quase sem vida. Bicho maior precisa ser domado antes.
+  - Nunca: monstros, bichos domados por outra pessoa, aldeões, golens, NPCs (dos reinos e do Easy NPC), chefes, criaturas do FRX e bichos dentro do terreno de outra pessoa.
+  - Falhou: a pokébola cai no chão e pode ser jogada de novo.
+- **Soltar:** jogue a pokébola cheia; o bicho sai onde ela cair, com tudo o que tinha (nome, dono, inventário, armadura).
+- A Esfera Portátil de Pets foi aposentada: sem receita e sem capturar; ainda solta o bicho que já estava dentro.
 

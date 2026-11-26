@@ -249,6 +249,9 @@ public class Terrenos {
         return d == null || liberado(d, quem, oQue);
     }
 
+    /** Pode usar coisas (e mexer nos bichos) neste ponto? Fora de terreno, sempre. */
+    public static boolean podeUsar(Entity quem, BlockPos pos) { return pode(quem.level(), pos, quem, USAR); }
+
     /** A conta tem algum terreno? (marco do Guia do Aventureiro) */
     public static boolean temTerreno(ServerPlayer p) { return !lotesDe(p.getUUID()).isEmpty(); }
     private static List<Lote> lotesDe(UUID id) { List<Lote> l = new ArrayList<>(); for (Lote t : LOTES) if (t.dono.equals(id)) l.add(t); return l; }
@@ -382,11 +385,50 @@ public class Terrenos {
         negar(ev.getEntity(), alvo.blockPosition());
     }
 
-    /** Explosão (creeper, TNT, ghast, wither) não leva nenhum bloco de terreno comprado. */
+    /**
+     * Suporte de armadura: tirar ou pôr peça é clique "específico" (não passa pelo EntityInteract acima).
+     * Vale a mesma regra dos baús: sem permissão de usar, não mexe.
+     */
+    @SubscribeEvent(priority = EventPriority.HIGH)
+    public void aoMexerNoSuporte(PlayerInteractEvent.EntityInteractSpecific ev) {
+        Entity alvo = ev.getTarget();
+        if (!(alvo instanceof net.minecraft.world.entity.decoration.ArmorStand) || alvo.getTags().contains("frx_npc")
+                || pode(alvo.level(), alvo.blockPosition(), ev.getEntity(), USAR)) return;
+        ev.setCanceled(true);
+        ev.setCancellationResult(InteractionResult.FAIL);
+        negar(ev.getEntity(), alvo.blockPosition());
+    }
+
+    private static boolean decoracao(Entity e) {
+        return e instanceof net.minecraft.world.entity.decoration.ArmorStand || e instanceof net.minecraft.world.entity.decoration.HangingEntity;
+    }
+
+    /** Flecha, tridente ou bola de fogo de estranho não derruba suporte de armadura, moldura nem quadro dentro do terreno. */
+    @SubscribeEvent(priority = EventPriority.HIGH)
+    public void aoAcertarDecoracao(net.minecraftforge.event.entity.ProjectileImpactEvent ev) {
+        if (!(ev.getRayTraceResult() instanceof net.minecraft.world.phys.EntityHitResult r) || !decoracao(r.getEntity())) return;
+        Entity alvo = r.getEntity();
+        Entity quem = ev.getProjectile().getOwner();
+        if (quem == null || quem instanceof Enemy) { if (donoDe(alvo.blockPosition()) != null && mundoNormal(alvo.level())) ev.setImpactResult(net.minecraftforge.event.entity.ProjectileImpactEvent.ImpactResult.STOP_AT_CURRENT_NO_DAMAGE); return; }
+        if (pode(alvo.level(), alvo.blockPosition(), quem, QUEBRAR)) return;
+        ev.setImpactResult(net.minecraftforge.event.entity.ProjectileImpactEvent.ImpactResult.STOP_AT_CURRENT_NO_DAMAGE);
+    }
+
+    /** Fogo, lava, queda de bigorna, explosão e afins não destroem suporte de armadura dentro de terreno comprado. */
+    @SubscribeEvent(priority = EventPriority.HIGH)
+    public void aoFerirSuporte(net.minecraftforge.event.entity.living.LivingAttackEvent ev) {
+        if (!(ev.getEntity() instanceof net.minecraft.world.entity.decoration.ArmorStand a) || !mundoNormal(a.level()) || donoDe(a.blockPosition()) == null) return;
+        Entity quem = ev.getSource().getEntity();
+        if (quem instanceof Player && pode(a.level(), a.blockPosition(), quem, QUEBRAR)) return;
+        ev.setCanceled(true);
+    }
+
+    /** Explosão (creeper, TNT, ghast, wither) não leva nenhum bloco de terreno comprado, nem suporte de armadura, moldura e quadro. */
     @SubscribeEvent
     public void aoExplodir(ExplosionEvent.Detonate ev) {
         if (LOTES.isEmpty() || !mundoNormal(ev.getLevel())) return;
         ev.getAffectedBlocks().removeIf(b -> donoDe(b) != null);
+        ev.getAffectedEntities().removeIf(e -> decoracao(e) && donoDe(e.blockPosition()) != null);
     }
 
     /** Monstro não pega bloco, não quebra porta nem pisoteia dentro de terreno comprado. */

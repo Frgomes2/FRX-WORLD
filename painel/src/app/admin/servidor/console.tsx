@@ -90,6 +90,12 @@ export function Console() {
     if (!r.ok) setErro(j.erro ?? "Falha na ação.");
   }
 
+  async function reiniciarPainel() {
+    if (!confirm("Reiniciar só o painel (site, admin e páginas dos jogadores)? O jogo continua no ar e ninguém é desconectado. O painel fica fora por 1 a 3 minutos (mais se precisar compilar).")) return;
+    await acao("reiniciarPainel");
+    setLinhas((ls) => [...ls, "[painel] Reiniciando só o painel... esta página volta sozinha quando ele subir."]);
+  }
+
   async function gerarMundo() {
     if (!confirm("Gerar um mundo novo? O atual fica guardado em server/mundos-antigos (nada é apagado).")) return;
     const seed = prompt("Seed do mundo (deixe vazio para aleatória):", "") ?? "";
@@ -126,6 +132,8 @@ export function Console() {
             className={`${botao} bg-green-600 text-white hover:bg-green-500`}>Iniciar</button>
           <button onClick={() => acao("reiniciar")} disabled={estado === "parando" || estado === "iniciando"}
             className={`${botao} bg-ouro text-pedra-950 hover:bg-ouro-escuro`}>Reiniciar</button>
+          <button onClick={reiniciarPainel}
+            className={`${botao} border border-sky-700 text-sky-300 hover:border-sky-400`}>Reiniciar só o painel</button>
           <button onClick={gerarMundo} disabled={rodando}
             className={`${botao} border border-pedra-700 text-pergaminho hover:border-ouro`}>Novo mundo</button>
           <button onClick={() => acao("parar")} disabled={estado !== "online" && estado !== "iniciando"}

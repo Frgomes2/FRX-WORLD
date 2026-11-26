@@ -66,8 +66,51 @@ public class EntradasMasmorra {
     /** Lugar do portal escolhido pelo admin (/frx masmorra portal <id>): posição dos pés. */
     private static final Map<String, BlockPos> MANUAIS = new HashMap<>();
     private static int espera = 0;
+    /** Pórtico de cada masmorra dentro do reino dela (posição dos pés). SEM = não tem ou não coube. */
+    private static final Map<String, BlockPos> PORTAL_REINO = new LinkedHashMap<>();
+    private static final BlockPos SEM = new BlockPos(0, -9999, 0);
+    /** Por qual pórtico o jogador entrou: é para lá que a saída devolve. */
+    private static final Map<UUID, BlockPos> ORIGEM = new HashMap<>();
+    /** Quem já recebeu as marcações do mapa nesta sessão. */
+    private static final java.util.Set<UUID> NO_MAPA = new java.util.HashSet<>();
 
     public EntradasMasmorra() {}
+
+    private static Path arquivoReino(ServerLevel nivel) {
+        return nivel.getServer().getWorldPath(LevelResource.ROOT).resolve("frx_portais_reino.txt");
+    }
+
+    private static void lerReino(ServerLevel nivel) {
+        PORTAL_REINO.clear();
+        try {
+            if (!Files.exists(arquivoReino(nivel))) return;
+            for (String l : Files.readAllLines(arquivoReino(nivel), StandardCharsets.UTF_8)) {
+                String[] p = l.trim().split(";");
+                if (p.length >= 4 && Integer.parseInt(p[2]) > -1000) PORTAL_REINO.put(p[0], new BlockPos(Integer.parseInt(p[1]), Integer.parseInt(p[2]), Integer.parseInt(p[3])));
+            }
+        } catch (Exception e) {
+            FrxWorld.LOG.warn("Portais de reino: não consegui ler o registro: {}", e.toString());
+        }
+    }
+
+    private static void gravarReino(ServerLevel nivel) {
+        StringBuilder sb = new StringBuilder();
+        PORTAL_REINO.forEach((id, b) -> sb.append(id).append(';').append(b.getX()).append(';').append(b.getY()).append(';').append(b.getZ()).append('\n'));
+        try { Files.writeString(arquivoReino(nivel), sb.toString(), StandardCharsets.UTF_8); } catch (Exception ignorado) { }
+    }
+
+    /** O reino a que a masmorra pertence, pelo começo do id (dwargon-ferro → dwargon; sakura-… → leste-sakura). */
+    private static Reino reinoDe(String id) {
+        String chave = id.startsWith("coliseu-tempest") ? "tempest" : id.startsWith("sakura-") ? "leste-sakura" : id.contains("-") ? id.substring(0, id.indexOf('-')) : id;
+        for (Reino rr : Reinos.todos()) if (rr.id().equals(chave)) return rr;
+        return null;
+    }
+
+    /** O pórtico que vale como "o do reino": o próprio, ou a entrada normal quando ela já fica dentro da capital. */
+    private static BlockPos portalNoReino(Entrada e) {
+        BlockPos k = PORTAL_REINO.get(e.id());
+        return k == null || k.getY() < -1000 ? null : k;
+    }
 
     private static Path arquivo(ServerLevel nivel) {
         return nivel.getServer().getWorldPath(LevelResource.ROOT).resolve("frx_entradas.txt");
@@ -331,7 +374,7 @@ public class EntradasMasmorra {
         nivel.getChunk(sx >> 4, sz >> 4);
         int chao = m.has("entrada") ? m.getAsJsonArray("entrada").get(1).getAsInt() - 1
                 : ANTIGAS.containsKey(id) ? ANTIGAS.get(id).getY() - 1 : chaoNatural(nivel, sx, sz);
-        boolean enterrada = bb.maxY() < chao - 3;
+        boolean enterrada = bb.maxY() < chao - 3 || descer != 0;   // descida de propósito para caber sob a capital: é enterrada
         // nível próprio da masmorra (painel): vale em toda a caixa dela, com folga
         int nivelFixo = m.has("nivel") && !m.get("nivel").isJsonNull() ? m.get("nivel").getAsInt() : 0;
         // embaixo de uma capital e sem entrada marcada: o pórtico cairia no meio da praça. Espera o admin escolher o lugar.
@@ -340,8 +383,13 @@ public class EntradasMasmorra {
         // masmorra embaixo de reino é fim de jogo: nunca abaixo do nível 50, mesmo sem nível no painel
         if (naCapital && enterrada) nivelFixo = Math.max(nivelFixo, br.com.frxcode.frxworld.progressao.Zonas.NIVEL_CHEFE_MASMORRA);
         br.com.frxcode.frxworld.progressao.AreasNivel.definir(nivel.getServer(), id, bb.inflatedBy(3), nivelFixo);
-        if (enterrada && naCapital && !m.has("entrada") && !MANUAIS.containsKey(id))
-            return "embaixo de uma capital: escolha o lugar do portal com /frx masmorra portal " + id + " (em pé no ponto)";
+        if (enterrada && naCapital && !m.has("entrada") && !MANUAIS.containsKey(id)) {
+            Reino dona = null;
+            for (Reino rr : Reinos.todos()) if (rr.distancia(centro.getX(), centro.getZ()) == 0) dona = rr;
+            BlockPos auto = dona == null ? null : lugarNoReino(nivel, dona);
+            if (auto == null) return "embaixo de uma capital e sem lugar livre: escolha o do portal com /frx masmorra portal " + id + " (em pé no ponto)";
+            MANUAIS.put(id, auto);
+        }
         if (MANUAIS.containsKey(id)) { BlockPos mp = MANUAIS.get(id); sx = mp.getX(); sz = mp.getZ(); chao = mp.getY() - 1; }
         if (!enterrada) {
             // de superfície: só o marco, ao lado da construção (do lado de fora da caixa)
@@ -368,13 +416,234 @@ public class EntradasMasmorra {
         return "portal em " + base.getX() + ", " + (base.getY() + 1) + ", " + base.getZ() + " → sala em " + sala.getX() + ", " + sala.getY() + ", " + sala.getZ();
     }
 
+    // ------------------------------------------------------------------ pórtico dentro do reino
+
+    private static JsonObject posicoesDoReino(String reino) {
+        try {
+            Path p = net.minecraftforge.fml.loading.FMLPaths.GAMEDIR.get().resolve("frxworld").resolve("reinos").resolve("posicoes.json");
+            JsonObject o = com.google.gson.JsonParser.parseString(Files.readString(p, StandardCharsets.UTF_8)).getAsJsonObject();
+            return o.has(reino) && o.get(reino).isJsonObject() ? o.getAsJsonObject(reino) : new JsonObject();
+        } catch (Exception e) { return new JsonObject(); }
+    }
+
+    /**
+     * Piso quadrado (lado 2×meio+1) com `livre` blocos de ar por cima; devolve o Y do piso ou Integer.MIN_VALUE.
+     * aCeuAberto: usa o topo do terreno, aceita até 1 bloco de desnível e recusa o que estiver mais de 3 blocos acima do
+     * ponto mais baixo em volta (telhados, muralhas). Senão, procura um piso em volta da altura de referência
+     * (reino subterrâneo, ou rua coberta por toldo e pérgola).
+     */
+    private static int pisoLivre(ServerLevel n, BlockPos.MutableBlockPos m, int x, int z, int ref, boolean aCeuAberto, int meio, int livre, int faixa) {
+        int de, ate;
+        if (aCeuAberto) {
+            int topo = Integer.MIN_VALUE, fundo = Integer.MAX_VALUE;
+            for (int dx = -meio; dx <= meio; dx++) for (int dz = -meio; dz <= meio; dz++) {
+                int h = n.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x + dx, z + dz) - 1;
+                topo = Math.max(topo, h); fundo = Math.min(fundo, h);
+            }
+            if (topo - fundo > 1) return Integer.MIN_VALUE;
+            int baixo = Integer.MAX_VALUE;
+            for (int dx = -12; dx <= 12; dx += 4) for (int dz = -12; dz <= 12; dz += 4)
+                baixo = Math.min(baixo, n.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x + dx, z + dz) - 1);
+            if (topo - baixo > 3) return Integer.MIN_VALUE;
+            de = ate = topo;
+        } else { de = ref + faixa; ate = ref - faixa; }
+        for (int y = de; y >= ate; y--) {
+            boolean ok = true;
+            for (int dx = -meio; dx <= meio && ok; dx++) for (int dz = -meio; dz <= meio && ok; dz++) {
+                BlockState piso = n.getBlockState(m.set(x + dx, y, z + dz));
+                BlockState abaixo = n.getBlockState(m.set(x + dx, y - 1, z + dz));
+                boolean firme = piso.isSolidRender(n, m) || (aCeuAberto && abaixo.isSolidRender(n, m) && piso.getFluidState().isEmpty());
+                if (!firme || !piso.getFluidState().isEmpty() || piso.is(net.minecraft.tags.BlockTags.LEAVES) || piso.is(Blocks.FARMLAND)
+                        || !abaixo.getFluidState().isEmpty()) { ok = false; break; }
+                for (int dy = 1; dy <= livre; dy++) {
+                    BlockState b = n.getBlockState(m.set(x + dx, y + dy, z + dz));
+                    if (!b.isAir() && !(b.canBeReplaced() && b.getFluidState().isEmpty())) { ok = false; break; }
+                }
+            }
+            if (ok) return y;
+        }
+        return Integer.MIN_VALUE;
+    }
+
+    /** Lugar achado para um pórtico: posição dos pés e o meio-lado do piso (3 = 7×7, 2 = 5×5, 1 = só o portal 3×3). */
+    private record Lugar(BlockPos pe, int meio) {}
+
+    /** Lugar para o pórtico grande (7×7) dentro da capital; null se não couber. */
+    static BlockPos lugarNoReino(ServerLevel n, Reino rr) {
+        Lugar l = lugar(n, rr, 3);
+        return l == null ? null : l.pe();
+    }
+
+    /**
+     * Lugar para o pórtico dentro da capital, sem ninguém escolher: parte da praça (ou do centro) e abre em espiral,
+     * longe dos NPCs e dos outros pórticos. Tenta o pórtico grande a céu aberto; se a capital for apertada, o de 5×5 e,
+     * por último, só o portal 3×3, primeiro a céu aberto e depois em rua coberta.
+     */
+    private static Lugar lugar(ServerLevel n, Reino rr, int meioMinimo) {
+        JsonObject pos = posicoesDoReino(rr.id());
+        int ax = rr.centroX(), az = rr.centroZ(), ref = rr.chao();
+        if (pos.has("praca") && pos.get("praca").isJsonArray() && pos.getAsJsonArray("praca").size() >= 2) {
+            ax = pos.getAsJsonArray("praca").get(0).getAsInt();
+            az = pos.getAsJsonArray("praca").get(1).getAsInt();
+        }
+        List<BlockPos> evitar = new ArrayList<>();
+        if (pos.has("npcs") && pos.get("npcs").isJsonObject())
+            for (Map.Entry<String, JsonElement> e : pos.getAsJsonObject("npcs").entrySet()) {
+                if (!e.getValue().isJsonArray() || e.getValue().getAsJsonArray().size() < 3) continue;
+                JsonArray a = e.getValue().getAsJsonArray();
+                evitar.add(new BlockPos(a.get(0).getAsInt(), a.get(1).getAsInt(), a.get(2).getAsInt()));
+                if (e.getKey().equals("rei")) ref = a.get(1).getAsInt() - 1;
+            }
+        List<BlockPos> porticos = new ArrayList<>();
+        for (Entrada e : ENTRADAS.values()) if (e.fora().getY() > -1000) porticos.add(e.fora());
+        for (BlockPos k : PORTAL_REINO.values()) if (k.getY() > -1000) porticos.add(k);
+        int limite = Math.min(240, Math.max(rr.larguraChunks(), rr.profundidadeChunks()) * 8);
+        BlockPos.MutableBlockPos m = new BlockPos.MutableBlockPos();
+        // {meio-lado, a céu aberto (1) ou coberto (0)}
+        int[][] tentativas = rr.subterraneo() ? new int[][]{{3, 0}, {2, 0}, {1, 0}} : new int[][]{{3, 1}, {2, 1}, {1, 1}, {2, 0}, {1, 0}};
+        for (int[] t : tentativas) {
+            int meio = t[0];
+            if (meio < meioMinimo) continue;
+            boolean aberto = t[1] == 1;
+            int passo = meio == 3 ? 3 : 2;
+            for (int raio = 9; raio <= limite; raio += passo)
+                for (int dx = -raio; dx <= raio; dx += passo) for (int dz = -raio; dz <= raio; dz += passo) {
+                    if (Math.max(Math.abs(dx), Math.abs(dz)) != raio) continue;
+                    int x = ax + dx, z = az + dz;
+                    if (rr.distancia(x - 5, z - 5) != 0 || rr.distancia(x + 5, z + 5) != 0) continue;
+                    if (!rr.contemFatia(x >> 4, z >> 4)) continue;   // só onde a capital tem construção de verdade
+                    boolean perto = false;
+                    for (BlockPos q : evitar) if (Math.abs(q.getX() - x) <= 7 && Math.abs(q.getZ() - z) <= 7) perto = true;
+                    for (BlockPos q : porticos) if (Math.abs(q.getX() - x) <= 12 && Math.abs(q.getZ() - z) <= 12) perto = true;
+                    if (perto) continue;
+                    int y = pisoLivre(n, m, x, z, ref, aberto, meio, meio == 3 ? 5 : meio == 2 ? 4 : 3, rr.subterraneo() ? 4 : 14);
+                    if (y != Integer.MIN_VALUE) return new Lugar(new BlockPos(x, y + 1, z), meio);
+                }
+        }
+        return null;
+    }
+
+    /** Pórtico para capital apertada: 5×5 com quatro pilares (meio = 2) ou só o portal 3×3 no chão (meio = 1). */
+    private static void porticoMenor(ServerLevel n, BlockPos base, int meio) {
+        BlockState tijolo = Blocks.POLISHED_BLACKSTONE_BRICKS.defaultBlockState(), pilar = Blocks.CHISELED_POLISHED_BLACKSTONE.defaultBlockState();
+        int alto = meio == 2 ? 4 : 3;
+        for (int dx = -meio; dx <= meio; dx++) for (int dz = -meio; dz <= meio; dz++) {
+            boolean borda = Math.abs(dx) == 2 || Math.abs(dz) == 2;
+            por(n, base.offset(dx, 0, dz), dx == 0 && dz == 0 ? Blocks.CRYING_OBSIDIAN.defaultBlockState()
+                    : borda ? Blocks.POLISHED_BLACKSTONE.defaultBlockState() : Blocks.GILDED_BLACKSTONE.defaultBlockState());
+            for (int dy = 1; dy <= alto; dy++) por(n, base.offset(dx, dy, dz), Blocks.AIR.defaultBlockState());
+        }
+        if (meio != 2) return;
+        for (int i = -2; i <= 2; i++) {
+            por(n, base.offset(i, 3, -2), tijolo); por(n, base.offset(i, 3, 2), tijolo);
+            por(n, base.offset(-2, 3, i), tijolo); por(n, base.offset(2, 3, i), tijolo);
+        }
+        for (int dx : new int[]{-2, 2}) for (int dz : new int[]{-2, 2}) {
+            for (int dy = 1; dy <= 3; dy++) por(n, base.offset(dx, dy, dz), pilar);
+            por(n, base.offset(dx, 4, dz), Blocks.SOUL_LANTERN.defaultBlockState());
+        }
+    }
+
+    private static boolean anelLivre(ServerLevel n, BlockPos.MutableBlockPos m, int x, int y, int z, int raio) {
+        for (int dx = -raio; dx <= raio; dx++) for (int dz = -raio; dz <= raio; dz++) {
+            if (Math.max(Math.abs(dx), Math.abs(dz)) != raio) continue;
+            if (!n.getBlockState(m.set(x + dx, y - 1, z + dz)).isSolidRender(n, m)) return false;
+            for (int dy = 0; dy <= 3; dy++) if (!n.getBlockState(m.set(x + dx, y + dy, z + dz)).isAir()) return false;
+        }
+        return true;
+    }
+
+    /** O maior salão coberto da construção (para o chefe): piso de construção e o maior quadrado livre em volta. */
+    private static BlockPos salaGrande(ServerLevel n, StructureStart inicio) {
+        BoundingBox bb = inicio.getBoundingBox();
+        List<BoundingBox> caixas = new ArrayList<>();
+        inicio.getPieces().forEach(pc -> caixas.add(pc.getBoundingBox()));
+        if (caixas.isEmpty()) caixas.add(bb);
+        BlockPos.MutableBlockPos m = new BlockPos.MutableBlockPos();
+        BlockPos centro = bb.getCenter(), melhor = null;
+        double melhorNota = -1e18;
+        for (BoundingBox c : caixas)
+            for (int x = c.minX() + 2; x <= c.maxX() - 2; x += 3) for (int z = c.minZ() + 2; z <= c.maxZ() - 2; z += 3)
+                for (int y = c.maxY() - 2; y >= c.minY() + 1; y--) {
+                    if (!sala(n, m, x, y, z)) continue;
+                    if (tetoConstruido(n, m, x, y, z)) {
+                        int raio = 1;
+                        while (raio < 9 && anelLivre(n, m, x, y, z, raio + 1)) raio++;
+                        double dist = Math.sqrt(Math.pow(x - centro.getX(), 2) + Math.pow(z - centro.getZ(), 2));
+                        double nota = raio * 100 - dist / 4;
+                        if (raio >= 3 && nota > melhorNota) { melhorNota = nota; melhor = new BlockPos(x, y, z); }
+                    }
+                    y -= 4;   // pula o vão desta sala e procura o andar de baixo
+                }
+        return melhor;
+    }
+
+    /**
+     * Garante o chefe da masmorra (nas que não têm um próprio) e o pórtico dentro do reino dela.
+     * O pórtico leva à primeira sala (masmorra enterrada) ou ao marco ao lado da construção (de superfície); o marco vira portal de volta.
+     */
+    private static String ligarAoReino(ServerLevel nivel, String id, String linha) {
+        Entrada e = ENTRADAS.get(id);
+        if (e == null || e.fora().getY() < -1000) { PORTAL_REINO.put(id, SEM); return "sem entrada montada"; }
+        String[] p = linha.split(";");
+        JsonObject m = def(id);
+        String nota = "";
+        if (m != null && p.length >= 5 && ChefesMasmorra.precisaInicial(nivel.getServer(), id, p[4])) {
+            int descer = 0;
+            if (p.length >= 6) try { descer = Integer.parseInt(p[5].trim()); } catch (NumberFormatException ignorado) { }
+            StructureStart inicio = estrutura(nivel, m, p[4], descer);
+            if (inicio != null) {
+                BoundingBox bb = inicio.getBoundingBox();
+                for (int cx = (bb.minX() >> 4) - 1; cx <= (bb.maxX() >> 4) + 1; cx++) for (int cz = (bb.minZ() >> 4) - 1; cz <= (bb.maxZ() >> 4) + 1; cz++) nivel.getChunk(cx, cz);
+                BlockPos salao = salaGrande(nivel, inicio);
+                if (salao == null) salao = e.dentro();
+                if (salao != null) nota = " · " + ChefesMasmorra.garantirInicial(nivel.getServer(), id, p[4], salao);
+                else nota = " · sem salão para o chefe";
+            }
+        }
+        Reino rr = reinoDe(id);
+        if (rr == null) { PORTAL_REINO.put(id, SEM); return "sem reino" + nota; }
+        if (rr.distancia(e.fora().getX(), e.fora().getZ()) == 0) { PORTAL_REINO.put(id, e.fora()); return "a entrada já fica no reino" + nota; }
+        Lugar achado = lugar(nivel, rr, 1);
+        if (achado == null) { PORTAL_REINO.put(id, SEM); return "não achei lugar livre em " + rr.id() + nota; }
+        BlockPos lugar = achado.pe();
+        if (achado.meio() == 3) portico(nivel, lugar.below(), true); else porticoMenor(nivel, lugar.below(), achado.meio());
+        rotulo(nivel, lugar, "☠ " + nome(id), "Pise no portal para ir à masmorra");
+        if (e.dentro() == null) {   // de superfície: o marco ao lado da construção vira o portal de volta
+            nivel.getChunk(e.fora().getX() >> 4, e.fora().getZ() >> 4);
+            portico(nivel, e.fora().below(), true);
+            rotulo(nivel, e.fora(), "☠ " + nome(id), "Pise no portal para voltar ao reino");
+        }
+        PORTAL_REINO.put(id, lugar);
+        NO_MAPA.clear();
+        return "pórtico " + (achado.meio() == 3 ? "7×7" : achado.meio() == 2 ? "5×5" : "3×3") + " em " + rr.id() + ": " + lugar.getX() + ", " + lugar.getY() + ", " + lugar.getZ() + nota;
+    }
+
+    /** Marca no mapa (JourneyMap) de um jogador os pórticos das masmorras que ficam nos reinos. */
+    private static void marcarNoMapa(ServerPlayer p) {
+        for (Entrada e : ENTRADAS.values()) {
+            BlockPos k = portalNoReino(e);
+            if (k == null) continue;
+            br.com.frxcode.frxworld.protecao.MapaJm.mostrar(p, "masmorra_" + e.id(), k.getX() - 5, k.getZ() - 5, k.getX() + 5, k.getZ() + 5, 0x8E24AA, 0.55f,
+                    "☠ " + nome(e.id()), "Portal da masmorra: " + nome(e.id()));
+        }
+    }
+
     // ------------------------------------------------------------------ eventos
+
+    @SubscribeEvent
+    public void aoSair(net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent ev) {
+        NO_MAPA.remove(ev.getEntity().getUUID());
+        ORIGEM.remove(ev.getEntity().getUUID());
+    }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void aoLigar(ServerStartedEvent ev) {
         ServerLevel nivel = ev.getServer().getLevel(Level.OVERWORLD);
         if (nivel == null) return;
         ler(nivel);
+        lerReino(nivel);
+        NO_MAPA.clear();
         pendentes.clear();
         espera = 600;   // 30 s depois de ligar (as masmorras novas são colocadas antes)
     }
@@ -401,8 +670,27 @@ public class EntradasMasmorra {
                     FrxWorld.LOG.warn("Entrada da masmorra {} falhou: {}", id, t.toString());
                 }
                 espera = 200;
-            } else espera = 6000;   // confere de novo em 5 min (masmorras colocadas depois)
+            } else {
+                // depois das entradas: o chefe e o pórtico dentro do reino, uma masmorra por vez
+                String falta = null;
+                for (String id : Masmorras.lidas(nivel).keySet()) if (ENTRADAS.containsKey(id) && !PORTAL_REINO.containsKey(id)) { falta = id; break; }
+                if (falta != null) {
+                    try {
+                        FrxWorld.LOG.info("Masmorra {} no reino: {}", falta, ligarAoReino(nivel, falta, Masmorras.lidas(nivel).get(falta)));
+                    } catch (Throwable t) {
+                        FrxWorld.LOG.warn("Masmorra {} no reino falhou: {}", falta, t.toString());
+                    }
+                    if (!PORTAL_REINO.containsKey(falta)) PORTAL_REINO.put(falta, SEM);
+                    gravarReino(nivel);
+                    espera = 200;
+                } else espera = 6000;   // confere de novo em 5 min (masmorras colocadas depois)
+            }
         }
+
+        // mapa: cada jogador recebe as marcações uma vez por sessão (e de novo quando surge um pórtico)
+        if (s.getTickCount() % 100 == 0)
+            for (ServerPlayer p : s.getPlayerList().getPlayers())
+                if (p.tickCount > 100 && NO_MAPA.add(p.getUUID())) marcarNoMapa(p);
 
         // portais
         if (s.getTickCount() % 5 != 0 || ENTRADAS.isEmpty()) return;
@@ -411,12 +699,24 @@ public class EntradasMasmorra {
             if (p.level() != nivel || p.isSpectator()) continue;
             BlockPos pe = p.blockPosition();
             for (Entrada e : ENTRADAS.values()) {
-                if (e.dentro() == null) continue;
-                boolean entrar = pe.equals(e.fora()), sair = pe.equals(e.dentro());
+                if (e.fora().getY() < -1000) continue;
+                BlockPos reino = portalNoReino(e);
+                if (reino != null && reino.equals(e.fora())) reino = null;   // a entrada normal já é a do reino
+                boolean peloReino = reino != null && pe.equals(reino);
+                boolean voltarAoReino = reino != null && e.dentro() == null && pe.equals(e.fora());   // marco de superfície
+                boolean entrar = peloReino || (e.dentro() != null && pe.equals(e.fora())), sair = voltarAoReino || (e.dentro() != null && pe.equals(e.dentro()));
                 if (!entrar && !sair) continue;
                 if (RECARGA.getOrDefault(p.getUUID(), 0L) > agora) break;
                 RECARGA.put(p.getUUID(), agora + 4000);
-                BlockPos d = entrar ? e.dentro() : e.fora().offset(0, 0, 2);
+                BlockPos d;
+                if (entrar) {
+                    ORIGEM.put(p.getUUID(), peloReino ? reino : e.fora());
+                    d = e.dentro() != null ? e.dentro() : e.fora().offset(0, 0, 2);
+                } else if (voltarAoReino) d = reino.offset(0, 0, 2);
+                else {
+                    BlockPos veio = ORIGEM.remove(p.getUUID());
+                    d = (veio != null && (veio.equals(reino) || veio.equals(e.fora())) ? veio : e.fora()).offset(0, 0, 2);
+                }
                 nivel.sendParticles(ParticleTypes.REVERSE_PORTAL, p.getX(), p.getY() + 1, p.getZ(), 60, 0.4, 0.8, 0.4, 0.05);
                 p.teleportTo(nivel, d.getX() + 0.5, d.getY(), d.getZ() + 0.5, p.getYRot(), p.getXRot());
                 p.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 60, 4, false, false));
@@ -464,6 +764,8 @@ public class EntradasMasmorra {
                             MANUAIS.put(id, adm.blockPosition());
                             ANTIGAS.remove(id);
                             ENTRADAS.remove(id);
+                            PORTAL_REINO.remove(id);
+                            gravarReino(nv);
                             String r = montar(nv, id, linha);
                             gravar(nv);
                             ctx.getSource().sendSuccess(() -> Component.literal("Portal de " + nome(id) + ": " + r).withStyle(ChatFormatting.GOLD), true);
@@ -492,6 +794,8 @@ public class EntradasMasmorra {
                                         for (ArmorStand a : nv.getEntitiesOfClass(ArmorStand.class, new AABB(e.dentro()).inflate(4), x -> x.getTags().contains(TAG))) a.discard();
                                     }
                                     ENTRADAS.remove(id);
+                                    PORTAL_REINO.remove(id);
+                                    gravarReino(nv);
                                     pendentes.clear();
                                     espera = 20;
                                     ctx.getSource().sendSuccess(() -> Component.literal("Refazendo a entrada de " + id + "."), true);
@@ -507,6 +811,8 @@ public class EntradasMasmorra {
                                 for (ArmorStand a : nv.getEntitiesOfClass(ArmorStand.class, new AABB(e.dentro()).inflate(4), x -> x.getTags().contains(TAG))) a.discard();
                             }
                             ENTRADAS.clear();
+                            PORTAL_REINO.clear();
+                            gravarReino(nv);
                             pendentes.clear();
                             espera = 20;
                             ctx.getSource().sendSuccess(() -> Component.literal("Refazendo as entradas das masmorras, uma a cada 10 s. Veja o resultado em /frx masmorra entradas."), true);

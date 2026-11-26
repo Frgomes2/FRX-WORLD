@@ -123,6 +123,20 @@
 | `/frx arena criar\|spawn\|espectador\|raio\|ir\|remover\|lista` | Arenas do X1 (ver [sistemas/x1.md](sistemas/x1.md)) |
 | `/frx esferas ver` | Mostra o estado e o lugar de cada Esfera do Dragão |
 | `/frx esferas espalhar` | Esconde as 7 esferas de novo (e tira da pedra) |
+| `/frx sala construir` | Constrói a Sala do Tempo e abre a passagem no salão do Templo Karin |
+| `/frx sala ir` | Leva você para dentro da Sala do Tempo |
+| `/frx deathnote soltar` | Derruba um Death Note perto de você (com o aviso geral) |
+| `/frx deathnote dar` | Coloca um Death Note no seu inventário |
+| `/frx tita iniciar` | Começa o evento do Titã agora (ignora o limite diário e o mínimo de jogadores) |
+| `/frx tita parar` | Encerra o evento do Titã sem vencedor nem punição |
+| `/frx tita abrirlojas` | Faz os NPCs de Lubelius voltarem a atender antes dos 30 minutos |
+| `/frx masmorra chefes` | Lista os chefes de masmorra mortos e quanto falta para cada um renascer |
+| `/frx masmorra renascer` | Libera agora todos os chefes pendentes (nascem quando alguém chegar perto) |
+| `/frx masmorra chefe <tipo>` | Marca um chefe desse tipo para nascer onde você está (para os que morreram antes da 2.0.8) |
+| `/frx pokebola treinador` | Cria o Treinador de Criaturas (vende as pokébolas) onde você está, virado para você |
+| `/frx pokebola tirartreinador` | Remove o Treinador que estiver a até 6 blocos |
+| `/frx pokebola devolver <jogador>` | Dá uma pokébola vazia ao jogador sem contar no limite (para quem perdeu uma) |
+| `/frx painel reiniciar` | Reinicia só o painel (site, admin, páginas dos jogadores); o jogo continua no ar |
 | `/frx karin ir` | Leva você à ponte da base do Templo Karin |
 | `/corridas` | Lista as pistas, recordes e onde fica cada largada (todos) |
 | `/frx corrida criar <id> <pe\|cavalo\|barco\|elitro> <nome>` | Cria uma pista |

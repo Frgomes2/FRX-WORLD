@@ -30,6 +30,13 @@ public final class ClienteMenus {
         }
         if (msg.tipo().equals("area")) { AreasMapa.tratar(msg.dados()); return; }   // área pintada no mapa: não abre tela   // ponto no mapa: não abre tela
         if (msg.tipo().equals("radar")) { mc.setScreen(new TelaRadar(msg.dados())); return; }
+        if (msg.tipo().equals("pokebola")) { if (mc.screen instanceof TelaPokebola t) t.atualizar(msg.dados()); else mc.setScreen(new TelaPokebola(msg.dados())); return; }
+        if (msg.tipo().equals("bencao")) { if (mc.screen instanceof TelaBencao t) t.atualizar(msg.dados()); else mc.setScreen(new TelaBencao(msg.dados())); return; }
+        if (msg.tipo().equals("deathnote")) {
+            if (msg.dados().getBoolean("fechar")) { if (mc.screen instanceof TelaDeathNote) mc.setScreen(null); }
+            else mc.setScreen(new TelaDeathNote(msg.dados()));
+            return;
+        }
         if (msg.tipo().equals("shenlong")) {
             if (msg.dados().getBoolean("fechar")) { if (mc.screen instanceof TelaShenlong) mc.setScreen(null); }
             else if (mc.screen instanceof TelaShenlong t) t.atualizar(msg.dados()); else mc.setScreen(new TelaShenlong(msg.dados()));

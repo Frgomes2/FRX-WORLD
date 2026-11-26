@@ -73,3 +73,30 @@ Raça e classe dão a base, os talentos ajustam e a forja/raridade escala com o 
 - **Materiais:** Escama — dragões do Ice and Fire com 100+ de vida (2–4 para cada um a até 48 blocos), chefes de outros mods de nível 40–54 (1–2, no prêmio) e chefes da Torre dos andares 30–49 (2, primeira vez). Essência — chefes de outros mods de nível 55+ (2) e chefes da Torre dos andares 50–79 (1; 2 a partir do 70). Fragmento — Dragão do Fim (4 por ajudante) e chefes da Torre do andar 80+ (1).
 - A classe sai da regra de `ClassesEquip` (defesa + resistência). Descrição dos itens mostra o bônus e de onde vem cada material. Livro "Depois do Netherite" na biblioteca; o armeiro comenta o caminho.
 
+## Bênção da Capitã Hinata (2.0.12)
+
+Na sábia de Lubelius, Hinata Sakaguchi, opção "Pedir a bênção para a minha armadura". A tela mostra as quatro peças vestidas.
+
+- Cada peça de armadura ganha **um** bônus, o da classe do jogador, em graus I a V. Em quatro peças, o bônus soma.
+- Chance e preço por grau: I 100% e 10 ouro · II 80% e 20 · III 60% e 40 · IV 40% e 80 · V 20% e 150. O pagamento sai da bolsa e, se faltar, do banco.
+- Grau IV: 2 Escamas Draconianas. Grau V: 2 Essências Abissais. Os dois exigem reputação **Honrado** (500) com Lubelius.
+- Falhou: perde o pagamento e o material; a peça continua no grau que estava.
+- A bênção guarda a classe. Se o jogador mudar de classe, ela fica inativa; abençoar de novo recomeça do grau I na classe nova.
+- Feito para ser abençoado na armadura de verdade: o visual continua livre com o Cosmetic Armor Reworked.
+
+| Classe | Bônus por grau, em cada peça | Grau V em 4 peças |
+|---|---|---|
+| Guerreiro | +0,5% de roubo de vida | +10% |
+| Arqueiro | +0,6% de dano de flechas e projéteis | +12% |
+| Mago | +0,6% de dano das habilidades | +12% |
+| Clérigo | +1% de cura das habilidades | +20% |
+| Ladino | +0,5% de chance de esquiva | +10% |
+| Assassino | +0,6% de chance de crítico | +12% |
+| Invocador | +0,8% de força das invocações | +16% |
+| Paladino | +0,3 de armadura | +6 |
+| Bardo | +1% de regeneração de recurso | +20% |
+| Monge | +0,4% de velocidade | +8% |
+| Druida | 0,6% menos recarga das habilidades | 12% menos |
+| Samurai | +0,6% de dano corpo a corpo | +12% |
+| Cartomante | 0,6% menos custo de recurso | 12% menos |
+

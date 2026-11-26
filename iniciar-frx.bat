@@ -14,6 +14,10 @@ echo.
 rem ---------- 0. Ja esta ligado? (ligar de novo por cima derrubava o servidor sem salvar)
 curl -s -m 3 -o nul http://localhost:3000/login
 if errorlevel 1 goto :naoLigado
+rem painel fora do ar mas o Minecraft no ar (o painel caiu sozinho): sobe so o painel, que assume o jogo sem desligar ninguem
+set "SOPAINEL="
+netstat -ano | findstr /r /c:":25565 .*LISTENING" >nul && set "SOPAINEL=1"
+if defined SOPAINEL echo   O Minecraft continua no ar: so o painel vai voltar e assumir o jogo.
 echo   O FRX-WORLD ja esta ligado.
 echo   Para aplicar atualizacoes e preciso desligar com seguranca (salva o mundo e faz backup) e ligar de novo.
 if defined AUTO goto :reiniciarAuto
@@ -88,11 +92,13 @@ if %TENTATIVAS% LSS 30 goto :esperaPack
 echo       [aviso] O pack nao respondeu; mods do cliente nao foram atualizados.
 goto :painel
 :packOk
+if defined SOPAINEL goto :pulaModsServidor
 echo       Atualizando mods do servidor...
 pushd server
 call ..\java17.bat >nul
 java -jar packwiz-installer-bootstrap.jar -g -s server http://localhost:8080/pack.toml > ..\logs\mods-servidor.log 2>&1
 popd
+:pulaModsServidor
 echo       Atualizando mods do seu jogo...
 call "%~dp0cliente\atualizar-mods.bat" /sem-pausa >nul 2>&1
 rem AutoModpack: mods so de cliente + jar para o kit dos amigos

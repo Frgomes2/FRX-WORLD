@@ -63,6 +63,7 @@ public final class Progressao {
         double bonusUnica = br.com.frxcode.frxworld.habilidades.Unica.bonusXp(jogador);
         if (bonusUnica > 0) quantidade = Math.max(1, Math.round(quantidade * (1 + bonusUnica)));
         if (br.com.frxcode.frxworld.aventura.Esferas.xpEmDobro(jogador)) quantidade *= 2;   // desejo "Glória ao clã"
+        if (br.com.frxcode.frxworld.aventura.SalaTempo.dentro(jogador)) quantidade *= 2;   // Sala do Tempo
         DadosJogador d = dados(jogador);
         int maximo = ConfigJogo.nivelMaximo();
         int nivel = d.nivel();

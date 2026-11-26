@@ -55,7 +55,7 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * Príncipe Vegeta, o guardião do topo do Templo Karin. Quem chega ao templo é desafiado; vencer libera a raça Saiyajin
  * para todos os que lutaram.
- *  - Mais gente na luta = mais vida (vida base × participantes) e mais dano (+30% por participante extra).
+ *  - Mais gente na luta = mais vida (1.000 de vida × participantes) e mais dano (+30% por participante extra).
  *  - Todo ataque especial tem aviso para dar tempo de desviar: brilho e som na carga, linha de partículas onde o feixe vai passar.
  *  - Fases: abaixo de 66% vira Super Saiyajin (cabelo dourado, mais forte); abaixo de 33% ganha relâmpagos e o Final Flash.
  *  - Trilha sonora: o disco do painel de código "luta_vegeta" (se existir), tocando em volta durante a luta.
@@ -74,7 +74,7 @@ public class Vegeta {
 
     private static void atributos(EntityAttributeCreationEvent ev) { ev.put(VEGETA.get(), VegetaEntidade.atributos().build()); }
 
-    private static final double VIDA_BASE = 700, DANO_BASE = 12;
+    private static final double VIDA_BASE = 1000, DANO_BASE = 12;
     private static final String MUSICA = "luta_vegeta";
     private static final UUID PARADO = UUID.nameUUIDFromBytes("frxworld:vegeta:parado".getBytes());
 

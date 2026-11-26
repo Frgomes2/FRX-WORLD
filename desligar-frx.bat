@@ -18,8 +18,11 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0controle\registrar-est
 echo [1/4] Parando o servidor Minecraft (salvando o mundo)...
 curl -s -m 110 -X POST -H "x-servidor-token: %TOKEN%" http://localhost:3000/api/servidor/desligar >nul 2>&1
 echo       ok
-rem Minecraft orfao (painel caiu e o jogo ficou sem dono): espera ate 30 s a porta 25565 fechar; se nao fechar, encerra
-for /l %%N in (1,1,6) do (
+rem Minecraft sem painel (o painel caiu e o jogo continuou): manda "stop" pelo arquivo de comandos do core mod,
+rem que salva o mundo, e espera ate 2 min a porta 25565 fechar; so encerra a forca se ele nao fechar
+netstat -ano | findstr /r /c:":25565 .*LISTENING" >nul || goto :mc_fechado
+>>"%~dp0server\frx_comandos.txt" echo stop
+for /l %%N in (1,1,24) do (
   netstat -ano | findstr /r /c:":25565 .*LISTENING" >nul || goto :mc_fechado
   ping -n 6 127.0.0.1 >nul
 )

@@ -39,6 +39,8 @@ public final class EventosCliente {
         @SubscribeEvent
         public static void renderizadores(net.minecraftforge.client.event.EntityRenderersEvent.RegisterRenderers evento) {
             evento.registerEntityRenderer(br.com.frxcode.frxworld.aventura.Vegeta.VEGETA.get(), RenderVegeta::new);
+            evento.registerEntityRenderer(br.com.frxcode.frxworld.aventura.Tita.TITA.get(), RenderTita::new);
+            evento.registerEntityRenderer(br.com.frxcode.frxworld.criaturas.Pokebola.LANCADA.get(), net.minecraft.client.renderer.entity.ThrownItemRenderer::new);
         }
 
         @SubscribeEvent

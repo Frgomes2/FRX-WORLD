@@ -109,15 +109,15 @@ public class X1 {
     private static final String[] KITS = {"Cavaleiro", "Arqueiro", "Bárbaro", "Paladino", "Besteiro"};
 
     /** Regras do duelo. arena: 0 = sorteada entre as livres; n = a n-ésima da lista (em ordem alfabética de id). */
-    public record Regras(boolean hab, boolean kit, boolean pocoes, boolean md3, int aposta, long moedas, int arena) {
+    public record Regras(boolean hab, boolean kit, boolean pocoes, boolean md3, int aposta, long moedas, int arena, boolean vidaIgual) {
         public static Regras de(long v) {
-            return new Regras((v & 1) != 0, (v & 2) != 0, (v & 4) != 0, (v & 8) != 0, (int) ((v >> 4) & 3), Math.max(0, Math.min(APOSTA_MAX, v >> 16)), (int) ((v >> 8) & 0xFF));
+            return new Regras((v & 1) != 0, (v & 2) != 0, (v & 4) != 0, (v & 8) != 0, (int) ((v >> 4) & 3), Math.max(0, Math.min(APOSTA_MAX, v >> 16)), (int) ((v >> 8) & 0xFF), (v & 64) != 0);
         }
     }
 
     /** O valor que a tela manda no DESAFIAR. */
-    public static long empacotar(boolean hab, boolean kit, boolean pocoes, boolean md3, int aposta, int arena, long moedas) {
-        return (hab ? 1 : 0) | (kit ? 2 : 0) | (pocoes ? 4 : 0) | (md3 ? 8 : 0) | ((long) (aposta & 3) << 4) | ((long) (arena & 0xFF) << 8)
+    public static long empacotar(boolean hab, boolean kit, boolean pocoes, boolean md3, int aposta, int arena, long moedas, boolean vidaIgual) {
+        return (vidaIgual ? 64 : 0) | (hab ? 1 : 0) | (kit ? 2 : 0) | (pocoes ? 4 : 0) | (md3 ? 8 : 0) | ((long) (aposta & 3) << 4) | ((long) (arena & 0xFF) << 8)
                 | (Math.max(0, Math.min(APOSTA_MAX, moedas)) << 16);
     }
 
@@ -299,12 +299,78 @@ public class X1 {
         marcarVolta(p);
     }
 
+    // ------------------------------------------------------------------ acessórios (Curios) e vida igual
+
+    private static final UUID VIDA_IGUAL = UUID.nameUUIDFromBytes("frxworld:x1:vida_igual".getBytes());
+
+    /** Todos os espaços de acessório do jogador (null sem o Curios). Por reflexão, como em protecao/AneisUnicos. */
+    private static net.minecraftforge.items.IItemHandlerModifiable acessorios(ServerPlayer p) {
+        try {
+            Object talvez = Class.forName("top.theillusivec4.curios.api.CuriosApi").getMethod("getCuriosInventory", net.minecraft.world.entity.LivingEntity.class).invoke(null, p);
+            Object inventario = ((net.minecraftforge.common.util.LazyOptional<?>) talvez).resolve().orElse(null);
+            if (inventario == null) return null;
+            Object todos = inventario.getClass().getMethod("getEquippedCurios").invoke(inventario);
+            return todos instanceof net.minecraftforge.items.IItemHandlerModifiable h ? h : null;
+        } catch (Throwable e) { return null; }
+    }
+
+    /** Tira os acessórios e guarda na foto. */
+    private static void guardarAcessorios(ServerPlayer p, CompoundTag t) {
+        net.minecraftforge.items.IItemHandlerModifiable h = acessorios(p);
+        if (h == null) return;
+        ListTag l = t.contains("curios") ? t.getList("curios", Tag.TAG_COMPOUND) : new ListTag();   // rodada 2 em diante: soma ao que já está guardado
+        for (int i = 0; i < h.getSlots(); i++) {
+            ItemStack s = h.getStackInSlot(i);
+            if (s.isEmpty()) continue;
+            CompoundTag c = s.save(new CompoundTag());
+            c.putInt("frx_espaco", i);
+            l.add(c);
+            h.setStackInSlot(i, ItemStack.EMPTY);
+        }
+        t.put("curios", l);
+    }
+
+    private static void devolverAcessorios(ServerPlayer p, CompoundTag t) {
+        if (!t.contains("curios")) return;
+        net.minecraftforge.items.IItemHandlerModifiable h = acessorios(p);
+        for (Tag e : t.getList("curios", Tag.TAG_COMPOUND)) {
+            CompoundTag c = (CompoundTag) e;
+            ItemStack s = ItemStack.of(c);
+            int i = c.getInt("frx_espaco");
+            if (s.isEmpty()) continue;
+            if (h != null && i < h.getSlots() && h.getStackInSlot(i).isEmpty()) h.setStackInSlot(i, s);
+            else if (!p.getInventory().add(s)) p.drop(s, false);
+        }
+    }
+
+    private static void tirarVidaIgual(ServerPlayer p) {
+        net.minecraft.world.entity.ai.attributes.AttributeInstance a = p.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH);
+        if (a != null) a.removeModifier(VIDA_IGUAL);
+    }
+
+    /** Regra "vida igual": com kit, 20 corações para os dois; com os itens do personagem, a vida do que tem menos. */
+    private static void igualarVida(Duelo d, ServerPlayer a, ServerPlayer b) {
+        tirarVidaIgual(a); tirarVidaIgual(b);
+        double alvo = d.kit >= 0 ? 40 : Math.min(a.getMaxHealth(), b.getMaxHealth());
+        for (ServerPlayer p : List.of(a, b)) {
+            net.minecraft.world.entity.ai.attributes.AttributeInstance at = p.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH);
+            if (at == null) continue;
+            double atual = at.getValue();
+            if (atual > 0 && Math.abs(atual - alvo) > 0.01)
+                at.addTransientModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(VIDA_IGUAL, "FRX X1 vida igual", alvo / atual - 1, net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.MULTIPLY_TOTAL));
+            p.setHealth(p.getMaxHealth());
+            avisar(p, "Vida igual: os dois lutam com " + Math.round(alvo / 2) + " corações.", ChatFormatting.WHITE);
+        }
+    }
+
     /** Devolve o que a foto guardou. Não mexe no lugar (isso é com voltar). */
     private static void restaurar(ServerPlayer p) {
         CompoundTag t = tagSeExiste(p);
         if (t == null || !t.contains("inv")) return;
         p.getInventory().clearContent();
         p.getInventory().load(t.getList("inv", Tag.TAG_COMPOUND));
+        devolverAcessorios(p, t);
+        tirarVidaIgual(p);
         p.removeAllEffects();
         for (Tag e : t.getList("efeitos", Tag.TAG_COMPOUND)) {
             MobEffectInstance ef = MobEffectInstance.load((CompoundTag) e);
@@ -314,7 +380,7 @@ public class X1 {
         p.getFoodData().setFoodLevel(t.getInt("fome"));
         p.getFoodData().setSaturation(t.getFloat("sat"));
         p.clearFire();
-        for (String k : new String[]{"inv", "efeitos", "vida", "fome", "sat"}) t.remove(k);
+        for (String k : new String[]{"inv", "efeitos", "vida", "fome", "sat", "curios"}) t.remove(k);
         limpar(p);
         p.inventoryMenu.broadcastChanges();
     }
@@ -415,7 +481,7 @@ public class X1 {
 
     private static String regrasEmTexto(MinecraftServer s, Regras r, String arena) {
         return (r.hab() ? "com habilidades e invocações" : "sem habilidades") + " · " + (r.kit() ? "kit sorteado igual para os dois" : "itens do personagem")
-                + " · " + (r.pocoes() ? "com poções" : "sem poções") + " · " + (r.md3() ? "melhor de 3" : "luta única")
+                + " · " + (r.vidaIgual() ? "vida igual para os dois" : "vida de cada um") + " · " + (r.pocoes() ? "com poções" : "sem poções") + " · " + (r.md3() ? "melhor de 3" : "luta única")
                 + " · arena " + (arena.isEmpty() ? "sorteada" : nomeArena(s, arena));
     }
 
@@ -540,6 +606,7 @@ public class X1 {
         CompoundTag t = tagSeExiste(p);
         if (t == null || !t.contains("inv")) return;   // sem foto não se mexe no inventário
         p.getInventory().clearContent();
+        if (d.kit >= 0) guardarAcessorios(p, t);   // kit sorteado: anéis e outros acessórios (Curios) também ficam de fora
         if (d.kit >= 0) darKit(p, d.kit, d.r.pocoes());
         else p.getInventory().load(t.getList("inv", Tag.TAG_COMPOUND));
         p.inventoryMenu.broadcastChanges();
@@ -667,6 +734,18 @@ public class X1 {
             o.addProperty("v", v); o.addProperty("d", der); o.addProperty("e", e); o.addProperty("seq", seq); o.addProperty("melhor", melhor);
             placar.add(id, o);
         }
+        // histórico dos últimos 60 duelos (o site mostra): quem lutou, quem venceu, placar, arena e regras
+        if (!dados(s).has("historico")) dados(s).add("historico", new com.google.gson.JsonArray());
+        com.google.gson.JsonArray hist = dados(s).getAsJsonArray("historico");
+        JsonObject h = new JsonObject();
+        h.addProperty("quando", System.currentTimeMillis());
+        h.addProperty("a", d.nomeA); h.addProperty("b", d.nomeB);
+        h.addProperty("vencedor", vencedor == null ? "" : vencedor.equals(d.a) ? d.nomeA : d.nomeB);
+        h.addProperty("vitA", d.vitA); h.addProperty("vitB", d.vitB);
+        h.addProperty("md3", d.r.md3()); h.addProperty("kit", d.r.kit()); h.addProperty("hab", d.r.hab()); h.addProperty("vidaIgual", d.r.vidaIgual());
+        h.addProperty("arena", nomeArena(s, d.arena));
+        hist.add(h);
+        while (hist.size() > 60) hist.remove(0);
         sujo = true;
         gravar(s);
     }
@@ -735,6 +814,8 @@ public class X1 {
                     if (agora >= d.ate) {
                         d.fase = Fase.LUTA;
                         d.ate = agora + RODADA_MS;
+                        if (d.r.vidaIgual()) igualarVida(d, a, b);
+                        else for (ServerPlayer p : List.of(a, b)) p.setHealth(p.getMaxHealth());   // sem os anéis a vida máxima pode ter mudado
                         for (ServerPlayer p : List.of(a, b)) {
                             titulo(p, "Lute!", "", ChatFormatting.RED);
                             p.level().playSound(null, p.blockPosition(), SoundEvents.ENDER_DRAGON_GROWL, SoundSource.PLAYERS, 0.5f, 1.3f);

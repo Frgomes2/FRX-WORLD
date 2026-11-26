@@ -145,6 +145,8 @@ try {
         }
         "== fim do log do painel"
         Get-Content (Join-Path $raiz 'logs\painel.log') -Tail 20
+        "== diagnostico do painel (memoria a cada minuto, process.exit, excecoes)"
+        Get-Content (Join-Path $raiz 'logs\painel-saida.log') -Tail 15
         "== fim do log do servidor"
         Get-Content (Join-Path $raiz 'server\logs\latest.log') -Tail 12
       } *> $arq
@@ -161,11 +163,14 @@ try {
       if ($recentes.Count -lt 2 -and (SouEu) -and (AgenteDizLigado) -and -not (Test-Path $pedido)) {
         $recentes += (Get-Date -Format 'yyyy-MM-dd HH:mm:ss')
         Set-Content -Path $religArq -Value $recentes -Encoding ASCII
-        Set-Content -Path $pedido -Value 'reiniciar' -Encoding ASCII
+        # so o painel caiu e o jogo continua no ar: "ligar" sobe so o painel, que assume o jogo (ninguem cai)
+        $acao = 'reiniciar'
+        if ($morteJava -eq '' -and (Vivo $java)) { $acao = 'ligar' }
+        Set-Content -Path $pedido -Value $acao -Encoding ASCII
         $pediu = $true
       }
       $texto = "sentinela: queda (painel '$morteNode', minecraft '$morteJava') - foto em $arq"
-      if ($pediu) { $texto = $texto + ' - pedi reiniciar' } else { $texto = $texto + ' - nao pedi reiniciar (limite ou agente ocupado); a vigia cuida' }
+      if ($pediu) { $texto = $texto + " - pedi $acao" } else { $texto = $texto + ' - nao pedi reiniciar (limite ou agente ocupado); a vigia cuida' }
       Add-Content -Path $eventos -Value "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') $texto" -Encoding UTF8
       exit
     }

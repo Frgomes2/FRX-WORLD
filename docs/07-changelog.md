@@ -6,6 +6,95 @@ Formato: versão, depois o que entrou. A versão do mod fica em `core-mod/gradle
 
 > **Situação dos testes (10/11/2026):** a última versão compilada e testada no PC é a **0.33.0** (`pack/mods/frxworld-0.33.0.jar`). As versões **0.34 a 0.40** ainda não rodaram no jogo. O roteiro de teste está no checklist "FRX-WORLD — Checklist de testes".
 
+## 2.0.15 (26/11) — Reiniciar só o painel
+
+- `reiniciar-painel.bat` (novo): confere o código do painel (`tsc`; com erro, cancela e o painel atual fica no ar), avisa a sentinela, fecha só os processos do painel (porta 3000 e `npm run start`/`next start`, nunca o Java), compila se o código mudou, sobe o painel, que assume o jogo, e liga uma sentinela nova. Registra em `logs/agente-eventos.log`.
+- Botão "Reiniciar só o painel" na aba Servidor (`acao: "reiniciarPainel"` em `/api/painel/servidor`, `reiniciarSoPainel()` em `lib/servidor-mc.ts`, que roda o .bat separado do painel).
+- Comando `/frx painel reiniciar` (`acesso/ComandosArquivo`): roda o mesmo .bat a partir do servidor. Pelo arquivo `server/frx_comandos.txt` funciona mesmo com o painel travado.
+
+## 2.0.14 (26/11) — Jogo separado do painel
+
+- Causa das quedas "silenciosas": o Java era filho do `next start`; no Windows, o node coloca os filhos num job que é encerrado junto com ele. Quando o painel morria, o Minecraft morria no mesmo segundo, sem log.
+- `painel/src/lib/servidor-mc.ts`: o Java nasce com `detached` (fora do job do node). Painel novo com a porta 25565 ocupada **adota** o servidor: console pelo `server/logs/latest.log` e comandos por `server/frx_comandos.txt`; detecta o fim pela porta fechando.
+- `acesso/ComandosArquivo.java` (novo): o servidor lê `frx_comandos.txt` a cada 0,5 s, apaga e executa as linhas como console.
+- `controle/sentinela.ps1`: se só o painel morreu, pede `ligar` (sobe só o painel) em vez de `reiniciar`; a foto da queda inclui `logs/painel-saida.log`.
+- `iniciar-frx.bat`: com o Minecraft no ar e o painel fora, não mexe nos mods do servidor (`SOPAINEL`).
+- `desligar-frx.bat`: servidor sem painel recebe `stop` pelo arquivo e tem até 2 min para salvar antes de qualquer encerramento à força.
+- `painel/src/instrumentation.ts` (novo): `logs/painel-saida.log` com a memória do painel a cada minuto, quem chamou `process.exit` (com a pilha), o código de saída e exceções não tratadas. Sem nada ali numa queda = o painel foi encerrado por outro programa.
+
+## 2.0.13 (26/11) — Suporte de armadura protegido e Anel de Voo no rank B
+
+- `Terrenos.aoMexerNoSuporte` (`EntityInteractSpecific`, permissão USAR, como os baús): o clique no suporte de armadura não passava pelo `EntityInteract`.
+- `AneisUnicos`: Anel de Voo (`ringsofascension:ring_flight`) só com rank B da Guilda. Barra no `CurioEquipEvent` e, a cada 2 s (`conferirVoo`), tira o anel de quem está abaixo, devolve à mochila, corta o voo e dá Queda Lenta por 10 s.
+- `Terrenos.aoAcertarDecoracao` (`ProjectileImpactEvent`), `aoFerirSuporte` (`LivingAttackEvent`) e `aoExplodir` (agora também tira das entidades atingidas suportes, molduras e quadros dentro de lote).
+
+## 2.0.12 (26/11) — Bênção da Capitã Hinata e Pokébola
+
+- `reinos/Bencao.java` e `cliente/TelaBencao.java` (novos): a sábia de Lubelius (papel `sabio`, reino `lubelius`) abençoa peças de armadura vestidas. Tag `frx_bencao` {classe, grau} no item e uma linha de descrição. O bônus entra em `Talentos.bonus` (somado ao dos talentos) e `Talentos.aplicar` é refeito quando uma peça abençoada é vestida ou tirada (`LivingEquipmentChangeEvent`).
+- `Dialogos`: opção "Pedir a bênção para a minha armadura" (só em Lubelius); `AcaoMenu` tipo `bencao`; `ClienteMenus` abre a tela.
+- **Pokébola** (`criaturas/Pokebola.java`, `cliente/TelaPokebola.java`, novos): item `frxworld:pokebola` e projétil `frxworld:pokebola` (desenho com `ThrownItemRenderer`). Captura (`recusa` + chance) e solta com `EntityType.loadEntityRecursive` (UUID novo). Treinador: aldeão sem IA com a marca `frx_treinador`, criado por `/frx pokebola treinador`; tela pelo `AbrirMenu`/`AcaoMenu` tipo `pokebola`. Contador de compras em `frx_pokebolas` (dados persistentes). `Terrenos.podeUsar` (novo, público).
+- Esfera Portátil de Pets aposentada: `Pokebola.esferaAposentada` cancela a captura (`AttackEntityEvent`) e `server/kubejs/server_scripts/frx_esfera_aposentada.js` tira a receita. O mod continua instalado só para quem ainda tem bicho dentro poder soltar.
+- Mods novos no pack (ver [06-mods-externos.md](06-mods-externos.md)).
+
+## 2.0.11 (25/11) — Pórtico menor para capital apertada
+
+- `EntradasMasmorra.lugar`: tenta, nesta ordem, 7×7, 5×5 e 3×3 a céu aberto e depois 5×5 e 3×3 em rua coberta (piso procurado até 14 blocos acima ou abaixo do chão do reino). `porticoMenor` constrói as versões de 5×5 (quatro pilares) e 3×3 (só o portal).
+
+## 2.0.10 (25/11) — Contador do chefe e ajuste dos pórticos
+
+- `ChefesMasmorra.barras`: uma `ServerBossEvent` roxa por chefe morto, com "☠ <nome> foi derrotado · volta em 6d 23h 14min 05s", atualizada a cada segundo, para quem está na masmorra (a até 90 blocos do salão do chefe ou dentro do raio da masmorra, e a até 45 blocos de altura dele).
+- `EntradasMasmorra`: estrutura descida de propósito conta como enterrada (a `demonios-forja` tinha virado "de superfície"); `lugarNoReino` aceita qualquer altura de chão na superfície (7×7 com até 1 bloco de desnível, no máximo 3 acima do ponto mais baixo em volta) e procura até a borda da capital; falha de lugar não fica gravada e é tentada de novo a cada início; `refazer` também refaz o pórtico do reino.
+
+## 2.0.9 (25/11) — Pórtico de masmorra em toda capital, masmorras novas e chefes
+
+- `EntradasMasmorra`: cada masmorra ganha um pórtico **dentro do reino dela** (`ligarAoReino`, registro em `<mundo>/frx_portais_reino.txt`). O lugar é escolhido sozinho (`lugarNoReino`: espiral a partir da praça até um 7×7 plano e livre, longe dos NPCs). Masmorra enterrada: o pórtico leva à primeira sala. De superfície: leva ao marco ao lado da construção, que virou portal de volta. A saída devolve ao pórtico por onde o jogador entrou (`ORIGEM`).
+- Masmorra embaixo de capital sem entrada marcada: `montar` escolhe o lugar do pórtico sozinho (antes pedia `/frx masmorra portal`).
+- Mapa: `marcarNoMapa` pinta cada pórtico de reino no JourneyMap (`MapaJm`, id `masmorra_<id>`), uma vez por sessão do jogador.
+- `ChefesMasmorra`: `graveyard:lich` conta como chefe; primeiro chefe automático (`garantirInicial`, salão achado por `EntradasMasmorra.salaGrande`) para `leste-mosteiro` (Ancient Remnant), `sakura-gorgona` (Lich) e para as masmorras `oeste-*` e `demonios-*` (pelo tipo da estrutura colocada).
+- Painel: `api/servidor/masmorras` semeia uma vez `oeste-cidadela` e `demonios-forja` (chave `masmorras_reinos_2_0_9` em Configuracao).
+
+## 2.0.8 (24/11) — Chefes de masmorra renascem, Titã em partes e NPCs sem portal
+
+- `aventura/TitaParte.java` (novo, `PartEntity`): tronco e cabeça como partes; `TitaEntidade` virou multipartes (`isMultipartEntity`, `getParts`, ids consecutivos em `setId`) e a caixa própria cobre só as pernas (`sized(9, 13.5)`). Motivo: o jogo só procura entidades perto do bloco dos pés, então a caixa única de 35 blocos não era atingida no alto.
+- Vida fixa de 5.000 (`Tita.VIDA`), no lugar de 4.000 por jogador.
+- `NpcsReino.semPortal` (`EntityTravelToDimensionEvent`): cancela a troca de dimensão de entidades com as marcas `frx_npc` ou `frx_cidadao` e das do mod `easy_npc`.
+- `reinos/ChefesMasmorra.java` (novo): chefe (`forge:bosses` + Ferrous Wroughtnaut) morto a até 110 blocos de uma masmorra do `frx_masmorras.txt` renasce 7 dias depois, no lugar onde apareceu (`frx_origem`), com o mesmo nível. Estado em `<mundo>/frx_chefes_masmorra.json`. Comandos `/frx masmorra chefes|renascer|chefe <tipo>`.
+
+## 2.0.7 (24/11) — Titã maior e no mapa, reputação e regras do X1
+
+- `Tita.vencer`: `Reputacao.ganhar(p, "lubelius", 150 ou 300, false, false)` para quem causou dano (sem mexer no reino rival).
+- XP da vitória: 10% do nível (era 25%).
+- Titã 3x maior: `sized(10, 35)`, `RenderTita.ESCALA = 18`; pisão com aviso a 20 blocos, anel e dano a 14, 2,5 s para sair; nuca a partir de +20; marcações do mapa 3x maiores.
+- **X1:** com kit, `equipar` chama `guardarAcessorios` (Curios por reflexão, `getEquippedCurios`), que guarda tudo na foto (`curios`) e esvazia os espaços; `restaurar` devolve nos mesmos espaços. Regra nova `vidaIgual` (bit 64 das regras empacotadas): `igualarVida` no "Lute!" põe um modificador transitório em MAX_HEALTH (40 com kit; a menor das duas sem kit); sai em `restaurar`. `TelaX1` ganhou o botão "Vida" (7 regras, passo de 14 px).
+- `Tita.mapa`: usa `protecao/MapaJm` para pintar o Titã (`tita`) e a rota (`tita_rota0..15`) no JourneyMap de todos; `encerrar` remove.
+
+## 2.0.6 (24/11) — Titã à solta
+
+- **Titã** (`aventura/Tita.java`, `aventura/TitaEntidade.java`, `cliente/RenderTita.java`, novos): entidade `frxworld:tita` (corpo de jogador em escala 6, sem IA); a marcha, o pisão, o cambaleio, a barra e as recompensas ficam em `Tita.tick`. Estado em `<mundo>/frx_tita.json` (`dia`, `lojasAte`).
+- Sorteio: 1 vez por dia real, 3+ jogadores online, 4% por minuto. O corpo só existe onde o mundo está carregado; fora disso a marcha continua só nos números.
+- `NpcsReino.aoInteragir` consulta `Tita.lojasFechadas` para os NPCs de Lubelius (menos o papel `rei`).
+- Painel: papel de skin `tita` em `lib/npcs.ts` (chave `papel:tita`); música pelo disco de código `luta_tita`.
+- Comandos `/frx tita iniciar|parar|abrirlojas`.
+
+## 2.0.5 (24/11) — Sala do Tempo: saída
+
+- `SalaTempo.tick`: a saída (agachar no círculo do centro) é conferida antes do atalho do criativo, que antes prendia o jogador; não exige mais estar no chão. Barra de ação sempre lembra a saída.
+- `SalaTempo.construir` cria um `text_display` "SAÍDA" sobre o círculo (tag `frx_sala_txt`); rodar `/frx sala construir` de novo depois de atualizar.
+
+## 2.0.4 (24/11) — Death Note invoca a Morte
+
+- `aventura/DeathNote.java` refeito: sai a contagem de 40 s; `cacar(alvo)` cria uma `Cacada` (mapa `CACADAS`) e invoca a Morte (`born_in_chaos_v1:lifestealer`, depois `lifestealer_true_form`; 1.000 de vida por fase, tag `frx_morte`, barra de chefe).
+- `perseguir` roda a cada 10 ticks: mantém o alvo, refaz a Morte perto dele se ele se afastar mais de 48 blocos ou trocar de dimensão, guarda a vida quando o alvo sai do jogo ou entra em X1, e adota a entidade nova quando o mod troca a forma sozinho.
+- Golpe da Morte no alvo: no mínimo 12% da vida máxima. Morte do alvo durante a caçada entra em `semPena` (sem custo). Morte marcada sem caçada (depois de reinício) é barrada em `EntityJoinLevelEvent`.
+
+## 2.0.3 (24/11) — Death Note, Sala do Tempo, X1 no site e Vegeta com mais vida
+
+- **Death Note** (`aventura/DeathNote.java`, `cliente/TelaDeathNote.java`, novos): item `death_note`; sorteio a cada hora (15%, 2+ jogadores no mundo normal); `AcaoHabilidade.DEATH_NOTE = 10` (texto = nome do alvo); nesta versão o alvo morria após 40 s (mudou na 2.0.4); morte sem custo via `DeathNote.semPena`, que entra em `Esferas.imortal`. Comandos `/frx deathnote soltar|dar`.
+- **Sala do Tempo** (`aventura/SalaTempo.java`, novo): sala em 26000, 200, 26000 (área `sala_tempo` no `frx_protegidas.txt`), passagem no salão do Templo Karin (`SalaTempo.porta`, chamada também por `Karin.construir`); rank B, 30 min por dia (`frx_sala_dia`/`frx_sala_seg` nos dados persistentes); XP ×2 em `Progressao.ganharXp`; dano ×2; monstros de treino com `Zonas.aplicarNivel`. Comandos `/frx sala construir|ir`.
+- `Vegeta.VIDA_BASE` 700 → 1000 (por participante).
+- `X1.registrar` grava também `historico` em `frx_x1.json` (últimos 60 duelos: quando, nomes, vencedor, placar, melhor de 3, kit, habilidades, arena).
+- Site público: `lib/publico.ts` lê `frx_x1.json` (`x1.ranking` com os 10 que mais venceram e `x1.lutas` com as 15 últimas) e `components/publico/site.tsx` ganhou os cartões "X1 — quem mais venceu" e "X1 — últimas lutas".
+
 ## 2.0.2 (23/11) — X1, Saiyajin visível e proteção contra monstros
 
 - **X1** (`aventura/X1.java`, `cliente/TelaX1.java`, novos): duelo combinado em arena pela aba X1 do inventário; arenas e placar em `frx_x1.json`; comandos `/x1` e `/frx arena`. Ganchos em `AcaoMenu` (tipo `x1`), `TelaStatus` (aba), `Habilidades`, `Sombras`, `Despertar`, `Suprema`, `ClassesEquip`, `Torre`, `Fenda`, `Corridas`, `Dungeons` e `AreasProtegidas.noLabirinto`. Detalhes em [sistemas/x1.md](sistemas/x1.md).

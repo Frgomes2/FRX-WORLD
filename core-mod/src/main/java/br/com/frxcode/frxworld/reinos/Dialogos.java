@@ -26,7 +26,7 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public final class Dialogos {
     /** Opções: id curto que volta do cliente. */
-    public static final String SAIR = "sair", LOJA = "loja", MISSAO = "missao", REINO = "reino", QUADRO = "quadro", FALAR = "falar", FAVOR = "favor", PERDAO = "perdao", PEDIDO = "pedido", ENTREGAR = "entregar", DESENCANTO = "desencanto";
+    public static final String SAIR = "sair", LOJA = "loja", MISSAO = "missao", REINO = "reino", QUADRO = "quadro", FALAR = "falar", FAVOR = "favor", PERDAO = "perdao", PEDIDO = "pedido", ENTREGAR = "entregar", DESENCANTO = "desencanto", BENCAO = "bencao";
 
     private Dialogos() {}
 
@@ -124,6 +124,7 @@ public final class Dialogos {
             case "sabio" -> {
                 opcoes.add(new String[]{LOJA, "Ver o que você vende"});
                 if (Desencanto.ativo()) opcoes.add(new String[]{DESENCANTO, "Extrair um encantamento"});
+                if ("lubelius".equals(reinoId)) opcoes.add(new String[]{BENCAO, "Pedir a bênção para a minha armadura"});
                 opcoes.add(new String[]{FALAR, "Conversar"});
             }
             default -> {
@@ -171,6 +172,7 @@ public final class Dialogos {
                 }
             }
             case DESENCANTO -> Desencanto.abrir(p, npc);
+            case BENCAO -> Bencao.abrir(p, npc);
             case PEDIDO -> abrir(p, npc, VidaNpc.favor(p, npc, false));
             case ENTREGAR -> abrir(p, npc, VidaNpc.favor(p, npc, true));
             case FALAR -> abrir(p, npc, papel.startsWith("folga_") || papel.equals("taverneiro") && VidaNpc.noite(npc.level())

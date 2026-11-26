@@ -32,7 +32,7 @@ public class VegetaEntidade extends Monster {
 
     public static AttributeSupplier.Builder atributos() {
         return Monster.createMonsterAttributes()
-                .add(Attributes.MAX_HEALTH, 700)
+                .add(Attributes.MAX_HEALTH, 1000)
                 .add(Attributes.ATTACK_DAMAGE, 12)
                 .add(Attributes.MOVEMENT_SPEED, 0.33)
                 .add(Attributes.FOLLOW_RANGE, 48)

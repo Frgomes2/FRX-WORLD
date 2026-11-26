@@ -32,7 +32,7 @@ public class TelaX1 extends Screen {
     private static final int POR_PAGINA = 7;
 
     // regras escolhidas (lembradas entre uma abertura e outra)
-    private static boolean habilidades = true, kit = false, pocoes = true, melhorDe3 = false;
+    private static boolean habilidades = true, kit = false, pocoes = true, melhorDe3 = false, vidaIgual = false;
     private static int arena = 0, aposta = X1.SEM_APOSTA;
     private static String valorAposta = "";
 
@@ -105,25 +105,30 @@ public class TelaX1 extends Screen {
         int xd = x0 + 16 + colEsq, ld = larg - colEsq - 24;
         ListTag arenas = lista("arenas");
         if (arena > arenas.size()) arena = 0;
-        y = y0 + 36;
+        y = y0 + 34;
         opcao(xd, y, ld, "Habilidades: " + (habilidades ? "sim" : "não"), "Habilidades de classe, Despertar, Suprema e as invocações (sombras e monstros chamados).\nCom \"sim\", elas ferem o adversário mesmo que o seu \"Dano em jogadores\" esteja desligado.",
                 () -> habilidades = !habilidades);
-        y += 15;
+        y += 14;
         opcao(xd, y, ld, "Itens: " + (kit ? "kit sorteado" : "do personagem"), kit
-                        ? "Os dois recebem o mesmo kit (armadura, arma, comida), sorteado na hora. Seus itens ficam guardados e voltam no fim."
+                        ? "Os dois recebem o mesmo kit (armadura, arma, comida), sorteado na hora. Seus itens, anéis e acessórios ficam guardados e voltam no fim."
                         : "Cada um luta com o que tem no inventário. No fim tudo volta como estava: nada gasta, nada quebra.",
                 () -> kit = !kit);
-        y += 15;
+        y += 14;
+        opcao(xd, y, ld, "Vida: " + (vidaIgual ? "igual para os dois" : "a de cada um"), vidaIgual
+                        ? (kit ? "Os dois lutam com 20 corações." : "Os dois lutam com a mesma vida: a de quem tem menos.")
+                        : "Cada um luta com a vida máxima que tem.",
+                () -> vidaIgual = !vidaIgual);
+        y += 14;
         opcao(xd, y, ld, "Poções: " + (pocoes ? "sim" : "não"), pocoes ? "Poções de beber e de arremessar liberadas (o kit sorteado vem com algumas)." : "Ninguém bebe nem arremessa poção.",
                 () -> pocoes = !pocoes);
-        y += 15;
+        y += 14;
         String nomeArena = arena == 0 ? "sorteada" : arenas.getCompound(arena - 1).getString("nome") + (arenas.getCompound(arena - 1).getBoolean("ocupada") ? " (ocupada)" : "");
         opcao(xd, y, ld, "Arena: " + nomeArena, arenas.isEmpty() ? "Ainda não há arena pronta. O admin cria com /frx arena." : "Clique para passar para a próxima arena. \"Sorteada\" escolhe uma livre na hora.",
                 () -> arena = (arena + 1) % (arenas.size() + 1));
-        y += 15;
+        y += 14;
         opcao(xd, y, ld, "Formato: " + (melhorDe3 ? "melhor de 3" : "luta única"), "Cada rodada dura até 5 minutos; no tempo esgotado, leva quem estiver com mais vida.",
                 () -> melhorDe3 = !melhorDe3);
-        y += 15;
+        y += 14;
         String nomeAposta = switch (aposta) {
             case X1.APOSTA_MOEDAS -> "moedas";
             case X1.APOSTA_ITEM -> "item na mão";
@@ -131,7 +136,7 @@ public class TelaX1 extends Screen {
         };
         opcao(xd, y, ld, "Aposta: " + nomeAposta, "Moedas: os dois põem o mesmo valor e o vencedor leva tudo.\nItem: cada um aposta o item que estiver segurando; o vencedor leva os dois.\nA aposta fica guardada com o servidor até o fim da luta.",
                 () -> aposta = (aposta + 1) % 3);
-        y += 15;
+        y += 14;
         if (aposta == X1.APOSTA_MOEDAS) {
             caixaAposta = new EditBox(font, xd + 1, y + 1, 60, 12, Component.literal("Valor"));
             caixaAposta.setMaxLength(7);
@@ -141,10 +146,10 @@ public class TelaX1 extends Screen {
             caixaAposta.setResponder(t -> valorAposta = t);
             addRenderableWidget(caixaAposta);
         }
-        y += 15;
+        y += 14;
         CompoundTag e = escolhido();
         botaoDesafiar = Button.builder(Component.literal(e == null ? "Escolha um jogador" : "⚔ Desafiar " + corta(e.getString("nome"), ld - 70)), bt -> {
-            if (podeDesafiar()) enviar(X1.DESAFIAR, alvo, X1.empacotar(habilidades, kit, pocoes, melhorDe3, aposta, arena, valorEmCobre()));
+            if (podeDesafiar()) enviar(X1.DESAFIAR, alvo, X1.empacotar(habilidades, kit, pocoes, melhorDe3, aposta, arena, valorEmCobre(), vidaIgual));
         }).bounds(xd, y, ld, 16).build();
         botaoDesafiar.active = podeDesafiar();
         addRenderableWidget(botaoDesafiar);
@@ -226,8 +231,8 @@ public class TelaX1 extends Screen {
         g.drawString(font, "JOGADORES ONLINE", x0 + 8, y0 + 26, OURO, false);
         if (lista("jogadores").isEmpty()) g.drawString(font, "Ninguém mais online.", x0 + 10, y0 + 40, CINZA, false);
         g.drawString(font, "REGRAS", xd, y0 + 26, OURO, false);
-        // linha da aposta, logo abaixo dos seis botões de regra
-        int ya = y0 + 36 + 6 * 15 + 3;
+        // linha da aposta, logo abaixo dos sete botões de regra
+        int ya = y0 + 34 + 7 * 14 + 3;
         switch (aposta) {
             case X1.APOSTA_MOEDAS -> {
                 long v = valorEmCobre();

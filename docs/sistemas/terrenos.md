@@ -60,3 +60,9 @@ Dentro de terreno comprado, quem não é dono nem foi liberado não quebra, não
 - Pistões, água/lava escorrendo e fogo vindos de fora não são barrados.
 - Comprar uma área onde outro jogador já construiu sem comprar passa a casa para o comprador.
 - As terras do reino não aparecem pintadas no mapa dos jogadores; a recusa vem na hora de comprar.
+
+## Suportes de armadura, molduras e quadros (2.0.13)
+
+- Tirar ou pôr peças num suporte de armadura segue a mesma permissão dos baús (**usar**).
+- Bater, atirar ou explodir: dentro do terreno, só quem pode **quebrar** derruba suporte de armadura, moldura ou quadro. Flecha de monstro, explosão, fogo, lava e afins não destroem essas decorações.
+

@@ -40,7 +40,10 @@ public class FrxWorld {
         br.com.frxcode.frxworld.armas.Reliquias.registrar(modBus);
         br.com.frxcode.frxworld.armas.Lendarias.registrar(modBus);
         br.com.frxcode.frxworld.aventura.Vegeta.registrar(modBus);
+        br.com.frxcode.frxworld.aventura.Tita.registrar(modBus);
+        br.com.frxcode.frxworld.criaturas.Pokebola.registrar(modBus);
         br.com.frxcode.frxworld.aventura.Esferas.registrar(modBus);
+        br.com.frxcode.frxworld.aventura.DeathNote.registrar(modBus);
         br.com.frxcode.frxworld.reinos.MenuDesencanto.registrar(modBus);
         br.com.frxcode.frxworld.reinos.MenuCostura.registrar(modBus);
         br.com.frxcode.frxworld.eventos.ItensNatal.registrar(modBus);
@@ -84,7 +87,10 @@ public class FrxWorld {
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.racas.Saiyajin());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.aventura.Karin());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.aventura.Esferas());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.aventura.DeathNote());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.aventura.SalaTempo());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.aventura.Vegeta());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.aventura.Tita());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.aventura.Corridas());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.aventura.X1());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.aventura.ConjuntosLendarios());
@@ -117,6 +123,10 @@ public class FrxWorld {
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.reinos.Oficios());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.reinos.Populacao());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.reinos.Masmorras());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.reinos.ChefesMasmorra());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.reinos.Bencao());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.criaturas.Pokebola());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.acesso.ComandosArquivo());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.reinos.EntradasMasmorra());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.reinos.Portao());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.reinos.Casas());

@@ -223,6 +223,7 @@ public class Karin {
             s(nv, x, TOPO + 2, z, Blocks.LANTERN.defaultBlockState().setValue(LanternBlock.HANGING, false));
         }
         waystone(nv, new BlockPos(CX, TOPO + 1, CZ + 26));
+        SalaTempo.porta(nv);
         // ponte curta da beira do fosso até a primeira escada
         for (int dz = -11; dz <= -5; dz++) s(nv, CX, CHAO, CZ + dz, Blocks.SPRUCE_SLAB.defaultBlockState().setValue(SlabBlock.TYPE, SlabType.TOP)
                 .setValue(BlockStateProperties.WATERLOGGED, dz > -10));

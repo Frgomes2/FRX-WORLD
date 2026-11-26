@@ -336,7 +336,7 @@ public class Esferas {
         List<ItemStack> l = GUARDADOS.remove(p.getUUID());
         if (l != null) {
             for (ItemStack s : l) if (!p.getInventory().add(s)) p.drop(s, false);
-            p.displayClientMessage(Component.literal("✦ A Imortalidade de Shenlong devolveu tudo o que você carregava.").withStyle(ChatFormatting.GREEN), false);
+            if (!DeathNote.semPena(p)) p.displayClientMessage(Component.literal("✦ A Imortalidade de Shenlong devolveu tudo o que você carregava.").withStyle(ChatFormatting.GREEN), false);
         }
         int[] x = XP.remove(p.getUUID());
         if (x != null) { p.experienceLevel = x[0]; p.totalExperience = x[1]; p.experienceProgress = Float.intBitsToFloat(x[2]); p.giveExperiencePoints(0); }
@@ -693,7 +693,7 @@ public class Esferas {
 
     // ------------------------------------------------------------------ efeitos dos desejos
 
-    public static boolean imortal(Player p) { return p.getPersistentData().getCompound(Player.PERSISTED_NBT_TAG).getLong("frx_imortal_ate") > System.currentTimeMillis(); }
+    public static boolean imortal(Player p) { return DeathNote.semPena(p) || p.getPersistentData().getCompound(Player.PERSISTED_NBT_TAG).getLong("frx_imortal_ate") > System.currentTimeMillis(); }
 
     public static boolean xpEmDobro(ServerPlayer p) {
         if (CLAS_XP.isEmpty()) return false;

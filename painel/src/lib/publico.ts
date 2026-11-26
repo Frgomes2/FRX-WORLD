@@ -42,6 +42,8 @@ export type DadosPublicos = {
   pesca: { fim: number; linhas: { nome: string; especie: string; peso: number; pct: number; qtd: number }[]; campeao: { semana: string; nome: string; especie: string; peso: number } | null };
   /** Pistas de corrida (frx_corridas.json) com os melhores tempos. */
   corridas: { id: string; nome: string; tipo: string; pontos: number; voltas: number; feitas: number; recordes: { nome: string; ms: number }[]; voltaRapida: { nome: string; ms: number } | null }[];
+  /** Duelos X1 (frx_x1.json): quem mais venceu e as últimas lutas. */
+  x1: { ranking: { nome: string; v: number; d: number; e: number; melhor: number }[]; lutas: { quando: number; a: string; b: string; vencedor: string; placar: string; arena: string; regras: string }[] };
   reinos: string[];
   feed: EventoFeed[];
   aventureiros: { nick: string; conta: string; vaga: number; nivel: number; rank: string; classe: string; titulo: string; online: boolean }[];
@@ -181,6 +183,18 @@ export async function dadosPublicos(): Promise<DadosPublicos> {
     recordes: (p.recordes ?? []).map((r) => ({ nome: r.nome ?? "?", ms: r.ms ?? 0 })).slice(0, 5),
   }));
 
+  const xj = lerJson<{ placar?: Record<string, { nome?: string; v?: number; d?: number; e?: number; melhor?: number }>;
+    historico?: { quando?: number; a?: string; b?: string; vencedor?: string; vitA?: number; vitB?: number; md3?: boolean; kit?: boolean; hab?: boolean; arena?: string }[] }>(path.join(mundo, "frx_x1.json"));
+  const x1 = {
+    ranking: Object.values(xj?.placar ?? {}).map((p) => ({ nome: p.nome ?? "?", v: p.v ?? 0, d: p.d ?? 0, e: p.e ?? 0, melhor: p.melhor ?? 0 }))
+      .filter((p) => p.v + p.d + p.e > 0).sort((a, b) => b.v - a.v || a.d - b.d).slice(0, 10),
+    lutas: [...(xj?.historico ?? [])].reverse().slice(0, 15).map((h) => ({
+      quando: h.quando ?? 0, a: h.a ?? "?", b: h.b ?? "?", vencedor: h.vencedor ?? "",
+      placar: h.md3 ? `${Math.max(h.vitA ?? 0, h.vitB ?? 0)} a ${Math.min(h.vitA ?? 0, h.vitB ?? 0)}` : "",
+      arena: h.arena ?? "", regras: [h.kit ? "kit sorteado" : "itens próprios", h.hab ? "com habilidades" : "sem habilidades"].join(" · "),
+    })),
+  };
+
   let reinos: string[] = [];
   try { reinos = reinosDoServidor().reinos.map((r) => r.nome); } catch { /* */ }
   let eventos: EventoFeed[] = [];
@@ -286,7 +300,7 @@ export async function dadosPublicos(): Promise<DadosPublicos> {
       mortes: fichas.filter((j) => j.mortes > 0).sort((a, b) => b.mortes - a.mortes).slice(0, 10).map((j) => linha(j, j.mortes, perfil(j))),
       conquistas: fichas.filter((j) => j.conquistas > 0).sort((a, b) => b.conquistas - a.conquistas).slice(0, 10).map((j) => linha(j, j.conquistas, perfil(j))),
     },
-    guilda, classes, torre, temporada, pesca, corridas, reinos, feed: eventos,
+    guilda, classes, torre, temporada, pesca, corridas, x1, reinos, feed: eventos,
     aventureiros: porNivel.map((j) => ({ nick: j.nick, conta: j.conta, vaga: j.vaga, nivel: j.nivel, rank: j.rank, classe: nomeClasse(j.classe), titulo: j.titulo, online: j.emUso && noJogo.has(j.conta.toLowerCase()) })),
     clas, mural, cronicas: await ultimasCronicas(), armas,
   };

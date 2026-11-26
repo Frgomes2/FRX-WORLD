@@ -16,6 +16,114 @@ export type NotaAtualizacao = { versao: string; data: string; hora?: string; tit
 
 export const NOTAS: NotaAtualizacao[] = [
   {
+    versao: "2.0.15", data: "26/11/2026", hora: "", titulo: "Reiniciar só o painel",
+    itens: [
+      "Atualizações do site e do painel agora podem entrar sem reiniciar o jogo: o painel reinicia sozinho e ninguém é desconectado.",
+    ],
+  },
+  {
+    versao: "2.0.14", data: "26/11/2026", hora: "09:12:00", titulo: "Servidor não cai mais junto com o painel",
+    itens: [
+      "O jogo agora roda separado do painel de administração. Se o painel cair, o servidor continua no ar e ninguém é desconectado; o painel volta sozinho e reassume o controle.",
+    ],
+  },
+  {
+    versao: "2.0.13", data: "26/11/2026", hora: "08:56:00", titulo: "Suporte de armadura protegido e Anel de Voo no rank B",
+    itens: [
+      "Suportes de armadura dentro do terreno de alguém agora têm a mesma proteção dos baús: quem não tem permissão não tira nem põe peças.",
+      "Flecha, explosão, fogo e lava também não destroem mais suportes de armadura, molduras e quadros dentro de terreno comprado.",
+      "Anel de Voo: agora só funciona a partir do rank B da Guilda. Quem estiver abaixo não consegue colocar, e quem já estava usando recebe o anel de volta na mochila (com queda lenta para não cair do céu).",
+    ],
+  },
+  {
+    versao: "2.0.12", data: "26/11/2026", hora: "08:43:00", titulo: "Bênção da Capitã Hinata, Pokébola e mods novos",
+    itens: [
+      "Em Lubelius, a Capitã Hinata agora abençoa a sua armadura: cada peça vestida pode ganhar um bônus ligado à sua classe (por exemplo, roubo de vida para o Guerreiro e dano das habilidades para o Mago).",
+      "São cinco graus, com chance de 100, 80, 60, 40 e 20% e preço de 10 a 150 de ouro. Os graus IV e V pedem material de chefe e reputação Honrado com Lubelius. Se falhar, perde o pagamento, mas a peça fica como estava.",
+      "A bênção só vale enquanto você for da classe dela; peça abençoada para outra classe recomeça do grau I.",
+      "Pokébola: compre com o Treinador de Criaturas e jogue num bicho pacífico ou num bicho domado por você para guardá-lo; jogue de novo para soltar onde ela cair. Bicho domado por você é sempre capturado; selvagem tem chance (maior se estiver ferido).",
+      "Cada jogador compra até 10 pokébolas, cada uma mais cara (5 ouro a primeira, 750 a décima). Ela fica presa a quem comprou: só o dono joga, pega do chão e solta. Não queima nem explode.",
+      "A pokébola não pega monstros, aldeões, golens, NPCs, chefes, bichos de outra pessoa nem bichos dentro do terreno de outra pessoa.",
+      "A Esfera Portátil de Pets foi aposentada: não captura mais nem tem receita, mas quem ainda tem bicho dentro dela consegue soltar.",
+      "Mods novos: Traveler's Backpack, Advanced Netherite, Integrated Stronghold, Stalwart Dungeons, Better Villages e Shield Expansion. E, para desempenho e conforto: Clumps, Entity Culling, ImmediatelyFast, AppleSkin, Enchantment Descriptions, Controlling, Packet Fixer e AllTheLeaks.",
+    ],
+  },
+  {
+    versao: "2.0.11", data: "25/11/2026", hora: "23:58:00", titulo: "Pórticos de masmorra nas capitais apertadas",
+    itens: [
+      "Nas capitais sem espaço para o pórtico grande (Sarion, Leste e Sakura), o portal da masmorra passa a usar uma versão menor: um pórtico de 5×5 ou só o portal no chão, com o nome flutuando.",
+    ],
+  },
+  {
+    versao: "2.0.10", data: "25/11/2026", hora: "23:46:00", titulo: "Contador do chefe na masmorra",
+    itens: [
+      "Quando o chefe de uma masmorra está morto, quem entra nela vê no alto da tela uma barra com o nome dele e o contador, rodando, até ele voltar.",
+      "Ajuste na escolha automática do lugar dos pórticos de masmorra nas capitais (Sarion, Leste, Sakura e Lordes Demônios).",
+    ],
+  },
+  {
+    versao: "2.0.9", data: "25/11/2026", hora: "23:35:00", titulo: "Toda capital com portal de masmorra e chefe",
+    itens: [
+      "Todo reino agora tem um pórtico de masmorra dentro da capital: pise no portal para ir direto à masmorra do reino e use o portal de lá para voltar.",
+      "Os pórticos aparecem no mapa (JourneyMap) como um quadrado roxo com o nome da masmorra.",
+      "Nações do Oeste e Lordes Demônios, que não tinham masmorra, ganharam uma embaixo da capital, com chefe.",
+      "O Mosteiro do Leste e o Templo de Sakura, que não tinham chefe, agora têm: o Remanescente Ancestral e o Lich.",
+      "Todos os chefes de masmorra renascem 7 dias depois de mortos.",
+    ],
+  },
+  {
+    versao: "2.0.8", data: "25/11/2026", hora: "05:54:00", titulo: "Chefes de masmorra renascem e Titã corrigido",
+    itens: [
+      "Corrigido: o Titã só levava dano nas pernas. Agora golpes e flechas acertam também o tronco e a cabeça.",
+      "A vida do Titã passou a ser fixa: 5.000, não importa quantos jogadores estejam online.",
+      "NPCs dos reinos e moradores não atravessam mais portal do Nether (nem nenhum outro portal).",
+      "Os chefes das masmorras que ficam embaixo dos reinos (e do coliseu) agora renascem 7 dias depois de mortos. O servidor avisa no chat quando um deles volta.",
+    ],
+  },
+  {
+    versao: "2.0.7", data: "24/11/2026", hora: "22:26:00", titulo: "Titã maior e no mapa, e regras novas no X1",
+    itens: [
+      "Quem ajuda a derrubar o Titã agora também ganha reputação em Lubelius: +150 para cada um que causou dano e +300 para quem mais feriu (além do ouro e do XP).",
+      "O Titã ficou 3 vezes maior: agora tem uns 35 blocos de altura. O pisão alcança mais longe e a nuca fica bem mais alta.",
+      "O XP da vitória contra o Titã ficou em 10% de um nível.",
+      "X1 com kit sorteado: os anéis e os outros acessórios também ficam guardados durante a luta e voltam no fim, nos mesmos espaços.",
+      "X1: regra nova \"Vida\". \"Igual para os dois\" deixa os dois com 20 corações (com kit) ou com a vida de quem tem menos (com os itens do personagem); \"a de cada um\" mantém a vida máxima de cada jogador.",
+      "O Titã aparece no mapa: um quadrado vermelho mostra onde ele está e um pontilhado laranja mostra de onde ele veio e o caminho até Lubelius.",
+    ],
+  },
+  {
+    versao: "2.0.6", data: "24/11/2026", hora: "19:56:00", titulo: "Titã à solta: defendam Lubelius",
+    itens: [
+      "Evento novo: no máximo uma vez por dia, e só com 3 ou mais jogadores online, um Titã de 12 blocos de altura aparece longe de Lubelius e marcha para as muralhas. Todo o servidor é avisado e vê a barra com a vida dele e a distância que falta.",
+      "Qualquer golpe fere, mas o ponto fraco é a nuca: acertar por trás e do alto vale 3 vezes. A cada 20% de vida perdida ele cambaleia e para por alguns segundos. Cuidado com o pisão: ele avisa antes.",
+      "Se o Titã cair, quem ajudou ganha 30 de ouro e XP, e quem mais feriu ganha o dobro do ouro. Se ele chegar às muralhas, os NPCs de Lubelius ficam 30 minutos sem atender.",
+    ],
+  },
+  {
+    versao: "2.0.5", data: "24/11/2026", hora: "19:38:00", titulo: "Sala do Tempo: saída mais clara",
+    itens: [
+      "A saída da Sala do Tempo ganhou uma placa flutuante no centro (\"Agache no círculo dourado\") e o lembrete aparece na barra de ação o tempo todo.",
+      "Corrigido: quem entrava na sala no modo criativo não conseguia sair pelo círculo.",
+    ],
+  },
+  {
+    versao: "2.0.4", data: "24/11/2026", hora: "19:24:00", titulo: "Death Note: agora a Morte vem buscar",
+    itens: [
+      "O Death Note mudou: quem tem o nome escrito não cai mais sozinho em 40 segundos. O caderno invoca a Morte, que persegue só essa pessoa, vai atrás dela onde ela for e só para quando levar o alvo ou for derrotada.",
+      "A Morte tem 2.000 de vida em duas fases (com o manto e depois a forma verdadeira) e uma barra de chefe na tela. Qualquer jogador pode ajudar a derrubar.",
+      "Quem cai para a Morte continua sem perder itens, XP ou nível, e quem escreveu o nome continua anônimo.",
+    ],
+  },
+  {
+    versao: "2.0.3", data: "24/11/2026", hora: "19:19:00", titulo: "Death Note, Sala do Tempo e X1 no site",
+    itens: [
+      "Death Note: evento raro. Um caderno negro cai do céu com um raio e o servidor inteiro é avisado do lugar. Quem pegar tem 30 minutos para clicar com ele e escolher o nome de um jogador online: a vítima tem 40 segundos e cai de ataque cardíaco. É só susto (não perde itens, XP nem nível) e ninguém fica sabendo quem escreveu.",
+      "Sala do Tempo: passagem nova no fundo do salão do Templo Karin, para rank B ou maior na Guilda. Lá dentro o XP vale em dobro, o dano recebido também, a fome é mais rápida e aparecem monstros de treino no seu nível. São 30 minutos por dia; para sair, agache no círculo dourado do centro.",
+      "Príncipe Vegeta com mais vida: de 700 para 1.000 por participante. A luta dura mais.",
+      "O site ganhou a área do X1: o ranking de quem mais venceu (com derrotas, empates e melhor sequência) e as últimas lutas, com quem enfrentou quem e quem levou.",
+    ],
+  },
+  {
     versao: "2.0.2", data: "23/11/2026", hora: "21:13:00", titulo: "X1: duelo em arena, Saiyajin no nome e mais anéis",
     itens: [
       "X1: nova aba no inventário (espada de diamante) para desafiar quem está online para um duelo em arena, com regras combinadas (habilidades, itens do personagem ou kit sorteado, poções, melhor de 3 e aposta). Morrer no duelo não tem punição e o inventário volta igual no fim.",

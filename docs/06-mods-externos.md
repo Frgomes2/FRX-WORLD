@@ -12,7 +12,7 @@ O pack é gerenciado pelo **packwiz** em `pack/`. Cada mod é um `mods/<slug>.pw
 | Estruturas | When Dungeons Arise, Dungeons Enhanced, Dungeons and Taverns, IDAS, Repurposed Structures, Structory (+ Towers), Towns and Towers, The Graveyard, Moogs (Voyager/Nether/End), YUNG's (todos), Explorify, Incendium, Nether Depths Upgrade, Nullscape, Unusual End |
 | Mundo | Terralith |
 | NPCs e vilas | Easy NPC (+ config UI), Guard Villagers, Villagers Trading Plus |
-| Equipamento | Rings of Ascension (29 anéis no slot do Curios; só achados em baús, inclusive nas masmorras e no baú do chefe) |
+| Equipamento | Rings of Ascension (29 anéis no slot do Curios; só achados em baús, inclusive nas masmorras e no baú do chefe). O Anel de Voo só funciona a partir do rank B da Guilda (`AneisUnicos`) |
 | Utilidade | Waystones, JourneyMap, JEI, Lootr, Sophisticated Backpacks/Storage, Curios, Supplementaries, Quark, Create, Portable Pet Sphere, KubeJS |
 | Desempenho | Embeddium, ModernFix, FerriteCore, Chunky (pré-geração), spark |
 | Bibliotecas | Architectury, Balm, Blueprint, Citadel, Cristel Lib, GeckoLib, Integrated API, Lionfish API, Moonlight, Obscure API, Puzzles Lib, Resourceful Config/Lib, Rhino, Structure Gel, YUNG's API, Zeta, Fragmentum, MezzConfig, Moogs Structure Lib |
@@ -113,3 +113,38 @@ Ajustes em mods que já estavam no pack:
 | AmbientSounds 6.3.11 + CreativeCore | Modrinth (`ambientsounds`) | cliente | Sons de natureza |
 
 Mods do CurseForge com download automático bloqueado (Storage Finder, SmartChest) não podem ir para `pack/pendentes.txt`: travam a atualização dos mods do servidor. Só entram com o `.jar` posto à mão em `pack/mods`.
+
+## Mods pedidos em 26/11/2026 (`pack\pendentes.txt`)
+
+| Mod | Fonte (Modrinth) | Lado | Por quê |
+|---|---|---|---|
+| Traveler's Backpack | `travelersbackpack` | os dois | Mochilas temáticas com tanques, cama e habilidades. Vai no espaço "costas" do Curios; a lápide guarda a mochila |
+| Advanced Netherite | `advanced-netherite` | os dois | Quatro níveis de netherita acima do comum (ferro, ouro, esmeralda, diamante), com bônus de armadura |
+| Integrated Stronghold | `KUJdfPQz` | os dois | Fortaleza gigante com salas detalhadas. Pede Integrated API, Create, Supplementaries e Quark (já instalados) |
+| Stalwart Dungeons | `BCLngNKp` | os dois | Duas masmorras difíceis no Nether e uma no Fim, com chefes e relíquias |
+| Better Villages (Forge) | `dGVX5JbJ` | servidor | Vilas de aldeões mais bonitas. Pede a biblioteca Ferret |
+| Shield Expansion | `sjxWxSao` | os dois | Aparar golpes, níveis e encantamentos de escudo |
+| Medieval Music | CurseForge `medieval-music` (pendente) | só cliente | Trilha medieval no lugar da música normal |
+
+- Estruturas novas (fortaleza, masmorras, vilas) só aparecem em chunks ainda não gerados.
+- **Integrated Stronghold e YUNG's Better Strongholds** ficam juntos: o autor do Integrated recomenda usar só um, mas tirar o YUNG's agora mexeria nas fortalezas já geradas.
+- **Shield Expansion** convive com o Sword Blocking Mechanics e o Golden Age Combat; conferir se o aparar do escudo não briga com a defesa da espada.
+- Instalados em 26/11 às 07:00, menos o Medieval Music: no Modrinth não há versão Forge 1.20.1. Ficou na fila pelo CurseForge (`cf medieval-music`), que às vezes bloqueia o download automático; nesse caso, baixar o `.jar` à mão para `pack/mods`.
+
+## Desempenho e qualidade de vida (pedidos em 26/11/2026, `pack\pendentes.txt`)
+
+Escolhidos do top 100 do CurseForge (Forge 1.20.1, por popularidade).
+
+| Mod | Fonte | Lado | Por quê |
+|---|---|---|---|
+| Clumps | Modrinth `clumps` | os dois | Junta as bolinhas de XP em uma só (menos lag em farm e chefe) |
+| Entity Culling | Modrinth `entityculling` | só cliente | Não desenha mob e bloco com entidade que está fora de vista |
+| ImmediatelyFast | Modrinth `immediatelyfast` | só cliente | Desenha HUD, textos e mapas mais rápido |
+| Enchantment Descriptions | Modrinth `enchantment-descriptions` | os dois | Explica cada encantamento no item. Pede Bookshelf |
+| AppleSkin | Modrinth `appleskin` | os dois | Quanto cada comida recupera e a saturação |
+| Controlling | Modrinth `controlling` | só cliente | Busca no menu de teclas e mostra teclas repetidas. Pede Searchables |
+| Packet Fixer | Modrinth `packet-fixer` | os dois | Evita desconexão por pacote grande demais (inventário e baú cheios de itens com dados) |
+| AllTheLeaks | CurseForge `alltheleaks` (só lá) | os dois | Corrige vazamentos de memória de vários mods e do Forge |
+
+- Ficaram de fora da lista: Xaero's (já temos JourneyMap), Oculus (pesado), Essential (contas e loja próprias), Comforts (o Traveler's Backpack já tem saco de dormir), Nature's Compass e Explorer's Compass (tiram a graça de explorar).
+

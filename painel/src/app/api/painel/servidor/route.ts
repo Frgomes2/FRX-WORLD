@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { servidorMc } from "@/lib/servidor-mc";
+import { reiniciarSoPainel, servidorMc } from "@/lib/servidor-mc";
 import { novoMundo } from "@/lib/mundo";
 
 export const runtime = "nodejs";
@@ -11,7 +11,7 @@ export async function GET() {
   return NextResponse.json(servidorMc.resumo());
 }
 
-/** { acao: "iniciar" | "parar" | "reiniciar" | "comando", comando?: string } */
+/** { acao: "iniciar" | "parar" | "reiniciar" | "reiniciarPainel" | "comando", comando?: string } */
 export async function POST(req: Request) {
   if (!(await auth())?.user) return NextResponse.json({ erro: "não autorizado" }, { status: 401 });
   const { acao, comando, seed } = (await req.json().catch(() => ({}))) as { acao?: string; comando?: string; seed?: string };
@@ -31,6 +31,9 @@ export async function POST(req: Request) {
         const r = novoMundo(seed);
         return NextResponse.json({ ok: true, ...r, ...servidorMc.resumo() });
       }
+      case "reiniciarPainel":
+        reiniciarSoPainel();
+        return NextResponse.json({ ok: true, ...servidorMc.resumo() });
       case "comando":
         servidorMc.comando(String(comando ?? ""));
         break;

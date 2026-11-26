@@ -8,6 +8,10 @@ import path from "path";
 /**
  * Controla o processo do servidor Minecraft a partir do painel.
  * O painel roda na mesma máquina do servidor: ele mesmo inicia o Java, lê o console e manda comandos.
+ *
+ * O Java nasce separado do painel ("detached"): se o painel cair, o jogo continua no ar. O painel novo
+ * "adota" o servidor que encontrar rodando (porta 25565 ocupada): lê o console pelo logs/latest.log e manda
+ * comandos pelo arquivo frx_comandos.txt, que o core mod lê a cada meio segundo (acesso/ComandosArquivo).
  */
 
 export type EstadoServidor = "parado" | "iniciando" | "online" | "parando";
@@ -79,8 +83,15 @@ function portaOcupada(porta: number): Promise<boolean> {
   });
 }
 
+/** Arquivo de comandos que o core mod lê (uma linha por comando). */
+function arquivoComandos() { return path.join(pastaServidor(), "frx_comandos.txt"); }
+
 class GerenciadorServidor extends EventEmitter {
   private proc: ChildProcessWithoutNullStreams | null = null;
+  /** true = o servidor foi encontrado rodando (não é filho deste painel): comandos vão pelo arquivo. */
+  private adotado = false;
+  private leitorLog: NodeJS.Timeout | null = null;
+  private vigiaPorta: NodeJS.Timeout | null = null;
   private reiniciarDepois = false;
   private timerForcar: NodeJS.Timeout | null = null;
   estado: EstadoServidor = "parado";
@@ -113,11 +124,73 @@ class GerenciadorServidor extends EventEmitter {
     return { tipo: "estado", estado: this.estado, jogadores: [...this.jogadores], iniciadoEm: this.iniciadoEm };
   }
 
-  async iniciar() {
-    if (this.proc) throw new Error("O servidor já está rodando.");
-    if (await portaOcupada(25565)) {
-      throw new Error("A porta 25565 já está em uso. Feche o servidor aberto fora do painel (digite stop na janela dele).");
+  /** Lê o fim do logs/latest.log de tempos em tempos (servidor adotado: o console dele não chega até aqui). */
+  private seguirLog() {
+    const arq = path.join(pastaServidor(), "logs", "latest.log");
+    let pos = 0;
+    try { pos = fs.statSync(arq).size; } catch { /* ainda não existe */ }
+    let resto = "";
+    if (this.leitorLog) clearInterval(this.leitorLog);
+    this.leitorLog = setInterval(() => {
+      try {
+        const tam = fs.statSync(arq).size;
+        if (tam < pos) pos = 0;   // arquivo novo (servidor religou)
+        if (tam === pos) return;
+        const fd = fs.openSync(arq, "r");
+        const buf = Buffer.alloc(Math.min(tam - pos, 1_000_000));
+        fs.readSync(fd, buf, 0, buf.length, pos);
+        fs.closeSync(fd);
+        pos += buf.length;
+        const partes = (resto + buf.toString("utf8")).split(/\r?\n/);
+        resto = partes.pop() ?? "";
+        for (const l of partes) if (l.trim()) this.log(l);
+      } catch { /* arquivo ocupado: tenta de novo */ }
+    }, 700);
+  }
+
+  /** Servidor adotado: quando a porta fechar, ele parou. */
+  private vigiarPorta() {
+    if (this.vigiaPorta) clearInterval(this.vigiaPorta);
+    this.vigiaPorta = setInterval(async () => {
+      if (!this.adotado) return;
+      if (await portaOcupada(25565)) return;
+      this.encerrou("adotado");
+    }, 3000);
+  }
+
+  private encerrou(codigo: string) {
+    this.log(`[painel] Servidor encerrado (${codigo}).`);
+    this.proc = null;
+    this.adotado = false;
+    if (this.leitorLog) { clearInterval(this.leitorLog); this.leitorLog = null; }
+    if (this.vigiaPorta) { clearInterval(this.vigiaPorta); this.vigiaPorta = null; }
+    this.iniciadoEm = null;
+    this.jogadores.clear();
+    if (this.timerForcar) clearTimeout(this.timerForcar);
+    this.mudarEstado("parado");
+    if (this.reiniciarDepois) {
+      this.reiniciarDepois = false;
+      this.iniciar().catch((e) => this.log(`[painel] ${e.message}`));
     }
+  }
+
+  /** Assume o servidor que já está rodando (o painel anterior caiu e o jogo ficou no ar). */
+  adotar() {
+    if (this.proc || this.adotado) return;
+    this.adotado = true;
+    this.linhas = [];
+    this.jogadores.clear();
+    this.iniciadoEm = Date.now();
+    this.log("[painel] Servidor já estava rodando: o painel voltou e assumiu o controle (console pelo latest.log).");
+    this.mudarEstado("online");
+    this.seguirLog();
+    this.vigiarPorta();
+    try { fs.appendFileSync(arquivoComandos(), "list\n"); } catch { /* sem pasta */ }
+  }
+
+  async iniciar() {
+    if (this.proc || this.adotado) throw new Error("O servidor já está rodando.");
+    if (await portaOcupada(25565)) { this.adotar(); return; }
     const pasta = pastaServidor();
     if (!fs.existsSync(path.join(pasta, "eula.txt"))) {
       throw new Error("Rode server\\instalar-servidor.bat uma vez e aceite o EULA.");
@@ -135,9 +208,8 @@ class GerenciadorServidor extends EventEmitter {
       const proc = spawn(
         java,
         ["-Dsun.stdout.encoding=UTF-8", "-Dsun.stderr.encoding=UTF-8", "@user_jvm_args.txt", ...argsForge(pasta), "nogui"],
-        // sem "detached": se o painel cair, o Minecraft cai junto e a sentinela religa os dois.
-        // (Separado, o jogo ficava órfão e o painel novo não conseguia mais mandar comandos nem desligar.)
-        { cwd: pasta, windowsHide: true },
+        // separado do painel: se o painel cair, o jogo continua; o painel novo adota pelo latest.log e pelo frx_comandos.txt
+        { cwd: pasta, windowsHide: true, detached: true },
       );
       this.proc = proc;
 
@@ -153,16 +225,7 @@ class GerenciadorServidor extends EventEmitter {
       proc.on("error", (e) => this.log(`[painel] Erro ao iniciar o Java: ${e.message}`));
       proc.on("exit", (codigo) => {
         if (resto.trim()) this.log(resto);
-        this.log(`[painel] Servidor encerrado (código ${codigo ?? "?"}).`);
-        this.proc = null;
-        this.iniciadoEm = null;
-        this.jogadores.clear();
-        if (this.timerForcar) clearTimeout(this.timerForcar);
-        this.mudarEstado("parado");
-        if (this.reiniciarDepois) {
-          this.reiniciarDepois = false;
-          this.iniciar().catch((e) => this.log(`[painel] ${e.message}`));
-        }
+        this.encerrou(`código ${codigo ?? "?"}`);
       });
     } catch (e) {
       this.proc = null;
@@ -174,28 +237,30 @@ class GerenciadorServidor extends EventEmitter {
 
   /** Para com segurança: manda "stop" (salva o mundo). Se travar, força depois de 90 s. */
   parar() {
-    if (!this.proc) throw new Error("O servidor não está rodando.");
+    if (!this.proc && !this.adotado) throw new Error("O servidor não está rodando.");
     if (this.estado === "parando") return;
     this.mudarEstado("parando");
     this.comando("stop");
     this.timerForcar = setTimeout(() => {
       this.log("[painel] O servidor não fechou em 90 s; encerrando à força.");
-      this.proc?.kill();
+      if (this.proc) this.proc.kill();
+      else this.log("[painel] Servidor adotado: o desligar-frx.bat encerra o processo se ele continuar preso.");
     }, 90_000);
   }
 
   async reiniciar() {
-    if (!this.proc) return this.iniciar();
+    if (!this.proc && !this.adotado) return this.iniciar();
     this.reiniciarDepois = true;
     this.parar();
   }
 
   comando(texto: string) {
-    if (!this.proc) throw new Error("O servidor não está rodando.");
-    const cmd = texto.replace(/^\//, "").trim();
+    if (!this.proc && !this.adotado) throw new Error("O servidor não está rodando.");
+    const cmd = texto.replace(/^\//, "").replace(/[\r\n]+/g, " ").trim();
     if (!cmd) return;
     this.log(`> ${cmd}`);
-    this.proc.stdin.write(cmd + "\n");
+    if (this.proc) this.proc.stdin.write(cmd + "\n");
+    else fs.appendFileSync(arquivoComandos(), cmd + "\n");
   }
 }
 
@@ -211,7 +276,29 @@ if (!gs.frxSinais) {
   }
 }
 
+/**
+ * Reinicia só o painel (site, admin e páginas dos jogadores, que são o mesmo programa) sem desligar o jogo:
+ * roda o reiniciar-painel.bat separado deste processo; ele fecha este painel, compila se o código mudou,
+ * sobe de novo e o painel novo assume o servidor que continua rodando.
+ */
+export function reiniciarSoPainel() {
+  const bat = path.resolve(process.cwd(), "..", "reiniciar-painel.bat");
+  if (!fs.existsSync(bat)) throw new Error("Não achei o reiniciar-painel.bat na pasta do FRX-WORLD.");
+  const p = spawn("cmd.exe", ["/c", bat], { cwd: path.dirname(bat), detached: true, stdio: "ignore", windowsHide: true });
+  p.unref();
+}
+
 // Uma instância só, mesmo com o recarregamento do `next dev`
 const g = globalThis as unknown as { servidorMc?: GerenciadorServidor };
 export const servidorMc = g.servidorMc ?? (g.servidorMc = new GerenciadorServidor());
 servidorMc.setMaxListeners(50);
+
+// painel novo com o jogo já no ar (o anterior caiu): assume na hora, sem esperar ninguém pedir
+const ga = globalThis as unknown as { frxAdocao?: boolean };
+if (!ga.frxAdocao) {
+  ga.frxAdocao = true;
+  setTimeout(() => {
+    if (servidorMc.estado !== "parado") return;
+    portaOcupada(25565).then((ocupada) => { if (ocupada && servidorMc.estado === "parado") servidorMc.adotar(); }).catch(() => {});
+  }, 1500);
+}
