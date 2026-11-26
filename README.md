@@ -6,6 +6,8 @@
 
 > Minecraft Java **1.20.1** · Forge **47.4.10** · ~160 mods + o core mod do FRX-WORLD · servidor brasileiro, tudo em português.
 
+> 🇺🇸 **English:** FRX-WORLD is a **Minecraft MMORPG / RPG modpack** for **Forge 1.20.1** (~160 mods) with its own core mod: 13 classes with MOBA-style skills and ultimates, 16 races, an adventurer guild with ranks F to S, kingdoms with NPC shops, banks and forges, raid bosses, a 100-floor tower, dungeon portals, PvP arena duels, races and fishing tournaments, land claiming, clans, and a rotating **expedition world** that regenerates every 2 days. A Next.js website shows the server live: rankings, player profiles, map, rules library and expedition leaderboards. Content in Brazilian Portuguese.
+
 ---
 
 ## O que tem no mundo
