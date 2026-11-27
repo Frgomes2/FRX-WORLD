@@ -93,6 +93,7 @@ public class SkinsNpc {
             return papel.isEmpty() ? null : new String[]{papel, reino};
         }
         if (tags.contains("frx_craque")) return new String[]{"craque", ""};
+        if (tags.contains("frx_treinador")) return new String[]{"treinador", ""};
         if (tags.contains("frx_noel") && !"".equals(e.getPersistentData().getString("frx_papel"))) return new String[]{"noel", ""};
         if (tags.contains("frx_ladrao")) return new String[]{"ladrao", ""};
         if (tags.contains("frx_cidadao")) {

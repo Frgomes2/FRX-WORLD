@@ -216,6 +216,9 @@ public class Codex {
         int num = t.getInt(NUM), total = t.getInt(TOTAL);
         linhaLore(lore, num > 0 ? (total > 0 ? "Arma única · nº " + num + " de " + total : "Arma única · nº " + num) : (total > 0 ? "Arma única · só " + total + " no mundo" : "Arma única"), ChatFormatting.GOLD);
         s.getOrCreateTagElement("display").put("Lore", lore);
+        // a descrição foi refeita do zero: devolve as linhas das runas e da bênção que o item já tinha
+        if (t.contains("frx_runas")) br.com.frxcode.frxworld.aventura.Runas.reescreverLore(s);
+        br.com.frxcode.frxworld.reinos.Bencao.reescreverLore(s);
     }
 
     /** Monta a arma. numero 0 = vitrine da loja (sem dono nem número). */
@@ -357,6 +360,8 @@ public class Codex {
                 if (d.nivelUso() && !d.evolui()) t.putBoolean(NivelUso.LIGADO, true); else t.remove(NivelUso.LIGADO);
                 t.putBoolean(NivelUso.MUDOU, true);
             }
+            // 3.0.10: refaz uma vez a descrição para devolver as linhas de runa e bênção apagadas pela versão antiga
+            if (!t.getBoolean("frx_lore2")) { t.putBoolean("frx_lore2", true); t.putBoolean(NivelUso.MUDOU, true); }
             if (t.getBoolean(NivelUso.MUDOU)) { t.remove(NivelUso.MUDOU); descrever(s); }
             if (mudouPainel) {
                 t.putDouble(BASE, d.dano());

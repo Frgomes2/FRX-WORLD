@@ -182,7 +182,7 @@ metafile = true
 
 [[files]]
 file = "mods/curios.pw.toml"
-hash = "55d77d596c2d805f28b47ea53725ccaa220d2857177cad3909e48d8c12b2a2cb"
+hash = "9eefd607e0d54ec444e798ccdeede1a09a3939440bd1e11c11b84c07a5134be2"
 metafile = true
 
 [[files]]
@@ -281,6 +281,11 @@ hash = "902bac905b93271f02bd0951a22bac06a3da24f5c237fcaeb469e14a7679e508"
 metafile = true
 
 [[files]]
+file = "mods/fortishields.pw.toml"
+hash = "ced6cdd2a2e8887776e8de574066597438e0df365234286eeb29aa4af1e02a00"
+metafile = true
+
+[[files]]
 file = "mods/fossils-and-archeology-revival.pw.toml"
 hash = "cb875171dd2439cde172143e088b8c75550b1e4593ae8479a3122e5ebd973b78"
 metafile = true
@@ -291,8 +296,8 @@ hash = "dd7c74c71d3facf74a684055b546cef5430b06b18dfe85cf8761b61ee9c92881"
 metafile = true
 
 [[files]]
-file = "mods/frxworld-3.0.6.jar"
-hash = "4997538536fa6909e2ffd32837c50da1a752eaf5eb972e447da7173c8d6e9995"
+file = "mods/frxworld-3.0.12.jar"
+hash = "7f2a571ad06e2404e24027a82704d75ee4e8bdf480629a62d5135ab28e49e470"
 
 [[files]]
 file = "mods/ftb-library-forge.pw.toml"
@@ -390,6 +395,11 @@ hash = "90a70141bcec839b6a1aa647c91f97bb7b33b6b9e6ce6b3b18a4113aa7dff636"
 metafile = true
 
 [[files]]
+file = "mods/kotlin-for-forge.pw.toml"
+hash = "70a4ecd9d0c04ad20aeb976c1ee28933ce48a0a1f43df42deafaeb2ad7235297"
+metafile = true
+
+[[files]]
 file = "mods/krypton-fnp.pw.toml"
 hash = "fda62419ea0d286061260ceb7dc1e27ea6ebdfc1ab6a01a588c5e9e2243a6200"
 metafile = true
@@ -470,6 +480,11 @@ hash = "5f5ae83e022377bb87eaf4eef68adffb7958f682f74cd24427f303b6d2a123ce"
 metafile = true
 
 [[files]]
+file = "mods/monolib.pw.toml"
+hash = "356c7bcf55ef64a62d180ba9c7faefab78ba38ca09c8270bb0362a3affc9d024"
+metafile = true
+
+[[files]]
 file = "mods/moogs-structure-lib.pw.toml"
 hash = "8aeb29766334fc65d9c4899cd23d72cdeefc3f57d7cf4ef14fc8fa5597dce2cc"
 metafile = true
@@ -512,6 +527,11 @@ metafile = true
 [[files]]
 file = "mods/nether-depths-upgrade.pw.toml"
 hash = "a94d2977cef31fe7eaa03e835d93a0e32786018bd0d4581bf44eb5b440ee8ada"
+metafile = true
+
+[[files]]
+file = "mods/new-shield-variants.pw.toml"
+hash = "f98ff3730aceef307b7e416791b73259f726eb01e146c7814fa8f9caa3bb2e10"
 metafile = true
 
 [[files]]
@@ -630,6 +650,11 @@ hash = "0be4976227df8e261fd362889bf8e85b93e224d1b1c3cd2a11b73a9de3b64083"
 metafile = true
 
 [[files]]
+file = "mods/spartan-shields.pw.toml"
+hash = "031ac3ccf10d474da8a854c8fe2490e81d4f514505c638e334ac06939bd13635"
+metafile = true
+
+[[files]]
 file = "mods/stalwart-dungeons.pw.toml"
 hash = "d7849f105a95077b8def2721e50871e55ea74f75d7444c1908c9603ae272b022"
 metafile = true
@@ -647,6 +672,11 @@ metafile = true
 [[files]]
 file = "mods/structure-gel-api.pw.toml"
 hash = "0a1893b4abfd0e7243095240b329552c082dd3fa7874b43e9b43c94812875472"
+metafile = true
+
+[[files]]
+file = "mods/superior-shields.pw.toml"
+hash = "ada9f329a2ec7ac44cd59f181ba7e60deabcdefc439b8247aa32e69e1f377702"
 metafile = true
 
 [[files]]

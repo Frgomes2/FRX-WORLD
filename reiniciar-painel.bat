@@ -5,6 +5,7 @@ cd /d "%~dp0"
 rem Reinicia SO o painel (para aplicar mudancas nele) sem desligar o Minecraft: o painel novo assume o jogo que esta rodando.
 rem Chamado pelo botao "Reiniciar so o painel" (aba Servidor), pelo comando /frx painel reiniciar ou com dois cliques.
 
+>>"%~dp0logs\reiniciar-painel.log" echo %date% %time% [1/6]
 echo [1/6] Conferindo o codigo do painel...
 pushd painel
 call npx tsc --noEmit -p . > "%~dp0logs\painel-tsc.log" 2>&1
@@ -15,6 +16,7 @@ if errorlevel 1 (
 )
 popd
 
+>>"%~dp0logs\reiniciar-painel.log" echo %date% %time% [2/6]
 echo [2/6] Fechando o painel atual (o jogo continua no ar)...
 rem a sentinela sai sozinha (este fechamento e de proposito); outra nasce no fim
 >"%~dp0controle\sentinela.txt" echo parada
@@ -30,8 +32,11 @@ goto :esperaFechar
 
 echo [3/6] Banco e compilacao do painel...
 pushd painel
-call npx prisma migrate deploy >nul 2>&1
-call npx prisma generate >nul 2>&1
+>>"%~dp0logs\reiniciar-painel.log" echo %date% %time% [3] prisma migrate deploy
+call npx prisma migrate deploy >>"%~dp0logs\reiniciar-painel.log" 2>&1
+>>"%~dp0logs\reiniciar-painel.log" echo %date% %time% [3] prisma generate
+call npx prisma generate >>"%~dp0logs\reiniciar-painel.log" 2>&1
+>>"%~dp0logs\reiniciar-painel.log" echo %date% %time% [3] conferindo se precisa compilar
 set "BUILD="
 for /f %%R in ('powershell -NoProfile -Command "$b=Get-Item '.next\BUILD_ID' -EA 0; $t=[DateTime[]](@(Get-ChildItem 'src','prisma','public','package.json','.env' -Recurse -File -EA 0).Where({$_.FullName -notmatch 'generated'}).ForEach('LastWriteTime')); [Array]::Sort($t); if (-not $b -or $t[-1] -gt $b.LastWriteTime) {'SIM'} else {'NAO'}"') do set "BUILD=%%R"
 if /i "%BUILD%"=="SIM" (
@@ -41,6 +46,7 @@ if /i "%BUILD%"=="SIM" (
 )
 popd
 
+>>"%~dp0logs\reiniciar-painel.log" echo %date% %time% [4/6]
 echo [4/6] Ligando o painel...
 if exist "%~dp0logs\painel.log" copy /y "%~dp0logs\painel.log" "%~dp0logs\painel-anterior.log" >nul
 if not exist "%~dp0logs\node" mkdir "%~dp0logs\node"
@@ -56,6 +62,7 @@ if %TENTATIVAS% LSS 90 goto :esperaPainel
 exit /b 1
 :painelOk
 
+>>"%~dp0logs\reiniciar-painel.log" echo %date% %time% [5/6]
 echo [5/6] O painel assume o jogo...
 set "TOKEN="
 for /f "usebackq tokens=1,* delims==" %%A in ("painel\.env") do (
@@ -63,6 +70,7 @@ for /f "usebackq tokens=1,* delims==" %%A in ("painel\.env") do (
 )
 curl -s -o nul -X POST -H "x-servidor-token: %TOKEN%" http://localhost:3000/api/servidor/ligar
 
+>>"%~dp0logs\reiniciar-painel.log" echo %date% %time% [6/6]
 echo [6/6] Sentinela de quedas...
 if exist "%~dp0controle\sentinela.ps1" start "FRX-WORLD Sentinela" /min powershell -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "%~dp0controle\sentinela.ps1"
 >>"%~dp0logs\agente-eventos.log" echo %date% %time% reiniciar-painel: painel reiniciado, o jogo continuou no ar

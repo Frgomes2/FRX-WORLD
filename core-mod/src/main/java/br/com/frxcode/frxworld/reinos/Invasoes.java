@@ -38,6 +38,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -70,6 +71,8 @@ public class Invasoes {
     private static int onda, totalOnda;
     private static long proximoEm, inicio, ultimaChance = System.currentTimeMillis();
     private static final Set<UUID> vivos = new HashSet<>();
+    private static final Set<UUID> mortos = new HashSet<>();
+    private static long ultimoDefensor;
     private static final Map<UUID, Integer> abates = new HashMap<>();
     private static final Set<UUID> participantes = new HashSet<>();
     private static final Map<String, Long> ultimaPorReino = new HashMap<>();
@@ -110,6 +113,7 @@ public class Invasoes {
     public void aCadaTick(TickEvent.ServerTickEvent e) {
         if (e.phase != TickEvent.Phase.END || ++ticks % 20 != 0) return;
         MinecraftServer s = e.getServer();
+        if (ticks % 600 == 0) varrerSobras(s);
         long agora = System.currentTimeMillis();
         switch (fase) {
             case NADA -> {
@@ -144,6 +148,8 @@ public class Invasoes {
         participantes.clear();
         vivos.clear();
         inicio = System.currentTimeMillis();
+        ultimoDefensor = inicio;
+        mortos.clear();
         proximoEm = inicio + 30_000;
         ultimaPorReino.put(r.id(), inicio);
         fase = Fase.PREPARO;
@@ -160,6 +166,30 @@ public class Invasoes {
         s.getPlayerList().broadcastSystemMessage(Component.literal("⚔ " + r.nome() + " está sob ataque perto de " + centro.getX() + ", " + centro.getZ()
                 + "! Defensores ganham moedas e reputação.").withStyle(ChatFormatting.RED, ChatFormatting.BOLD), false);
         return true;
+    }
+
+    /** Marca que liga o invasor a esta invasão: invasor de outra invasão (ou de antes de um reinício) é sobra e some. */
+    private static String marca() { return "frx_inv_" + inicio; }
+
+    private static boolean sobra(Entity e) {
+        return e.getTags().contains(TAG) && (fase == Fase.NADA || !e.getTags().contains(marca()));
+    }
+
+    /** Invasor que ficou para trás (a horda fugiu para longe, o servidor reiniciou no meio): some ao carregar. */
+    @SubscribeEvent
+    public void aoCarregar(EntityJoinLevelEvent e) {
+        if (e.getLevel().isClientSide() || !sobra(e.getEntity())) return;
+        e.setCanceled(true);
+        e.getEntity().discard();
+    }
+
+    /** Varre os invasores já carregados que sobraram de invasões passadas. */
+    private static void varrerSobras(MinecraftServer s) {
+        ServerLevel nivel = s.overworld();
+        List<Entity> lixo = new ArrayList<>();
+        for (Entity x : nivel.getAllEntities()) if (x != null && sobra(x)) lixo.add(x);
+        for (Entity x : lixo) x.discard();
+        if (!lixo.isEmpty()) FrxWorld.LOG.info("Invasões: {} invasor(es) que sobraram foram removidos.", lixo.size());
     }
 
     private static boolean perto(Player p, double raio) {
@@ -223,6 +253,7 @@ public class Invasoes {
         m.setPersistenceRequired();
         m.setGlowingTag(true);
         m.addTag(TAG);
+        m.addTag(marca());
         if (comandante) {
             AttributeInstance vida = m.getAttribute(Attributes.MAX_HEALTH);
             if (vida != null) vida.addPermanentModifier(new AttributeModifier(UUID.randomUUID(), "FRX comandante", 2.0, AttributeModifier.Operation.MULTIPLY_TOTAL));
@@ -236,7 +267,20 @@ public class Invasoes {
 
     private static void acompanhar(MinecraftServer s, long agora) {
         ServerLevel nivel = s.overworld();
-        vivos.removeIf(u -> { Entity x = nivel.getEntity(u); return x == null || !x.isAlive(); });
+        // conta como derrotado só quem morreu de verdade; quem fugiu para longe é puxado de volta para perto da capital
+        vivos.removeIf(u -> mortos.remove(u));
+        for (UUID u : vivos) {
+            if (nivel.getEntity(u) instanceof Mob m && m.isAlive() && m.blockPosition().distSqr(centro) > 70 * 70) {
+                BlockPos b = lugar(nivel);
+                m.teleportTo(b.getX() + 0.5, b.getY(), b.getZ() + 0.5);
+                m.getNavigation().stop();
+            }
+        }
+        // ninguém defendendo há 2 minutos: a horda vai embora (e some), para não lotar o reino
+        boolean alguem = false;
+        for (ServerPlayer p : s.getPlayerList().getPlayers()) if (perto(p, 120) && !p.isSpectator()) { alguem = true; break; }
+        if (alguem) ultimoDefensor = agora;
+        else if (agora - ultimoDefensor > 2 * 60_000) { fim(s, false); return; }
         for (ServerPlayer p : s.getPlayerList().getPlayers()) {
             if (perto(p, 80)) participantes.add(p.getUUID());
             if (barra != null && perto(p, 300) && !barra.getPlayers().contains(p)) barra.addPlayer(p);
@@ -270,6 +314,7 @@ public class Invasoes {
         ServerLevel nivel = s.overworld();
         for (UUID u : vivos) { Entity x = nivel.getEntity(u); if (x != null) x.discard(); }
         vivos.clear();
+        mortos.clear();
         if (vitoria) {
             s.getPlayerList().broadcastSystemMessage(Component.literal("🛡 " + reino.nome() + " resistiu à invasão! Obrigado, defensores:").withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD), false);
             for (UUID u : participantes) {
@@ -286,11 +331,12 @@ public class Invasoes {
                 p.level().playSound(null, p.blockPosition(), SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.PLAYERS, 1f, 1f);
             }
         } else {
-            s.getPlayerList().broadcastSystemMessage(Component.literal("A horda recuou de " + reino.nome() + " depois de 15 minutos. Sem recompensa desta vez.")
+            s.getPlayerList().broadcastSystemMessage(Component.literal("A horda recuou de " + reino.nome() + ". Sem recompensa desta vez.")
                     .withStyle(ChatFormatting.GRAY), false);
         }
         if (barra != null) { barra.removeAllPlayers(); barra = null; }
         fase = Fase.NADA;
+        varrerSobras(s);   // o que estava descarregado some quando o pedaço carregar (aoCarregar)
         FrxWorld.LOG.info("Invasão a {} terminou ({}).", reino.id(), vitoria ? "vitória" : "fim do tempo");
     }
 
@@ -298,7 +344,9 @@ public class Invasoes {
 
     @SubscribeEvent
     public void aoMatar(LivingDeathEvent e) {
-        if (!e.getEntity().getTags().contains(TAG) || !(e.getSource().getEntity() instanceof ServerPlayer p)) return;
+        if (!e.getEntity().getTags().contains(TAG)) return;
+        if (vivos.contains(e.getEntity().getUUID())) mortos.add(e.getEntity().getUUID());
+        if (!(e.getSource().getEntity() instanceof ServerPlayer p)) return;
         abates.merge(p.getUUID(), 1, Integer::sum);
         participantes.add(p.getUUID());
     }

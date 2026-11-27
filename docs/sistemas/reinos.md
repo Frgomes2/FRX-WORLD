@@ -130,6 +130,9 @@ Veja [quests.md](quests.md) para o papel das campanhas na estrutura de missões.
 Ataques periódicos aos reinos. `/invasao` mostra o estado · admin `/frx invasao parar`. A configuração fica no painel (Progressão).
 
 - Frequência: uma tentativa a cada `invasoes.intervaloMinutos` (padrão 60) com `invasoes.chance` % (padrão 25); a capital é a de um jogador sorteado que esteja dentro de uma, e **a mesma capital só sofre outra invasão depois de 3 horas**.
+- Uma onda só termina quando os invasores **morrem**; quem se afasta mais de 70 blocos do centro é puxado de volta para perto da capital.
+- Sem nenhum jogador a até 120 blocos por 2 minutos, a horda recua (sem recompensa) e some.
+- Cada invasor leva a marca `frx_inv_<início>`. Invasor de outra invasão (ou de antes de um reinício) é sobra: some ao carregar e numa varredura a cada 30 s.
 
 ## Waystones dos reinos (`WaystonesReino.java`)
 

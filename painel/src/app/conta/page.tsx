@@ -1,6 +1,5 @@
 import fs from "fs";
 import path from "path";
-import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { contaLogada } from "@/lib/conta-site";
 import { FichaJogador } from "../admin/jogadores/[uuid]/ficha";
@@ -8,9 +7,10 @@ import { BotaoSair, EntrarConta } from "./entrar";
 import { PainelConta } from "./painel";
 import { dadosPublicos, mapaPublico, perfilPublico } from "@/lib/publico";
 import { lerConfig, xpParaProximo } from "@/lib/config-jogo";
+import { Casca, CabecaPagina, Miolo } from "@/components/publico/casca";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Minha conta · FRX-WORLD" };
+export const metadata = { title: "Minha conta", robots: { index: false, follow: false } };
 
 type Retrato = { nivel?: number; rank?: string; classe?: string; titulo?: string; conquistas?: number; mortes?: number; moedas?: number };
 type Linha = { vaga: number; nome: string; classe: string; raca: string; nivel: number; rank: string; emUso: boolean; base: unknown; detalhe: unknown; detalheEm: Date | null };
@@ -32,10 +32,28 @@ export default async function ContaPage({ searchParams }: { searchParams: Promis
   const j = await contaLogada();
   if (!j) {
     return (
-      <main className="min-h-screen px-4 py-10">
-        <p className="mx-auto mb-6 max-w-md"><Link href="/" className="text-sm text-pedra-500 hover:text-ouro">← Voltar ao site</Link></p>
-        <EntrarConta />
-      </main>
+      <Casca pagina="conta">
+        <CabecaPagina icone="👤" sobre="Sua ficha fora do jogo" titulo="Minha conta" texto="Veja seus personagens, o inventário, as moedas, os terrenos e as expedições sem abrir o jogo." />
+        <Miolo>
+          <div className="grid items-start gap-8 lg:grid-cols-[1fr_1fr]">
+            <ul className="grid gap-3 sm:grid-cols-2">
+              {([
+                ["🧙", "Seus personagens", "Até 3 por conta, cada um com classe, raça, nível e rank."],
+                ["🎒", "Inventário completo", "Mochila, armadura, acessórios e o baú do Ender, como estavam na última vez que você jogou."],
+                ["🪙", "Moedas e terrenos", "Bolsa, banco e onde ficam os seus terrenos no mapa."],
+                ["🧭", "Expedições e história", "Suas expedições, recordes, conquistas e tudo o que você já viveu no servidor."],
+              ] as const).map(([i, t, x]) => (
+                <li key={t} className="frx-card rounded-xl border border-pedra-700 bg-pedra-900 p-4">
+                  <span className="frx-flutua inline-block text-3xl" aria-hidden="true">{i}</span>
+                  <p className="mt-2 font-titulo text-lg text-ouro">{t}</p>
+                  <p className="text-sm text-pergaminho/75">{x}</p>
+                </li>
+              ))}
+            </ul>
+            <EntrarConta />
+          </div>
+        </Miolo>
+      </Casca>
     );
   }
   const pedida = Number((await searchParams).vaga ?? 0);
@@ -62,10 +80,10 @@ export default async function ContaPage({ searchParams }: { searchParams: Promis
   const mapa = terrenos.length ? mapaPublico() : null;
 
   return (
-    <main className="mx-auto min-h-screen max-w-6xl px-4 py-8">
+    <Casca pagina="conta" inicial={dados}>
+    <main className="mx-auto max-w-6xl px-4 py-8">
       <div className="mb-5 flex flex-wrap items-center gap-3">
-        <Link href="/" className="text-sm text-pedra-500 hover:text-ouro">← Voltar ao site</Link>
-        <p className="flex-1 text-sm text-pedra-500">Conta <b className="text-pergaminho">{j.nick}</b></p>
+        <p className="flex-1 text-sm text-pedra-500">Conectado como <b className="text-pergaminho">{j.nick}</b></p>
         <BotaoSair />
       </div>
 
@@ -100,5 +118,6 @@ export default async function ContaPage({ searchParams }: { searchParams: Promis
         inicialOp={false}
       />
     </main>
+    </Casca>
   );
 }

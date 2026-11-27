@@ -29,6 +29,17 @@ public final class MapaJm {
         mandar(p, d);
     }
 
+    /** Igual ao mostrar, mas em outra dimensão (ex.: "frxworld:expedicao"). */
+    public static void mostrarEm(ServerPlayer p, String dim, String id, int x0, int z0, int x1, int z1, int cor, float preenchimento, String rotulo, String titulo) {
+        CompoundTag d = new CompoundTag();
+        d.putString("id", id);
+        d.putString("dim", dim);
+        d.putInt("x0", x0); d.putInt("z0", z0); d.putInt("x1", x1); d.putInt("z1", z1);
+        d.putInt("cor", cor); d.putFloat("fundo", preenchimento);
+        d.putString("rotulo", rotulo == null ? "" : rotulo); d.putString("titulo", titulo == null ? "" : titulo);
+        mandar(p, d);
+    }
+
     public static void remover(ServerPlayer p, String id) {
         CompoundTag d = new CompoundTag();
         d.putString("id", id);

@@ -241,6 +241,17 @@ public class Bencao {
         mandar(p, npc, "✦ Bênção grau " + GRAU[alvo] + ": " + valor(d, alvo) + ".", true);
     }
 
+    /** Recoloca a linha da bênção na descrição (quando outro sistema reescreveu a descrição do item). */
+    public static void reescreverLore(ItemStack it) {
+        if (it.isEmpty() || !it.hasTag() || !it.getTag().contains(TAG)) return;
+        CompoundTag b = it.getTag().getCompound(TAG);
+        String c = b.getString("classe");
+        Def d = CLASSES.get(c);
+        int grau = Math.max(0, Math.min(5, b.getInt("grau")));
+        if (d == null || grau <= 0) return;
+        escreverLore(it, d, grau, NOMES.getOrDefault(c, c));
+    }
+
     /** Uma linha no fim da descrição do item com a bênção (troca a antiga). */
     private static void escreverLore(ItemStack it, Def d, int grau, String nomeClasse) {
         CompoundTag disp = it.getOrCreateTagElement("display");

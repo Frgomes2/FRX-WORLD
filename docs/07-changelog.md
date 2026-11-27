@@ -6,6 +6,53 @@ Formato: versão, depois o que entrou. A versão do mod fica em `core-mod/gradle
 
 > **Situação dos testes (10/11/2026):** a última versão compilada e testada no PC é a **0.33.0** (`pack/mods/frxworld-0.33.0.jar`). As versões **0.34 a 0.40** ainda não rodaram no jogo. O roteiro de teste está no checklist "FRX-WORLD — Checklist de testes".
 
+## 3.0.13 (27/11) — Terreno sem monstros e baú de chefe protegido (aguardando reinício)
+
+- `Terrenos`: opção do dono `semMonstros` (botão "Barrar monstros" em Meus terrenos; `MONSTROS = 9`). `MobSpawnEvent.FinalizeSpawn` cancela monstro comum nascido por NATURAL, PATROL, REINFORCEMENT, EVENT e CHUNK_GENERATION; a cada 5 s some quem entrou andando (fora chefes, com nome, domados e tags `frx_`). `TelaTerrenos`: quatro botões na aba Meus terrenos.
+- `Masmorras`: o baú de prêmio do chefe espera o corpo sumir + 3 s (no máximo 30 s) e fica 2 min protegido de explosão (`ExplosionEvent.Detonate`).
+- `aventura/X1Diag.java`: diagnóstico temporário do "X1 sem dano" (registra cada etapa do golpe entre duelistas com `[X1DIAG]`). Remover depois de achar a causa.
+
+## 3.0.12 (27/11) — Escudos em português
+
+- `frxtraducao/lang/pt_br.json`: +256 linhas dos quatro mods de escudos (nomes, encantamentos, dicas, sons). Textos do livro do Botania ficam em inglês.
+
+## 3.0.11 (27/11) — Escudos novos
+
+- Pack: Spartan Shields, New Shield Variants, Forti Shields e Superior Shields (+ MonoLib e Kotlin for Forge; Curios atualizado).
+
+## 3.0.10 (26/11) — Titã, chefes que voltam mais fortes e correções
+
+- `Tita`/`TitaEntidade`: anda mais rápido, cabeça segue o jogador, passos com poeira; golpes novos com aviso (varrida, pedra arremessada com círculo de fogo, rugido abaixo de 50%).
+- `ChefesMasmorra`: gerações (`frx_geracao`, até 10): +25% de vida, +15% de dano, +2 de armadura e +5% de firmeza por geração; nome com "✦N"; aviso e barra mostram a geração.
+- `reinos/ChefesCrepusculo.java`: chefes do Twilight Forest renascem 3 dias depois de mortos (recoloca o invocador e reativa a construção), com as mesmas gerações. Admin: `/frx crepusculo chefes|renascer`.
+- `Invasoes`: onda só acaba com mortes de verdade (`mortos`), quem foge além de 70 blocos volta, a horda vai embora sem defensor por 2 min, e invasores de outra invasão (marca `frx_inv_<início>`) somem ao carregar e numa varredura a cada 30 s.
+- `Codex.descrever` devolve as linhas de runa (`Runas.reescreverLore`) e de bênção (`Bencao.reescreverLore`); reparo único por item (`frx_lore2`).
+- `Expedicao`: Pedra de Teleporte e pergaminhos de waystone saem da Expedição; estruturas extras carregam os pedaços antes do `/place` (antes falhavam com "not loaded").
+- Site: vaga-lumes, anéis rúnicos, reflexo dourado, cartões com brilho e blocos que aparecem ao rolar; página Minha conta renovada (expedições e habilidades).
+
+## 3.0.9 (26/11) — Tudo em português e site novo
+
+- `frxtraducao` (namespace próprio, porque o pt_br do Mowzie's Mobs está quebrado): mais de 7 mil textos de mods traduzidos.
+- `Expedicao`: estruturas só de mods de exploração, sem repetir na área e com as famílias das últimas 6 expedições no fim da fila (`usadas`).
+- Site reorganizado em páginas (`casca.tsx`, `blocos.tsx`, `inicio.tsx`): rankings, aventureiros, mundo, biblioteca, novidades, mods, entrar; expedição em destaque no início.
+- `Pokebola`: bicho domado pelo próprio jogador (inclusive dragão) sempre cabe; NPC "Treinador de Criaturas" com skin no painel. `Populacao` não apaga feras domadas nas capitais.
+
+## 3.0.8 (26/11) — Expedições em terra firme
+
+- `Expedicao.centro`: o centro de cada área é escolhido (uma vez, com o mundo carregado) até 1000 blocos em volta do centro de fábrica, pela maior fração de terra numa grade de 9×9 amostras e com o centro em terra, pelos biomas do gerador (sem gerar terreno). Guardado em `centros` no estado; histórico atualizado. A limpeza guarda +1000 blocos de folga para áreas ainda sem centro. Pórtico de volta antigo é desfeito quando o centro muda. Admin: `/expedicao novocentro`.
+- `MapaJm.mostrarEm` + `AreasMapa` com campo `dim`: desenhos do JourneyMap em outras dimensões. Na expedição: pórtico de volta (`expedicao_volta`, verde) e contorno da área (`expedicao_area`), ao entrar e ao logar lá dentro.
+- Estruturas extras na expedição: depois de pré-gerar a área (servidor vazio), uma grade 6×6 com sorteio recebe estruturas de mods de exploração (`/place structure`, uma a cada 2 s, só com o servidor vazio; até 5 tentativas por lugar quando o bioma não combina). Lista montada do registro, filtrando mods (`MODS_EXPLORACAO`) e nomes (oceano, Nether, End, mina, portal em ruínas...). Estado `povoada`. Admin: `/expedicao estruturas`.
+- `reiniciar-painel.bat` com fim de linha do Windows (CRLF; com LF o cmd se perdia nos rótulos e travava no meio) e registro de cada passo em `logs/reiniciar-painel.log`.
+- Site: `/expedicoes` quebrava com expedição aberta (formatação de data importada de um componente de cliente); as funções foram para `app/expedicoes/visual.tsx`.
+- `HudSistema`: a caixa do Sistema fica de 5 a 14 s conforme o tamanho do texto.
+
+## 3.0.7 (26/11) — SEO do site
+
+- `layout.tsx`: `metadataBase` (craft.frgomes.com.br), título padrão com modelo, descrição e palavras-chave (Minecraft RPG, MMO, MMORPG, modpack), Open Graph e Twitter em pt-BR, canônico.
+- Início: título "Servidor de Minecraft MMORPG e RPG (modpack Forge 1.20.1)", dados estruturados schema.org (WebSite + VideoGame) e subtítulo visível no topo.
+- `robots.ts` (bloqueia /admin, /api, /login, /conta), `sitemap.ts` (início, /expedicoes e cada expedição) e `opengraph-image.tsx` (imagem de prévia 1200×630 gerada).
+- Painel, login e conta com `noindex`; expedições com título, descrição e canônico próprios.
+
 ## 3.0.6 (26/11) — Pontos públicos no mapa
 
 - Docs: `README.md` virou a vitrine do projeto (o que tem no mundo, como entrar, pastas); o passo a passo de instalação foi para `docs/00-instalacao.md`.

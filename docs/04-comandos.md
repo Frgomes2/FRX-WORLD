@@ -132,6 +132,8 @@
 | `/frx tita abrirlojas` | Faz os NPCs de Lubelius voltarem a atender antes dos 30 minutos |
 | `/frx masmorra chefes` | Lista os chefes de masmorra mortos e quanto falta para cada um renascer |
 | `/frx masmorra renascer` | Libera agora todos os chefes pendentes (nascem quando alguém chegar perto) |
+| `/frx crepusculo chefes` | Lista os chefes do Twilight Forest mortos e quanto falta para cada um voltar |
+| `/frx crepusculo renascer` | Libera agora os chefes do Twilight pendentes (o invocador volta quando o lugar carregar) |
 | `/frx masmorra chefe <tipo>` | Marca um chefe desse tipo para nascer onde você está (para os que morreram antes da 2.0.8) |
 | `/frx pokebola treinador` | Cria o Treinador de Criaturas (vende as pokébolas) onde você está, virado para você |
 | `/frx pokebola tirartreinador` | Remove o Treinador que estiver a até 6 blocos |

@@ -153,3 +153,17 @@ Escolhidos do top 100 do CurseForge (Forge 1.20.1, por popularidade).
 - **Fossils and Archeology: Revival** (Modrinth `fossils-and-archeology-revival`): fósseis no terreno, extração de DNA, embriões e ovos; mais de 60 criaturas pré-históricas e bioma de vulcão. Dependências: TerraBlender e More Hitboxes.
 - **Jurassic Saga**: testado e retirado no mesmo dia. Com Terralith e The Rings of Power no pack, derruba o servidor ao gerar terreno novo ("Feature order cycle found"). Não readicionar sem testar num mundo de teste.
 
+
+## Escudos (pedidos em 27/11/2026, `pack\pendentes.txt`)
+
+| Mod | Fonte (Modrinth) | Lado | Por quê |
+|---|---|---|---|
+| Spartan Shields | `spartan-shields` | os dois | Escudos de vários materiais, escudos de torre em 3D, golpe de escudo e encantamentos |
+| New Shield Variants | `new-shield-variants` | os dois | Escudos com efeitos especiais. Pede MonoLib |
+| Forti Shields | `fortishields` | os dois | Escudos de cada madeira e o Escudo de Slime |
+| Superior Shields | `superior-shields` | os dois | Escudos que também aparecem em baús de masmorra; tudo configurável. Pede Kotlin for Forge e Curios (já instalado) |
+| MonoLib, Kotlin for Forge | `monolib`, `kotlin-for-forge` | os dois | Bibliotecas exigidas acima |
+
+- Conferir no primeiro início se convivem com o Shield Expansion, o Sword Blocking Mechanics e o Golden Age Combat (aparar e bloquear).
+- Conferir no `logs/pack.log` se cada nome em "successfully added" é o esperado.
+- Textos traduzidos em `frxtraducao` (256 linhas, 3.0.12). Os textos do livro do Botania ficam em inglês (o Botania não está no pack).

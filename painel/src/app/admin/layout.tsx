@@ -1,4 +1,5 @@
 export const dynamic = "force-dynamic";
+export const metadata = { title: "Painel", robots: { index: false, follow: false } };
 
 import { redirect } from "next/navigation";
 import { auth, signOut } from "@/auth";

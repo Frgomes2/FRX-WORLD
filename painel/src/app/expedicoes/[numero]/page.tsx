@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { detalheExpedicao } from "@/lib/expedicoes";
-import { Contagem, dataHora } from "@/components/publico/expedicoes";
-import { fmtKm2, fmtMin, Moldura, Numero, Ranking, Secao } from "../visual";
+import { Contagem, Rosa } from "@/components/publico/expedicoes";
+import { dataHora, fmtKm2, fmtMin, Moldura, Numero, Ranking, Secao } from "../visual";
 
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: Promise<{ numero: string }> }): Promise<Metadata> {
   const { numero } = await params;
-  return { title: `Expedição #${numero} · FRX-WORLD` };
+  return { title: `Expedição #${numero}`, description: `Ranking, MVP e números da expedição #${numero} às Terras Inexploradas do FRX-WORLD, servidor de Minecraft RPG.`, alternates: { canonical: `/expedicoes/${numero}` } };
 }
 
 export default async function Expedicao({ params }: { params: Promise<{ numero: string }> }) {
@@ -26,14 +26,19 @@ export default async function Expedicao({ params }: { params: Promise<{ numero: 
   );
   return (
     <Moldura>
-      <div>
-        <p className="text-xs uppercase tracking-[0.3em] text-pedra-500">Terras Inexploradas</p>
-        <h1 className="font-titulo text-4xl text-ouro">Expedição #{e.numero}{e.nome ? ` · ${e.nome}` : ""}</h1>
+      <a href="/expedicoes" className="text-sm text-ouro-escuro hover:text-ouro">← Todas as expedições</a>
+      <div className="frx-exp relative overflow-hidden rounded-2xl border border-emerald-800/60 p-6">
+        <div className="frx-exp-mapa" aria-hidden="true" />
+        <Rosa className="absolute -right-10 -top-10 h-48 w-48 text-emerald-300/10" />
+        <div className="relative">
+        <p className="text-xs uppercase tracking-[0.3em] text-emerald-300">Terras Inexploradas</p>
+        <h1 className="font-titulo text-4xl text-pergaminho md:text-5xl">Expedição #{e.numero}{e.nome ? ` · ${e.nome}` : ""}</h1>
         <p className="mt-1 text-sm text-pergaminho/75">
           {e.fim ? "Encerrada" : e.ativa ? "🟢 Em andamento" : "Fechada"} · {dataHora(e.inicio)}{e.fim ? ` até ${dataHora(e.fim)}` : ""} · {fmtMin(duracaoMin)}
           {e.versao ? ` · versão ${e.versao}` : ""} · área {e.tamanho} × {e.tamanho}
         </p>
         {e.descricao && <p className="mt-2 text-pergaminho/80">{e.descricao}</p>}
+      </div>
       </div>
 
       {!e.fim && e.ativa && (

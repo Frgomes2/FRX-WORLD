@@ -82,12 +82,16 @@ public class TelaTerrenos extends Screen {
             }
             CompoundTag t = marcado();
             final int id = t == null ? -1 : t.getInt("id");
-            addRenderableWidget(Button.builder(Component.literal(t != null && confirmar == id ? "Confirmar a venda?" : "Vender"), b -> {
+            addRenderableWidget(Button.builder(Component.literal(t != null && confirmar == id ? "Confirmar?" : "Vender"), b -> {
                 if (confirmar == id) { enviar(Terrenos.VENDER, id); escolhido = -1; confirmar = -1; }
                 else { confirmar = id; rebuildWidgets(); }
-            }).bounds(x0 + 10, yb, 112, 20).build()).active = t != null;
-            addRenderableWidget(Button.builder(Component.literal("Mostrar as divisas"), b -> { enviar(Terrenos.DIVISAS, 0); onClose(); }).bounds(x0 + 126, yb, 108, 20).build());
-            addRenderableWidget(Button.builder(Component.literal(d.getBoolean("publico") ? "Fechar os terrenos" : "Abrir para todos"), b -> enviar(Terrenos.PUBLICO, 0)).bounds(x0 + 238, yb, 124, 20).build());
+            }).bounds(x0 + 10, yb, 70, 20).build()).active = t != null;
+            addRenderableWidget(Button.builder(Component.literal("Ver divisas"), b -> { enviar(Terrenos.DIVISAS, 0); onClose(); }).bounds(x0 + 84, yb, 76, 20).build());
+            addRenderableWidget(Button.builder(Component.literal(d.getBoolean("publico") ? "Fechar terrenos" : "Abrir a todos"), b -> enviar(Terrenos.PUBLICO, 0)).bounds(x0 + 164, yb, 94, 20).build());
+            addRenderableWidget(Button.builder(Component.literal(d.getBoolean("semMonstros") ? "Liberar monstros" : "Barrar monstros"), b -> enviar(Terrenos.MONSTROS, 0)).bounds(x0 + 262, yb, 100, 20).build())
+                    .setTooltip(net.minecraft.client.gui.components.Tooltip.create(Component.literal(d.getBoolean("semMonstros")
+                            ? "Hoje monstros não nascem nos seus terrenos e os que entram somem. Clique para deixar nascer de novo."
+                            : "Monstros param de nascer nos seus terrenos (noite, patrulhas, hordas) e os que entrarem andando somem.")));
         } else {
             ListTag l = pessoas();
             int paginas = Math.max(1, (l.size() + PESSOAS_PAGINA - 1) / PESSOAS_PAGINA);
@@ -232,7 +236,7 @@ public class TelaTerrenos extends Screen {
             if (t != null) {
                 g.drawString(font, "Vender devolve metade:", x0 + 10, y0 + 178, TINTA, false);
                 moedas(g, font, x0 + 14 + font.width("Vender devolve metade:"), y0 + 178, t.contains("volta") ? t.getLong("volta") : t.getLong("pago") / 2, TINTA);
-            } else if (!l.isEmpty()) g.drawString(font, "Clique num terreno para vender. " + (d.getBoolean("publico") ? "Hoje qualquer jogador mexe neles." : "Hoje só você e os liberados mexem."), x0 + 10, y0 + 178, CINZA, false);
+            } else if (!l.isEmpty()) g.drawString(font, "Clique num terreno para vender. " + (d.getBoolean("publico") ? "Qualquer um mexe." : "Só você e os liberados mexem.") + (d.getBoolean("semMonstros") ? " Sem monstros." : ""), x0 + 10, y0 + 178, CINZA, false);
         } else {
             quebrar(g, "Escolha o que cada jogador pode fazer nos seus terrenos. O ✔ marca o que está liberado; clique para ligar ou desligar.", x0 + 10, y0 + 46, LARG - 20, TINTA, 2);
             ListTag l = pessoas();

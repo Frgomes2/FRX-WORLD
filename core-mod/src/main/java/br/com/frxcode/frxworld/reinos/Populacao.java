@@ -320,7 +320,7 @@ public class Populacao {
                     && (m instanceof net.minecraft.world.entity.monster.Enemy || m.getType().getCategory() == MobCategory.MONSTER))) {
                 if (!vistos.add(m.getUUID()) || reino.distancia(m.getBlockX(), m.getBlockZ()) != 0) continue;
                 if (m.hasCustomName() || m.isPersistenceRequired() || m.getType().is(net.minecraftforge.common.Tags.EntityTypes.BOSSES)
-                        || br.com.frxcode.frxworld.aventura.Chefes.ehChefao(m) || m.getTags().stream().anyMatch(t -> t.startsWith("frx_"))) continue;
+                        || br.com.frxcode.frxworld.aventura.Chefes.ehChefao(m) || br.com.frxcode.frxworld.habilidades.Habilidades.domado(m) || m.getTags().stream().anyMatch(t -> t.startsWith("frx_"))) continue;
                 nivel.sendParticles(net.minecraft.core.particles.ParticleTypes.POOF, m.getX(), m.getY() + m.getBbHeight() / 2, m.getZ(), 8, 0.3, 0.4, 0.3, 0.02);
                 m.discard();
             }
@@ -333,7 +333,8 @@ public class Populacao {
         if (evento.getLevel().isClientSide()) return;
         net.minecraft.resources.ResourceLocation id = net.minecraftforge.registries.ForgeRegistries.ENTITY_TYPES.getKey(evento.getEntity().getType());
         if (id == null || !id.getNamespace().equals("iceandfire")) return;
-        if (!(evento.getEntity() instanceof net.minecraft.world.entity.Mob)) return;
+        if (!(evento.getEntity() instanceof net.minecraft.world.entity.Mob mob)) return;
+        if (br.com.frxcode.frxworld.habilidades.Habilidades.domado(mob)) return; // dragão domado de jogador entra
         int x = evento.getEntity().getBlockX(), z = evento.getEntity().getBlockZ();
         for (Reino r : Reinos.todos()) {
             if (r.distancia(x, z) == 0) { evento.setCanceled(true); return; }

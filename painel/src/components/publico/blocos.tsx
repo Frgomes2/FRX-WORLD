@@ -1,18 +1,17 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { CriaturaPublica, DadosPublicos, LinhaRank, MapaPublico as MapaDados, ModPublico } from "@/lib/publico";
+import type { NotaAtualizacao } from "@/lib/notas";
 import { Bestiario } from "./bestiario";
 import { MapaPublico } from "./mapa";
-import { Dragao } from "./dragao";
-import { Clima } from "./clima";
-import { Biblioteca } from "./biblioteca";
-import type { Livro } from "@/lib/livros";
-import type { NotaAtualizacao } from "@/lib/notas";
-import { Galeria, ICONE_CLASSE, Nick, Perfil, Podio, Skin } from "./jogadores";
+import { Galeria, ICONE_CLASSE, Nick, Podio, Skin } from "./jogadores";
+import { useSite } from "./casca";
 
-const RANKS = ["F", "E", "D", "C", "B", "A", "S"];
-const SISTEMAS: [string, string, string][] = [
+/* Blocos do site público: cada página monta os que precisa. Os dados vêm do Casca (useSite). */
+
+export const RANKS = ["F", "E", "D", "C", "B", "A", "S"];
+export const SISTEMAS: [string, string, string][] = [
   ["⚔️", "13 classes", "Guerreiro, Arqueiro, Mago, Clérigo, Ladino, Assassino, Invocador, Paladino, Bardo, Monge, Druida, Samurai e Cartomante, cada uma com habilidades próprias e um Despertar."],
   ["🛡️", "Guilda de Aventureiros", "Suba do rank F ao S cumprindo missões. O rank libera equipamentos melhores, descontos e portais mais perigosos."],
   ["🗼", "Torre Infinita", "100 andares temáticos com chefes. A cada 10 andares, um andar seguro com baú, cozinheiro e mercador."],
@@ -24,11 +23,13 @@ const SISTEMAS: [string, string, string][] = [
   ["🎯", "Mural de procurados", "Caçadas a monstros de elite com recompensa em experiência."],
   ["🗺️", "Mapas do tesouro", "Mapas raros que apontam para baús enterrados."],
   ["🌙", "Eventos do céu", "Lua de Sangue com XP em dobro e chuvas de meteoros."],
+  ["🧭", "Expedições", "A cada 2 dias, às 5h, abre uma área nova de 2000 × 2000 nas Terras Inexploradas, cheia de estruturas e masmorras. Rank D ou maior."],
+  ["⚔️", "Duelos X1", "Desafie outro jogador numa arena, com ou sem kit, e suba no ranking de vitórias."],
   ["☠️", "Chefes mundiais", "Monstros gigantes que surgem de tempos em tempos e pedem o servidor inteiro."],
 ];
-const ICONE_FEED: Record<string, string> = { entrou: "➜", saiu: "←", morte: "☠", conquista: "🏆", chefe: "☠", invasao: "⚔", forja: "⚒" };
+export const ICONE_FEED: Record<string, string> = { entrou: "➜", saiu: "←", morte: "☠", conquista: "🏆", chefe: "☠", invasao: "⚔", forja: "⚒" };
 
-function moedas(c: number) {
+export function moedas(c: number) {
   const ouro = Math.floor(c / 100), prata = Math.floor((c % 100) / 10), cobre = c % 10;
   const p: string[] = [];
   if (ouro) p.push(`${ouro.toLocaleString("pt-BR")} ouro`);
@@ -36,13 +37,13 @@ function moedas(c: number) {
   if (cobre || !p.length) p.push(`${cobre} cobre`);
   return p.join(", ");
 }
-function relogio(hora: number) {
+export function relogio(hora: number) {
   const h = (hora / 1000 + 6) % 24, hh = Math.floor(h), mm = Math.floor((h - hh) * 60);
   return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
 }
 
 /** Número que sobe até o valor (e anda de novo quando o valor muda). */
-function Subindo({ valor }: { valor: number }) {
+export function Subindo({ valor }: { valor: number }) {
   const [n, setN] = useState(0);
   useEffect(() => {
     let quadro = 0;
@@ -60,7 +61,7 @@ function Subindo({ valor }: { valor: number }) {
 }
 
 /** Quanto falta para a temporada virar: meia-noite do dia 1 do mês seguinte, no horário de Brasília (UTC−3). */
-function FimDaTemporada({ mes }: { mes: string }) {
+export function FimDaTemporada({ mes }: { mes: string }) {
   const [agora, setAgora] = useState<number | null>(null);
   useEffect(() => { setAgora(Date.now()); const t = setInterval(() => setAgora(Date.now()), 1000); return () => clearInterval(t); }, []);
   const [ano, m] = mes.split("-").map(Number);
@@ -83,12 +84,12 @@ function FimDaTemporada({ mes }: { mes: string }) {
 }
 
 /** Pontos da temporada por feito (os mesmos pesos de aventura/Temporadas.java). */
-const PONTOS_TEMPORADA: [string, string, number][] = [["📖", "Capítulo da história", 100], ["🌀", "Portal fechado", 80], ["🎯", "Procurado capturado", 60], ["☠", "Chefe derrotado", 50], ["⚔️", "Invasão repelida", 40], ["💎", "Tesouro encontrado", 30], ["🗼", "Andar novo na Torre", 20], ["🗡️", "Monstro abatido", 1]];
-const MEDALHAS = ["🥇", "🥈", "🥉"];
+export const PONTOS_TEMPORADA: [string, string, number][] = [["📖", "Capítulo da história", 100], ["🌀", "Portal fechado", 80], ["🎯", "Procurado capturado", 60], ["☠", "Chefe derrotado", 50], ["⚔️", "Invasão repelida", 40], ["💎", "Tesouro encontrado", 30], ["🗼", "Andar novo na Torre", 20], ["🗡️", "Monstro abatido", 1]];
+export const MEDALHAS = ["🥇", "🥈", "🥉"];
 
-function Cartao({ titulo, sub, children, id }: { titulo: string; sub?: string; children: React.ReactNode; id?: string }) {
+export function Cartao({ titulo, sub, children, id }: { titulo: string; sub?: string; children: React.ReactNode; id?: string }) {
   return (
-    <section id={id} className="rounded-xl border border-pedra-700 bg-pedra-900 p-5">
+    <section id={id} className="scroll-mt-20 rounded-xl border border-pedra-700 bg-pedra-900 p-5">
       <h3 className="font-titulo text-xl text-ouro">{titulo}</h3>
       {sub && <p className="mb-3 text-sm text-pedra-500">{sub}</p>}
       <div className={sub ? "" : "mt-3"}>{children}</div>
@@ -96,7 +97,7 @@ function Cartao({ titulo, sub, children, id }: { titulo: string; sub?: string; c
   );
 }
 
-function Rank({ linhas, valor, vazio, abrir }: { linhas: LinhaRank[]; valor: (n: number) => string; vazio: string; abrir: (n: string) => void }) {
+export function Rank({ linhas, valor, vazio, abrir }: { linhas: LinhaRank[]; valor: (n: number) => string; vazio: string; abrir: (n: string) => void }) {
   if (!linhas.length) return <p className="text-sm text-pedra-500">{vazio}</p>;
   const max = Math.max(1, ...linhas.map((l) => l.valor));
   return (
@@ -124,7 +125,7 @@ function Rank({ linhas, valor, vazio, abrir }: { linhas: LinhaRank[]; valor: (n:
   );
 }
 
-function Barras({ dados, ordem }: { dados: Record<string, number>; ordem?: string[] }) {
+export function Barras({ dados, ordem }: { dados: Record<string, number>; ordem?: string[] }) {
   const chaves = ordem ? ordem.filter((k) => dados[k]) : Object.keys(dados).sort((a, b) => dados[b] - dados[a]);
   const max = Math.max(1, ...chaves.map((k) => dados[k]));
   if (!chaves.length) return <p className="text-sm text-pedra-500">Ninguém por aqui ainda.</p>;
@@ -141,7 +142,7 @@ function Barras({ dados, ordem }: { dados: Record<string, number>; ordem?: strin
   );
 }
 
-function Clas({ clas, abrir }: { clas: DadosPublicos["clas"]; abrir: (n: string) => void }) {
+export function Clas({ clas, abrir }: { clas: DadosPublicos["clas"]; abrir: (n: string) => void }) {
   const [ordem, setOrdem] = useState<"poder" | "riqueza">("poder");
   if (!clas.length) return <p className="rounded-xl border border-pedra-700 bg-pedra-900 p-5 text-sm text-pedra-500">Nenhum clã formado ainda. O primeiro a criar um leva o topo do ranking.</p>;
   const lista = [...clas].sort((a, b) => b[ordem] - a[ordem] || b.poder - a.poder);
@@ -189,186 +190,14 @@ function Clas({ clas, abrir }: { clas: DadosPublicos["clas"]; abrir: (n: string)
   );
 }
 
-/** Atalhos do cabeçalho: os principais ficam à vista; os outros, na lista "Mais". */
-const NAV_PRINCIPAL = [["#aventureiros", "Aventureiros"], ["#rankings", "Rankings"], ["#mural", "Mural"], ["#clas", "Clãs"], ["#mapa", "Mapa"], ["#biblioteca", "Biblioteca"]] as const;
-const NAV_MAIS = [["/expedicoes", "Expedições", "🧭"], ["#armas", "Armas Únicas", "⚔️"], ["#agora", "Agora no servidor", "🟢"], ["#bestiario", "Bestiário", "🐉"], ["#mundo", "O mundo", "🌍"], ["#mods", "Mods", "🧩"], ["#cronicas", "Crônicas", "📜"], ["#novidades", "Novidades", "📰"], ["#entrar", "Como entrar", "🚪"]] as const;
 
-export function SitePublico({ inicial, mods, mapa, notas, livros, bestiario }: { inicial: DadosPublicos | null; mods: ModPublico[]; mapa: MapaDados; notas: NotaAtualizacao[]; livros: Livro[]; bestiario: CriaturaPublica[] }) {
-  const [todasNotas, setTodasNotas] = useState(false);
-  const [perfil, setPerfil] = useState<string | null>(null);
-  const [verOnline, setVerOnline] = useState(false);
-  const [menu, setMenu] = useState(false);   // cabeçalho: painel de atalhos nas telas estreitas
-  const [mais, setMais] = useState(false);   // cabeçalho: lista "Mais" nas telas largas
-  const abrir = useCallback((n: string) => setPerfil(n), []);
-  const fechar = useCallback(() => setPerfil(null), []);
-  const [d, setD] = useState(inicial);
-  const [busca, setBusca] = useState("");
-  const [aba, setAba] = useState<"fortes" | "fracos" | "ricos" | "conquistas" | "mortes">("fortes");
-
-  useEffect(() => {
-    let vivo = true;
-    const buscar = () => fetch("/api/publico/dados").then((r) => (r.ok ? r.json() : null)).then((j) => { if (vivo && j && !j.erro) setD(j); }).catch(() => {});
-    const t = setInterval(buscar, 15_000);
-    return () => { vivo = false; clearInterval(t); };
-  }, []);
-
-  const modsFiltrados = useMemo(() => {
-    const b = busca.trim().toLowerCase();
-    return b ? mods.filter((m) => m.nome.toLowerCase().includes(b)) : mods;
-  }, [mods, busca]);
-
+export function SecaoAgora() {
+  const { d, abrir } = useSite();
   const s = d?.status ?? null;
   const online = !!d?.online;
-  // Cena do topo: sai do estado real do servidor (ligado, chefe mundial, clima, dia ou noite)
-  const noite = !!s && s.hora >= 12000;
-  const cena = !online || !s ? "desligado" : s.chefe?.fase === "ativo" ? "chefe" : s.clima === "tempestade" ? "tempestade" : s.clima === "chuva" ? "chuva" : noite ? "noite" : "dia";
-  const jogando = d?.onlineAgora.length ?? 0;
-  const gente = jogando === 0 ? "Ninguém na estrada agora: o mundo é todo seu." : jogando === 1 ? "1 aventureiro está no mundo agora." : `${jogando} aventureiros estão no mundo agora.`;
-  const momento: [string, string, string] =
-    cena === "desligado" ? ["🌑", "O mundo dorme", "O servidor está desligado agora. Veja os horários em Como entrar e volte quando os portões abrirem."]
-    : cena === "chefe" ? ["☠", `Chefe mundial: ${s?.chefe?.nome ?? "?"}`, `Um chefe mundial está à solta. ${gente}`]
-    : s?.chefe ? ["⚠️", `${s.chefe.nome} se aproxima`, `Um chefe mundial foi avistado e está a caminho. ${gente}`]
-    : cena === "tempestade" ? ["⛈️", `Tempestade · dia ${s?.dia}`, `Raios cortam o céu dos reinos. ${gente}`]
-    : cena === "chuva" ? ["🌧️", `Chove nos reinos · dia ${s?.dia}`, `A chuva cai sobre as capitais. ${gente}`]
-    : cena === "noite" ? ["🌙", `Noite do dia ${s?.dia} · ${relogio(s?.hora ?? 0)}`, `Os monstros saem das sombras. ${gente}`]
-    : ["☀️", `Dia ${s?.dia} · ${relogio(s?.hora ?? 0)}`, `O sol brilha sobre os reinos. ${gente}`];
-  const abas: [typeof aba, string][] = [["fortes", "Mais fortes"], ["fracos", "Começando agora"], ["ricos", "Mais ricos"], ["conquistas", "Conquistas"], ["mortes", "Mais mortes"]];
-  const fmt: Record<typeof aba, (n: number) => string> = {
-    fortes: (n) => `Nível ${n}`, fracos: (n) => `Nível ${n}`, ricos: moedas, conquistas: (n) => `${n} 🏆`, mortes: (n) => `${n} ☠`,
-  };
-
+  void s; void online;
   return (
-    <div className="relative isolate min-h-screen">
-      <Dragao />
-      <nav className="sticky top-0 z-30 border-b border-ouro-escuro/30 bg-pedra-950/90 shadow-lg shadow-black/40 backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-2.5">
-          <a href="#topo" onClick={() => setMenu(false)} className="group flex shrink-0 items-center gap-2.5">
-            <span className="grid h-9 w-9 place-items-center rounded-lg border border-ouro-escuro bg-gradient-to-br from-pedra-700 to-pedra-950 text-lg transition group-hover:border-ouro" aria-hidden="true">⚔️</span>
-            <span className="leading-none">
-              <span className="block font-titulo text-xl text-ouro">FRX-WORLD</span>
-              <span className="mt-0.5 block text-[9px] uppercase tracking-[0.28em] text-pedra-500">MMORPG · 1.20.1</span>
-            </span>
-          </a>
-
-          {/* telas largas: os atalhos mais usados à vista e o resto em "Mais" */}
-          <div className="ml-3 hidden flex-1 items-center gap-0.5 lg:flex">
-            {NAV_PRINCIPAL.map(([h, r]) => (
-              <a key={h} href={h} className="rounded-md px-2.5 py-1.5 text-sm text-pedra-500 transition hover:bg-pedra-800 hover:text-ouro">{r}</a>
-            ))}
-            <div className="relative" onMouseLeave={() => setMais(false)}>
-              <button type="button" onClick={() => setMais((v) => !v)} aria-expanded={mais}
-                className={`flex items-center gap-1 rounded-md px-2.5 py-1.5 text-sm transition hover:bg-pedra-800 hover:text-ouro ${mais ? "bg-pedra-800 text-ouro" : "text-pedra-500"}`}>
-                Mais <span className={`text-[10px] transition-transform ${mais ? "rotate-180" : ""}`} aria-hidden="true">▼</span>
-              </button>
-              {mais && (
-                <div className="absolute left-0 top-full w-52 pt-2">
-                  <div className="rounded-xl border border-pedra-700 bg-pedra-900 p-1.5 shadow-2xl shadow-black/60">
-                    {NAV_MAIS.map(([h, r, i]) => (
-                      <a key={h} href={h} onClick={() => setMais(false)} className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-pedra-500 transition hover:bg-pedra-800 hover:text-ouro">
-                        <span className="w-5 text-center" aria-hidden="true">{i}</span>{r}
-                      </a>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="ml-auto flex shrink-0 items-center gap-2">
-            <span className={`hidden items-center gap-2 rounded-full border px-3 py-1.5 text-xs sm:flex ${online ? "border-green-700/70 bg-green-950/40 text-green-400" : "border-pedra-700 text-pedra-500"}`}>
-              <span className={`h-2 w-2 rounded-full ${online ? "animate-pulse bg-green-400" : "bg-sangue"}`} />
-              {online ? `${d?.onlineAgora.length ?? 0} online` : "Servidor desligado"}
-            </span>
-            <a href="/conta" className="flex items-center gap-1.5 rounded-full bg-gradient-to-b from-ouro to-ouro-escuro px-3.5 py-1.5 text-xs font-semibold text-pedra-950 shadow shadow-black/40 transition hover:brightness-110">
-              <span aria-hidden="true">👤</span> Minha conta
-            </a>
-            <button type="button" onClick={() => setMenu((v) => !v)} aria-expanded={menu} aria-label="Abrir o menu"
-              className="grid h-9 w-9 place-items-center rounded-lg border border-pedra-700 text-lg text-pedra-500 hover:border-ouro hover:text-ouro lg:hidden">{menu ? "✕" : "☰"}</button>
-          </div>
-        </div>
-
-        {/* telas estreitas: tudo num painel que abre pelo botão */}
-        {menu && (
-          <div className="border-t border-pedra-800 bg-pedra-950 lg:hidden">
-            <div className="mx-auto grid max-w-6xl grid-cols-2 gap-1 px-4 py-3 sm:grid-cols-3">
-              {[...NAV_PRINCIPAL.map(([h, r]) => [h, r, ""] as const), ...NAV_MAIS].map(([h, r, i]) => (
-                <a key={h} href={h} onClick={() => setMenu(false)} className="flex items-center gap-2 rounded-lg border border-pedra-800 px-3 py-2 text-sm text-pedra-500 hover:border-ouro hover:text-ouro">
-                  {i && <span aria-hidden="true">{i}</span>}{r}
-                </a>
-              ))}
-            </div>
-          </div>
-        )}
-      </nav>
-
-      <header id="topo" className={`frx-heroi frx-cena frx-cena-${cena} relative overflow-hidden border-b border-pedra-700`}>
-        <Clima key={cena} tipo={cena} />
-        <div className="relative mx-auto max-w-6xl px-4 py-14 text-center md:py-20">
-          <p className="text-sm uppercase tracking-[0.3em] text-ouro-escuro">Minecraft 1.20.1 · Forge · RPG</p>
-          <h1 className="mt-3 font-titulo text-5xl text-ouro drop-shadow-[0_2px_12px_rgba(0,0,0,0.6)] md:text-7xl">FRX-WORLD</h1>
-          {/* o que está acontecendo no mundo agora, com os dados que o servidor manda */}
-          <p className={`mx-auto mt-5 inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm font-semibold uppercase tracking-[0.18em] ${cena === "chefe" ? "animate-pulse border-red-500 bg-red-950/70 text-red-200" : "border-ouro-escuro/50 bg-pedra-950/60 text-pergaminho"}`}>
-            <span aria-hidden="true">{momento[0]}</span>{momento[1]}
-          </p>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-pergaminho/80">{momento[2]}</p>
-          <a href="#entrar" className="mt-6 inline-block rounded-lg bg-gradient-to-b from-ouro to-ouro-escuro px-7 py-3 font-titulo text-lg uppercase tracking-[0.15em] text-pedra-950 shadow-lg shadow-black/50 transition hover:-translate-y-0.5 hover:brightness-110">Entrar no mundo</a>
-          <div className="mx-auto mt-8 grid max-w-3xl grid-cols-2 gap-3 md:grid-cols-3">
-            <button type="button" onClick={() => setVerOnline((v) => !v)} aria-expanded={verOnline}
-              className={`rounded-xl border bg-pedra-900/80 px-3 py-4 transition hover:-translate-y-0.5 hover:border-ouro ${verOnline ? "border-ouro" : "border-pedra-700"}`}>
-              <p className="font-titulo text-3xl text-ouro">{online ? `${d?.onlineAgora.length ?? 0}/${s?.maxJogadores ?? "?"}` : "—"}</p>
-              <p className="text-xs text-pedra-500">{online ? "jogando agora" : "servidor desligado"} <span className="text-ouro-escuro">{verOnline ? "▴" : "▾"}</span></p>
-            </button>
-            {([
-              [d?.totais.jogadores ?? 0, "aventureiros", "#aventureiros"],
-              [d?.totais.mods ?? mods.length, "mods", "#mods"],
-              [d?.totais.chunks ?? 0, "chunks explorados", "#mapa"],
-            ] as [number, string, string][]).map(([n, r, h]) => (
-              <a key={r} href={h} className="rounded-xl border border-pedra-700 bg-pedra-900/80 px-3 py-4 transition hover:-translate-y-0.5 hover:border-ouro">
-                <p className="font-titulo text-3xl text-ouro"><Subindo valor={n} /></p>
-                <p className="text-xs text-pedra-500">{r}</p>
-              </a>
-            ))}
-            {([
-              ["memória do servidor", online && s && s.memMaxMb > 0 ? Math.round((s.memUsadaMb / s.memMaxMb) * 100) : null,
-                online && s && s.memMaxMb > 0 ? `${(s.memUsadaMb / 1024).toFixed(1).replace(".", ",")} de ${(s.memMaxMb / 1024).toFixed(1).replace(".", ",")} GB` : ""],
-              ["processador do servidor", online && s ? s.cpu : null, ""],
-            ] as [string, number | null, string][]).map(([r, pct, detalhe]) => (
-              <div key={r} title={detalhe || undefined} className="rounded-xl border border-pedra-700 bg-pedra-900/80 px-3 py-4">
-                <p className={`font-titulo text-3xl ${pct !== null && pct >= 90 ? "text-red-400" : "text-ouro"}`}>{pct === null ? "—" : `${pct}%`}</p>
-                <div className="mx-auto mt-1 h-1 w-3/4 overflow-hidden rounded-full bg-pedra-800">
-                  <div className={`h-full rounded-full transition-all duration-700 ${pct !== null && pct >= 90 ? "bg-red-400" : "bg-ouro"}`} style={{ width: `${pct ?? 0}%` }} />
-                </div>
-                <p className="mt-1 text-xs text-pedra-500">{r}{detalhe ? ` · ${detalhe}` : ""}</p>
-              </div>
-            ))}
-          </div>
-          {verOnline && (
-            <div className="mx-auto mt-3 max-w-3xl rounded-xl border border-ouro-escuro bg-pedra-900/95 p-4 text-left">
-              <p className="mb-3 text-xs uppercase tracking-wider text-pedra-500">{online ? "Quem está jogando agora" : "Servidor desligado"}</p>
-              {d?.onlineAgora.length ? (
-                <ul className="grid gap-2 sm:grid-cols-2">
-                  {d.onlineAgora.map((j) => (
-                    <li key={j.nick}>
-                      <button type="button" onClick={() => abrir(j.nick)} className="flex w-full items-center gap-3 rounded-lg border border-pedra-700 bg-pedra-800/60 px-3 py-2 text-left transition hover:border-ouro">
-                        <Skin nick={j.nick} tam={36} />
-                        <span className="min-w-0 flex-1">
-                          <span className="flex items-center gap-2 font-semibold"><span className="h-2 w-2 shrink-0 animate-pulse rounded-full bg-green-400" /><span className="truncate">{j.nick}</span></span>
-                          <span className="block truncate text-xs text-pedra-500">Nv {j.nivel} · {ICONE_CLASSE[j.classe] ?? ""} {j.classe}{j.reino ? ` · em ${j.reino}` : ""}</span>
-                        </span>
-                        <span className="shrink-0 text-xs text-ouro-escuro">ver ficha ›</span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              ) : <p className="text-sm text-pedra-500">{online ? "Ninguém no mundo neste momento." : "Quando o servidor ligar, quem entrar aparece aqui."}</p>}
-            </div>
-          )}
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-6xl space-y-10 px-4 py-10">
-        {!d && <p className="rounded-xl border border-sangue bg-pedra-900 p-4 text-sm">Não deu para carregar os dados agora. A página tenta de novo sozinha em alguns segundos.</p>}
-
+    <>
         <div id="agora" className="grid scroll-mt-20 gap-5 md:grid-cols-3">
           <Cartao titulo="Servidor" sub={online ? "Atualiza sozinho a cada 15 segundos." : "Quando ligar, o status aparece aqui."}>
             {s ? (
@@ -416,19 +245,40 @@ export function SitePublico({ inicial, mods, mapa, notas, livros, bestiario }: {
             })()}
           </Cartao>
         </div>
+    </>
+  );
+}
 
+
+export function SecaoAventureiros() {
+  const { d, abrir } = useSite();
+  const s = d?.status ?? null;
+  const online = !!d?.online;
+  void s; void online;
+  return (
+    <>
         <div id="aventureiros" className="scroll-mt-20">
-          <h2 className="font-titulo text-3xl">Aventureiros</h2>
-          <p className="mb-4 text-sm text-pedra-500">Clique em alguém para ver a ficha: skin, nível, Guilda e habilidades.</p>
+                    <p className="mb-4 text-sm text-pedra-500">Clique em alguém para ver a ficha: skin, nível, Guilda e habilidades.</p>
           <Galeria lista={d?.aventureiros ?? []} abrir={abrir} />
         </div>
+    </>
+  );
+}
 
+
+export function SecaoCronicas({ limite = 8 }: { limite?: number }) {
+  const { d, abrir } = useSite();
+  const s = d?.status ?? null;
+  const online = !!d?.online;
+  void s; void online;
+  return (
+    <>
         {(d?.cronicas ?? []).some((c) => c.destaque) && (
           <div id="cronicas" className="scroll-mt-20">
             <h2 className="font-titulo text-3xl">📰 Crônicas do FRX</h2>
             <p className="mb-4 text-sm text-pedra-500">Os grandes feitos do servidor, escritos na hora em que aconteceram. Ficam guardados para sempre.</p>
             <div className="grid gap-3 md:grid-cols-2">
-              {(d?.cronicas ?? []).filter((c) => c.destaque).slice(0, 8).map((c, i) => (
+              {(d?.cronicas ?? []).filter((c) => c.destaque).slice(0, limite).map((c, i) => (
                 <article key={`${c.quando}-${i}`} style={{ animationDelay: `${i * 60}ms` }} className="frx-surge flex gap-3 rounded-xl border border-pedra-700 bg-gradient-to-br from-pedra-800 to-pedra-900 p-4">
                   <span className="grid h-12 w-12 shrink-0 place-items-center rounded-lg border border-ouro-escuro/50 bg-pedra-950 text-2xl" aria-hidden="true">{c.icone || "📜"}</span>
                   <div className="min-w-0">
@@ -442,7 +292,18 @@ export function SitePublico({ inicial, mods, mapa, notas, livros, bestiario }: {
             </div>
           </div>
         )}
+    </>
+  );
+}
 
+
+export function SecaoMural() {
+  const { d, abrir } = useSite();
+  const s = d?.status ?? null;
+  const online = !!d?.online;
+  void s; void online;
+  return (
+    <>
         <div id="mural" className="scroll-mt-20">
           <h2 className="font-titulo text-3xl">Mural dos Primeiros</h2>
           <p className="mb-4 text-sm text-pedra-500">O primeiro aventureiro do servidor a alcançar cada marco fica gravado aqui para sempre. Os que estão em branco ainda esperam um dono.</p>
@@ -470,7 +331,18 @@ export function SitePublico({ inicial, mods, mapa, notas, livros, bestiario }: {
             })}
           </div>
         </div>
+    </>
+  );
+}
 
+
+export function SecaoArmas() {
+  const { d, abrir } = useSite();
+  const s = d?.status ?? null;
+  const online = !!d?.online;
+  void s; void online;
+  return (
+    <>
         <div id="armas" className="scroll-mt-20">
           <h2 className="font-titulo text-3xl">Armas Únicas</h2>
           <p className="mb-4 text-sm text-pedra-500">As armas do Códex existem em número limitado no mundo inteiro. Aqui fica gravado quem pôs as mãos na primeira de cada uma.</p>
@@ -507,10 +379,25 @@ export function SitePublico({ inicial, mods, mapa, notas, livros, bestiario }: {
             </div>
           )}
         </div>
+    </>
+  );
+}
 
+
+export function SecaoRankings() {
+  const { d, abrir } = useSite();
+  const s = d?.status ?? null;
+  const online = !!d?.online;
+  void s; void online;
+  const [aba, setAba] = useState<"fortes" | "fracos" | "ricos" | "conquistas" | "mortes">("fortes");
+  const abas: [typeof aba, string][] = [["fortes", "Mais fortes"], ["fracos", "Começando agora"], ["ricos", "Mais ricos"], ["conquistas", "Conquistas"], ["mortes", "Mais mortes"]];
+  const fmt: Record<typeof aba, (n: number) => string> = {
+    fortes: (n) => `Nível ${n}`, fracos: (n) => `Nível ${n}`, ricos: moedas, conquistas: (n) => `${n} 🏆`, mortes: (n) => `${n} ☠`,
+  };
+  return (
+    <>
         <div id="rankings" className="scroll-mt-20">
-          <h2 className="mb-4 font-titulo text-3xl">Rankings</h2>
-          <Podio fortes={d?.rankings.fortes ?? []} abrir={abrir} />
+                    <Podio fortes={d?.rankings.fortes ?? []} abrir={abrir} />
           <div className="grid gap-5 lg:grid-cols-3">
             <div className="rounded-xl border border-pedra-700 bg-pedra-900 p-5 lg:col-span-2">
               <div className="mb-4 flex flex-wrap gap-2">
@@ -543,7 +430,7 @@ export function SitePublico({ inicial, mods, mapa, notas, livros, bestiario }: {
                 </ol>
               ) : <p className="text-sm text-pedra-500">Ninguém entrou na Torre ainda.</p>}
             </Cartao>
-            <Cartao titulo="🏆 Temporada" sub={d?.temporada ? `Placar de ${d.temporada.mes.split("-").reverse().join("/")} · zera todo mês, e os três primeiros levam prêmio` : "Placar do mês"}>
+            <Cartao id="temporada" titulo="🏆 Temporada" sub={d?.temporada ? `Placar de ${d.temporada.mes.split("-").reverse().join("/")} · zera todo mês, e os três primeiros levam prêmio` : "Placar do mês"}>
               {d?.temporada && <FimDaTemporada mes={d.temporada.mes} />}
               {d?.temporada?.linhas.length ? (
                 <ol className="space-y-1.5">
@@ -661,31 +548,69 @@ export function SitePublico({ inicial, mods, mapa, notas, livros, bestiario }: {
             ))}
           </div>
         </div>
+    </>
+  );
+}
 
+
+export function SecaoClas() {
+  const { d, abrir } = useSite();
+  const s = d?.status ?? null;
+  const online = !!d?.online;
+  void s; void online;
+  return (
+    <>
         <div id="clas" className="scroll-mt-20">
           <h2 className="font-titulo text-3xl">Clãs</h2>
           <p className="mb-4 text-sm text-pedra-500">Grupos fixos de aventureiros. No jogo, procure o Mestre dos Clãs numa capital para fundar o seu, pedir entrada ou usar o cofre. Dá para participar de até 3 clãs.</p>
           <Clas clas={d?.clas ?? []} abrir={abrir} />
         </div>
+    </>
+  );
+}
 
+
+export function SecaoMapa({ mapa }: { mapa: MapaDados }) {
+  const { d, abrir } = useSite();
+  const s = d?.status ?? null;
+  const online = !!d?.online;
+  void s; void online;
+  return (
+    <>
         <div id="mapa" className="scroll-mt-20">
           <h2 className="font-titulo text-3xl">Mapa do mundo</h2>
           <p className="mb-4 text-sm text-pedra-500">O que já foi explorado até agora. O resto, só indo lá para ver.</p>
           <MapaPublico mapa={mapa} />
         </div>
+    </>
+  );
+}
 
+
+export function SecaoBestiario({ bestiario }: { bestiario: CriaturaPublica[] }) {
+  const { d, abrir } = useSite();
+  const s = d?.status ?? null;
+  const online = !!d?.online;
+  void s; void online;
+  return (
+    <>
         <div id="bestiario" className="scroll-mt-20">
           <h2 className="font-titulo text-3xl">Bestiário</h2>
           <p className="mb-4 text-sm text-pedra-500">Os chefes e monstros próprios do servidor. Cada um só revela o nome, a história e os golpes depois que alguém o derrota pela primeira vez.</p>
           <Bestiario criaturas={bestiario} />
         </div>
+    </>
+  );
+}
 
-        <div id="biblioteca" className="scroll-mt-20">
-          <h2 className="font-titulo text-3xl">Biblioteca</h2>
-          <p className="mb-4 text-sm text-pedra-500">Tudo sobre como o mundo funciona: ranks, missões, economia, a Torre e um livro para cada classe. Clique num livro para abrir e folhear.</p>
-          <Biblioteca livros={livros} />
-        </div>
 
+export function SecaoMundo() {
+  const { d, abrir } = useSite();
+  const s = d?.status ?? null;
+  const online = !!d?.online;
+  void s; void online;
+  return (
+    <>
         <div id="mundo" className="scroll-mt-20">
           <h2 className="mb-4 font-titulo text-3xl">O que tem no mundo</h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -698,11 +623,27 @@ export function SitePublico({ inicial, mods, mapa, notas, livros, bestiario }: {
           </div>
           {!!d?.reinos.length && <p className="mt-4 text-sm text-pedra-500">Reinos: {d.reinos.join(" · ")}</p>}
         </div>
+    </>
+  );
+}
 
+
+export function SecaoMods({ mods }: { mods: ModPublico[] }) {
+  const { d, abrir } = useSite();
+  const s = d?.status ?? null;
+  const online = !!d?.online;
+  void s; void online;
+  const [busca, setBusca] = useState("");
+  const modsFiltrados = useMemo(() => {
+    const b = busca.trim().toLowerCase();
+    return b ? mods.filter((m) => m.nome.toLowerCase().includes(b)) : mods;
+  }, [mods, busca]);
+  return (
+    <>
         <div id="mods" className="scroll-mt-20">
           <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
             <div>
-              <h2 className="font-titulo text-3xl">Mods</h2>
+              <h2 className="font-titulo text-3xl">Lista de mods</h2>
               <p className="text-sm text-pedra-500">{mods.length} mods no pack, mais o FRX-WORLD, feito só para este servidor. O launcher instala tudo sozinho.</p>
             </div>
             <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Procurar mod..." aria-label="Procurar mod"
@@ -718,12 +659,22 @@ export function SitePublico({ inicial, mods, mapa, notas, livros, bestiario }: {
           </ul>
           {!modsFiltrados.length && <p className="text-sm text-pedra-500">Nenhum mod com esse nome.</p>}
         </div>
+    </>
+  );
+}
 
+
+export function SecaoNovidades({ notas, inicio = 3 }: { notas: NotaAtualizacao[]; inicio?: number }) {
+  const { d, abrir } = useSite();
+  const s = d?.status ?? null;
+  const online = !!d?.online;
+  void s; void online;
+  const [todasNotas, setTodasNotas] = useState(false);
+  return (
+    <>
         <div id="novidades" className="scroll-mt-20">
-          <h2 className="font-titulo text-3xl">Notas de atualização</h2>
-          <p className="mb-4 text-sm text-pedra-500">O que mudou em cada versão, da mais nova para a mais antiga.</p>
-          <ol className="space-y-4 border-l border-pedra-700 pl-5">
-            {(todasNotas ? notas : notas.slice(0, 3)).map((n, i) => (
+                    <ol className="space-y-4 border-l border-pedra-700 pl-5">
+            {(todasNotas ? notas : notas.slice(0, inicio)).map((n, i) => (
               <li key={`${n.versao}-${n.titulo}`} className="relative rounded-xl border border-pedra-700 bg-pedra-900 p-4">
                 <span className={`absolute -left-[27px] top-5 h-3 w-3 rounded-full ${i === 0 ? "bg-ouro" : "bg-pedra-500"}`} />
                 <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
@@ -736,28 +687,12 @@ export function SitePublico({ inicial, mods, mapa, notas, livros, bestiario }: {
               </li>
             ))}
           </ol>
-          {notas.length > 3 && (
+          {notas.length > inicio && (
             <button type="button" onClick={() => setTodasNotas((v) => !v)} className="mt-4 rounded-md border border-pedra-700 px-4 py-2 text-sm hover:border-ouro">
               {todasNotas ? "Mostrar só as últimas" : `Ver todas as ${notas.length} atualizações`}
             </button>
           )}
         </div>
-
-        <div id="entrar" className="scroll-mt-20 rounded-xl border border-ouro-escuro bg-pedra-900 p-6">
-          <h2 className="font-titulo text-3xl text-ouro">Como entrar</h2>
-          <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm text-pergaminho/85">
-            <li>O FRX-WORLD é um servidor privado, entre amigos. Peça um convite para quem já joga ou para o administrador.</li>
-            <li>Com o convite você recebe o launcher, que baixa o Minecraft 1.20.1, o Forge e todos os mods sozinho.</li>
-            <li>Abra o launcher, escolha seu nick e entre. Na primeira vez o jogo pede para escolher raça e classe.</li>
-          </ol>
-        </div>
-      </main>
-
-      {perfil && <Perfil nick={perfil} fechar={fechar} />}
-
-      <footer className="border-t border-pedra-700 px-4 py-6 text-center text-xs text-pedra-500">
-        FRX-WORLD · servidor não oficial, sem vínculo com a Mojang ou a Microsoft · <a href="/admin" className="hover:text-ouro">Administração</a>
-      </footer>
-    </div>
+    </>
   );
 }

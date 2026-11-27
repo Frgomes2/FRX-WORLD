@@ -93,6 +93,7 @@ public class FrxWorld {
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.aventura.Tita());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.aventura.Corridas());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.aventura.X1());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.aventura.X1Diag());   // diagnóstico temporário do X1 sem dano
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.aventura.ConjuntosLendarios());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.progressao.AjustesAdmin());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.protecao.Trancas());
@@ -124,6 +125,7 @@ public class FrxWorld {
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.reinos.Populacao());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.reinos.Masmorras());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.reinos.ChefesMasmorra());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.reinos.ChefesCrepusculo());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.reinos.Bencao());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.criaturas.Pokebola());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.acesso.ComandosArquivo());

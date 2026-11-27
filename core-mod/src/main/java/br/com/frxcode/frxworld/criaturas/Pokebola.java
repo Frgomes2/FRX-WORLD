@@ -62,7 +62,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * Pokébola do FRX: jogue para capturar um bicho pacífico ou um bicho domado por você; jogue cheia para soltar onde cair.
  *  - Só se compra com o Treinador (NPC que o admin põe onde quiser: /frx pokebola treinador). No máximo 10 por jogador,
  *    cada uma mais cara que a anterior. Comprada, fica presa ao comprador: só ele joga, pega do chão e solta.
- *  - Domado pelo próprio dono: captura sempre. Selvagem pacífico (até 60 de vida): 60% de chance, mais até 30% com o bicho ferido.
+ *  - Domado pelo próprio dono (dragões inclusive): captura sempre. Selvagem pacífico (até 60 de vida): 60% de chance, mais até 30% com o bicho ferido.
  *    Domado por outra pessoa, monstros, aldeões, golens, NPCs, chefes e as criaturas do FRX: nunca. Nem dentro do terreno de outra pessoa.
  *  - Falhou ou soltou: a pokébola cai no chão (só o dono pega). Não queima, não explode e não some com o tempo.
  * Guardado no item: frx_dono, frx_dono_nome, frx_numero e, cheia, frx_mob (dados completos da criatura) e frx_mob_nome.
@@ -166,14 +166,16 @@ public class Pokebola {
     private static String recusa(Entity e, ServerPlayer p) {
         if (!(e instanceof Mob m) || e instanceof Player) return "Isso não cabe numa pokébola.";
         ResourceLocation id = ForgeRegistries.ENTITY_TYPES.getKey(e.getType());
-        if (e.getType().is(Tags.EntityTypes.BOSSES) || (id != null && (id.getNamespace().equals(FrxWorld.MOD_ID) || id.getNamespace().equals("easy_npc"))))
+        if (id != null && (id.getNamespace().equals(FrxWorld.MOD_ID) || id.getNamespace().equals("easy_npc")))
             return "Essa criatura é poderosa demais para a pokébola.";
         for (String t : e.getTags()) if (t.startsWith("frx_")) return "Essa criatura não pode ser capturada.";
         if (e.getPersistentData().contains("frx_papel") || e instanceof AbstractVillager || e instanceof AbstractGolem)
             return "Aldeões, golens e NPCs não entram na pokébola.";
-        if (e instanceof Enemy || e.getType().getCategory() == MobCategory.MONSTER) return "A pokébola só serve para bichos pacíficos.";
         if (!br.com.frxcode.frxworld.protecao.Terrenos.podeUsar(p, e.blockPosition())) return "Esse bicho está no terreno de outra pessoa.";
+        // domado pelo próprio jogador (inclusive dragões e outras feras domáveis): sempre cabe
         if (e instanceof OwnableEntity o && o.getOwnerUUID() != null) return o.getOwnerUUID().equals(p.getUUID()) ? null : "Esse bicho tem dono.";
+        if (e.getType().is(Tags.EntityTypes.BOSSES)) return "Essa criatura é poderosa demais para a pokébola.";
+        if (e instanceof Enemy || e.getType().getCategory() == MobCategory.MONSTER) return "A pokébola só serve para bichos pacíficos (ou domados por você).";
         if (m.getMaxHealth() > VIDA_SELVAGEM) return "Esse bicho é grande demais: dome ele primeiro.";
         return null;
     }

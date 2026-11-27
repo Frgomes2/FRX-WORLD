@@ -1,3 +1,5 @@
+export const metadata = { title: "Entrar no painel", robots: { index: false, follow: false } };
+
 import { FormLogin } from "./form";
 
 export default function LoginPage() {

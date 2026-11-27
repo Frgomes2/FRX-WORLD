@@ -75,7 +75,7 @@ public class TitaEntidade extends Monster {
     /** Passo lento e largo, do tamanho dele. */
     @Override
     protected void updateWalkAnimation(float andou) {
-        walkAnimation.update(andou > 0.002f ? 0.35f : 0f, 0.4f);
+        walkAnimation.update(andou > 0.002f ? 0.5f : 0f, 0.4f);
     }
 
     @Override public boolean isPushable() { return false; }

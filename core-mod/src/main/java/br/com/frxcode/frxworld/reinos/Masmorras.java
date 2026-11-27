@@ -354,11 +354,50 @@ public class Masmorras {
             } catch (NumberFormatException ignorado) {}
         }
         if (!naMasmorra) return;
+        // alguns chefes explodem no fim da animação de morte: o baú só aparece depois que o corpo some (e fica protegido de explosão)
+        BAUS_PENDENTES.add(new BauPendente(ev.getEntity(), b.immutable(), System.currentTimeMillis()));
+    }
+
+    /** Baú de chefe esperando o corpo sumir. */
+    private static final class BauPendente {
+        final net.minecraft.world.entity.Entity chefe; final BlockPos onde; final long morreu; long sumiu;
+        BauPendente(net.minecraft.world.entity.Entity c, BlockPos o, long m) { chefe = c; onde = o; morreu = m; }
+    }
+    private static final java.util.List<BauPendente> BAUS_PENDENTES = new java.util.ArrayList<>();
+    /** Baús de chefe recém-colocados, protegidos de explosão por 2 minutos: lugar -> até quando. */
+    private static final java.util.Map<BlockPos, Long> BAUS_PROTEGIDOS = new java.util.HashMap<>();
+
+    @SubscribeEvent
+    public void bausDeChefe(net.minecraftforge.event.TickEvent.ServerTickEvent ev) {
+        if (ev.phase != net.minecraftforge.event.TickEvent.Phase.END || BAUS_PENDENTES.isEmpty() && BAUS_PROTEGIDOS.isEmpty()) return;
+        long agora = System.currentTimeMillis();
+        BAUS_PROTEGIDOS.values().removeIf(ate -> ate < agora);
+        for (java.util.Iterator<BauPendente> it = BAUS_PENDENTES.iterator(); it.hasNext(); ) {
+            BauPendente bp = it.next();
+            if (bp.sumiu == 0 && bp.chefe.isRemoved()) bp.sumiu = agora;
+            // espera o corpo sumir e mais 3 s (a explosão vem no fim da animação de morte); no máximo 30 s
+            boolean pronto = bp.sumiu > 0 && agora - bp.sumiu >= 3_000 || agora - bp.morreu >= 30_000;
+            if (!pronto) continue;
+            it.remove();
+            if (bp.chefe.level() instanceof ServerLevel nivel) colocarBauDoChefe(nivel, bp.onde);
+        }
+    }
+
+    /** Explosão perto de um baú de chefe recém-colocado não quebra o baú. */
+    @SubscribeEvent
+    public void protegerBau(net.minecraftforge.event.level.ExplosionEvent.Detonate ev) {
+        if (BAUS_PROTEGIDOS.isEmpty()) return;
+        ev.getAffectedBlocks().removeIf(BAUS_PROTEGIDOS::containsKey);
+    }
+
+    private static void colocarBauDoChefe(ServerLevel nivel, BlockPos b) {
         for (int r = 0; r <= 4; r++)
             for (int dy = 0; dy <= 3; dy++)
                 for (BlockPos p : new BlockPos[]{b.offset(r, dy, 0), b.offset(-r, dy, 0), b.offset(0, dy, r), b.offset(0, dy, -r)}) {
                     if (nivel.getBlockState(p).isAir() && nivel.getBlockState(p.below()).isFaceSturdy(nivel, p.below(), Direction.UP)) {
                         porBau(nivel, p, TABELA_CHEFE, nivel.getRandom());
+                        BAUS_PROTEGIDOS.put(p.immutable(), System.currentTimeMillis() + 120_000);
+                        nivel.sendParticles(net.minecraft.core.particles.ParticleTypes.TOTEM_OF_UNDYING, p.getX() + 0.5, p.getY() + 1, p.getZ() + 0.5, 30, 0.4, 0.5, 0.4, 0.2);
                         for (net.minecraft.server.level.ServerPlayer j : nivel.players())
                             if (j.distanceToSqr(b.getX(), b.getY(), b.getZ()) < 64 * 64)
                                 j.sendSystemMessage(Component.literal("☠ O chefe caiu! Um baú de tesouro apareceu onde ele tombou.").withStyle(ChatFormatting.GOLD));

@@ -57,9 +57,11 @@ import java.util.concurrent.ThreadLocalRandom;
  * Evento "Titã à solta": um gigante de 35 blocos de altura marcha para as muralhas de Lubelius, o reino principal.
  *  - No máximo 1 vez por dia real (vira à meia-noite de São Paulo) e só com 3 ou mais jogadores online.
  *    Com 3+ online, a cada minuto há 4% de chance de começar (em média uns 25 minutos depois de juntar gente).
- *  - Ele nasce a 320 blocos das muralhas e anda devagar em linha reta, atravessando árvores e morros. Todos veem a barra com a distância.
+ *  - Ele nasce a 320 blocos das muralhas e anda em linha reta, atravessando árvores e morros. Todos veem a barra com a distância.
  *  - Vida: 5.000. Só jogadores ferem; pernas, tronco e cabeça levam golpe e flecha (o corpo é dividido em partes). Golpe na NUCA (por trás e do alto) vale 3x.
- *  - A cada 20% de vida perdida ele cambaleia e para 6 segundos. De tempos em tempos dá um pisão (com aviso) em quem está aos pés.
+ *  - A cada 20% de vida perdida ele cambaleia e para 6 segundos. Golpes (sempre com aviso): pisão em quem está aos pés,
+ *    varrida de braço em quem está no corpo ou do lado, pedra arremessada em quem fica longe e, abaixo de 50%, rugido que empurra todos.
+ *  - Anda a 1,2 bloco/s (passos tremem o chão) e a cabeça acompanha o jogador mais perto.
  *  - Derrotado: quem causou dano ganha 30 de ouro, 10% de um nível de XP e +150 de reputação em Lubelius; quem mais bateu ganha o dobro do ouro e da reputação.
  *  - Se chegar às muralhas: some numa nuvem de vapor e os NPCs de Lubelius (menos a Deusa) ficam 30 minutos sem atender.
  *  - No mapa (JourneyMap): quadrado vermelho "TITÃ" onde ele está (atualiza a cada 5 s) e pontilhado laranja do caminho até Lubelius.
@@ -80,8 +82,10 @@ public class Tita {
 
     private static final ZoneId FUSO = ZoneId.of("America/Sao_Paulo");
     private static final String REINO = "lubelius", MUSICA = "luta_tita";
-    private static final int MIN_JOGADORES = 3, CHANCE_MINUTO = 4, DISTANCIA = 320, CAMBALEIO = 120, PISAO_CADA = 180, PISAO_AVISO = 50;
-    private static final double PASSO = 0.04, VIDA = 5000;
+    private static final int MIN_JOGADORES = 3, CHANCE_MINUTO = 4, DISTANCIA = 320, CAMBALEIO = 120, PISAO_CADA = 150, PISAO_AVISO = 45;
+    /** Golpes novos: varrida de braço (quem está no corpo/perto), pedra arremessada (quem fica longe) e rugido (abaixo de 50%). */
+    private static final int VARRIDA_CADA = 260, VARRIDA_AVISO = 35, PEDRA_CADA = 300, PEDRA_AVISO = 40, RUGIDO_CADA = 520, PASSO_SOM = 16;
+    private static final double PASSO = 0.06, VIDA = 5000;
     private static final long LOJAS_FECHADAS = 30 * 60_000L;
 
     // estado guardado
@@ -96,6 +100,9 @@ public class Tita {
     private static int pontosRota;
     private static float vida, vidaMax, limiar;
     private static int cambaleio, pisao, relogio;
+    private static int varrida, varridaAviso, pedra, pedraAviso, rugido, ocupado;
+    private static boolean varridaDireita, peEsquerdo;
+    private static Vec3 pedraAlvo;
     private static long musicaRecomeca;
     private static final Map<UUID, Float> DANO = new HashMap<>();
     private static final Map<UUID, String> NOMES = new HashMap<>();
@@ -170,6 +177,7 @@ public class Tita {
         vida = vidaMax;
         limiar = 0.8f;
         cambaleio = 0; pisao = PISAO_CADA; relogio = 0; musicaRecomeca = 0;
+        varrida = VARRIDA_CADA; varridaAviso = 0; pedra = PEDRA_CADA / 2; pedraAviso = 0; rugido = RUGIDO_CADA; ocupado = 0; pedraAlvo = null;
         DANO.clear(); NOMES.clear();
         dia = LocalDate.now(FUSO).toEpochDay();
         salvar(srv);
@@ -296,8 +304,36 @@ public class Tita {
             double chao = nv.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, (int) Math.floor(x), (int) Math.floor(z));
             y += Math.max(-0.25, Math.min(0.25, chao - y));
             t.setPos(x, y, z);
-            t.setYRot(giro); t.yBodyRot = giro; t.yHeadRot = giro;
-            if (cambaleio == 0 && relogio % 22 == 0) nv.playSound(null, x, y, z, SoundEvents.RAVAGER_STEP, SoundSource.HOSTILE, 4f, 0.5f);
+            t.setYRot(giro); t.yBodyRot = giro;
+            // a cabeça acompanha o jogador mais perto (até 70 blocos), sem virar mais de 70° para o lado
+            ServerPlayer olhar = null; double melhor = 70 * 70;
+            for (ServerPlayer o : nv.players()) {
+                if (o.isSpectator() || !o.isAlive()) continue;
+                double dd = o.distanceToSqr(x, y + 24, z);
+                if (dd < melhor) { melhor = dd; olhar = o; }
+            }
+            if (olhar != null) {
+                double hx = olhar.getX() - x, hz = olhar.getZ() - z, hy = olhar.getEyeY() - (y + 26);
+                float alvo = (float) (Math.toDegrees(Math.atan2(hz, hx)) - 90);
+                float dif = net.minecraft.util.Mth.wrapDegrees(alvo - giro);
+                t.yHeadRot = giro + net.minecraft.util.Mth.clamp(dif, -70f, 70f);
+                t.setXRot((float) net.minecraft.util.Mth.clamp(-Math.toDegrees(Math.atan2(hy, Math.sqrt(hx * hx + hz * hz))), -40, 60));
+            } else { t.yHeadRot = giro; t.setXRot(0); }
+            // cada passo faz o chão tremer: poeira no pé que pisou e um leve empurrão em quem está muito perto
+            if (cambaleio == 0 && relogio % PASSO_SOM == 0) {
+                peEsquerdo = !peEsquerdo;
+                double lado = Math.toRadians(giro + (peEsquerdo ? 90 : -90));
+                double px = x - Math.sin(lado) * 2.6, pz = z + Math.cos(lado) * 2.6;
+                net.minecraft.world.level.block.state.BlockState chao2 = nv.getBlockState(BlockPos.containing(px, y - 1, pz));
+                if (!chao2.isAir()) nv.sendParticles(new net.minecraft.core.particles.BlockParticleOption(ParticleTypes.BLOCK, chao2), px, y + 0.2, pz, 40, 1.6, 0.2, 1.6, 0.15);
+                nv.sendParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE, px, y + 0.3, pz, 6, 1.2, 0.1, 1.2, 0.01);
+                nv.playSound(null, px, y, pz, SoundEvents.RAVAGER_STEP, SoundSource.HOSTILE, 5f, 0.45f);
+                nv.playSound(null, px, y, pz, SoundEvents.GENERIC_EXPLODE, SoundSource.HOSTILE, 0.6f, 0.4f);
+                for (ServerPlayer o : nv.players()) if (!o.isCreative() && !o.isSpectator() && o.onGround() && o.distanceToSqr(px, y, pz) < 5 * 5) {
+                    o.push(0, 0.35, 0);
+                    o.hurtMarked = true;
+                }
+            }
         }
         if (r.distancia((int) Math.floor(x), (int) Math.floor(z)) <= 1) { perder(srv); return; }
 
@@ -336,6 +372,8 @@ public class Tita {
             }
         }
 
+        if (t != null && cambaleio == 0) golpes(nv, t);
+
         if (relogio % 20 != 0) return;
         int falta = r.distancia((int) Math.floor(x), (int) Math.floor(z));
         BARRA.setName(Component.literal("Titã — a " + falta + " blocos das muralhas de Lubelius").withStyle(ChatFormatting.DARK_RED));
@@ -346,6 +384,117 @@ public class Tita {
         if (disco != null && t != null && System.currentTimeMillis() >= musicaRecomeca) {
             musicaRecomeca = System.currentTimeMillis() + Math.max(30, disco.duracao()) * 1000L;
             nv.playSound(null, x, y + 10, z, SoundEvent.createVariableRangeEvent(Discos.som(MUSICA)), SoundSource.RECORDS, 6f, 1f);
+        }
+    }
+
+    /**
+     * Golpes do Titã, um de cada vez (com aviso visível antes):
+     *  - Varrida: levanta o braço (partículas no lado escolhido) e varre quem está em cima dele ou a até 24 blocos daquele lado, jogando longe.
+     *  - Pedra: escolhe quem está longe (18 a 70 blocos), marca o chão com um círculo de fogo e, 2 s depois, a pedra cai ali.
+     *  - Rugido (abaixo de 50% de vida): empurra todo mundo num raio de 20 blocos e deixa lento por 3 s.
+     */
+    private static void golpes(ServerLevel nv, TitaEntidade t) {
+        if (ocupado > 0) ocupado--;
+        // varrida
+        if (varridaAviso > 0) {
+            varridaAviso--;
+            double lado = Math.toRadians(t.getYRot() + (varridaDireita ? -90 : 90));
+            if (varridaAviso % 4 == 0) nv.sendParticles(ParticleTypes.SWEEP_ATTACK, x - Math.sin(lado) * 12, y + 16, z + Math.cos(lado) * 12, 6, 5, 4, 5, 0);
+            if (varridaAviso == 0) {
+                t.swing(varridaDireita ? net.minecraft.world.InteractionHand.MAIN_HAND : net.minecraft.world.InteractionHand.OFF_HAND, true);
+                nv.playSound(null, x, y + 16, z, SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.HOSTILE, 5f, 0.4f);
+                nv.playSound(null, x, y + 16, z, SoundEvents.RAVAGER_ATTACK, SoundSource.HOSTILE, 5f, 0.5f);
+                Vec3 dirLado = new Vec3(-Math.sin(lado), 0, Math.cos(lado));
+                for (ServerPlayer o : new ArrayList<>(nv.players())) {
+                    if (o.isCreative() || o.isSpectator() || !o.isAlive()) continue;
+                    Vec3 rel = new Vec3(o.getX() - x, 0, o.getZ() - z);
+                    double dist = rel.length();
+                    boolean noCorpo = dist < 7 && o.getY() > y + 3 && o.getY() < y + 40;
+                    boolean doLado = dist < 24 && o.getY() < y + 34 && (dist < 0.5 || rel.normalize().dot(dirLado) > 0.2);
+                    if (!noCorpo && !doLado) continue;
+                    o.hurt(nv.damageSources().mobAttack(t), Math.max(10f, o.getMaxHealth() * 0.3f));
+                    Vec3 voo = dirLado.scale(1.8);
+                    o.push(voo.x, 0.9, voo.z);
+                    o.hurtMarked = true;
+                }
+                ocupado = 40;
+            }
+        } else if (--varrida <= 0 && ocupado == 0) {
+            varrida = VARRIDA_CADA + ThreadLocalRandom.current().nextInt(80);
+            boolean alguem = false;
+            for (ServerPlayer o : nv.players()) if (!o.isSpectator() && o.distanceToSqr(x, y + 15, z) < 30 * 30) { alguem = true; break; }
+            if (alguem) {
+                varridaDireita = ThreadLocalRandom.current().nextBoolean();
+                varridaAviso = VARRIDA_AVISO;
+                ocupado = VARRIDA_AVISO + 10;
+                nv.playSound(null, x, y + 20, z, SoundEvents.WARDEN_ROAR, SoundSource.HOSTILE, 3f, 0.6f);
+                for (ServerPlayer o : nv.players()) if (o.distanceToSqr(x, y + 15, z) < 30 * 30)
+                    o.displayClientMessage(Component.literal("⚠ O Titã ergue o braço " + (varridaDireita ? "direito" : "esquerdo") + "!").withStyle(ChatFormatting.RED), true);
+            }
+        }
+        // pedra arremessada
+        if (pedraAviso > 0 && pedraAlvo != null) {
+            pedraAviso--;
+            if (pedraAviso % 5 == 0) for (int k = 0; k < 36; k++) {
+                double a = Math.toRadians(k * 10);
+                nv.sendParticles(ParticleTypes.FLAME, pedraAlvo.x + Math.cos(a) * 4, pedraAlvo.y + 0.2, pedraAlvo.z + Math.sin(a) * 4, 1, 0, 0, 0, 0);
+            }
+            if (pedraAviso == 10) nv.sendParticles(ParticleTypes.LARGE_SMOKE, pedraAlvo.x, pedraAlvo.y + 12, pedraAlvo.z, 40, 1.5, 3, 1.5, 0.02);
+            if (pedraAviso == 0) {
+                nv.sendParticles(ParticleTypes.EXPLOSION_EMITTER, pedraAlvo.x, pedraAlvo.y + 0.5, pedraAlvo.z, 2, 0.5, 0.2, 0.5, 0);
+                nv.sendParticles(new net.minecraft.core.particles.BlockParticleOption(ParticleTypes.BLOCK, net.minecraft.world.level.block.Blocks.STONE.defaultBlockState()),
+                        pedraAlvo.x, pedraAlvo.y + 1, pedraAlvo.z, 120, 2.5, 1, 2.5, 0.3);
+                nv.playSound(null, pedraAlvo.x, pedraAlvo.y, pedraAlvo.z, SoundEvents.GENERIC_EXPLODE, SoundSource.HOSTILE, 4f, 0.7f);
+                for (ServerPlayer o : new ArrayList<>(nv.players())) {
+                    if (o.isCreative() || o.isSpectator() || !o.isAlive() || o.distanceToSqr(pedraAlvo) > 4.5 * 4.5) continue;
+                    o.hurt(nv.damageSources().mobAttack(t), Math.max(8f, o.getMaxHealth() * 0.25f));
+                    Vec3 fora = new Vec3(o.getX() - pedraAlvo.x, 0, o.getZ() - pedraAlvo.z);
+                    if (fora.lengthSqr() < 0.01) fora = new Vec3(1, 0, 0);
+                    fora = fora.normalize().scale(0.9);
+                    o.push(fora.x, 0.6, fora.z);
+                    o.hurtMarked = true;
+                }
+                pedraAlvo = null;
+                ocupado = 30;
+            }
+        } else if (--pedra <= 0 && ocupado == 0) {
+            pedra = PEDRA_CADA + ThreadLocalRandom.current().nextInt(100);
+            List<ServerPlayer> longe = new ArrayList<>();
+            for (ServerPlayer o : nv.players()) {
+                if (o.isCreative() || o.isSpectator() || !o.isAlive()) continue;
+                double dd = Math.sqrt(Math.pow(o.getX() - x, 2) + Math.pow(o.getZ() - z, 2));
+                if (dd >= 18 && dd <= 70) longe.add(o);
+            }
+            if (!longe.isEmpty()) {
+                ServerPlayer alvo = longe.get(ThreadLocalRandom.current().nextInt(longe.size()));
+                pedraAlvo = new Vec3(alvo.getX(), nv.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, (int) Math.floor(alvo.getX()), (int) Math.floor(alvo.getZ())), alvo.getZ());
+                pedraAviso = PEDRA_AVISO;
+                ocupado = PEDRA_AVISO + 10;
+                t.swing(net.minecraft.world.InteractionHand.MAIN_HAND, true);
+                nv.playSound(null, x, y + 20, z, SoundEvents.ENDER_DRAGON_SHOOT, SoundSource.HOSTILE, 4f, 0.4f);
+                alvo.displayClientMessage(Component.literal("⚠ O Titã arremessou uma pedra em você: SAIA DO CÍRCULO!").withStyle(ChatFormatting.RED, ChatFormatting.BOLD), true);
+            }
+        }
+        // rugido (só ferido)
+        if (vida / vidaMax < 0.5f && --rugido <= 0 && ocupado == 0) {
+            rugido = RUGIDO_CADA + ThreadLocalRandom.current().nextInt(120);
+            ocupado = 40;
+            nv.playSound(null, x, y + 26, z, SoundEvents.RAVAGER_ROAR, SoundSource.HOSTILE, 6f, 0.35f);
+            nv.playSound(null, x, y + 26, z, SoundEvents.WARDEN_SONIC_BOOM, SoundSource.HOSTILE, 4f, 0.5f);
+            for (int k = 0; k < 90; k++) {
+                double a = Math.toRadians(k * 4);
+                nv.sendParticles(ParticleTypes.SONIC_BOOM, x + Math.cos(a) * 10, y + 2, z + Math.sin(a) * 10, 1, 0, 0, 0, 0);
+            }
+            for (ServerPlayer o : new ArrayList<>(nv.players())) {
+                if (o.isCreative() || o.isSpectator() || !o.isAlive() || o.distanceToSqr(x, y + 10, z) > 20 * 20) continue;
+                Vec3 fora = new Vec3(o.getX() - x, 0, o.getZ() - z);
+                if (fora.lengthSqr() < 0.01) fora = new Vec3(1, 0, 0);
+                fora = fora.normalize().scale(2.0);
+                o.push(fora.x, 0.6, fora.z);
+                o.hurtMarked = true;
+                o.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN, 60, 1));
+                o.displayClientMessage(Component.literal("💥 O rugido do Titã te joga longe!").withStyle(ChatFormatting.GOLD), true);
+            }
         }
     }
 

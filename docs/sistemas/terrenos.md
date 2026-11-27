@@ -73,3 +73,10 @@ Dentro de terreno comprado, quem não é dono nem foi liberado não quebra, não
 - Limite pelo rank da Guilda: F 3, E 4, D 5, C 6, B 7, A 8, S 10 (os excedentes não aparecem para os outros). Só no mundo normal.
 - Os pontos globais do próprio JourneyMap continuam só para admin (`/frx mapa pontos`, `/frx mapa limparpontos`).
 
+
+## Terreno sem monstros (3.0.13)
+
+- Em **Meus terrenos**, o botão **Barrar monstros** liga para todos os terrenos do dono (como "Abrir a todos"). Gravado em `frx_terrenos.json` (`semMonstros`).
+- Ligado: monstros não nascem ali sozinhos (noite, patrulha, reforço, evento, geração do mundo). Gerador de monstros, ovo e comando continuam valendo.
+- A cada 5 s, monstro comum que entrou andando (perto de algum jogador) some com uma nuvem. Ficam chefes, monstros com nome, domados e os com tag `frx_` (invasões, eventos, invocações).
+- Vale do céu ao fundo (o terreno é só X e Z), inclusive cavernas embaixo.

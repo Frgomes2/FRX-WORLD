@@ -46,6 +46,15 @@ export async function POST(req: Request) {
     ...(e.estruturas !== undefined ? { estruturas: e.estruturas } : {}),
     agora: e.fim ? [] : e.agora ?? [],
   };
+  if (!e.fim) {
+    // números acima da atual não existem mais (a contagem foi zerada no servidor): somem do site
+    await prisma.expedicao.deleteMany({ where: { numero: { gt: e.numero } } });
+    // mesmo número com outro início = expedição nova reaproveitando o número: as fichas antigas saem
+    if (e.inicio) {
+      const atual = await prisma.expedicao.findUnique({ where: { numero: e.numero }, select: { inicio: true } });
+      if (atual && Math.abs(atual.inicio.getTime() - e.inicio) > 60_000) await prisma.participacaoExpedicao.deleteMany({ where: { numero: e.numero } });
+    }
+  }
   await prisma.expedicao.upsert({
     where: { numero: e.numero },
     create: { numero: e.numero, inicio: new Date(e.inicio || Date.now()), tipo: e.tipo ?? "normal", ...campos },

@@ -25,9 +25,9 @@ export function EntrarConta() {
   }
 
   return (
-    <div className="mx-auto max-w-md rounded-2xl border border-pedra-700 bg-pedra-900 p-6">
-      <h1 className="font-titulo text-3xl text-ouro">Minha conta</h1>
-      <p className="mb-5 text-sm text-pedra-500">Veja o inventário, as moedas e os seus personagens sem abrir o jogo.</p>
+    <div className="frx-aura mx-auto w-full max-w-md rounded-2xl border border-ouro-escuro/60 bg-pedra-900 p-6">
+      <h2 className="font-titulo text-3xl text-ouro">Entrar</h2>
+      <p className="mb-5 text-sm text-pedra-500">Use o seu nick do jogo. No primeiro acesso, o jogo te dá um código.</p>
       <div className="mb-5 flex gap-2">
         {([["entrar", "Já tenho senha"], ["criar", "Primeiro acesso"]] as const).map(([k, r]) => (
           <button key={k} type="button" onClick={() => { setModo(k); setErro(""); }}

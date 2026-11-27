@@ -101,6 +101,8 @@ public class Terrenos {
     private static final class Dono {
         String nome = "?";
         boolean publico;
+        /** Monstros não nascem nos terrenos dele, e os que entram andando somem. */
+        boolean semMonstros;
         final Map<UUID, String> amigos = new LinkedHashMap<>();
         /** O que cada liberado pode fazer: soma de COLOCAR, QUEBRAR e USAR. Quem não está aqui (cadastro antigo) pode tudo. */
         final Map<UUID, Integer> permissoes = new HashMap<>();
@@ -157,6 +159,7 @@ public class Terrenos {
                 Dono d = new Dono();
                 d.nome = j.get("nome").getAsString();
                 d.publico = j.has("publico") && j.get("publico").getAsBoolean();
+                d.semMonstros = j.has("semMonstros") && j.get("semMonstros").getAsBoolean();
                 if (j.has("amigos")) for (Map.Entry<String, JsonElement> am : j.getAsJsonObject("amigos").entrySet()) d.amigos.put(UUID.fromString(am.getKey()), am.getValue().getAsString());
                 if (j.has("permissoes")) for (Map.Entry<String, JsonElement> pm : j.getAsJsonObject("permissoes").entrySet()) d.permissoes.put(UUID.fromString(pm.getKey()), pm.getValue().getAsInt() & TUDO);
                 DONOS.put(UUID.fromString(e.getKey()), d);
@@ -187,6 +190,7 @@ public class Terrenos {
             JsonObject j = new JsonObject(), am = new JsonObject(), pm = new JsonObject();
             j.addProperty("nome", d.nome);
             j.addProperty("publico", d.publico);
+            j.addProperty("semMonstros", d.semMonstros);
             d.amigos.forEach((a, nome) -> { am.addProperty(a.toString(), nome); pm.addProperty(a.toString(), d.permissao(a)); });
             j.add("amigos", am);
             j.add("permissoes", pm);
@@ -492,11 +496,51 @@ public class Terrenos {
         else { int[] c = CANTO.get(p.getUUID()); if (c != null) divisa(p, n, c[0], c[1], c[0], c[1], COR_SELECAO); }
     }
 
+    // ------------------------------------------------------------------ terreno sem monstros
+
+    /** Este ponto fica num terreno cujo dono não quer monstros? */
+    private static boolean semMonstrosEm(LevelAccessor n, int x, int z) {
+        if (!mundoNormal(n)) return false;
+        Lote l = loteEm(x, z);
+        return l != null && dono(l.dono).semMonstros;
+    }
+
+    private static boolean monstroComum(net.minecraft.world.entity.Mob m) {
+        if (!(m instanceof net.minecraft.world.entity.monster.Enemy) && m.getType().getCategory() != net.minecraft.world.entity.MobCategory.MONSTER) return false;
+        if (m.hasCustomName() || m.getType().is(net.minecraftforge.common.Tags.EntityTypes.BOSSES) || br.com.frxcode.frxworld.habilidades.Habilidades.domado(m)) return false;
+        return m.getTags().stream().noneMatch(t -> t.startsWith("frx_"));   // invasores, eventos e invocações do FRX ficam
+    }
+
+    /** Monstro não nasce sozinho (noite, patrulha, reforço, evento) em terreno sem monstros. Gerador, ovo e comando continuam valendo. */
+    @SubscribeEvent
+    public void semMonstrosNascer(net.minecraftforge.event.entity.living.MobSpawnEvent.FinalizeSpawn ev) {
+        net.minecraft.world.entity.MobSpawnType tipo = ev.getSpawnType();
+        if (tipo != net.minecraft.world.entity.MobSpawnType.NATURAL && tipo != net.minecraft.world.entity.MobSpawnType.PATROL
+                && tipo != net.minecraft.world.entity.MobSpawnType.REINFORCEMENT && tipo != net.minecraft.world.entity.MobSpawnType.EVENT
+                && tipo != net.minecraft.world.entity.MobSpawnType.CHUNK_GENERATION) return;
+        if (!monstroComum(ev.getEntity()) || !semMonstrosEm(ev.getLevel(), (int) Math.floor(ev.getX()), (int) Math.floor(ev.getZ()))) return;
+        ev.setSpawnCancelled(true);
+    }
+
+    /** A cada 5 s, monstro que entrou andando num terreno sem monstros some (perto de jogadores, onde o mundo está carregado). */
+    private static void expulsarMonstros(MinecraftServer s) {
+        ServerLevel nivel = s.overworld();
+        Set<UUID> vistos = new HashSet<>();
+        for (ServerPlayer p : nivel.players()) {
+            for (net.minecraft.world.entity.Mob m : nivel.getEntitiesOfClass(net.minecraft.world.entity.Mob.class, p.getBoundingBox().inflate(96, 64, 96), x -> x.isAlive() && monstroComum(x))) {
+                if (!vistos.add(m.getUUID()) || !semMonstrosEm(nivel, m.getBlockX(), m.getBlockZ())) continue;
+                nivel.sendParticles(net.minecraft.core.particles.ParticleTypes.POOF, m.getX(), m.getY() + m.getBbHeight() / 2, m.getZ(), 8, 0.3, 0.4, 0.3, 0.02);
+                m.discard();
+            }
+        }
+    }
+
     @SubscribeEvent
     public void aCadaTick(TickEvent.ServerTickEvent ev) {
         if (ev.phase != TickEvent.Phase.END) return;
         MinecraftServer s = ev.getServer();
         if (s.getTickCount() % 200 == 77 && sujo) gravar();
+        if (s.getTickCount() % 100 == 41 && DONOS.values().stream().anyMatch(d -> d.semMonstros)) expulsarMonstros(s);
         if (s.getTickCount() % 10 != 3) return;
         long agora = System.currentTimeMillis();
         for (ServerPlayer p : s.getPlayerList().getPlayers()) {
@@ -558,7 +602,7 @@ public class Terrenos {
 
     // ------------------------------------------------------------------ tela (cliente/TelaTerrenos)
 
-    public static final int ABA = 0, CANTO1 = 1, CANTO2 = 2, COMPRAR = 3, CANCELAR = 4, VENDER = 5, DIVISAS = 6, PUBLICO = 7, PESSOA = 8;
+    public static final int ABA = 0, CANTO1 = 1, CANTO2 = 2, COMPRAR = 3, CANCELAR = 4, VENDER = 5, DIVISAS = 6, PUBLICO = 7, PESSOA = 8, MONSTROS = 9;
     /** Aba aberta de cada jogador (0 comprar, 1 meus terrenos, 2 quem pode mexer) e a lista de pessoas que a tela dele mostra. */
     private static final Map<UUID, Integer> ABA_DE = new HashMap<>();
     private static final Map<UUID, List<UUID>> PESSOAS = new HashMap<>();
@@ -593,6 +637,7 @@ public class Terrenos {
         d.putInt("areaTenho", areaDe(eu)); d.putInt("qtdTenho", lotesDe(eu).size());
         d.putLong("preco100", preco(100));
         d.putBoolean("publico", dono(eu).publico);
+        d.putBoolean("semMonstros", dono(eu).semMonstros);
         int[] c = CANTO.get(eu), s = SELECAO.get(eu);
         if (c != null && s == null) { d.putInt("cx", c[0]); d.putInt("cz", c[1]); }
         if (s != null) {
@@ -684,6 +729,12 @@ public class Terrenos {
                 som(p, true);
                 repintarParaTodos();
                 enviar(p, d.publico ? "Seus terrenos estão abertos: qualquer jogador constrói e quebra." : "Seus terrenos estão fechados: só você e quem você liberou.", true);
+            }
+            case MONSTROS -> {
+                Dono d = dono(eu);
+                d.semMonstros = !d.semMonstros; d.nome = p.getGameProfile().getName(); sujo = true;
+                som(p, true);
+                enviar(p, d.semMonstros ? "Monstros não nascem mais nos seus terrenos, e os que entrarem somem." : "Monstros voltam a nascer nos seus terrenos.", true);
             }
             case PESSOA -> {   // valor = posição na lista × 8 + a permissão que troca (COLOCAR, QUEBRAR ou USAR)
                 List<UUID> ids = PESSOAS.get(eu);

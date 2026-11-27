@@ -83,7 +83,8 @@ import java.util.stream.Stream;
  *   dimensions/frxworld/expedicao. O mundo principal e o Nether nunca são tocados.
  * - Entrada pelo pórtico das Terras Inexploradas (rank D da Guilda ou mais); volta pelo pórtico da chegada.
  * - Morrer lá não é morte: volta ao mundo principal com tudo e fica 30 min sem poder entrar.
- * - Lá dentro não funcionam portais de nenhum tipo (Nether, End, mods), waystones, camas nem âncoras.
+ * - Lá dentro não funcionam portais de nenhum tipo (Nether, End, mods), camas nem âncoras, e não dá para colocar waystones.
+ *   Sair por Pedra de Teleporte / pergaminho de waystone é permitido (entrar, não).
  */
 public class Expedicao {
     public static final ResourceKey<Level> MUNDO = ResourceKey.create(Registries.DIMENSION, new ResourceLocation(FrxWorld.MOD_ID, "expedicao"));
@@ -123,8 +124,64 @@ public class Expedicao {
 
     // ------------------------------------------------------------------ área
 
-    private static int centroX(int n) { return BASE + ((n - 1) % POR_LINHA) * ESPACO; }
-    private static int centroZ(int n) { return BASE + ((n - 1) / POR_LINHA) * ESPACO; }
+    /** Centro "de fábrica" da área n (grade de 4000 em 4000). O centro de verdade pode andar até 1000 blocos dele, atrás de terra firme. */
+    private static int baseX(int n) { return BASE + ((n - 1) % POR_LINHA) * ESPACO; }
+    private static int baseZ(int n) { return BASE + ((n - 1) / POR_LINHA) * ESPACO; }
+
+    /** Centros escolhidos (número → {x, z}), gravados no estado. */
+    private static final Map<Integer, int[]> CENTROS = new HashMap<>();
+    private static MinecraftServer servidor;
+
+    private static int centroX(int n) { return centro(n)[0]; }
+    private static int centroZ(int n) { return centro(n)[1]; }
+
+    /**
+     * Centro da área n. Na primeira vez (com o mundo da expedição carregado) procura, até 1000 blocos em volta do centro
+     * de fábrica, o ponto com mais terra na área e o centro em terra firme (nada de chegar no meio do mar), pelos biomas
+     * do gerador, sem gerar terreno. Antes de o mundo carregar devolve o de fábrica sem guardar.
+     */
+    private static int[] centro(int n) {
+        int[] c = CENTROS.get(n);
+        if (c != null) return c;
+        ServerLevel nv = servidor == null ? null : servidor.getLevel(MUNDO);
+        if (nv == null) return new int[]{baseX(n), baseZ(n)};
+        c = escolherCentro(nv, baseX(n), baseZ(n));
+        CENTROS.put(n, c);
+        for (int i = historico.size() - 1; i >= 0; i--) {
+            JsonObject h = historico.get(i).getAsJsonObject();
+            if (h.get("numero").getAsInt() == n) { h.addProperty("centroX", c[0]); h.addProperty("centroZ", c[1]); break; }
+        }
+        FrxWorld.LOG.info("Expedição: área #{} com centro em {}, {}", n, c[0], c[1]);
+        gravar();
+        return c;
+    }
+
+    private static int[] escolherCentro(ServerLevel nv, int bx, int bz) {
+        try {
+            var gerador = nv.getChunkSource().getGenerator();
+            var amostra = nv.getChunkSource().randomState().sampler();
+            java.util.function.BiPredicate<Integer, Integer> terra = (x, z) -> {
+                var b = gerador.getBiomeSource().getNoiseBiome(x >> 2, 64 >> 2, z >> 2, amostra);
+                return !(b.is(net.minecraft.tags.BiomeTags.IS_OCEAN) || b.is(net.minecraft.tags.BiomeTags.IS_DEEP_OCEAN) || b.is(net.minecraft.tags.BiomeTags.IS_RIVER));
+            };
+            int[] melhor = {bx, bz};
+            double melhorNota = -1;
+            for (int dx = -1000; dx <= 1000; dx += 250) for (int dz = -1000; dz <= 1000; dz += 250) {
+                int cx = bx + dx, cz = bz + dz;
+                boolean meio = true;
+                for (int ox = -48; ox <= 48 && meio; ox += 48) for (int oz = -48; oz <= 48 && meio; oz += 48) meio = terra.test(cx + ox, cz + oz);
+                if (!meio) continue;
+                int secos = 0, total = 0;
+                for (int ox = -900; ox <= 900; ox += 225) for (int oz = -900; oz <= 900; oz += 225) { total++; if (terra.test(cx + ox, cz + oz)) secos++; }
+                double nota = secos / (double) total - (Math.abs(dx) + Math.abs(dz)) / 20000.0;   // empate: mais perto do de fábrica
+                if (nota > melhorNota) { melhorNota = nota; melhor = new int[]{cx, cz}; }
+            }
+            return melhor;
+        } catch (Throwable t) {
+            FrxWorld.LOG.warn("Expedição: não consegui escolher o centro por bioma ({}); fica o de fábrica.", t.toString());
+            return new int[]{bx, bz};
+        }
+    }
 
     public static boolean naExpedicao(Level l) { return l != null && l.dimension() == MUNDO; }
 
@@ -152,6 +209,9 @@ public class Expedicao {
         arquivoEstado = s.getWorldPath(LevelResource.ROOT).resolve("frx_expedicao.json");
         ativa = false; numero = 0; inicio = 0; proxima = 0; pronta = 0; portal = null; voltaDe = 0; volta = null; rotuloDe = 0;
         historico = new JsonArray();
+        CENTROS.clear();
+        USADAS.clear();
+        servidor = s;
         if (!Files.exists(arquivoEstado)) return;
         try {
             JsonObject o = JsonParser.parseString(Files.readString(arquivoEstado, StandardCharsets.UTF_8)).getAsJsonObject();
@@ -160,11 +220,21 @@ public class Expedicao {
             inicio = o.has("inicio") ? o.get("inicio").getAsLong() : 0;
             proxima = o.has("proxima") ? o.get("proxima").getAsLong() : 0;
             pronta = o.has("pronta") ? o.get("pronta").getAsInt() : 0;
+            povoada = o.has("povoada") ? o.get("povoada").getAsInt() : 0;
             portal = pos(o, "portal");
             volta = pos(o, "volta");
             voltaDe = o.has("voltaDe") ? o.get("voltaDe").getAsInt() : 0;
             rotuloDe = o.has("rotuloDe") ? o.get("rotuloDe").getAsInt() : 0;
             if (o.has("historico") && o.get("historico").isJsonArray()) historico = o.getAsJsonArray("historico");
+            if (o.has("usadas")) for (Map.Entry<String, com.google.gson.JsonElement> e : o.getAsJsonObject("usadas").entrySet()) {
+                List<String> l = new ArrayList<>();
+                for (com.google.gson.JsonElement x : e.getValue().getAsJsonArray()) l.add(x.getAsString());
+                USADAS.put(Integer.parseInt(e.getKey()), l);
+            }
+            if (o.has("centros")) for (Map.Entry<String, com.google.gson.JsonElement> e : o.getAsJsonObject("centros").entrySet()) {
+                JsonArray a = e.getValue().getAsJsonArray();
+                CENTROS.put(Integer.parseInt(e.getKey()), new int[]{a.get(0).getAsInt(), a.get(1).getAsInt()});
+            }
         } catch (Exception e) {
             FrxWorld.LOG.warn("Expedição: não consegui ler {}: {}", arquivoEstado, e.toString());
         }
@@ -186,11 +256,18 @@ public class Expedicao {
         o.addProperty("inicio", inicio);
         o.addProperty("proxima", proxima);
         o.addProperty("pronta", pronta);
+        o.addProperty("povoada", povoada);
         if (portal != null) o.add("portal", arr(portal));
         if (volta != null) o.add("volta", arr(volta));
         o.addProperty("voltaDe", voltaDe);
         o.addProperty("rotuloDe", rotuloDe);
         o.add("historico", historico);
+        JsonObject cs = new JsonObject();
+        for (Map.Entry<Integer, int[]> e : CENTROS.entrySet()) { JsonArray a = new JsonArray(); a.add(e.getValue()[0]); a.add(e.getValue()[1]); cs.add(String.valueOf(e.getKey()), a); }
+        o.add("centros", cs);
+        JsonObject us = new JsonObject();
+        for (Map.Entry<Integer, List<String>> e : USADAS.entrySet()) { JsonArray a = new JsonArray(); e.getValue().forEach(a::add); us.add(String.valueOf(e.getKey()), a); }
+        o.add("usadas", us);
         try { Files.writeString(arquivoEstado, GSON.toJson(o), StandardCharsets.UTF_8); }
         catch (Exception e) { FrxWorld.LOG.warn("Expedição: não consegui gravar: {}", e.toString()); }
     }
@@ -204,12 +281,12 @@ public class Expedicao {
         h.addProperty("numero", numero);
         h.addProperty("data", Instant.ofEpochMilli(agora).atZone(FUSO).format(DATA));
         h.addProperty("inicio", agora);
-        h.addProperty("centroX", centroX(numero));
-        h.addProperty("centroZ", centroZ(numero));
+        h.addProperty("centroX", baseX(numero));
+        h.addProperty("centroZ", baseZ(numero));
         historico.add(h);
         while (historico.size() > 200) historico.remove(0);
         avisado = 0;
-        FrxWorld.LOG.info("Expedição #{} aberta: centro {}, {} (até {})", numero, centroX(numero), centroZ(numero), quando(proxima));
+        FrxWorld.LOG.info("Expedição #{} aberta (até {})", numero, quando(proxima));
     }
 
     // ------------------------------------------------------------------ estatísticas
@@ -452,13 +529,16 @@ public class Expedicao {
 
     private static boolean manter(int rx, int rz, int n) {
         int x0 = rx * 512, z0 = rz * 512, folga = 64;
-        int cx = centroX(n), cz = centroZ(n);
+        int[] c = CENTROS.get(n);
+        int cx = c != null ? c[0] : baseX(n), cz = c != null ? c[1] : baseZ(n);
+        if (c == null) folga += 1000;   // centro ainda não escolhido: guarda tudo o que ele pode ocupar
         return x0 + 511 >= cx - RAIO - folga && x0 <= cx + RAIO + folga && z0 + 511 >= cz - RAIO - folga && z0 <= cz + RAIO + folga;
     }
 
     @SubscribeEvent
     public void aoLigar(ServerStartedEvent ev) {
         MinecraftServer s = ev.getServer();
+        servidor = s;
         aplicarBorda(s);
         if (ativa && numero > 0) { virarFichas(s, inicio); enviar(s, numero, inicio, proxima, 0); }
     }
@@ -500,9 +580,21 @@ public class Expedicao {
         BlockPos chegada = garantirVolta(n).offset(0, 1, 2);
         p.getPersistentData().putInt("frx_exp_num", numero);
         teleportar(p, n, chegada);
+        marcarNaExpedicao(p);
         sujo = true;
         Sistema.avisar(p, "Expedição #" + numero, "Terras Inexploradas. Tudo aqui some na troca, " + quando(proxima)
-                + ". Morrer não tira seus itens, mas deixa você 30 min fora. Portais, camas e waystones não funcionam.", Sistema.VERDE);
+                + ". Morrer não tira seus itens, mas deixa você 30 min fora. Portais e camas não funcionam; para voltar, use o pórtico ou a Pedra de Teleporte.", Sistema.VERDE);
+    }
+
+    /** No mapa da expedição: o pórtico de volta (verde) e o contorno da área desta expedição. */
+    private static void marcarNaExpedicao(ServerPlayer p) {
+        String dim = MUNDO.location().toString();
+        if (volta != null && voltaDe == numero)
+            br.com.frxcode.frxworld.protecao.MapaJm.mostrarEm(p, dim, "expedicao_volta", volta.getX() - 3, volta.getZ() - 3, volta.getX() + 3, volta.getZ() + 3, 0x2E7D32, 0.6f,
+                    "⇦ Mundo principal", "Pórtico de volta ao mundo principal");
+        int cx = centroX(numero), cz = centroZ(numero);
+        br.com.frxcode.frxworld.protecao.MapaJm.mostrarEm(p, dim, "expedicao_area", cx - RAIO, cz - RAIO, cx + RAIO - 1, cz + RAIO - 1, 0xD4A93A, 0.03f,
+                "Expedição #" + numero, "Área da expedição #" + numero + " (2000 × 2000)");
     }
 
     private static void voltarAoPrincipal(ServerPlayer p, String motivo) {
@@ -529,8 +621,11 @@ public class Expedicao {
 
     /** Pórtico de volta no centro da área atual; construído na primeira entrada de cada expedição. */
     private static BlockPos garantirVolta(ServerLevel n) {
-        if (volta != null && voltaDe == numero) return volta;
         int x = centroX(numero), z = centroZ(numero);
+        if (volta != null && voltaDe == numero) {
+            if (Math.abs(volta.getX() - x) <= 2 && Math.abs(volta.getZ() - z) <= 2) return volta;
+            apagarPortico(n, volta);   // o centro mudou (ex.: a área foi escolhida de novo atrás de terra firme)
+        }
         n.getChunk(x >> 4, z >> 4);
         int y = Math.max(n.getSeaLevel(), n.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z)) - 1;
         BlockPos base = new BlockPos(x, Math.min(y, n.getMaxBuildHeight() - 12), z);
@@ -540,6 +635,16 @@ public class Expedicao {
         voltaDe = numero;
         gravar();
         return volta;
+    }
+
+    /** Desfaz um pórtico de volta antigo: abaixo do nível do mar vira água, acima vira ar. */
+    private static void apagarPortico(ServerLevel n, BlockPos base) {
+        n.getChunk(base.getX() >> 4, base.getZ() >> 4);
+        for (ArmorStand a : n.getEntitiesOfClass(ArmorStand.class, new AABB(base).inflate(4), e -> e.getTags().contains(TAG_ROTULO))) a.discard();
+        for (int dx = -2; dx <= 2; dx++) for (int dz = -2; dz <= 2; dz++) for (int dy = -4; dy <= 4; dy++) {
+            BlockPos b = base.offset(dx, dy, dz);
+            n.setBlock(b, b.getY() < n.getSeaLevel() ? Blocks.WATER.defaultBlockState() : Blocks.AIR.defaultBlockState(), 2);
+        }
     }
 
     /** Pórtico 5×5: piso, quatro pilares com lanterna e o centro brilhante onde se pisa. `base` = piso do centro. */
@@ -662,6 +767,7 @@ public class Expedicao {
 
         // pré-geração: área atual e depois a próxima, só com o servidor vazio
         if (t % 1200 == 0 && s.getPlayerCount() == 0) preGerar(s, agora);
+        if (t % 40 == 0 && s.getPlayerCount() == 0 && !FILA.isEmpty()) colocarUma(s);
     }
 
     private static void preGerar(MinecraftServer s, long agora) {
@@ -688,6 +794,7 @@ public class Expedicao {
                 return;
             }
             if (area > pronta) { pronta = area; gravar(); FrxWorld.LOG.info("Expedição: área #{} pré-gerada", area); }
+            if (area >= numero && povoada < area && FILA.isEmpty()) { montarFila(s, area); return; }
         }
         int alvo = pronta < numero ? numero : pronta < numero + 1 ? numero + 1 : 0;
         if (alvo == 0) return;
@@ -698,6 +805,147 @@ public class Expedicao {
         comando(s, "chunky radius " + RAIO);
         comando(s, "chunky start");
         ultimaTarefa = agora;
+    }
+
+    // ------------------------------------------------------------------ estruturas extras
+
+    /**
+     * A geração normal põe poucas estruturas numa área de 2000 × 2000, e quase todas do Minecraft. Depois de pré-gerar a
+     * área (servidor vazio), o mod espalha ~60 estruturas SÓ de mods numa grade com sorteio (uma a cada 2 s, com o
+     * servidor vazio), pelo comando /place structure. Para cada expedição ser única:
+     *  - nenhuma estrutura (nem a mesma "família", como as variantes de bioma de uma torre) se repete na mesma área;
+     *  - as usadas nas últimas expedições (USADAS, gravado no estado) vão para o fim da fila;
+     *  - a fila alterna entre mods, para não sair tudo de um mod só.
+     * A estrutura que não combina com o bioma do lugar é trocada pela próxima da fila.
+     */
+    private static final int EXTRAS_LADO = 8;   // grade 8 × 8 = até 64 lugares
+    private static final int LEMBRAR = 6;
+    private static final int CARREGAR = 6;      // raio em chunks carregado em volta de cada lugar (estruturas grandes precisam)       // quantas expedições anteriores contam como "já usadas"
+    private static final java.util.Set<String> MODS_EXPLORACAO = java.util.Set.of("mvs", "repurposed_structures", "idas", "towns_and_towers", "nova_structures",
+            "dungeons_arise", "born_in_chaos_v1", "dungeons_enhanced", "betterarcheology", "explorify", "graveyard", "structory", "structory_towers",
+            "samurai_dynasty", "betterdungeons", "betterwitchhuts", "illagerinvasion", "mowziesmobs", "terralith", "fossil", "cataclysm", "aquamirae",
+            "iceandfire", "dungeonnowloading", "betterdeserttemples", "betterjungletemples");
+    private static final String[] FORA = {"ocean", "underwater", "sunken", "ship", "mineshaft", "nether", "end_", "the_end", "warped", "crimson", "basalt",
+            "soul", "bastion", "fortress", "buried", "ruined_portal", "aether", "twilight", "deep_dark", "ancient_city", "stronghold", "trail_ruins",
+            "monument", "lava", "sky", "floating", "iceberg", "acropolis", "sunken_city"};
+    private static final String[] VARIANTES = {"_plains", "_plain", "_forest", "_taiga", "_desert", "_savanna", "_snowy", "_snow", "_jungle", "_grassy",
+            "_badlands", "_swamp", "_mountain", "_birch", "_dark_forest", "_mesa", "_redsand", "_sand", "_autumn", "_cherry", "_mangrove", "_mushroom",
+            "_stone", "_classic", "_iberian", "_mediterranean", "_oriental", "_rustic", "_swedish", "_small", "_large", "_medium", "_1", "_2", "_3"};
+    private static final java.util.ArrayDeque<int[]> FILA = new java.util.ArrayDeque<>();
+    private static final Map<Integer, List<String>> USADAS = new HashMap<>();
+    private static final java.util.ArrayDeque<String> ORDEM = new java.util.ArrayDeque<>();
+    private static final java.util.Set<String> FAMILIAS_AGORA = new java.util.HashSet<>();
+    private static int povoada, povoando;
+    private static List<String> candidatas;
+
+    private static List<String> candidatas(MinecraftServer s) {
+        if (candidatas != null) return candidatas;
+        List<String> l = new ArrayList<>();
+        for (ResourceLocation id : s.registryAccess().registryOrThrow(Registries.STRUCTURE).keySet()) {
+            if (!MODS_EXPLORACAO.contains(id.getNamespace())) continue;
+            String caminho = id.getPath();
+            boolean ruim = false;
+            for (String f : FORA) if (caminho.contains(f)) { ruim = true; break; }
+            if (!ruim) l.add(id.toString());
+        }
+        java.util.Collections.sort(l);
+        candidatas = l;
+        FrxWorld.LOG.info("Expedição: {} estruturas de mods candidatas para espalhar", l.size());
+        return l;
+    }
+
+    /** Família da estrutura: o mesmo prédio em variantes de bioma ou tamanho conta como um só. */
+    private static String familia(String id) {
+        String f = id.contains("/") ? id.substring(0, id.lastIndexOf('/')) + "/" + id.substring(id.lastIndexOf('/') + 1) : id;
+        boolean mudou = true;
+        while (mudou) {
+            mudou = false;
+            for (String v : VARIANTES) if (f.endsWith(v)) { f = f.substring(0, f.length() - v.length()); mudou = true; }
+        }
+        return f;
+    }
+
+    /** Ordem de uso desta área: primeiro o que não apareceu nas últimas expedições, alternando entre mods. */
+    private static void montarOrdem(MinecraftServer s, int area) {
+        ORDEM.clear();
+        FAMILIAS_AGORA.clear();
+        java.util.Set<String> recentes = new java.util.HashSet<>();
+        for (Map.Entry<Integer, List<String>> e : USADAS.entrySet())
+            if (e.getKey() < area && e.getKey() >= area - LEMBRAR) for (String id : e.getValue()) recentes.add(familia(id));
+        java.util.Random r = new java.util.Random(area * 104729L + 17);
+        for (int rodada = 0; rodada < 2; rodada++) {
+            Map<String, List<String>> porMod = new java.util.TreeMap<>();
+            for (String id : candidatas(s)) {
+                boolean recente = recentes.contains(familia(id));
+                if ((rodada == 0) == recente) continue;
+                porMod.computeIfAbsent(id.substring(0, id.indexOf(':')), k -> new ArrayList<>()).add(id);
+            }
+            List<List<String>> grupos = new ArrayList<>(porMod.values());
+            for (List<String> g : grupos) java.util.Collections.shuffle(g, r);
+            java.util.Collections.shuffle(grupos, r);
+            boolean sobrou = true;
+            for (int k = 0; sobrou; k++) {
+                sobrou = false;
+                for (List<String> g : grupos) if (k < g.size()) { ORDEM.add(g.get(k)); sobrou = true; }
+            }
+        }
+        FrxWorld.LOG.info("Expedição: área #{} com {} estruturas na fila ({} famílias usadas nas últimas {} expedições ficam no fim)",
+                area, ORDEM.size(), recentes.size(), LEMBRAR);
+    }
+
+    private static void montarFila(MinecraftServer s, int area) {
+        FILA.clear();
+        povoando = area;
+        USADAS.put(area, new ArrayList<>());
+        montarOrdem(s, area);
+        java.util.Random r = new java.util.Random(area * 7919L);
+        int cx = centroX(area), cz = centroZ(area), passo = (RAIO * 2 - 200) / EXTRAS_LADO;
+        List<int[]> lugares = new ArrayList<>();
+        for (int i = 0; i < EXTRAS_LADO; i++) for (int j = 0; j < EXTRAS_LADO; j++) {
+            int x = cx - RAIO + 100 + i * passo + r.nextInt(Math.max(1, passo - 60)) + 30;
+            int z = cz - RAIO + 100 + j * passo + r.nextInt(Math.max(1, passo - 60)) + 30;
+            if (Math.abs(x - cx) < 80 && Math.abs(z - cz) < 80) continue;   // longe do pórtico de chegada
+            lugares.add(new int[]{x, z});
+        }
+        java.util.Collections.shuffle(lugares, r);
+        FILA.addAll(lugares);
+        FrxWorld.LOG.info("Expedição: espalhando estruturas na área #{} ({} lugares)", area, FILA.size());
+    }
+
+    private static void colocarUma(MinecraftServer s) {
+        int[] lugar = FILA.poll();
+        if (lugar == null) return;
+        if (ORDEM.isEmpty()) montarOrdem(s, povoando);
+        List<String> usadas = USADAS.computeIfAbsent(povoando, k -> new ArrayList<>());
+        List<String> devolver = new ArrayList<>();
+        // /place structure só aceita lugar carregado: carrega (do disco, a área já foi pré-gerada) os chunks em volta, neste mesmo tick
+        ServerLevel nivel = s.getLevel(MUNDO);
+        if (nivel == null) { FILA.addFirst(lugar); return; }
+        int ccx = lugar[0] >> 4, ccz = lugar[1] >> 4;
+        for (int dx = -CARREGAR; dx <= CARREGAR; dx++) for (int dz = -CARREGAR; dz <= CARREGAR; dz++) nivel.getChunk(ccx + dx, ccz + dz);
+        for (int tentativa = 0; tentativa < 15 && !ORDEM.isEmpty(); tentativa++) {
+            String id = ORDEM.poll();
+            if (FAMILIAS_AGORA.contains(familia(id))) { tentativa--; continue; }
+            int ok = 0;
+            try { ok = s.getCommands().performPrefixedCommand(s.createCommandSourceStack().withSuppressedOutput(),
+                    "execute in " + MUNDO.location() + " run place structure " + id + " " + lugar[0] + " 64 " + lugar[1]); }
+            catch (Exception e) { ok = 0; }
+            if (ok > 0) {
+                FAMILIAS_AGORA.add(familia(id));
+                usadas.add(id);
+                FrxWorld.LOG.info("Expedição #{}: {} em {}, {}", povoando, id, lugar[0], lugar[1]);
+                break;
+            }
+            devolver.add(id);   // não coube neste bioma (ou é maior que a área carregada): volta para o fim da fila e tenta em outro lugar
+        }
+        ORDEM.addAll(devolver);
+        if (FILA.isEmpty()) {
+            povoada = Math.max(povoada, povoando);
+            USADAS.keySet().removeIf(n -> n < povoando - LEMBRAR);
+            gravar();
+            FrxWorld.LOG.info("Expedição: {} estruturas extras de mods na área #{} ({} mods diferentes)", usadas.size(), povoando,
+                    usadas.stream().map(x -> x.substring(0, x.indexOf(':'))).distinct().count());
+        }
     }
 
     private static void comando(MinecraftServer s, String c) {
@@ -723,12 +971,17 @@ public class Expedicao {
         Sistema.avisar(p, "Você caiu na expedição", "Voltou ao mundo principal com todos os seus itens. Pode entrar de novo em 30 minutos.", Sistema.VERMELHO);
     }
 
-    /** Ninguém entra nem sai da expedição por portal de mod, waystone ou comando de outro sistema: só pelos pórticos. */
+    /**
+     * Ninguém ENTRA na expedição por portal de mod, waystone ou comando de outro sistema: só pelo pórtico (rank D).
+     * SAIR é livre para jogadores: Pedra de Teleporte / pergaminhos de waystone e afins levam de volta para casa.
+     * (Portais não acendem lá dentro e waystones não podem ser colocadas, então não há como abrir caminho de volta para dentro.)
+     */
     @SubscribeEvent(priority = EventPriority.HIGH)
     public void aoViajar(EntityTravelToDimensionEvent ev) {
         boolean deLa = naExpedicao(ev.getEntity().level()), paraLa = ev.getDimension() == MUNDO;
         if (!deLa && !paraLa) return;
         if (PERMITIDO.contains(ev.getEntity().getUUID())) return;
+        if (deLa && !paraLa && ev.getEntity() instanceof ServerPlayer) { sujo = true; return; }
         if (ev.getEntity() instanceof ServerPlayer p && admin(p)) return;
         ev.setCanceled(true);
         if (ev.getEntity() instanceof ServerPlayer p)
@@ -787,6 +1040,7 @@ public class Expedicao {
         if (!(ev.getEntity() instanceof ServerPlayer p) || !naExpedicao(p.level())) return;
         if (!ativa || p.getPersistentData().getInt("frx_exp_num") != numero || !dentro(p.getX(), p.getZ()))
             voltarAoPrincipal(p, "A expedição em que você estava terminou. Você voltou ao mundo principal com tudo o que carregava.");
+        else p.server.execute(() -> marcarNaExpedicao(p));
     }
 
     @SubscribeEvent
@@ -875,6 +1129,23 @@ public class Expedicao {
                     if (!ativa || numero == 0) { c.getSource().sendFailure(Component.literal("Abra primeiro com /expedicao abrir.")); return 0; }
                     trocar(c.getSource().getServer(), System.currentTimeMillis());
                     c.getSource().sendSuccess(() -> Component.literal("Expedição trocada: agora é a #" + numero + ". As áreas velhas são apagadas no próximo reinício."), true);
+                    return 1;
+                }))
+                .then(Commands.literal("estruturas").requires(c -> c.hasPermission(2)).executes(c -> {
+                    if (numero == 0) { c.getSource().sendFailure(Component.literal("Ainda não há expedição.")); return 0; }
+                    montarFila(c.getSource().getServer(), numero);
+                    c.getSource().sendSuccess(() -> Component.literal("Espalhando " + FILA.size() + " estruturas na expedição #" + numero + " (uma a cada 2 s, com o servidor vazio). Acompanhe no log."), true);
+                    return 1;
+                }))
+                .then(Commands.literal("novocentro").requires(c -> c.hasPermission(2)).executes(c -> {
+                    if (numero == 0) { c.getSource().sendFailure(Component.literal("Ainda não há expedição.")); return 0; }
+                    CENTROS.remove(numero);
+                    int[] novo = centro(numero);
+                    aplicarBorda(c.getSource().getServer());
+                    pronta = Math.min(pronta, numero - 1);
+                    ultimaTarefa = 0;
+                    gravar();
+                    c.getSource().sendSuccess(() -> Component.literal("Centro da expedição #" + numero + ": " + novo[0] + ", " + novo[1] + ". O pórtico de chegada é refeito na próxima entrada."), true);
                     return 1;
                 }))
                 .then(Commands.literal("historico").requires(c -> c.hasPermission(2)).executes(c -> {

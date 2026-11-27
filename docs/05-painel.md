@@ -94,3 +94,10 @@ A lista de Jogadores, o Dinheiro e os rankings da Visão geral mostram uma linha
 - APIs: `POST /api/servidor/expedicoes` (servidor, com token) e `GET /api/publico/expedicoes` (atual, histórico, números e o relógio do servidor).
 - Pesos do MVP: Configuracao `expedicao_pesos`.
 
+## Busca (SEO, 3.0.7)
+
+- Metadados em `src/app/layout.tsx` (padrão) e em cada página pública; dados estruturados schema.org na página inicial.
+- `robots.txt` e `sitemap.xml` gerados pelo Next (`src/app/robots.ts`, `src/app/sitemap.ts`); imagem de prévia em `src/app/opengraph-image.tsx`.
+- Painel, login e conta não entram no Google (`noindex`).
+- Depois de publicar: cadastrar o domínio no Google Search Console e enviar `https://craft.frgomes.com.br/sitemap.xml`.
+

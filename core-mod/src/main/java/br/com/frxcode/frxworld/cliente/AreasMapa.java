@@ -81,7 +81,10 @@ public final class AreasMapa {
             // sudoeste, sudeste, nordeste, noroeste: a ordem que o JourneyMap pede
             Object poli = poliC.getConstructor(List.class).newInstance(List.of(new BlockPos(x0, 70, z1), new BlockPos(x1, 70, z1), new BlockPos(x1, 70, z0), new BlockPos(x0, 70, z0)));
             Constructor<?> construtor = desenhoC.getConstructor(String.class, ResourceKey.class, propsC, poliC);
-            Object desenho = construtor.newInstance(MOD, Level.OVERWORLD, props, poli);
+            ResourceKey<Level> dim = d.contains("dim")
+                    ? ResourceKey.create(net.minecraft.core.registries.Registries.DIMENSION, new net.minecraft.resources.ResourceLocation(d.getString("dim")))
+                    : Level.OVERWORLD;
+            Object desenho = construtor.newInstance(MOD, dim, props, poli);
             chamar(desenho, "setOverlayGroupName", "Terrenos");
             if (!d.getString("rotulo").isEmpty()) chamar(desenho, "setLabel", d.getString("rotulo"));
             if (!d.getString("titulo").isEmpty()) chamar(desenho, "setTitle", d.getString("titulo"));

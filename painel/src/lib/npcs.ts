@@ -21,6 +21,7 @@ export const PAPEIS = [
   { id: "escravos", nome: "Mercador de Escravos (aldeões)", icone: "⛓️" },
   { id: "costureira", nome: "Costureira (bolsos na calça)", icone: "🧵" },
   { id: "dragoes", nome: "Criador de Dragões (ovos)", icone: "🐉" },
+  { id: "treinador", nome: "Treinador de Criaturas (pokébolas)", icone: "🔴" },
   { id: "aprendiz_ferreiro", nome: "Aprendiz do Ferreiro (à noite)", icone: "🔨" },
   { id: "aprendiz_armeiro", nome: "Aprendiz do Armeiro (à noite)", icone: "🪖" },
   { id: "aprendiz_mercador", nome: "Aprendiz do Mercador (à noite)", icone: "🧺" },

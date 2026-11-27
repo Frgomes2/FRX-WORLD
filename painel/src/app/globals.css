@@ -172,3 +172,54 @@ body {
     radial-gradient(ellipse 30% 60% at 12% 30%, rgba(60, 10, 10, 0.9), transparent 70%),
     radial-gradient(ellipse 36% 66% at 40% 18%, rgba(30, 6, 6, 0.95), transparent 70%),
     radial-gradient(ellipse 34% 60% at 72% 28%, rgba(70, 14, 14, 0.85), transparent 70%); }
+
+/* Terras Inexploradas: verde de mapa antigo, curvas de nível e a rosa dos ventos */
+.frx-exp {
+  background:
+    radial-gradient(ellipse at 15% 0%, rgba(16, 185, 129, 0.2), transparent 60%),
+    radial-gradient(ellipse at 100% 100%, rgba(212, 169, 58, 0.14), transparent 55%),
+    linear-gradient(160deg, #0c1a15, #17140f 70%);
+}
+.frx-exp-mapa {
+  position: absolute; inset: 0; pointer-events: none; opacity: 0.22;
+  background-image:
+    repeating-radial-gradient(circle at 72% 38%, transparent 0 22px, rgba(110, 231, 183, 0.45) 22px 23px),
+    repeating-radial-gradient(circle at 12% 92%, transparent 0 30px, rgba(212, 169, 58, 0.35) 30px 31px);
+  -webkit-mask-image: linear-gradient(to bottom, black, transparent 95%);
+  mask-image: linear-gradient(to bottom, black, transparent 95%);
+}
+.frx-rosa { animation: frx-rosa 90s linear infinite; transform-origin: 50% 50%; }
+@keyframes frx-rosa { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .frx-rosa { animation: none; } }
+
+/* ---- detalhes animados do site ---- */
+/* vaga-lumes dourados que sobem devagar (topos de página) */
+.frx-vagalumes { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.frx-vagalumes i { position: absolute; width: 4px; height: 4px; border-radius: 9999px; background: #f5d04a; box-shadow: 0 0 8px 2px rgba(245, 208, 74, 0.65); opacity: 0; animation: frx-vaga var(--d, 9s) ease-in-out var(--a, 0s) infinite; }
+@keyframes frx-vaga { 0% { opacity: 0; transform: translate(0, 0); } 20% { opacity: 0.9; } 55% { transform: translate(var(--x, 30px), var(--y, -40px)); } 85% { opacity: 0.6; } 100% { opacity: 0; transform: translate(calc(var(--x, 30px) * 1.6), calc(var(--y, -40px) * 1.9)); } }
+/* anéis rúnicos girando em volta de um ícone */
+.frx-runa { position: absolute; inset: -14px; border-radius: 9999px; border: 1px dashed rgba(212, 169, 58, 0.45); animation: frx-rosa 30s linear infinite; pointer-events: none; }
+.frx-runa2 { inset: -24px; border: 1px dotted rgba(212, 169, 58, 0.28); animation-direction: reverse; animation-duration: 48s; }
+/* reflexo dourado passando no título */
+.frx-brilho { background: linear-gradient(100deg, #d4a93a 0%, #d4a93a 42%, #fff3c4 50%, #d4a93a 58%, #d4a93a 100%); background-size: 260% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: frx-brilho 7s ease-in-out infinite; }
+@keyframes frx-brilho { 0%, 55% { background-position: 100% 0; } 100% { background-position: -60% 0; } }
+/* cartão com faixa de luz ao passar o mouse */
+.frx-card { position: relative; overflow: hidden; }
+.frx-card::after { content: ""; position: absolute; inset: 0; background: linear-gradient(115deg, transparent 30%, rgba(255, 240, 200, 0.1) 50%, transparent 70%); transform: translateX(-120%); transition: transform 0.7s ease; pointer-events: none; }
+.frx-card:hover::after { transform: translateX(120%); }
+/* blocos aparecem ao rolar a página (só com JS ligado) */
+.frx-js .frx-revela { opacity: 0; transform: translateY(18px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.frx-js .frx-revela.frx-visivel { opacity: 1; transform: none; }
+/* flutuar e aura pulsante */
+.frx-flutua { animation: frx-flutua 4s ease-in-out infinite; }
+@keyframes frx-flutua { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+.frx-aura { animation: frx-aura 3.5s ease-in-out infinite; }
+@keyframes frx-aura { 0%, 100% { box-shadow: 0 0 22px var(--cor, rgba(212, 169, 58, 0.2)); } 50% { box-shadow: 0 0 48px var(--cor, rgba(212, 169, 58, 0.45)); } }
+/* número de destaque que "pulsa" de leve */
+.frx-pulsa { animation: frx-pulsa 2.6s ease-in-out infinite; }
+@keyframes frx-pulsa { 0%, 100% { text-shadow: 0 0 0 transparent; } 50% { text-shadow: 0 0 14px rgba(212, 169, 58, 0.55); } }
+@media (prefers-reduced-motion: reduce) {
+  .frx-vagalumes, .frx-runa { display: none; }
+  .frx-brilho, .frx-flutua, .frx-aura, .frx-pulsa { animation: none; }
+  .frx-js .frx-revela { opacity: 1; transform: none; transition: none; }
+}

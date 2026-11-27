@@ -3,6 +3,7 @@ import type { MapaPublico as DadosMapa, PerfilPublico } from "@/lib/publico";
 import { Moedas } from "@/components/itens";
 import { COR_RANK, ICONE_CLASSE, SeloRank, Skin } from "@/components/publico/jogadores";
 import { MapaPublico } from "@/components/publico/mapa";
+import { Vagalumes } from "@/components/publico/efeitos";
 
 const COR_CLASSE: Record<string, string> = {
   Guerreiro: "#c0563f", Arqueiro: "#6fae4e", Mago: "#5a8fe6", "Clérigo": "#e8d27a", Ladino: "#8f8f9c", Assassino: "#7a4fb5",
@@ -55,9 +56,13 @@ export function PainelConta({ nick, perfil, personagens, vagaVista, xpProximo, p
       <section className="frx-surge relative overflow-hidden rounded-2xl border border-pedra-700"
         style={{ background: `radial-gradient(ellipse at 15% 0%, ${corClasse}40, transparent 60%), linear-gradient(135deg, ${corRank}26, #17140f 55%)` }}>
         <div className="frx-nevoa" aria-hidden="true" />
+        <Vagalumes quantos={10} />
         <div className="relative flex flex-col items-center gap-5 p-5 sm:flex-row sm:items-end sm:p-7">
-          <div className="shrink-0 rounded-xl border border-pedra-700 bg-pedra-950/60 p-3" style={{ boxShadow: `0 0 34px ${corClasse}33` }}>
-            <Skin nick={nick} modo="corpo" tam={132} />
+          <div className="relative shrink-0">
+            <span className="frx-runa" style={{ borderColor: `${corClasse}66` }} aria-hidden="true" />
+            <div className="frx-aura rounded-xl border border-pedra-700 bg-pedra-950/60 p-3" style={{ ["--cor" as string]: `${corClasse}55` }}>
+              <div className="frx-flutua"><Skin nick={nick} modo="corpo" tam={132} /></div>
+            </div>
           </div>
           <div className="min-w-0 flex-1 text-center sm:text-left">
             {p?.titulo ? <p className="text-sm italic text-ouro/90">{p.titulo}</p> : null}
@@ -137,6 +142,54 @@ export function PainelConta({ nick, perfil, personagens, vagaVista, xpProximo, p
           </div>
         </div>
       </Bloco>
+
+      {/* expedições e habilidades */}
+      <div className="grid gap-5 lg:grid-cols-2">
+        <Bloco titulo="🧭 Suas expedições" className="relative overflow-hidden">
+          {p?.expedicoes && p.expedicoes.participacoes > 0 ? (
+            <>
+              <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
+                <Numero valor={milhar(p.expedicoes.participacoes)} rotulo="expedições" />
+                <Numero valor={milhar(p.expedicoes.mvps)} rotulo="vezes MVP" />
+                <Numero valor={milhar(p.expedicoes.chefes)} rotulo="chefes" />
+                <Numero valor={milhar(p.expedicoes.estruturas)} rotulo="estruturas" />
+                <Numero valor={`${p.expedicoes.km2.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}`} rotulo="km² explorados" />
+              </div>
+              {p.expedicoes.ultimas.length ? (
+                <ul className="mt-3 space-y-1.5">
+                  {p.expedicoes.ultimas.map((e) => (
+                    <li key={e.numero}>
+                      <Link href={`/expedicoes/${e.numero}`} className="frx-card flex items-center justify-between rounded-lg border border-emerald-900/70 bg-[#12201b] px-3 py-2 text-sm transition hover:border-emerald-500">
+                        <span>Expedição <b className="text-emerald-200">#{e.numero}</b></span>
+                        <span className={e.posicao === 1 ? "text-ouro" : "text-pedra-500"}>{e.posicao === 1 ? "🏆 MVP" : `${e.posicao}º`} de {e.total}</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </>
+          ) : (
+            <p className="text-sm text-pedra-500">Você ainda não foi a nenhuma expedição. A partir do rank D, o pórtico das Terras Inexploradas leva a uma área nova a cada 2 dias. <Link href="/expedicoes" className="text-emerald-300 hover:underline">Ver a expedição de agora →</Link></p>
+          )}
+        </Bloco>
+
+        <Bloco titulo={`✨ Suas habilidades${p?.totalHabilidades ? ` (${p.habilidades.length} de ${p.totalHabilidades})` : ""}`}>
+          {p?.habilidades.length ? (
+            <ul className="grid gap-2 sm:grid-cols-2">
+              {[...p.habilidades].sort((a, b) => Number(b.ultimate) - Number(a.ultimate) || b.nivel - a.nivel).slice(0, 8).map((h) => (
+                <li key={h.nome} title={h.descricao} className={`frx-card rounded-lg border px-3 py-2 ${h.ultimate ? "border-ouro-escuro bg-ouro/5" : "border-pedra-700 bg-pedra-900/80"}`}>
+                  <p className="flex items-center justify-between gap-2 text-sm">
+                    <span className={`truncate font-semibold ${h.ultimate ? "text-ouro" : ""}`}>{h.ultimate ? "★ " : ""}{h.nome}</span>
+                    <span className="shrink-0 text-xs text-pedra-500">Nv {h.nivel}</span>
+                  </p>
+                  <div className="mt-1 h-1 overflow-hidden rounded bg-pedra-950"><div className="frx-enche h-full rounded" style={{ width: `${Math.min(100, h.nivel * 10)}%`, background: corClasse }} /></div>
+                  <p className="mt-0.5 text-[11px] text-pedra-500">{milhar(h.usos)} usos</p>
+                </li>
+              ))}
+            </ul>
+          ) : <p className="text-sm text-pedra-500">Escolha uma classe no jogo para liberar as habilidades.</p>}
+        </Bloco>
+      </div>
 
       <div className="grid gap-5 lg:grid-cols-2">
         {/* história */}

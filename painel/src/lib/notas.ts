@@ -16,6 +16,66 @@ export type NotaAtualizacao = { versao: string; data: string; hora?: string; tit
 
 export const NOTAS: NotaAtualizacao[] = [
   {
+    versao: "3.0.13", data: "27/11/2026", hora: "", titulo: "Terreno sem monstros",
+    itens: [
+      "Terrenos: botão novo \"Barrar monstros\" em Meus terrenos. Com ele ligado, monstros não nascem nos seus terrenos (noite, patrulhas, hordas) e os que entram andando somem. Gerador de monstros, ovo e chefes continuam valendo.",
+      "Corrigido: alguns chefes das masmorras dos reinos explodem ao morrer e destruíam o baú de prêmio. Agora o baú só aparece depois que o corpo some e fica protegido de explosões por 2 minutos.",
+    ],
+  },
+  {
+    versao: "3.0.12", data: "27/11/2026", hora: "07:05:55", titulo: "Escudos em português",
+    itens: [
+      "Os escudos novos (Spartan Shields, New Shield Variants, Forti Shields e Superior Shields) agora aparecem em português: nomes, encantamentos e descrições.",
+    ],
+  },
+  {
+    versao: "3.0.11", data: "27/11/2026", hora: "00:12:56", titulo: "Escudos novos",
+    itens: [
+      "Quatro mods de escudos: Spartan Shields (escudos de vários materiais, escudos de torre e golpe de escudo), New Shield Variants (escudos com efeitos especiais), Forti Shields (escudos de cada madeira e o Escudo de Slime) e Superior Shields (escudos que também aparecem em baús de masmorra).",
+    ],
+  },
+  {
+    versao: "3.0.10", data: "26/11/2026", hora: "23:56:01", titulo: "Volta para casa pela Pedra de Teleporte",
+    itens: [
+      "Na Expedição, a Pedra de Teleporte (a pedrinha roxa das waystones) e os pergaminhos de waystone agora funcionam para voltar ao mundo principal. Entrar continua só pelo pórtico.",
+      "Chefes das masmorras dos reinos voltam mais fortes a cada vez que renascem: +25% de vida, +15% de dano e mais armadura por geração (até a 10ª). O nome mostra a geração (✦1, ✦2...) e o aviso de volta diz o quanto ele está mais forte.",
+      "Titã mais vivo e perigoso: anda 50% mais rápido, cada passo levanta poeira e faz o chão tremer, e a cabeça acompanha quem está perto. Golpes novos, sempre com aviso: varrida de braço em quem está no corpo ou do lado, pedra arremessada em quem fica longe (saia do círculo de fogo) e, abaixo da metade da vida, um rugido que joga todo mundo longe.",
+      "Corrigido: as estruturas extras de mods da Expedição não eram colocadas (o lugar não estava carregado). Agora entram de verdade, cerca de 60 por área.",
+      "Corrigido: monstros de invasão que fugiam para longe ficavam para sempre em volta dos reinos (brilhando). Agora a invasão só avança quando eles morrem de verdade, quem foge é puxado de volta, a horda vai embora se ninguém defender por 2 minutos e as sobras de invasões antigas somem sozinhas.",
+      "Chefes do Twilight Forest (Naga, Lich, Minoshroom, Hydra, Cavaleiros Fantasmas, Ur-Ghast, Yeti Alfa e Rainha da Neve) agora renascem 3 dias depois de derrotados, no mesmo covil, e voltam mais fortes a cada vez, como os chefes das masmorras dos reinos. A construção também volta a ter os monstros dela.",
+      "Site mais vivo: vaga-lumes, anéis rúnicos girando, títulos com reflexo dourado, cartões com brilho ao passar o mouse e blocos que aparecem ao rolar a página.",
+      "Página Minha conta renovada: menu do site, skin com aura na cor da classe, suas expedições (MVPs, chefes, estruturas e área explorada) e suas habilidades.",
+      "Corrigido: as runas e a bênção sumiam da descrição das armas únicas quando a arma subia de nível (continuavam funcionando, só não apareciam). Agora as linhas voltam sozinhas.",
+    ],
+  },
+  {
+    versao: "3.0.9", data: "26/11/2026", hora: "21:02:00", titulo: "Tudo em português e site novo",
+    itens: [
+      "Mais de 7 mil textos de mods agora em português: itens, blocos, criaturas, efeitos, conquistas, encantamentos, móveis e telhados (Born in Chaos, Aether, Unusual End, Undergarden, Alex's Caves, Twilight Forest e outros). Os itens do Mowzie's Mobs, que apareciam em inglês, foram corrigidos.",
+      "Expedições mais únicas: cada área ganha cerca de 60 estruturas extras, todas de mods (masmorras, ruínas, castelos, torres, acampamentos, cemitérios e mais de 25 mods), sem repetir a mesma construção na área. O que apareceu nas últimas 6 expedições vai para o fim da fila, então cada expedição traz coisas diferentes.",
+      "A pokébola agora guarda bichos domados por você mesmo quando são feras, como dragões.",
+      "O Treinador de Criaturas pode ganhar skin própria pelo painel.",
+      "Site novo: menu em todas as páginas, página inicial mais direta com a expedição ao vivo em destaque e páginas separadas para Expedições, Rankings, Aventureiros, O Mundo, Biblioteca, Novidades, Mods e Como entrar.",
+    ],
+  },
+  {
+    versao: "3.0.8", data: "26/11/2026", hora: "19:36:00", titulo: "Expedições em terra firme",
+    itens: [
+      "Cada expedição agora escolhe uma área com bastante terra e a chegada sempre em terra firme, nada de cair no meio do mar.",
+      "No mapa das Terras Inexploradas aparecem o pórtico de volta (verde) e o contorno da área da expedição.",
+      "Muito mais para explorar: cada expedição ganha cerca de 30 estruturas extras de mods (masmorras, torres, ruínas, vilas e acampamentos) espalhadas pela área, além das que o mundo já gera.",
+      "As caixas de aviso do Sistema ficam mais tempo na tela quando o texto é longo.",
+      "Dragões e outros bichos domados não somem mais ao entrar nas capitais.",
+      "As expedições recomeçam do zero: a Expedição #1 oficial é aberta agora.",
+    ],
+  },
+  {
+    versao: "3.0.7", data: "26/11/2026", hora: "15:28:00", titulo: "Site mais fácil de achar",
+    itens: [
+      "O site ficou preparado para aparecer nas buscas por servidor de Minecraft RPG e MMORPG, com imagem de prévia própria quando o link é compartilhado no WhatsApp, no Discord e nas redes.",
+    ],
+  },
+  {
     versao: "3.0.6", data: "26/11/2026", hora: "14:00:00", titulo: "Pontos públicos no mapa",
     itens: [
       "Marque um ponto no JourneyMap como sempre e coloque no grupo Público (ou comece o nome com *): ele aparece no mapa de todos os jogadores.",

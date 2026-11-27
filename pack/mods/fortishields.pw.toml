@@ -1,0 +1,13 @@
+name = "Forti shields"
+filename = "Fortishields-Forge-1.20.1-1.3.3.jar"
+side = "both"
+
+[download]
+url = "https://cdn.modrinth.com/data/xVwVSY6O/versions/jpcbUdoD/Fortishields-Forge-1.20.1-1.3.3.jar"
+hash-format = "sha512"
+hash = "0ea7f0bb0daf639102792de1f05bc87fb63c44f1eddc88ac76a5369be9c1909c06795a2fa2b4a13cbdda7f2c5c82527a3e547fc38eb2625578e9a9b0bca3e74b"
+
+[update]
+[update.modrinth]
+mod-id = "xVwVSY6O"
+version = "jpcbUdoD"

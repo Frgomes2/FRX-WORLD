@@ -226,13 +226,17 @@ Admin: `/frx esferas ver` (onde está cada uma) e `/frx esferas espalhar` (escon
 ## Titã à solta (evento de Lubelius)
 
 - No máximo **1 vez por dia real** (vira à meia-noite de São Paulo) e só com **3 ou mais jogadores online**. Com 3+ online, a cada minuto há 4% de chance de começar.
-- O Titã (35 blocos de altura) nasce a 320 blocos das muralhas de Lubelius, em terra firme e longe do Templo Karin, e anda em linha reta para o reino a 0,8 bloco por segundo, atravessando árvores e morros. Leva uns 7 minutos, mais as paradas.
+- O Titã (35 blocos de altura) nasce a 320 blocos das muralhas de Lubelius, em terra firme e longe do Templo Karin, e anda em linha reta para o reino a 1,2 bloco por segundo, atravessando árvores e morros. Leva uns 4 minutos e meio, mais as paradas. Cada passo levanta poeira, faz barulho e dá um tranco em quem está a 5 blocos do pé; a cabeça acompanha o jogador mais perto.
 - Todos os jogadores recebem o título, as coordenadas no chat e a barra de chefe com a vida e a distância que falta.
 - No mapa do JourneyMap: quadrado vermelho "TITÃ" na posição dele (atualiza a cada 5 segundos) e pontilhado laranja do ponto onde surgiu até as muralhas. Some quando o evento acaba.
 - Vida: 5.000, fixa. Só jogadores ferem. Golpes e flechas acertam pernas, tronco e cabeça.
 - **Nuca:** golpe dado por trás e pelo menos 20 blocos acima dos pés dele vale 3 vezes.
 - A cada 20% de vida perdida ele cambaleia e fica 6 segundos parado.
-- **Pisão:** a cada 9 segundos, se houver alguém a até 20 blocos dos pés, ele avisa (anel de fogo a 14 blocos e som) e 2,5 segundos depois pisa: 25% da vida máxima de quem ainda estiver dentro do anel, e arremessa.
+- Os golpes vêm um de cada vez, sempre com aviso:
+  - **Pisão:** a cada 7,5 segundos, se houver alguém a até 20 blocos dos pés, ele avisa (anel de fogo a 14 blocos e som) e pouco mais de 2 segundos depois pisa: 25% da vida máxima de quem ainda estiver dentro do anel, e arremessa.
+  - **Varrida de braço:** a cada ~13 a 17 s, com alguém a até 30 blocos, ergue um braço (som, aviso no chat e cortes no ar daquele lado) e 1,75 s depois varre: 30% da vida máxima e arremesso longe para quem está em cima do corpo ou a até 24 blocos daquele lado.
+  - **Pedra arremessada:** a cada ~15 a 20 s, escolhe alguém a 18–70 blocos (quem fica de longe com arco), marca o chão com um círculo de fogo de 4 blocos e 2 s depois a pedra cai: 25% da vida máxima e empurrão para quem não saiu.
+  - **Rugido:** abaixo de 50% de vida, a cada ~26 s, empurra todos num raio de 20 blocos e deixa lentos por 3 s.
 - **Vitória:** todos que causaram dano e estão online ganham 30 de ouro, 10% de um nível de XP e +150 de reputação em Lubelius; quem mais feriu ganha 60 de ouro e +300 de reputação. O chat mostra os 3 que mais feriram.
 - **Derrota:** se ele encostar nas muralhas, some em vapor e os NPCs de Lubelius (menos a Deusa) ficam 30 minutos sem atender.
 - Skin: painel → NPCs e skins → "Titã (evento de Lubelius)". Música: disco de código `luta_tita`, se existir.

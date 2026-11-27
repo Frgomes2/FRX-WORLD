@@ -17,7 +17,14 @@ import java.util.List;
 
 /** Janela de "Sistema": caixa azul no topo da tela com os avisos importantes, um de cada vez. */
 public class HudSistema implements IGuiOverlay {
-    private static final long DURACAO = 5200, ENTRADA = 250, SAIDA = 400;
+    private static final long ENTRADA = 250, SAIDA = 400;
+    /** Tempo na tela: 5 s nos avisos curtos, mais tempo nos longos (dá para ler tudo), até 14 s. */
+    private static long DURACAO = 5200;
+
+    private static long duracaoDe(AvisoSistema a) {
+        int letras = a.titulo().length() + a.texto().length();
+        return Math.max(5200, Math.min(14000, 2500 + letras * 50L));
+    }
     private static final int[] CORES = {0xFF4FC3F7, 0xFFFFD54F, 0xFF81C784, 0xFFE57373, 0xFFBA68C8};
 
     private static final Deque<AvisoSistema> FILA = new ArrayDeque<>();
@@ -37,6 +44,7 @@ public class HudSistema implements IGuiOverlay {
             synchronized (FILA) { atual = FILA.poll(); }
             if (atual == null) return;
             inicio = agora;
+            DURACAO = duracaoDe(atual);
             mc.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.AMETHYST_BLOCK_CHIME, 1.3f, 1f));
         }
         if (mc.options.hideGui) return;

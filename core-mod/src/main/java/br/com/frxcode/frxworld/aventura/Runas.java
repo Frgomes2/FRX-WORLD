@@ -183,7 +183,9 @@ public class Runas {
         return total;
     }
 
-    private static void reescreverLore(ItemStack s) {
+    /** Recoloca as linhas "◆ Runa" na descrição (também usado quando outro sistema reescreve a descrição do item). */
+    public static void reescreverLore(ItemStack s) {
+        if (s.isEmpty() || !s.hasTag()) return;
         CompoundTag display = s.getOrCreateTagElement("display");
         ListTag antigo = display.getList("Lore", Tag.TAG_STRING), novo = new ListTag();
         for (int i = 0; i < antigo.size(); i++) if (!antigo.getString(i).contains(MARCA)) novo.add(antigo.get(i));

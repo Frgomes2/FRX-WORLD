@@ -22,7 +22,7 @@
 - Configuração em `posicoes.json` → `masmorras: [{id, estrutura, x, z, entrada:[x,y,z]}]`. Cada uma é colocada uma vez por mundo (registro em `<mundo>/frx_masmorras.txt`), com um poço de escada até a estrutura.
 - A colagem é assíncrona: espera os chunks e só cola quando não há jogador online.
 - **Tesouros:** 5 baús do Lootr espalhados pelas salas ao colar a masmorra (`frxworld:chests/masmorra`). Cada jogador abre o seu.
-- **Chefe derrotado:** um baú de prêmio aparece onde ele caiu (`frxworld:chests/masmorra_chefe`).
+- **Chefe derrotado:** um baú de prêmio aparece onde ele caiu (`frxworld:chests/masmorra_chefe`). O baú só aparece 3 s depois que o corpo some (no máximo 30 s após a morte), porque alguns chefes explodem no fim da animação; fica protegido de explosões por 2 minutos.
 - **Chefes de fim de jogo:** chefe dentro de masmorra com nível próprio (campo Nível na tela Masmorras; `AreasNivel`) recebe o bônus de nível inteiro, mais +300% de vida e +100% de dano. Jogador abaixo do nível 50 causa no máximo 20% do dano e recebe pelo menos o triplo. Masmorra enterrada embaixo de capital nunca fica abaixo do nível 50.
 - `/masmorras` · admin `/frx masmorra` (lista) e `/frx masmorra baus` (põe 5 baús nas salas em volta de você).
 
@@ -73,6 +73,7 @@ São monstros comuns promovidos e não dependem de dungeon. Veja [progressao-zon
 - Vale para as masmorras do `frx_masmorras.txt` (as que ficam embaixo dos reinos e do coliseu de Tempest).
 - Quando o chefe morre a até 110 blocos da masmorra, o servidor guarda o tipo, o nível e o lugar onde ele apareceu pela primeira vez.
 - **7 dias reais** depois, o chat avisa que ele voltou e ele nasce assim que alguém chegar perto (o pedaço do mundo precisa estar carregado).
+- **Volta mais forte:** cada renascimento é uma geração nova (até a 10ª): +25% de vida, +15% de dano, +2 de armadura e +5% de resistência a empurrão por geração. O nome ganha a marca (ex.: "Ignis ✦3"), o aviso no chat diz o tamanho do reforço e a barra da masmorra mostra a geração. A geração fica gravada no chefe e passa de uma morte para a outra (`geracao` em `frx_chefes_masmorra.json`). Chefe que já tinha morrido antes desta regra volta como ✦1.
 - Conta como chefe: tudo que tem a marca `forge:bosses` (Ignis, Maledictus, Harbinger etc.) o Ferrous Wroughtnaut e o Lich (The Graveyard). Chefes de evento do próprio mod não entram.
 - Um de cada tipo por masmorra: se já houver um vivo ali (invocado por jogador no altar, por exemplo), não nasce outro.
 - Chefes mortos antes da 2.0.8 não ficaram registrados: o admin vai até a sala e usa `/frx masmorra chefe <tipo>`.
@@ -100,3 +101,14 @@ São monstros comuns promovidos e não dependem de dungeon. Veja [progressao-zon
 ### Contador do chefe (2.0.10)
 
 Com o chefe morto, quem está dentro da masmorra vê no alto da tela uma barra roxa com o nome dele e o tempo que falta para voltar, contando a cada segundo. A barra enche conforme os 7 dias passam e some quando ele renasce.
+
+## Chefes do Twilight Forest renascem (3.0.10)
+
+`reinos/ChefesCrepusculo.java`. No mod original, o bloco que invoca o chefe some depois da luta e ele nunca mais volta. No FRX-WORLD:
+
+- Vale para Naga, Lich, Minoshroom, Hydra, Cavaleiros Fantasmas, Ur-Ghast, Yeti Alfa e Rainha da Neve que nasceram do invocador da construção (chefe de ovo ou comando não tem "casa" e não renasce; cópias do Lich não contam).
+- Na morte, guarda onde ficava o invocador. **3 dias reais** depois, o servidor avisa no chat e recoloca o invocador assim que o lugar estiver carregado; o chefe aparece quando alguém chega perto, do jeito normal do mod.
+- A construção é reativada (`tffeature conquer reactivate`), então volta a ter os monstros dela.
+- Mesma regra de gerações das masmorras: cada volta é mais forte (até ✦10, +25% de vida e +15% de dano por geração).
+- Chefes mortos antes da 3.0.10 não têm registro e não voltam sozinhos.
+- Estado em `<mundo>/frx_chefes_crepusculo.json`. Admin: `/frx crepusculo chefes` (lista) e `/frx crepusculo renascer` (libera todos os pendentes agora).
