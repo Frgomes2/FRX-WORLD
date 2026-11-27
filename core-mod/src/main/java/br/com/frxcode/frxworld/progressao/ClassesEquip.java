@@ -48,6 +48,19 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ClassesEquip {
     private static final List<String> LETRAS = List.of("F", "E", "D", "C", "B", "A", "S");
     private static final Map<String, Integer> excecoes = new TreeMap<>();
+    /** Escudos de energia do Superior Shields (acessório do Curios): classe pela capacidade e pelos efeitos. F=0 ... S=6. */
+    private static final Map<String, Integer> ESCUDOS_SUPERIORES = Map.ofEntries(
+            Map.entry("copper_shield", 0), Map.entry("tin_shield", 0), Map.entry("golden_shield", 0),
+            Map.entry("iron_shield", 1), Map.entry("silver_shield", 1), Map.entry("nickel_shield", 1), Map.entry("lapis_shield", 1), Map.entry("constantan_shield", 1),
+            Map.entry("bronze_shield", 2), Map.entry("lead_shield", 2), Map.entry("invar_shield", 2), Map.entry("steel_shield", 2), Map.entry("ironwood_shield", 2), Map.entry("steeleaf_shield", 2),
+            Map.entry("diamond_shield", 3), Map.entry("electrum_shield", 3), Map.entry("knightmetal_shield", 3), Map.entry("osmium_shield", 3), Map.entry("refined_glowstone_shield", 3), Map.entry("manasteel_shield", 3),
+            Map.entry("netherite_shield", 4), Map.entry("fiery_shield", 4), Map.entry("soul_stained_shield", 4), Map.entry("spirit_hunter_shield", 4), Map.entry("enchanter_shield", 4), Map.entry("engineers_shield", 4), Map.entry("elementium_shield", 4),
+            Map.entry("refined_obsidian_shield", 5), Map.entry("darksteel_shield", 5), Map.entry("flux_shield", 5), Map.entry("electric_shield", 5),
+            Map.entry("terrasteel_shield", 6));
+
+    /** O rank da Guilda permite este item? (criativo, espectador e X1 com kit ficam livres) */
+    public static boolean permitido(ServerPlayer p, ItemStack s) { return livre(p) || classe(s) <= Guilda.indice(p); }
+    public static void avisarClasse(ServerPlayer p, ItemStack s) { avisar(p, s, classe(s)); }
     private static final Map<UUID, Long> avisado = new ConcurrentHashMap<>();
 
     /** Armas de longe não têm material: a classe vem desta tabela (0 = F ... 6 = S). O que não está aqui vai pela raridade. */
@@ -103,6 +116,7 @@ public class ClassesEquip {
         if (s.hasTag() && s.getTag().contains(br.com.frxcode.frxworld.armas.Codex.RANK)) return s.getTag().getInt(br.com.frxcode.frxworld.armas.Codex.RANK);   // arma do Códex: rank definido no painel
         ResourceLocation id = ForgeRegistries.ITEMS.getKey(s.getItem());
         if (id != null && excecoes.containsKey(id.toString())) return excecoes.get(id.toString());
+        if (id != null && id.getNamespace().equals("superiorshields")) return ESCUDOS_SUPERIORES.getOrDefault(id.getPath(), 3);
         if (s.getItem() instanceof ArmorItem a) {
             double ref = switch (a.getType()) { case HELMET, BOOTS -> 3; case LEGGINGS -> 6; default -> 8; };
             double pontos = a.getDefense() * 8.0 / ref + a.getToughness();
@@ -230,6 +244,17 @@ public class ClassesEquip {
         if (!(ev.getPlayer() instanceof ServerPlayer p) || livre(p)) return;
         ItemStack s = p.getMainHandItem();
         if (!(s.getItem() instanceof DiggerItem)) return;
+        int c = classe(s);
+        if (c <= Guilda.indice(p)) return;
+        ev.setCanceled(true);
+        avisar(p, s, c);
+    }
+
+    /** Escudo acima do rank não defende (escudos de mod também têm classe, pela durabilidade). */
+    @SubscribeEvent
+    public void aoDefender(net.minecraftforge.event.entity.living.ShieldBlockEvent ev) {
+        if (!(ev.getEntity() instanceof ServerPlayer p) || livre(p)) return;
+        ItemStack s = p.getUseItem();
         int c = classe(s);
         if (c <= Guilda.indice(p)) return;
         ev.setCanceled(true);

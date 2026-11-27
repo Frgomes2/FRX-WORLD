@@ -325,6 +325,55 @@
           ]
         }
       ]
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:empty",
+          "weight": 8
+        },
+        {
+          "type": "minecraft:item",
+          "name": "spartanshields:netherite_basic_shield",
+          "weight": 3
+        },
+        {
+          "type": "minecraft:item",
+          "name": "spartanshields:netherite_tower_shield",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "new_shield_variants:dragon_head_shield",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "new_shield_variants:shulker_shield",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "new_shield_variants:netherite_shield",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "superiorshields:netherite_shield",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "superiorshields:fiery_shield",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "superiorshields:refined_obsidian_shield",
+          "weight": 1
+        }
+      ]
     }
   ]
 }

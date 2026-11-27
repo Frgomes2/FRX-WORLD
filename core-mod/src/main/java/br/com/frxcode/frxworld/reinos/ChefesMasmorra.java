@@ -41,10 +41,10 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Chefes das masmorras fixas (as que ficam embaixo dos reinos e do coliseu) renascem 7 dias reais depois de mortos.
+ * Chefes das masmorras fixas (as que ficam embaixo dos reinos e do coliseu) renascem 1 dia (24 h reais) depois de mortos.
  *  - Vale para chefe (marca forge:bosses, mais o Ferrous Wroughtnaut e o Lich) que morre a até 110 blocos de uma masmorra do frx_masmorras.txt.
  *  - Guarda o tipo, o nível e o lugar onde ele estava quando apareceu pela primeira vez (ou onde morreu, se não se sabe).
- *  - Passados os 7 dias, o servidor avisa e o chefe volta assim que alguém chegar perto (o pedaço do mundo precisa estar carregado).
+ *  - Passadas as 24 h, o servidor avisa e o chefe volta assim que alguém chegar perto (o pedaço do mundo precisa estar carregado).
  *  - Um chefe de cada tipo por masmorra: se já houver um vivo ali (invocado por jogador), não nasce outro.
  *  - Enquanto o chefe está morto, quem está dentro da masmorra vê uma barra no alto da tela com o nome dele e o contador até a volta.
  *  - Cada vez que renasce, volta MAIS FORTE (geração, até 10): +25% de vida, +15% de dano, +2 de armadura e +5% de resistência a
@@ -52,7 +52,7 @@ import java.util.Set;
  * Estado em <mundo>/frx_chefes_masmorra.json. Admin: /frx masmorra chefes (lista) e /frx masmorra renascer (todos os pendentes, agora).
  */
 public class ChefesMasmorra {
-    private static final long SEMANA = 7L * 24 * 3_600_000L;
+    private static final long ESPERA = 24 * 3_600_000L;   // espera para renascer: 1 dia
     private static final int RAIO = 110;
     private static final String ORIGEM = "frx_origem", GERACAO = "frx_geracao";
     private static final int GERACAO_MAX = 10;
@@ -123,7 +123,7 @@ public class ChefesMasmorra {
         catch (Exception e) { FrxWorld.LOG.warn("Chefes de masmorra: não gravei: {}", e.toString()); }
     }
 
-    private static boolean ehChefe(Entity e) {
+    static boolean ehChefe(Entity e) {
         ResourceLocation id = ForgeRegistries.ENTITY_TYPES.getKey(e.getType());
         if (id == null || id.getNamespace().equals(FrxWorld.MOD_ID)) return false;
         for (String t : e.getTags()) if (t.startsWith("frx_")) return false;   // chefes de evento do próprio mod não contam
@@ -155,9 +155,47 @@ public class ChefesMasmorra {
     /** Anota onde o chefe estava quando apareceu: é ali que ele renasce. */
     @SubscribeEvent
     public void aoAparecer(EntityJoinLevelEvent ev) {
+        if (ev.getLevel() instanceof ServerLevel nv0 && ev.getEntity() instanceof Mob m0 && m0.getPersistentData().contains(GERACAO) && ehChefe(m0)) {
+            String id0 = masmorra(nv0, m0.getX(), m0.getZ());
+            JsonObject v = id0 == null ? null : dados(nv0.getServer()).getAsJsonObject(VIVO + id0 + "|" + ForgeRegistries.ENTITY_TYPES.getKey(m0.getType()));
+            if (v != null && v.get("geracao").getAsInt() < m0.getPersistentData().getInt(GERACAO)) reajustar(m0, v.get("geracao").getAsInt());
+        }
         if (!(ev.getLevel() instanceof ServerLevel nv) || !(ev.getEntity() instanceof LivingEntity e) || e.getPersistentData().contains(ORIGEM) || !ehChefe(e)) return;
         if (masmorra(nv, e.getX(), e.getZ()) == null) return;
         e.getPersistentData().putIntArray(ORIGEM, new int[]{e.getBlockX(), e.getBlockY(), e.getBlockZ()});
+    }
+
+    /** Primeiro golpe de jogador no chefe: começa a contar o tempo da luta (para o site e o balanceamento). */
+    @SubscribeEvent
+    public void aoFerir(net.minecraftforge.event.entity.living.LivingHurtEvent ev) {
+        LivingEntity e = ev.getEntity();
+        // dano de cada jogador no chefe (quem mais feriu leva os baús extras da geração)
+        if (e.level() instanceof ServerLevel && ev.getSource().getEntity() instanceof net.minecraft.server.level.ServerPlayer pj && ehChefe(e)) {
+            net.minecraft.nbt.CompoundTag danos = e.getPersistentData().getCompound("frx_danos");
+            String k = pj.getUUID().toString();
+            danos.putFloat(k, danos.getFloat(k) + Math.min(ev.getAmount(), e.getHealth()));
+            e.getPersistentData().put("frx_danos", danos);
+        }
+        if (!(e.level() instanceof ServerLevel) || e.getPersistentData().contains(LUTA) || !(ev.getSource().getEntity() instanceof net.minecraft.world.entity.player.Player)) return;
+        if (INVOCADORES_TF.contains(String.valueOf(ForgeRegistries.ENTITY_TYPES.getKey(e.getType()))) || ehChefe(e)) e.getPersistentData().putLong(LUTA, System.currentTimeMillis());
+    }
+
+    /** Chefes do Twilight também contam o tempo de luta (lido pelo ChefesCrepusculo). */
+    private static final Set<String> INVOCADORES_TF = Set.of("twilightforest:naga", "twilightforest:lich", "twilightforest:minoshroom", "twilightforest:hydra",
+            "twilightforest:knight_phantom", "twilightforest:ur_ghast", "twilightforest:alpha_yeti", "twilightforest:snow_queen");
+    static final String LUTA = "frx_luta_ini";
+
+    /** Quem deu o golpe final (nome do personagem) e quanto durou a luta, em segundos (-1 se não se sabe). */
+    static String matador(LivingDeathEvent ev) {
+        Entity f = ev.getSource().getEntity();
+        if (f instanceof net.minecraft.server.level.ServerPlayer p) return br.com.frxcode.frxworld.acesso.Personagens.nome(p);
+        if (f instanceof net.minecraft.world.entity.OwnableEntity o && o.getOwner() instanceof net.minecraft.server.level.ServerPlayer p) return br.com.frxcode.frxworld.acesso.Personagens.nome(p);
+        return "";
+    }
+
+    static long duracao(LivingEntity e) {
+        long ini = e.getPersistentData().getLong(LUTA);
+        return ini > 0 ? (System.currentTimeMillis() - ini) / 1000 : -1;
     }
 
     @SubscribeEvent
@@ -179,8 +217,15 @@ public class ChefesMasmorra {
         r.addProperty("morreu", System.currentTimeMillis());
         r.addProperty("avisou", false);
         dados(nv.getServer()).add(id + "|" + tipo, r);
+        // última luta (para o site): quem matou, quanto durou e com que geração o chefe estava
+        JsonObject u = new JsonObject();
+        u.addProperty("masmorra", id); u.addProperty("tipo", tipo); u.addProperty("nome", r.get("nome").getAsString());
+        u.addProperty("geracao", e.getPersistentData().getInt(GERACAO));
+        u.addProperty("matador", matador(ev)); u.addProperty("duracao", duracao(e)); u.addProperty("quando", System.currentTimeMillis());
+        dados(nv.getServer()).add("_ultimo|" + id + "|" + tipo, u);
+        dados(nv.getServer()).remove(VIVO + id + "|" + tipo);
         salvar(nv.getServer());
-        FrxWorld.LOG.info("Chefe de masmorra {} morreu em {}; renasce em 7 dias, geração {}.", tipo, id, geracao);
+        FrxWorld.LOG.info("Chefe de masmorra {} morreu em {}; renasce em 24 h, geração {}. Luta: {} s, golpe final de {}.", tipo, id, geracao, duracao(e), matador(ev));
     }
 
     private static boolean renascer(ServerLevel nv, JsonObject r) {
@@ -203,7 +248,34 @@ public class ChefesMasmorra {
         nv.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, p.getX() + 0.5, p.getY() + 1, p.getZ() + 0.5, 80, 1, 1.5, 1, 0.05);
         nv.playSound(null, p, SoundEvents.WITHER_SPAWN, SoundSource.HOSTILE, 1f, 0.8f);
         FrxWorld.LOG.info("Chefe de masmorra {} renasceu em {}.", r.get("tipo").getAsString(), r.get("masmorra").getAsString());
+        JsonObject v = new JsonObject();
+        v.addProperty("masmorra", r.get("masmorra").getAsString()); v.addProperty("tipo", r.get("tipo").getAsString()); v.addProperty("nome", r.get("nome").getAsString());
+        v.addProperty("geracao", geracao); v.addProperty("desde", System.currentTimeMillis());
+        v.addProperty("x", p.getX()); v.addProperty("y", p.getY()); v.addProperty("z", p.getZ());
+        dados(nv.getServer()).add(VIVO + r.get("masmorra").getAsString() + "|" + r.get("tipo").getAsString(), v);
         return true;
+    }
+
+    /** Chefe vivo há mais de 3 dias sem ninguém derrotar cai uma geração (até a original). */
+    private static final long ENFRAQUECE = 3L * 24 * 3_600_000L;
+    private static final String VIVO = "_vivo|";
+
+    /** Põe o chefe na geração dada (0 = original): refaz bônus e nome. */
+    static void reajustar(Mob m, int geracao) {
+        if (geracao > 0) { fortalecer(m, geracao); return; }
+        m.getPersistentData().remove(GERACAO);
+        for (java.util.UUID id : new java.util.UUID[]{MOD_VIDA, MOD_DANO, MOD_ARMADURA, MOD_FIRME})
+            for (net.minecraft.world.entity.ai.attributes.Attribute a : new net.minecraft.world.entity.ai.attributes.Attribute[]{
+                    net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH, net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE,
+                    net.minecraft.world.entity.ai.attributes.Attributes.ARMOR, net.minecraft.world.entity.ai.attributes.Attributes.KNOCKBACK_RESISTANCE}) {
+                net.minecraft.world.entity.ai.attributes.AttributeInstance i = m.getAttribute(a);
+                if (i != null) i.removeModifier(id);
+            }
+        if (m.getHealth() > m.getMaxHealth()) m.setHealth(m.getMaxHealth());
+        if (m.hasCustomName()) {
+            String n = m.getCustomName().getString().replaceAll(" ✦\\d+$", "");
+            m.setCustomName(n.equals(m.getType().getDescription().getString()) ? null : Component.literal(n));
+        }
     }
 
     /** Chefe que renasce volta mais forte a cada geração. */
@@ -214,7 +286,8 @@ public class ChefesMasmorra {
         modificar(m, net.minecraft.world.entity.ai.attributes.Attributes.ARMOR, MOD_ARMADURA, 2.0 * geracao, net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADDITION);
         modificar(m, net.minecraft.world.entity.ai.attributes.Attributes.KNOCKBACK_RESISTANCE, MOD_FIRME, 0.05 * geracao, net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADDITION);
         m.setHealth(m.getMaxHealth());
-        Component nome = m.hasCustomName() ? m.getCustomName() : m.getType().getDescription();
+        // nome atual sem a marca de geração antiga (o nome pode ter o nível da zona)
+        Component nome = m.hasCustomName() ? Component.literal(m.getCustomName().getString().replaceAll(" ✦\\d+$", "")) : m.getType().getDescription();
         m.setCustomName(Component.empty().append(nome.copy().withStyle(ChatFormatting.DARK_RED)).append(Component.literal(" ✦" + geracao).withStyle(ChatFormatting.GOLD)));
     }
 
@@ -256,14 +329,14 @@ public class ChefesMasmorra {
         for (String k : d.keySet()) {
             if (k.startsWith("_")) continue;
             JsonObject r = d.getAsJsonObject(k);
-            long resta = SEMANA - (agora - r.get("morreu").getAsLong());
+            long resta = ESPERA - (agora - r.get("morreu").getAsLong());
             if (resta <= 0) continue;
             vivos.add(k);
             net.minecraft.server.level.ServerBossEvent b = BARRAS.computeIfAbsent(k, x -> new net.minecraft.server.level.ServerBossEvent(Component.empty(),
                     net.minecraft.world.BossEvent.BossBarColor.PURPLE, net.minecraft.world.BossEvent.BossBarOverlay.PROGRESS));
             int ger = geracaoDe(r);
             b.setName(Component.literal("☠ " + r.get("nome").getAsString() + " foi derrotado · volta em " + falta(resta) + (ger > 0 ? " · mais forte (✦" + ger + ")" : "")).withStyle(ChatFormatting.LIGHT_PURPLE));
-            b.setProgress(Math.max(0f, Math.min(1f, 1f - resta / (float) SEMANA)));
+            b.setProgress(Math.max(0f, Math.min(1f, 1f - resta / (float) ESPERA)));
             String id = r.get("masmorra").getAsString();
             int rx = r.get("x").getAsInt(), ry = r.get("y").getAsInt(), rz = r.get("z").getAsInt();
             for (ServerPlayer p : new ArrayList<>(b.getPlayers())) if (!naMasmorra(nv, p, id, rx, ry, rz)) b.removePlayer(p);
@@ -289,23 +362,95 @@ public class ChefesMasmorra {
         long agora = System.currentTimeMillis();
         boolean mudou = false;
         for (String k : new ArrayList<>(d.keySet())) {
+            if (k.startsWith(VIVO)) {   // vivo há 3 dias sem ninguém derrotar: cai uma geração
+                JsonObject v = d.getAsJsonObject(k);
+                int g = v.get("geracao").getAsInt();
+                if (g <= 0 || agora - v.get("desde").getAsLong() < ENFRAQUECE) continue;
+                v.addProperty("geracao", g - 1); v.addProperty("desde", agora);
+                mudou = true;
+                ServerLevel ov = s.overworld();
+                BlockPos vp = new BlockPos(v.get("x").getAsInt(), v.get("y").getAsInt(), v.get("z").getAsInt());
+                EntityType<?> et = ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation(v.get("tipo").getAsString()));
+                if (et != null && ov.isLoaded(vp))
+                    for (Entity x : ov.getEntities(et, new AABB(vp).inflate(RAIO), Entity::isAlive)) if (x instanceof Mob mx) reajustar(mx, g - 1);
+                FrxWorld.LOG.info("Chefe de masmorra {} em {} ficou 3 dias sem ser derrotado: caiu para a geração {}.", v.get("tipo").getAsString(), v.get("masmorra").getAsString(), g - 1);
+                continue;
+            }
             if (k.startsWith("_")) continue;
             JsonObject r = d.getAsJsonObject(k);
-            if (agora - r.get("morreu").getAsLong() < SEMANA) continue;
+            long falta = ESPERA - (agora - r.get("morreu").getAsLong());
+            if (falta > 0 && falta <= 10 * 60_000L && !(r.has("avisou10") && r.get("avisou10").getAsBoolean())) {
+                r.addProperty("avisou10", true);
+                mudou = true;
+                int ger = geracaoDe(r);
+                s.getPlayerList().broadcastSystemMessage(Component.literal("⏳ " + r.get("nome").getAsString() + " volta em 10 minutos a " + EntradasMasmorra.nome(r.get("masmorra").getAsString())
+                        + (ger > 0 ? " (✦" + ger + ")" : "") + ". Reúnam o grupo!").withStyle(ChatFormatting.LIGHT_PURPLE), false);
+            }
+            if (agora - r.get("morreu").getAsLong() < ESPERA) continue;
             if (!r.get("avisou").getAsBoolean()) {
                 r.addProperty("avisou", true);
                 mudou = true;
                 int ger = geracaoDe(r);
-                s.getPlayerList().broadcastSystemMessage(Component.literal("☠ " + r.get("nome").getAsString() + " voltou à masmorra " + r.get("masmorra").getAsString()
+                s.getPlayerList().broadcastSystemMessage(Component.literal("☠ " + r.get("nome").getAsString() + " voltou a " + EntradasMasmorra.nome(r.get("masmorra").getAsString())
                         + (ger > 0 ? " MAIS FORTE (✦" + ger + ": " + forca(ger) + ")" : "") + ". Quem vai encarar?").withStyle(ChatFormatting.DARK_PURPLE), false);
+                br.com.frxcode.frxworld.acesso.Discord.avisar("☠️ **" + r.get("nome").getAsString() + " voltou** à masmorra " + r.get("masmorra").getAsString() + (ger > 0 ? " mais forte (✦" + ger + ")" : "") + ". Quem vai encarar?");
             }
             if (renascer(s.overworld(), r)) { d.remove(k); mudou = true; }
         }
         if (mudou) salvar(s);
     }
 
+    /** Chefe de sempre de cada masmorra, para quando ainda não há registro de luta. */
+    private static final Map<String, String> NOMES_PADRAO = Map.of("coliseu-tempest", "The Harbinger", "lubelius-abismo", "Ignis", "sarion-gelo", "Maledictus",
+            "dwargon-ferro", "Ferrous Wroughtnaut", "leste-mosteiro", "Ancient Remnant", "sakura-gorgona", "Corrupted Champion", "oeste-cidadela", "Ender Guardian",
+            "demonios-forja", "Netherite Monstrosity");
+
+    /** Linhas do /chefes: cada masmorra com o chefe, se está vivo, a geração e quanto falta para voltar. */
+    static List<Component> situacao(MinecraftServer s) {
+        List<Component> linhas = new ArrayList<>();
+        JsonObject d = dados(s);
+        long agora = System.currentTimeMillis();
+        for (String id : Masmorras.lidas(s.overworld()).keySet()) {
+            JsonObject morto = null, vivo = null;
+            for (String k : d.keySet()) {
+                JsonObject r = d.getAsJsonObject(k);
+                if (!r.has("masmorra") || !id.equals(r.get("masmorra").getAsString())) continue;
+                if (!k.startsWith("_")) morto = r;
+                else if (k.startsWith(VIVO)) vivo = r;
+            }
+            String onde = EntradasMasmorra.nome(id);
+            if (morto != null) {
+                long falta = ESPERA - (agora - morto.get("morreu").getAsLong());
+                int g = geracaoDe(morto);
+                linhas.add(Component.literal("  ☠ " + morto.get("nome").getAsString()).withStyle(ChatFormatting.GRAY)
+                        .append(Component.literal(" · " + onde + " · ").withStyle(ChatFormatting.DARK_GRAY))
+                        .append(Component.literal(falta > 0 ? "volta em " + falta(falta) : "voltando agora").withStyle(ChatFormatting.YELLOW))
+                        .append(Component.literal(g > 0 ? " (✦" + g + ")" : "").withStyle(ChatFormatting.GOLD)));
+            } else {
+                int g = vivo == null ? 0 : vivo.get("geracao").getAsInt();
+                String nome = vivo != null ? vivo.get("nome").getAsString() : NOMES_PADRAO.getOrDefault(id, "Chefe");
+                linhas.add(Component.literal("  ⚔ " + nome).withStyle(ChatFormatting.RED)
+                        .append(Component.literal(" · " + onde + " · ").withStyle(ChatFormatting.DARK_GRAY))
+                        .append(Component.literal("vivo").withStyle(ChatFormatting.GREEN))
+                        .append(Component.literal(g > 0 ? " (✦" + g + ")" : "").withStyle(ChatFormatting.GOLD)));
+            }
+        }
+        return linhas;
+    }
+
     @SubscribeEvent
     public void comandos(RegisterCommandsEvent ev) {
+        ev.getDispatcher().register(Commands.literal("chefes").executes(ctx -> {
+            ctx.getSource().sendSuccess(() -> Component.literal("☠ Chefes das masmorras dos reinos").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD), false);
+            for (Component c : situacao(ctx.getSource().getServer())) ctx.getSource().sendSuccess(() -> c, false);
+            List<Component> tf = ChefesCrepusculo.situacao(ctx.getSource().getServer());
+            if (!tf.isEmpty()) {
+                ctx.getSource().sendSuccess(() -> Component.literal("🌲 Floresta do Crepúsculo").withStyle(ChatFormatting.DARK_GREEN, ChatFormatting.BOLD), false);
+                for (Component c : tf) ctx.getSource().sendSuccess(() -> c, false);
+            }
+            ctx.getSource().sendSuccess(() -> Component.literal("Também no site: craft.frgomes.com.br/chefes").withStyle(ChatFormatting.DARK_GRAY), false);
+            return 1;
+        }));
         ev.getDispatcher().register(Commands.literal("frx").requires(s -> s.hasPermission(2))
                 .then(Commands.literal("masmorra")
                         .then(Commands.literal("chefes").executes(ctx -> {
@@ -315,7 +460,7 @@ public class ChefesMasmorra {
                             for (String k : d.keySet()) {
                                 if (k.startsWith("_")) continue;
                                 JsonObject r = d.getAsJsonObject(k);
-                                long falta = SEMANA - (agora - r.get("morreu").getAsLong());
+                                long falta = ESPERA - (agora - r.get("morreu").getAsLong());
                                 String quando = falta <= 0 ? "pronto: nasce quando alguém chegar perto" : "renasce em " + (falta / 86_400_000L) + " d " + (falta / 3_600_000L % 24) + " h";
                                 ctx.getSource().sendSuccess(() -> Component.literal(r.get("nome").getAsString() + " · " + r.get("masmorra").getAsString() + " · " + quando), false);
                             }

@@ -134,6 +134,8 @@
 | `/frx masmorra renascer` | Libera agora todos os chefes pendentes (nascem quando alguém chegar perto) |
 | `/frx crepusculo chefes` | Lista os chefes do Twilight Forest mortos e quanto falta para cada um voltar |
 | `/frx crepusculo renascer` | Libera agora os chefes do Twilight pendentes (o invocador volta quando o lugar carregar) |
+| `/chefes` (jogadores) | Situação dos chefes dos reinos e do Twilight: vivo, geração e quanto falta para voltar |
+| `/frx crepusculo registrar <chefe>` | Registra, onde o admin está (o lugar do invocador), um chefe do Twilight morto antes da regra de renascer |
 | `/frx masmorra chefe <tipo>` | Marca um chefe desse tipo para nascer onde você está (para os que morreram antes da 2.0.8) |
 | `/frx pokebola treinador` | Cria o Treinador de Criaturas (vende as pokébolas) onde você está, virado para você |
 | `/frx pokebola tirartreinador` | Remove o Treinador que estiver a até 6 blocos |

@@ -343,7 +343,7 @@ public class Masmorras {
     @SubscribeEvent
     public void chefeDerrotado(net.minecraftforge.event.entity.living.LivingDeathEvent ev) {
         if (!(ev.getEntity().level() instanceof ServerLevel nivel) || nivel.dimension() != Level.OVERWORLD) return;
-        if (!ev.getEntity().getType().is(net.minecraftforge.common.Tags.EntityTypes.BOSSES)) return;
+        if (!ChefesMasmorra.ehChefe(ev.getEntity())) return;   // marca forge:bosses + Wroughtnaut e Lich (fora os chefes de evento do FRX)
         BlockPos b = ev.getEntity().blockPosition();
         boolean naMasmorra = false;
         for (String linha : feitasFila.values()) {
@@ -355,13 +355,13 @@ public class Masmorras {
         }
         if (!naMasmorra) return;
         // alguns chefes explodem no fim da animação de morte: o baú só aparece depois que o corpo some (e fica protegido de explosão)
-        BAUS_PENDENTES.add(new BauPendente(ev.getEntity(), b.immutable(), System.currentTimeMillis()));
+        BAUS_PENDENTES.add(new BauPendente(ev.getEntity(), b.immutable(), System.currentTimeMillis(), ev.getEntity().getPersistentData().getInt("frx_geracao")));
     }
 
     /** Baú de chefe esperando o corpo sumir. */
     private static final class BauPendente {
-        final net.minecraft.world.entity.Entity chefe; final BlockPos onde; final long morreu; long sumiu;
-        BauPendente(net.minecraft.world.entity.Entity c, BlockPos o, long m) { chefe = c; onde = o; morreu = m; }
+        final net.minecraft.world.entity.Entity chefe; final BlockPos onde; final long morreu; final int geracao; long sumiu;
+        BauPendente(net.minecraft.world.entity.Entity c, BlockPos o, long m, int g) { chefe = c; onde = o; morreu = m; geracao = g; }
     }
     private static final java.util.List<BauPendente> BAUS_PENDENTES = new java.util.ArrayList<>();
     /** Baús de chefe recém-colocados, protegidos de explosão por 2 minutos: lugar -> até quando. */
@@ -379,7 +379,7 @@ public class Masmorras {
             boolean pronto = bp.sumiu > 0 && agora - bp.sumiu >= 3_000 || agora - bp.morreu >= 30_000;
             if (!pronto) continue;
             it.remove();
-            if (bp.chefe.level() instanceof ServerLevel nivel) colocarBauDoChefe(nivel, bp.onde);
+            if (bp.chefe.level() instanceof ServerLevel nivel) colocarBauDoChefe(nivel, bp.onde, bp.geracao, bp.chefe);
         }
     }
 
@@ -390,20 +390,65 @@ public class Masmorras {
         ev.getAffectedBlocks().removeIf(BAUS_PROTEGIDOS::containsKey);
     }
 
-    private static void colocarBauDoChefe(ServerLevel nivel, BlockPos b) {
-        for (int r = 0; r <= 4; r++)
-            for (int dy = 0; dy <= 3; dy++)
+    /**
+     * Baú de prêmio onde o chefe caiu (do Lootr: cada jogador abre o seu, e o chefe só volta no dia seguinte).
+     * Chefe renascido mais forte (geração ✦N) dá N/2 prêmios extras (até 5) para quem mais o feriu, direto na mochila.
+     */
+    private static void colocarBauDoChefe(ServerLevel nivel, BlockPos b, int geracao, net.minecraft.world.entity.Entity chefe) {
+        boolean posto = false;
+        for (int r = 0; r <= 6 && !posto; r++)
+            for (int dy = 0; dy <= 3 && !posto; dy++)
                 for (BlockPos p : new BlockPos[]{b.offset(r, dy, 0), b.offset(-r, dy, 0), b.offset(0, dy, r), b.offset(0, dy, -r)}) {
-                    if (nivel.getBlockState(p).isAir() && nivel.getBlockState(p.below()).isFaceSturdy(nivel, p.below(), Direction.UP)) {
-                        porBau(nivel, p, TABELA_CHEFE, nivel.getRandom());
-                        BAUS_PROTEGIDOS.put(p.immutable(), System.currentTimeMillis() + 120_000);
-                        nivel.sendParticles(net.minecraft.core.particles.ParticleTypes.TOTEM_OF_UNDYING, p.getX() + 0.5, p.getY() + 1, p.getZ() + 0.5, 30, 0.4, 0.5, 0.4, 0.2);
-                        for (net.minecraft.server.level.ServerPlayer j : nivel.players())
-                            if (j.distanceToSqr(b.getX(), b.getY(), b.getZ()) < 64 * 64)
-                                j.sendSystemMessage(Component.literal("☠ O chefe caiu! Um baú de tesouro apareceu onde ele tombou.").withStyle(ChatFormatting.GOLD));
-                        return;
-                    }
+                    if (!nivel.getBlockState(p).isAir() || !nivel.getBlockState(p.below()).isFaceSturdy(nivel, p.below(), Direction.UP)) continue;
+                    porBau(nivel, p, TABELA_CHEFE, nivel.getRandom());
+                    BAUS_PROTEGIDOS.put(p.immutable(), System.currentTimeMillis() + 120_000);
+                    nivel.sendParticles(net.minecraft.core.particles.ParticleTypes.TOTEM_OF_UNDYING, p.getX() + 0.5, p.getY() + 1, p.getZ() + 0.5, 30, 0.4, 0.5, 0.4, 0.2);
+                    posto = true;
+                    break;
                 }
+        // quem mais feriu leva os prêmios extras da geração
+        int extras = Math.min(5, Math.max(0, geracao) / 2);
+        net.minecraft.server.level.ServerPlayer melhor = null;
+        float maior = 0;
+        net.minecraft.nbt.CompoundTag danos = chefe.getPersistentData().getCompound("frx_danos");
+        for (String k : danos.getAllKeys()) {
+            try {
+                net.minecraft.server.level.ServerPlayer j = nivel.getServer().getPlayerList().getPlayer(java.util.UUID.fromString(k));
+                if (j != null && danos.getFloat(k) > maior) { maior = danos.getFloat(k); melhor = j; }
+            } catch (IllegalArgumentException ignorado) { }
+        }
+        if (extras > 0 && melhor != null) {
+            net.minecraft.world.level.storage.loot.LootTable tabela = nivel.getServer().getLootData().getLootTable(TABELA_CHEFE);
+            for (int i = 0; i < extras; i++) {
+                net.minecraft.world.level.storage.loot.LootParams params = new net.minecraft.world.level.storage.loot.LootParams.Builder(nivel)
+                        .withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.ORIGIN, melhor.position())
+                        .create(net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.CHEST);
+                for (net.minecraft.world.item.ItemStack it : tabela.getRandomItems(params)) net.minecraftforge.items.ItemHandlerHelper.giveItemToPlayer(melhor, it);
+            }
+            melhor.sendSystemMessage(Component.literal("✦ Você foi quem mais feriu o chefe ✦" + geracao + ": ganhou " + extras + (extras == 1 ? " prêmio extra" : " prêmios extras") + " na mochila.").withStyle(ChatFormatting.LIGHT_PURPLE));
+        }
+        // todos que ajudaram (5% do dano ou mais) ganham moedas e XP, mais quanto maior a geração
+        float total = 0;
+        for (String k : danos.getAllKeys()) total += danos.getFloat(k);
+        int pagos = 0;
+        for (String k : danos.getAllKeys()) {
+            if (total <= 0 || danos.getFloat(k) < total * 0.05f) continue;
+            try {
+                net.minecraft.server.level.ServerPlayer j = nivel.getServer().getPlayerList().getPlayer(java.util.UUID.fromString(k));
+                if (j == null) continue;
+                long moedas = 500L * (1 + Math.max(0, geracao)), xp = 500L * (1 + Math.max(0, geracao));
+                br.com.frxcode.frxworld.moedas.Moedas.dar(j, moedas);
+                br.com.frxcode.frxworld.progressao.Progressao.ganharXp(j, xp);
+                j.sendSystemMessage(Component.literal("⚔ Pela ajuda contra o chefe (" + Math.round(100 * danos.getFloat(k) / total) + "% do dano): +" + br.com.frxcode.frxworld.moedas.Moedas.texto(moedas) + " e +" + xp + " XP.").withStyle(ChatFormatting.GREEN));
+                pagos++;
+            } catch (IllegalArgumentException ignorado) { }
+        }
+        if (pagos > 0) FrxWorld.LOG.info("Chefe de masmorra ✦{}: {} jogador(es) pagos pela participação.", geracao, pagos);
+        if (!posto) return;
+        String nomeMelhor = melhor == null ? null : br.com.frxcode.frxworld.acesso.Personagens.nome(melhor);
+        String texto = "☠ O chefe caiu! Um baú de tesouro apareceu onde ele tombou." + (extras > 0 && nomeMelhor != null ? " " + nomeMelhor + ", quem mais feriu, levou " + extras + " prêmio(s) extra(s) da geração ✦" + geracao + "." : "");
+        for (net.minecraft.server.level.ServerPlayer j : nivel.players())
+            if (j.distanceToSqr(b.getX(), b.getY(), b.getZ()) < 64 * 64) j.sendSystemMessage(Component.literal(texto).withStyle(ChatFormatting.GOLD));
     }
 
     /** Poço 5x5 com escada da entrada (piso) até achar uma sala vazia dentro da estrutura. */

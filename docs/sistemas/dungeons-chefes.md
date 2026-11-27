@@ -72,7 +72,7 @@ São monstros comuns promovidos e não dependem de dungeon. Veja [progressao-zon
 
 - Vale para as masmorras do `frx_masmorras.txt` (as que ficam embaixo dos reinos e do coliseu de Tempest).
 - Quando o chefe morre a até 110 blocos da masmorra, o servidor guarda o tipo, o nível e o lugar onde ele apareceu pela primeira vez.
-- **7 dias reais** depois, o chat avisa que ele voltou e ele nasce assim que alguém chegar perto (o pedaço do mundo precisa estar carregado).
+- **24 horas reais** depois (desde a 3.0.14; antes eram 7 dias), o chat avisa que ele voltou e ele nasce assim que alguém chegar perto (o pedaço do mundo precisa estar carregado).
 - **Volta mais forte:** cada renascimento é uma geração nova (até a 10ª): +25% de vida, +15% de dano, +2 de armadura e +5% de resistência a empurrão por geração. O nome ganha a marca (ex.: "Ignis ✦3"), o aviso no chat diz o tamanho do reforço e a barra da masmorra mostra a geração. A geração fica gravada no chefe e passa de uma morte para a outra (`geracao` em `frx_chefes_masmorra.json`). Chefe que já tinha morrido antes desta regra volta como ✦1.
 - Conta como chefe: tudo que tem a marca `forge:bosses` (Ignis, Maledictus, Harbinger etc.) o Ferrous Wroughtnaut e o Lich (The Graveyard). Chefes de evento do próprio mod não entram.
 - Um de cada tipo por masmorra: se já houver um vivo ali (invocado por jogador no altar, por exemplo), não nasce outro.
@@ -100,15 +100,34 @@ São monstros comuns promovidos e não dependem de dungeon. Veja [progressao-zon
 
 ### Contador do chefe (2.0.10)
 
-Com o chefe morto, quem está dentro da masmorra vê no alto da tela uma barra roxa com o nome dele e o tempo que falta para voltar, contando a cada segundo. A barra enche conforme os 7 dias passam e some quando ele renasce.
+Com o chefe morto, quem está dentro da masmorra vê no alto da tela uma barra roxa com o nome dele e o tempo que falta para voltar, contando a cada segundo. A barra enche conforme as 24 h passam e some quando ele renasce.
 
 ## Chefes do Twilight Forest renascem (3.0.10)
 
 `reinos/ChefesCrepusculo.java`. No mod original, o bloco que invoca o chefe some depois da luta e ele nunca mais volta. No FRX-WORLD:
 
 - Vale para Naga, Lich, Minoshroom, Hydra, Cavaleiros Fantasmas, Ur-Ghast, Yeti Alfa e Rainha da Neve que nasceram do invocador da construção (chefe de ovo ou comando não tem "casa" e não renasce; cópias do Lich não contam).
-- Na morte, guarda onde ficava o invocador. **3 dias reais** depois, o servidor avisa no chat e recoloca o invocador assim que o lugar estiver carregado; o chefe aparece quando alguém chega perto, do jeito normal do mod.
+- Na morte, guarda onde ficava o invocador. **24 horas reais** depois (desde a 3.0.14; antes eram 3 dias), o servidor avisa no chat e recoloca o invocador assim que o lugar estiver carregado; o chefe aparece quando alguém chega perto, do jeito normal do mod.
 - A construção é reativada (`tffeature conquer reactivate`), então volta a ter os monstros dela.
 - Mesma regra de gerações das masmorras: cada volta é mais forte (até ✦10, +25% de vida e +15% de dano por geração).
 - Chefes mortos antes da 3.0.10 não têm registro e não voltam sozinhos.
 - Estado em `<mundo>/frx_chefes_crepusculo.json`. Admin: `/frx crepusculo chefes` (lista) e `/frx crepusculo renascer` (libera todos os pendentes agora).
+
+## Prêmio por geração e página Chefes (3.0.13)
+
+- Um baú de prêmio do Lootr (cada jogador abre o seu). Chefe da geração ✦N dá ainda **N/2 prêmios extras** (até 5), direto na mochila de quem mais o feriu (dano somado em `frx_danos` no chefe).
+- Chefe vivo há **3 dias** sem ser derrotado cai uma geração (vale também no Twilight).
+- `/chefes` mostra a situação no jogo; 10 min antes de um chefe voltar, aviso no chat.
+- A luta é contada a partir do primeiro golpe de jogador. Na morte ficam gravados o golpe final (nome do personagem), a duração e a geração (`_ultimo|<masmorra>|<tipo>` em `frx_chefes_masmorra.json`).
+- O site mostra tudo em `/chefes`: vivo ou derrotado, geração, contagem até voltar e a última queda.
+- Chefes do Twilight mortos antes da 3.0.10: `/frx crepusculo registrar <chefe>` no lugar onde o invocador ficava.
+
+## Avisos no Discord (3.0.13)
+
+- Em `server/config/frxworld-common.toml`, `discord.webhook = "https://discord.com/api/webhooks/..."` (fica fora do git). Vazio = desligado.
+- Avisa: invasão começando, Titã, chefe mundial (aviso de que vai surgir), expedição nova e chefe de masmorra ou do Twilight que voltou.
+
+## Prêmio de participação e escudos (3.0.15)
+
+- Quem causou 5% do dano do chefe ou mais ganha **500 cobre e 500 XP × (1 + geração)**, além do baú.
+- Baús das masmorras e do chefe podem trazer escudos de mod (Spartan, Forti, New Shield Variants, Superior).

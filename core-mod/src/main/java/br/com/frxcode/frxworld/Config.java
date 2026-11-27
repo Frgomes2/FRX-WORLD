@@ -41,6 +41,16 @@ public final class Config {
             .comment("Multiplicador geral de XP ganho (eventos de XP em dobro = 2.0).")
             .defineInRange("progressao.xpMultiplicador", 1.0, 0.0, 100.0);
 
+    // ------------------------------------------------------------------ discord
+    public static final ForgeConfigSpec.ConfigValue<String> DISCORD_WEBHOOK = B
+            .comment("Endereço do webhook do Discord para avisar invasões, Titã, chefe mundial, expedições e chefes que voltam. Vazio = desligado.")
+            .define("discord.webhook", "");
+
+    // ------------------------------------------------------------------ manutenção
+    public static final ForgeConfigSpec.ConfigValue<String> REINICIO_DIARIO = B
+            .comment("Hora do reinício automático de madrugada (HH:MM, horário de Brasília). Só com o servidor vazio, uma vez por dia. Vazio = desligado.")
+            .define("manutencao.reinicioDiario", "05:00");
+
     public static final ForgeConfigSpec SPEC = B.build();
 
     private Config() {}

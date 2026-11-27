@@ -6,10 +6,32 @@ Formato: versão, depois o que entrou. A versão do mod fica em `core-mod/gradle
 
 > **Situação dos testes (10/11/2026):** a última versão compilada e testada no PC é a **0.33.0** (`pack/mods/frxworld-0.33.0.jar`). As versões **0.34 a 0.40** ainda não rodaram no jogo. O roteiro de teste está no checklist "FRX-WORLD — Checklist de testes".
 
-## 3.0.13 (27/11) — Terreno sem monstros e baú de chefe protegido (aguardando reinício)
+## 3.0.15 (27/11) — Escudos na progressão e prêmio de participação
+
+- `ClassesEquip.ESCUDOS_SUPERIORES`: classe dos escudos de energia do Superior Shields (Curios). `AneisUnicos` barra equipar acima do rank (`CurioEquipEvent`) e devolve à mochila os já postos (espaço `superior_shield`, a cada 2 s).
+- `Lojas.ESCUDOS`: escudos de mod no Armeiro, por patamar do nível (atual e anterior), filtrados pelo rank como o resto.
+- Loot: `chests/masmorra` ganha um sorteio de escudo (60 em 113 de não vir nada); `chests/masmorra_chefe` ganha um sorteio de escudo raro.
+- `Masmorras.colocarBauDoChefe`: quem fez 5% do dano ou mais ganha 500 cobre e 500 XP vezes (1 + geração).
+- `/chefes`: nome padrão de cada masmorra (`NOMES_PADRAO`) quando não há registro.
+
+## 3.0.14 (27/11) — Chefes voltam todo dia
+
+- `ChefesMasmorra.ESPERA` e `ChefesCrepusculo.ESPERA`: 24 h (eram 7 e 3 dias). Mortes já registradas passam a valer a regra nova. Site `/chefes` e textos atualizados.
+- Geração que cai: chefe vivo há 3 dias sem ser derrotado perde uma geração (`_vivo|<masmorra>|<tipo>` com `geracao` e `desde`; no Twilight, `colocadoEm`). O chefe carregado é reajustado na hora (`ChefesMasmorra.reajustar`).
+- Prêmio: um baú do Lootr só (cada jogador abre o seu); os extras da geração (N/2, até 5) vão direto para a mochila de quem mais feriu (`frx_danos` no chefe). `Masmorras.chefeDerrotado` usa `ChefesMasmorra.ehChefe` (agora o Wroughtnaut e o Lich também deixam baú).
+- `/chefes` (jogadores): situação dos chefes dos reinos e do Twilight. Aviso no chat 10 min antes de um chefe voltar.
+- `ReinicioDiario`: pede `reiniciar` em `controle/pedido.txt` às 05:00 (config `manutencao.reinicioDiario`), só com o servidor vazio, ligado há 3 h ou mais, uma vez por dia (`<mundo>/frx_reinicio_diario.txt`).
+
+## 3.0.13 (27/11) — Página dos Chefes, terreno sem monstros e baú de chefe protegido
 
 - `Terrenos`: opção do dono `semMonstros` (botão "Barrar monstros" em Meus terrenos; `MONSTROS = 9`). `MobSpawnEvent.FinalizeSpawn` cancela monstro comum nascido por NATURAL, PATROL, REINFORCEMENT, EVENT e CHUNK_GENERATION; a cada 5 s some quem entrou andando (fora chefes, com nome, domados e tags `frx_`). `TelaTerrenos`: quatro botões na aba Meus terrenos.
 - `Masmorras`: o baú de prêmio do chefe espera o corpo sumir + 3 s (no máximo 30 s) e fica 2 min protegido de explosão (`ExplosionEvent.Detonate`).
+- `Masmorras.colocarBauDoChefe`: chefe da geração ✦N deixa 1 + N/2 baús (Lootr), sem encostar um no outro.
+- `ChefesMasmorra`: conta a luta a partir do primeiro golpe de jogador (`frx_luta_ini`) e grava a última queda em `_ultimo|<masmorra>|<tipo>` (geração, matador, duração, quando); `ChefesCrepusculo` grava matador e duração no registro. Log com duração e golpe final.
+- `ChefesCrepusculo`: `/frx crepusculo registrar <chefe>` registra, onde o admin está, um chefe do Twilight morto antes da regra (volta já na ✦1).
+- `ClassesEquip`: escudo acima do rank não defende (`ShieldBlockEvent`).
+- `acesso/Discord.java` + `discord.webhook` em `frxworld-common.toml`: avisos de invasão, Titã, chefe mundial, expedição nova e chefes que voltam (vazio = desligado; mesmo aviso no máximo a cada 10 min).
+- Site: página `/chefes` (`lib/chefes.ts`, `components/publico/chefes.tsx`), no menu e no sitemap.
 - `aventura/X1Diag.java`: diagnóstico temporário do "X1 sem dano" (registra cada etapa do golpe entre duelistas com `[X1DIAG]`). Remover depois de achar a causa.
 
 ## 3.0.12 (27/11) — Escudos em português

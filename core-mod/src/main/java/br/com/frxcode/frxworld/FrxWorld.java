@@ -126,6 +126,7 @@ public class FrxWorld {
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.reinos.Masmorras());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.reinos.ChefesMasmorra());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.reinos.ChefesCrepusculo());
+        MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.ReinicioDiario());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.reinos.Bencao());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.criaturas.Pokebola());
         MinecraftForge.EVENT_BUS.register(new br.com.frxcode.frxworld.acesso.ComandosArquivo());

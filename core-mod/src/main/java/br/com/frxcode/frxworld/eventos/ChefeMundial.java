@@ -239,6 +239,7 @@ public class ChefeMundial {
         }
         todos(s, Component.literal("☠ " + nome + " vai surgir em " + minutos + " min em " + texto(pos)
                 + ". Reúnam-se! Depois de surgir, ele foge em " + (int) num("duracaoMinutos", 60) + " min. A recompensa é repartida pelo dano causado.").withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD));
+        br.com.frxcode.frxworld.acesso.Discord.avisar("☠️ **Chefe mundial:** " + nome + " vai surgir em " + minutos + " min. Reúnam-se!");
         return true;
     }
 

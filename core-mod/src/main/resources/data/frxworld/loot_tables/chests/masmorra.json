@@ -271,6 +271,85 @@
           "weight": 1
         }
       ]
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:empty",
+          "weight": 60
+        },
+        {
+          "type": "minecraft:item",
+          "name": "spartanshields:iron_basic_shield",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "name": "spartanshields:golden_basic_shield",
+          "weight": 6
+        },
+        {
+          "type": "minecraft:item",
+          "name": "spartanshields:iron_tower_shield",
+          "weight": 5
+        },
+        {
+          "type": "minecraft:item",
+          "name": "spartanshields:diamond_basic_shield",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "name": "spartanshields:diamond_tower_shield",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "fortishields:iron_shield",
+          "weight": 6
+        },
+        {
+          "type": "minecraft:item",
+          "name": "fortishields:diamond_shield",
+          "weight": 3
+        },
+        {
+          "type": "minecraft:item",
+          "name": "fortishields:slime_shield",
+          "weight": 3
+        },
+        {
+          "type": "minecraft:item",
+          "name": "new_shield_variants:iron_shield",
+          "weight": 5
+        },
+        {
+          "type": "minecraft:item",
+          "name": "new_shield_variants:blaze_shield",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "new_shield_variants:ender_shield",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "new_shield_variants:tnt_shield",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "superiorshields:iron_shield",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "name": "superiorshields:diamond_shield",
+          "weight": 2
+        }
+      ]
     }
   ]
 }

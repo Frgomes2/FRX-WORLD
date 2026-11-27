@@ -16,10 +16,35 @@ export type NotaAtualizacao = { versao: string; data: string; hora?: string; tit
 
 export const NOTAS: NotaAtualizacao[] = [
   {
-    versao: "3.0.13", data: "27/11/2026", hora: "", titulo: "Terreno sem monstros",
+    versao: "3.0.15", data: "27/11/2026", hora: "08:45:34", titulo: "Escudos na progressão e prêmio para quem ajuda",
+    itens: [
+      "Escudos de energia do Superior Shields agora têm classe (F a S) como os outros escudos: acima do seu rank da Guilda não dá para equipar, e o que já estava posto volta para a mochila.",
+      "Escudos novos à venda no Armeiro, do patamar do seu nível (o rank da Guilda filtra os de classe alta), e também nos baús das masmorras e no baú dos chefes (escudos de netherite, de cabeça de dragão, de shulker e outros).",
+      "Chefes das masmorras: todos que ajudaram (5% do dano ou mais) ganham moedas e XP, mais quanto maior a geração do chefe.",
+      "No /chefes, o chefe que ainda não teve luta registrada aparece com o nome certo.",
+    ],
+  },
+  {
+    versao: "3.0.14", data: "27/11/2026", hora: "08:34:34", titulo: "Chefes voltam todo dia",
+    itens: [
+      "Os chefes das masmorras dos reinos e da Floresta do Crepúsculo agora renascem 24 horas depois de derrotados (antes eram 7 e 3 dias): morreu hoje, amanhã está de volta, e cada volta continua mais forte.",
+      "Chefe que fica 3 dias de volta sem ninguém derrotar cai uma geração, para não ficar impossível.",
+      "Prêmio dos chefes: um baú de tesouro para cada jogador (como antes), e quem mais feriu o chefe ganha prêmios extras na mochila conforme a geração (1 a cada 2 gerações, até 5).",
+      "Comando /chefes: mostra no jogo quem está vivo, a geração e quanto falta para cada chefe voltar.",
+      "Aviso no chat 10 minutos antes de um chefe voltar.",
+      "Reinício automático às 5h da manhã, só com o servidor vazio, para manter o servidor leve.",
+    ],
+  },
+  {
+    versao: "3.0.13", data: "27/11/2026", hora: "08:18:12", titulo: "Página dos Chefes, terreno sem monstros e mais prêmio",
     itens: [
       "Terrenos: botão novo \"Barrar monstros\" em Meus terrenos. Com ele ligado, monstros não nascem nos seus terrenos (noite, patrulhas, hordas) e os que entram andando somem. Gerador de monstros, ovo e chefes continuam valendo.",
       "Corrigido: alguns chefes das masmorras dos reinos explodem ao morrer e destruíam o baú de prêmio. Agora o baú só aparece depois que o corpo some e fica protegido de explosões por 2 minutos.",
+      "Chefe que voltou mais forte deixa mais baús de tesouro: 1 baú a mais a cada 2 gerações (até 6 baús na ✦10). Cada jogador abre o seu.",
+      "Nova página Chefes no site: cada chefe dos reinos e da Floresta do Crepúsculo, se está vivo, a geração, quanto falta para voltar, quem deu o golpe final e quanto durou a luta.",
+      "Escudos têm classe (F a S) como armas e armaduras: escudo acima do seu rank da Guilda não defende.",
+      "Chefes do Twilight derrotados antes da regra de renascer podem ser registrados pelo admin para voltar.",
+      "Avisos no Discord (quando configurado): invasões, Titã, chefe mundial, expedição nova e chefes que voltam.",
     ],
   },
   {

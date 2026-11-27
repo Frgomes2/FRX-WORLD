@@ -165,6 +165,7 @@ public class Invasoes {
         }
         s.getPlayerList().broadcastSystemMessage(Component.literal("⚔ " + r.nome() + " está sob ataque perto de " + centro.getX() + ", " + centro.getZ()
                 + "! Defensores ganham moedas e reputação.").withStyle(ChatFormatting.RED, ChatFormatting.BOLD), false);
+        br.com.frxcode.frxworld.acesso.Discord.avisar("⚔️ **" + r.nome() + " está sob ataque!** Uma horda invade a capital. Defensores ganham moedas e reputação.");
         return true;
     }
 

@@ -184,6 +184,13 @@ public class AneisUnicos {
         try {
             if (!(ev.getEntity() instanceof Player p)) return;
             Object contexto = ev.getClass().getMethod("getSlotContext").invoke(ev);
+            // escudo de energia (Superior Shields) acima do rank da Guilda: não equipa
+            ItemStack item = (ItemStack) ev.getClass().getMethod("getStack").invoke(ev);
+            if (p instanceof ServerPlayer sp0 && superior(item) && !br.com.frxcode.frxworld.progressao.ClassesEquip.permitido(sp0, item)) {
+                ev.setResult(Event.Result.DENY);
+                br.com.frxcode.frxworld.progressao.ClassesEquip.avisarClasse(sp0, item);
+                return;
+            }
             if (!ESPACO.equals(contexto.getClass().getMethod("identifier").invoke(contexto))) return;
             int indice = (int) contexto.getClass().getMethod("index").invoke(contexto);
             ItemStack novo = (ItemStack) ev.getClass().getMethod("getStack").invoke(ev);
@@ -234,7 +241,7 @@ public class AneisUnicos {
     @SubscribeEvent
     public void conferirVoo(net.minecraftforge.event.TickEvent.ServerTickEvent ev) {
         if (ev.phase != net.minecraftforge.event.TickEvent.Phase.END || ++relogio % 40 != 0) return;
-        for (ServerPlayer p : ev.getServer().getPlayerList().getPlayers()) if (p.tickCount > 60) { ajustarEspacos(p, true); vidaDoAnel(p); }
+        for (ServerPlayer p : ev.getServer().getPlayerList().getPlayers()) if (p.tickCount > 60) { ajustarEspacos(p, true); vidaDoAnel(p); conferirEscudoSuperior(p); }
         for (ServerPlayer p : ev.getServer().getPlayerList().getPlayers()) {
             if (!semRankParaVoar(p)) continue;
             IItemHandlerModifiable postos = aneis(p);
@@ -256,6 +263,31 @@ public class AneisUnicos {
             p.sendSystemMessage(Component.literal("O Anel de Voo voltou para a sua mochila: ele só funciona a partir do rank B da Guilda (o seu é "
                     + br.com.frxcode.frxworld.progressao.Guilda.rank(p) + ").").withStyle(ChatFormatting.YELLOW));
         }
+    }
+
+    private static boolean superior(ItemStack s) {
+        if (s.isEmpty()) return false;
+        net.minecraft.resources.ResourceLocation id = net.minecraftforge.registries.ForgeRegistries.ITEMS.getKey(s.getItem());
+        return id != null && id.getNamespace().equals("superiorshields");
+    }
+
+    /** Escudo de energia já posto acima do rank (rank caiu, ou posto antes da regra): volta para a mochila. */
+    private static void conferirEscudoSuperior(ServerPlayer p) {
+        try {
+            Object talvez = Class.forName("top.theillusivec4.curios.api.CuriosApi").getMethod("getCuriosInventory", LivingEntity.class).invoke(null, p);
+            Object inventario = ((LazyOptional<?>) talvez).resolve().orElse(null);
+            if (inventario == null) return;
+            Object grupo = ((Optional<?>) inventario.getClass().getMethod("getStacksHandler", String.class).invoke(inventario, "superior_shield")).orElse(null);
+            if (grupo == null) return;
+            if (!(grupo.getClass().getMethod("getStacks").invoke(grupo) instanceof IItemHandlerModifiable postos)) return;
+            for (int i = 0; i < postos.getSlots(); i++) {
+                ItemStack s = postos.getStackInSlot(i);
+                if (!superior(s) || br.com.frxcode.frxworld.progressao.ClassesEquip.permitido(p, s)) continue;
+                postos.setStackInSlot(i, ItemStack.EMPTY);
+                if (!p.getInventory().add(s)) p.drop(s, false);
+                br.com.frxcode.frxworld.progressao.ClassesEquip.avisarClasse(p, s);
+            }
+        } catch (Throwable t) { /* sem o Curios ou API diferente */ }
     }
 
     @SubscribeEvent

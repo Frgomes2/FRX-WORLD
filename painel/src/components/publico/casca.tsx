@@ -12,6 +12,7 @@ export const PAGINAS = [
   { chave: "expedicoes", href: "/expedicoes", nome: "Expedições", icone: "🧭", menu: true, destaque: true },
   { chave: "rankings", href: "/rankings", nome: "Rankings", icone: "🏆", menu: true },
   { chave: "aventureiros", href: "/aventureiros", nome: "Aventureiros", icone: "🛡️", menu: true },
+  { chave: "chefes", href: "/chefes", nome: "Chefes", icone: "☠️", menu: true },
   { chave: "mundo", href: "/mundo", nome: "O Mundo", icone: "🌍", menu: true },
   { chave: "biblioteca", href: "/biblioteca", nome: "Biblioteca", icone: "📚", menu: true },
   { chave: "novidades", href: "/novidades", nome: "Novidades", icone: "📰", menu: false },

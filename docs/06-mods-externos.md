@@ -164,6 +164,7 @@ Escolhidos do top 100 do CurseForge (Forge 1.20.1, por popularidade).
 | Superior Shields | `superior-shields` | os dois | Escudos que também aparecem em baús de masmorra; tudo configurável. Pede Kotlin for Forge e Curios (já instalado) |
 | MonoLib, Kotlin for Forge | `monolib`, `kotlin-for-forge` | os dois | Bibliotecas exigidas acima |
 
+- **Classe e progressão (3.0.13–3.0.15):** escudos de segurar têm classe pela durabilidade e não defendem acima do rank; os do Superior Shields têm classe por tabela (`ClassesEquip.ESCUDOS_SUPERIORES`) e não equipam acima do rank. Vendidos no Armeiro (`Lojas.ESCUDOS`) e sorteados nos baús das masmorras e do chefe.
 - Conferir no primeiro início se convivem com o Shield Expansion, o Sword Blocking Mechanics e o Golden Age Combat (aparar e bloquear).
 - Conferir no `logs/pack.log` se cada nome em "successfully added" é o esperado.
 - Textos traduzidos em `frxtraducao` (256 linhas, 3.0.12). Os textos do livro do Botania ficam em inglês (o Botania não está no pack).

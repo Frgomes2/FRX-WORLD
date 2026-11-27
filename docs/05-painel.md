@@ -101,3 +101,7 @@ A lista de Jogadores, o Dinheiro e os rankings da Visão geral mostram uma linha
 - Painel, login e conta não entram no Google (`noindex`).
 - Depois de publicar: cadastrar o domínio no Google Search Console e enviar `https://craft.frgomes.com.br/sitemap.xml`.
 
+
+## Chefes (site público, 3.0.13)
+
+- `/chefes` (menu "Chefes"): chefes das masmorras dos reinos e da Floresta do Crepúsculo, vivo ou derrotado, geração, contagem até voltar e a última queda (golpe final e duração). Lê `frx_chefes_masmorra.json` e `frx_chefes_crepusculo.json` do mundo (`lib/chefes.ts`). Mostra só o nome do personagem, nunca posição nem UUID.

@@ -23,6 +23,10 @@ No dia a dia só se usam os **dois atalhos da área de trabalho**. Eles são cri
 6. **Servidor (3b):** liga o servidor Minecraft.
 7. **Navegador (4):** abre o painel.
 
+### Reinício automático de madrugada (3.0.14)
+
+O próprio mod (`ReinicioDiario`) escreve `reiniciar` em `controle/pedido.txt` às **05:00** (horário de Brasília), só com o servidor vazio, ligado há pelo menos 3 h, uma vez por dia (tenta até as 07:00). O agente faz o resto: salva, faz backup e liga de novo, com as atualizações prontas. Hora em `manutencao.reinicioDiario` no `server/config/frxworld-common.toml`; vazio desliga.
+
 ### O que o `desligar-frx.bat` faz
 
 1. Para o servidor Minecraft salvando o mundo. Usa o `SERVIDOR_TOKEN` do `painel\.env`. Se a porta 25565 continuar aberta 30 s depois (Minecraft que ficou sem painel), encerra o processo dela à força.

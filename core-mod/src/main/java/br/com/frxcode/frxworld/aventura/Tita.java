@@ -194,6 +194,7 @@ public class Tita {
         srv.getPlayerList().broadcastSystemMessage(Component.literal("⚠ Um Titã apareceu perto de " + (int) x + ", " + (int) z + " e marcha para as muralhas de Lubelius! "
                 + "Ele tem " + (int) vidaMax + " de vida. Golpe na NUCA (por trás e do alto) vale 3x. Se ele chegar, Lubelius para por 30 minutos.").withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD), false);
         FrxWorld.LOG.info("Titã começou em {} {} com {} de vida.", (int) x, (int) z, (int) vidaMax);
+        br.com.frxcode.frxworld.acesso.Discord.avisar("⚠️ **Um Titã apareceu** e marcha para as muralhas de Lubelius! Ele tem " + (int) vidaMax + " de vida. Se ele chegar, Lubelius para por 30 minutos.");
         return true;
     }
 

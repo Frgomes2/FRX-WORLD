@@ -14,6 +14,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${URL_SITE}/rankings`, changeFrequency: "hourly", priority: 0.7 },
     { url: `${URL_SITE}/aventureiros`, changeFrequency: "daily", priority: 0.6 },
     { url: `${URL_SITE}/mundo`, changeFrequency: "daily", priority: 0.7 },
+    { url: `${URL_SITE}/chefes`, changeFrequency: "hourly", priority: 0.7 },
     { url: `${URL_SITE}/biblioteca`, changeFrequency: "weekly", priority: 0.6 },
     { url: `${URL_SITE}/entrar`, changeFrequency: "monthly", priority: 0.7 },
     { url: `${URL_SITE}/novidades`, changeFrequency: "weekly", priority: 0.5 },

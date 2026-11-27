@@ -147,7 +147,7 @@ public class EntradasMasmorra {
         return null;
     }
 
-    private static String nome(String id) {
+    static String nome(String id) {
         JsonObject m = def(id);
         return m != null && m.has("nome") ? m.get("nome").getAsString() : id;
     }

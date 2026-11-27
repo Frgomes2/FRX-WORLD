@@ -15,6 +15,7 @@ import { conferirMural, type FeitoPublico } from "@/lib/feitos";
 import { evolucao, historicoDe, registrarMarcos, ultimasCronicas, type CronicaPublica, type Marco } from "@/lib/cronicas";
 import { GOLPES, LOCAIS, pngDaSkin } from "@/lib/criaturas-codex";
 import { pngDaTextura } from "@/lib/codex";
+import { chefesPublicos, type ChefePublico } from "@/lib/chefes";
 
 /**
  * Tudo o que o site público (/) mostra. Regra: nada de e-mail, UUID, IP, endereço do servidor,
@@ -110,6 +111,10 @@ function pastaMundo() {
   let props = "";
   try { props = fs.readFileSync(path.join(pasta, "server.properties"), "utf8"); } catch { /* sem arquivo */ }
   return path.join(pasta, props.match(/^level-name=(.*)$/m)?.[1]?.trim() || "world");
+}
+/** Chefes das masmorras dos reinos e do Crepúsculo (página /chefes). */
+export function chefesDoSite(): ChefePublico[] {
+  try { return chefesPublicos(pastaMundo()); } catch { return []; }
 }
 function lerJson<T>(arq: string): T | null {
   try { return JSON.parse(fs.readFileSync(arq, "utf8")) as T; } catch { return null; }

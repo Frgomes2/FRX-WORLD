@@ -704,6 +704,7 @@ public class Expedicao {
         enviar(s, numero, inicio, proxima, 0);
         s.getPlayerList().broadcastSystemMessage(Component.literal("🌍 A expedição #" + numero + " às Terras Inexploradas está aberta, com terras nunca vistas. Próxima troca: "
                 + quando(proxima) + ".").withStyle(ChatFormatting.GREEN), false);
+        br.com.frxcode.frxworld.acesso.Discord.avisar("🌍 **A expedição #" + numero + " às Terras Inexploradas está aberta**, com terras nunca vistas. Próxima troca: " + quando(proxima) + ".");
     }
 
     @SubscribeEvent

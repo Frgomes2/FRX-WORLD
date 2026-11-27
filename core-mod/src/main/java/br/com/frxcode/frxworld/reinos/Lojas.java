@@ -115,6 +115,16 @@ public final class Lojas {
     private static final String[] PECAS_FERREIRO = {"sword", "axe", "pickaxe", "shovel"}, PECAS_ARMEIRO = {"helmet", "chestplate", "leggings", "boots"};
     private static final int[] BASE_FERREIRO = {60, 70, 70, 30}, BASE_ARMEIRO = {80, 130, 110, 70};
 
+    /** Escudos à venda no armeiro: id, patamar (como TIER_NIVEL) e preço base (vezes TIER_PRECO do patamar). */
+    private static final Object[][] ESCUDOS = {
+            {"spartanshields:iron_basic_shield", 0, 90}, {"fortishields:iron_shield", 0, 90}, {"new_shield_variants:iron_shield", 0, 90},
+            {"spartanshields:iron_tower_shield", 1, 120}, {"spartanshields:golden_basic_shield", 1, 100}, {"new_shield_variants:gold_shield", 1, 100},
+            {"spartanshields:diamond_basic_shield", 2, 110}, {"fortishields:diamond_shield", 2, 110}, {"new_shield_variants:diamond_shield", 2, 110},
+            {"spartanshields:diamond_tower_shield", 3, 130}, {"new_shield_variants:blaze_shield", 3, 120},
+            {"spartanshields:netherite_basic_shield", 4, 120}, {"fortishields:netherite_shield", 4, 120}, {"new_shield_variants:netherite_shield", 4, 120},
+            {"spartanshields:netherite_tower_shield", 5, 140}, {"new_shield_variants:ender_shield", 5, 130},
+    };
+
     public static int tier(int nivel) {
         int t = 0;
         for (int i = 0; i < TIER_NIVEL.length; i++) if (nivel >= TIER_NIVEL[i]) t = i;
@@ -201,7 +211,16 @@ public final class Lojas {
                 for (Catalogo.Entrada e : Catalogo.escolher(armeiro ? Catalogo.armaduras(servidor) : Catalogo.armas(servidor), nivel, piso, 12, semente))
                     l.add(venda(new ItemStack(e.item(), e.qtd()), e.preco()));
             }
-            if (armeiro) l.add(venda(new ItemStack(Items.SHIELD), 50));
+            if (armeiro) {
+                l.add(venda(new ItemStack(Items.SHIELD), 50));
+                // escudos de mod do patamar do jogador (e do anterior); o filtro de rank da Guilda tira os de classe alta
+                for (Object[] e : ESCUDOS) {
+                    int t = (int) e[1];
+                    if (t > atual || t < atual - 1) continue;
+                    Item it = item((String) e[0]);
+                    if (it != null) l.add(venda(new ItemStack(it), (int) Math.max(10, Math.round((int) e[2] * TIER_PRECO[t] / 10.0) * 10)));
+                }
+            }
             else { l.add(venda(new ItemStack(Items.BOW), 50)); l.add(venda(new ItemStack(Items.ARROW, 16), 5)); }
             return l;
         } finally { fatorVenda = 1; }
